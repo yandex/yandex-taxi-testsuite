@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>testsuite.plugins.common &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex/" />
+    <link rel="search" title="Search" href="../../../../search/" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for testsuite.plugins.common</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">json_util</span>
+<span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">yaml_util</span>
+
+<span class="n">BASE_PORT</span> <span class="o">=</span> <span class="mi">30000</span>
+<span class="n">MAX_PORTS_NUMBER</span> <span class="o">=</span> <span class="mi">100</span>
+
+
+<span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">NoEnabledPorts</span><span class="p">(</span><span class="n">BaseError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised if there are not free ports for worker&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">LoadJsonError</span><span class="p">(</span><span class="n">BaseError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">LoadYamlError</span><span class="p">(</span><span class="n">BaseError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_addoption</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
+        <span class="s1">&#39;--build-dir&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;.build&#39;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to build directory.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_configure</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">addinivalue_line</span><span class="p">(</span>
+        <span class="s1">&#39;markers&#39;</span><span class="p">,</span> <span class="s1">&#39;nofilldb: test does not need db initialization&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">static_dir</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">fullname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">fspath</span><span class="p">)</span>
+    <span class="n">test_module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fullname</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_module_dir</span><span class="p">,</span> <span class="s1">&#39;static&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">get_search_pathes</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">static_dir</span><span class="p">,</span> <span class="n">initial_data_path</span><span class="p">):</span>
+    <span class="n">fullname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">fspath</span><span class="p">)</span>
+    <span class="n">test_module_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fullname</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">node_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">local_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_module_name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">node_name</span><span class="p">:</span>
+        <span class="n">node_short_name</span> <span class="o">=</span> <span class="n">node_name</span><span class="p">[:</span> <span class="n">node_name</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">)]</span>
+        <span class="n">local_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_module_name</span><span class="p">,</span> <span class="n">node_short_name</span><span class="p">))</span>
+    <span class="n">local_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_module_name</span><span class="p">)</span>
+    <span class="n">local_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+    <span class="n">search_directories</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">static_dir</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span> <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">local_path</span>
+    <span class="p">]</span>
+    <span class="n">search_directories</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">initial_data_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_search_pathes</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">search_directories</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_get_search_pathes</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">initial_data_path</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_file_paths_cache</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{}</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">get_all_static_file_paths</span><span class="p">(</span><span class="n">static_dir</span><span class="p">,</span> <span class="n">_file_paths_cache</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_file_paths</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">static_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_file_paths_cache</span><span class="p">:</span>
+            <span class="n">all_files</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">dir_path</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">file_names</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">static_dir</span><span class="p">):</span>
+                <span class="n">all_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">file_names</span>
+                <span class="p">)</span>
+            <span class="n">_file_paths_cache</span><span class="p">[</span><span class="n">static_dir</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_files</span>
+        <span class="k">return</span> <span class="n">_file_paths_cache</span><span class="p">[</span><span class="n">static_dir</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">_get_file_paths</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">search_path</span><span class="p">(</span><span class="n">get_search_pathes</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">directory</span><span class="p">:</span>
+            <span class="n">path_check</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path_check</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span>
+        <span class="k">for</span> <span class="n">abs_filename</span> <span class="ow">in</span> <span class="n">get_search_pathes</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">path_check</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">abs_filename</span>
+
+    <span class="k">return</span> <span class="n">_search_path</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">_file_not_found_error</span><span class="p">(</span><span class="n">get_search_pathes</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_file_not_found_error</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">pathes</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="s1">&#39; - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">get_search_pathes</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n\n</span><span class="s1">The following pathes were examined:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">pathes</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_file_not_found_error</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">get_file_path</span><span class="p">(</span><span class="n">search_path</span><span class="p">,</span> <span class="n">_file_not_found_error</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="k">raise</span> <span class="n">_file_not_found_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{filename}</span><span class="s1"> was not found&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_get_file_path</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">get_directory_path</span><span class="p">(</span><span class="n">search_path</span><span class="p">,</span> <span class="n">_file_not_found_error</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_directory_path</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="k">raise</span> <span class="n">_file_not_found_error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Directory </span><span class="si">{filename}</span><span class="s1"> was not found&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_get_directory_path</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">open_file</span><span class="p">(</span><span class="n">get_file_path</span><span class="p">):</span>
+    <span class="c1"># pylint: disable=keyword-arg-before-vararg</span>
+    <span class="k">def</span> <span class="nf">_open_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_open_file</span>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">open_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load file from static directory.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        def test_something(load):</span>
+<span class="sd">            data = load(&#39;filename&#39;)</span>
+
+<span class="sd">    :return: Loader (function).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">open_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">_load</span></div>
+
+
+<div class="viewcode-block" id="load_binary"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load_binary">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">load_binary</span><span class="p">(</span><span class="n">load</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load binary data from static directory.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        def test_something(load_binary):</span>
+<span class="sd">            bytes_data = load_binary(&#39;data.bin&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_load_binary</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_load_binary</span></div>
+
+
+<div class="viewcode-block" id="load_json"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load_json">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">load</span><span class="p">,</span> <span class="n">mockserver_info</span><span class="p">,</span> <span class="n">mockserver_ssl_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load json doc from static directory.</span>
+
+<span class="sd">    Json loader runs ``json_util.loads(data, ..., *args, **kwargs)`` hooks.</span>
+<span class="sd">    It does:</span>
+<span class="sd">    * bson.json_util.object_hook()</span>
+<span class="sd">    * mockserver substitution</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        def test_something(load_json):</span>
+<span class="sd">            json_obj = load_json(&#39;filename.json&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_util</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+                <span class="n">content</span><span class="p">,</span>
+                <span class="n">mockserver</span><span class="o">=</span><span class="n">mockserver_info</span><span class="p">,</span>
+                <span class="n">mockserver_https</span><span class="o">=</span><span class="n">mockserver_ssl_info</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LoadJsonError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Failed to load JSON file </span><span class="si">{filename}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+
+    <span class="k">return</span> <span class="n">_load_json</span></div>
+
+
+<div class="viewcode-block" id="load_yaml"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load_yaml">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">load_yaml</span><span class="p">(</span><span class="n">load</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load yaml doc from static directory.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        def test_something(load_yaml):</span>
+<span class="sd">            yaml_obj = load_yaml(&#39;filename.yaml&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_load_yaml</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">yaml_util</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">yaml_util</span><span class="o">.</span><span class="n">ParserError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LoadYamlError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Failed to load YAML file </span><span class="si">{filename}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+    <span class="k">return</span> <span class="n">_load_yaml</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">object_substitute</span><span class="p">(</span><span class="n">mockserver_info</span><span class="p">,</span> <span class="n">mockserver_ssl_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform object substitution as in load_json.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_substitute</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json_util</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
+            <span class="n">content</span><span class="p">,</span>
+            <span class="n">mockserver</span><span class="o">=</span><span class="n">mockserver_info</span><span class="p">,</span>
+            <span class="n">mockserver_https</span><span class="o">=</span><span class="n">mockserver_ssl_info</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_substitute</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">worker_id</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;workerinput&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">workerinput</span><span class="p">[</span><span class="s1">&#39;workerid&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s1">&#39;master&#39;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_free_port</span><span class="p">(</span><span class="n">worker_id</span><span class="p">):</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">MAX_PORTS_NUMBER</span><span class="p">)</span>
+    <span class="n">worker_num</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">worker_id</span> <span class="o">==</span> <span class="s1">&#39;master&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">worker_id</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_get_free_port</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">counter</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="n">BASE_PORT</span> <span class="o">+</span> <span class="n">worker_num</span> <span class="o">*</span> <span class="n">MAX_PORTS_NUMBER</span> <span class="o">+</span> <span class="n">value</span>
+            <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">sock</span><span class="p">):</span>
+                <span class="n">result_code</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">connect_ex</span><span class="p">((</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">result_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">port</span>
+        <span class="k">raise</span> <span class="n">NoEnabledPorts</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">_get_free_port</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../">
+    <img class="logo" src="../../../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../">Documentation overview</a><ul>
+  <li><a href="../../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

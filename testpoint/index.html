@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Testpoint &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Database support" href="../databases/" />
+    <link rel="prev" title="Spawning and accessing service" href="../servicerunner/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="testpoint">
+<h1>Testpoint<a class="headerlink" href="#testpoint" title="Permalink to this headline">¶</a></h1>
+<p>Testpoint is a way to call testcase code from service being teststed.</p>
+<p>It has many uses:</p>
+<ul class="simple">
+<li><p>synchronize testcase and service states</p></li>
+<li><p>reproduce race condition</p></li>
+<li><p>pass data from service to testcase and vice versa</p></li>
+<li><p>error injection</p></li>
+</ul>
+<p>Requires service side support for testpoint. Testpoint is implemented as
+mockserver handle bound to <code class="docutils literal notranslate"><span class="pre">mockserver/testpoint</span></code> path. With simple HTTP
+interface:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">POST</span> <span class="o">/</span><span class="n">testpoint</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.0</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mockerver</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">appication</span><span class="o">/</span><span class="n">json</span>
+
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Service code example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Response</span> <span class="n">View</span><span class="o">::</span><span class="n">Handle</span><span class="p">(</span><span class="n">Request</span><span class="o">&amp;&amp;</span> <span class="n">request</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Testpoint must be enabled for test run</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">testpoint</span><span class="o">::</span><span class="n">IsEnabled</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">json</span><span class="o">::</span><span class="n">Value</span> <span class="n">data</span><span class="p">;</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;bar&quot;</span><span class="p">;</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">response</span> <span class="o">=</span> <span class="n">testpoint</span><span class="o">::</span><span class="n">Call</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">respone</span><span class="p">)</span> <span class="p">{</span>
+       <span class="c1">// process response if required</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Testcase:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handler</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">testpoint</span><span class="p">):</span>
+    <span class="nd">@testpoint</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">foo_handler</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="k">assert</span> <span class="n">foo_handler</span><span class="o">.</span><span class="n">times_called</span>
+</pre></div>
+</div>
+<div class="section" id="fixtures">
+<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="testsuite.plugins.testpoint.testpoint">
+<code class="descclassname">testsuite.plugins.testpoint.</code><code class="descname">testpoint</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/testpoint/#testpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.testpoint.testpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testpoint fixture returns testpoint session instance that works
+as decorator that registers testpoint handler. Original function is
+wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – testpoint name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>decorator</p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_foo</span><span class="p">(</span><span class="n">testpoint</span><span class="p">):</span>
+    <span class="nd">@testpoint</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">testpoint_handler</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="o">...</span>
+    <span class="c1"># testpoint_handler is AsyncCallQueue instance, e.g.:</span>
+    <span class="k">assert</span> <span class="n">testpoint_handler</span><span class="o">.</span><span class="n">has_calls</span>
+    <span class="k">assert</span> <span class="n">testpoint_handler</span><span class="o">.</span><span class="n">next_call</span> <span class="o">==</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+    <span class="n">aseert</span> <span class="n">testpoint_handler</span><span class="o">.</span><span class="n">wait_call</span><span class="p">()</span> <span class="o">==</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../reference/">API reference</a><ul>
+      <li>Previous: <a href="../servicerunner/" title="previous chapter">Spawning and accessing service</a></li>
+      <li>Next: <a href="../databases/" title="next chapter">Database support</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/testpoint.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

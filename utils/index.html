@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Utils &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Examples" href="../examples/README/" />
+    <link rel="prev" title="Database support" href="../databases/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="utils">
+<h1>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="asynccallqueue">
+<span id="id1"></span><h2>AsyncCallQueue<a class="headerlink" href="#asynccallqueue" title="Permalink to this headline">¶</a></h2>
+<p>Async callqueue wrapper. Stores information about each function call to
+synchronized queue.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@callinfo</span><span class="o">.</span><span class="n">acallqueue</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">func</span><span class="o">.</span><span class="n">has_calls</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">func</span><span class="o">.</span><span class="n">times_called</span>
+<span class="mi">1</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">func</span><span class="o">.</span><span class="n">next_call</span><span class="p">()</span>
+<span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="testsuite.utils.callinfo.AsyncCallQueue">
+<em class="property">class </em><code class="descclassname">testsuite.utils.callinfo.</code><code class="descname">AsyncCallQueue</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function wrapper that puts information about function call into async
+queue.</p>
+<p>This class provides methods to wait/check function underlying function
+calls.</p>
+<dl class="method">
+<dt id="testsuite.utils.callinfo.AsyncCallQueue.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.flush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear call queue.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testsuite.utils.callinfo.AsyncCallQueue.has_calls">
+<code class="descname">has_calls</code><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.has_calls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if call queue is not empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.utils.callinfo.AsyncCallQueue.next_call">
+<code class="descname">next_call</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.next_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.next_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pops call from queue and return its arguments dict.</p>
+<p>Raises <code class="docutils literal notranslate"><span class="pre">CallQueueError</span></code> if queue is empty</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testsuite.utils.callinfo.AsyncCallQueue.times_called">
+<code class="descname">times_called</code><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.times_called" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns call queue length.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.utils.callinfo.AsyncCallQueue.wait_call">
+<em class="property">await </em><code class="descname">wait_call</code><span class="sig-paren">(</span><em>timeout=10.0</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.wait_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.wait_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for fucntion to be called. Pops call from queue. Blocks if
+it’s empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> – timeout in seconds</p>
+</dd>
+</dl>
+<p>Raises <code class="docutils literal notranslate"><span class="pre">CallQueueTimeoutError</span></code> if queue is empty for <code class="docutils literal notranslate"><span class="pre">timeout</span></code>
+seconds.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="testsuite.utils.callinfo.acallqueue">
+<code class="descclassname">testsuite.utils.callinfo.</code><code class="descname">acallqueue</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; testsuite.utils.callinfo.AsyncCallQueue<a class="reference internal" href="../_modules/testsuite/utils/callinfo/#acallqueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.acallqueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn function into async call queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> – async or sync callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="envinfo">
+<h2>Envinfo<a class="headerlink" href="#envinfo" title="Permalink to this headline">¶</a></h2>
+<p>Envinfo plugin adds following information to test report header</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">args</span><span class="p">:</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="o">-</span><span class="n">vv</span> <span class="o">-</span><span class="n">x</span>
+<span class="n">hostname</span><span class="p">:</span> <span class="n">machine</span><span class="o">-</span><span class="n">hostname</span>
+<span class="n">git</span><span class="p">:</span> <span class="n">branch</span> <span class="n">current_branch</span><span class="p">,</span> <span class="n">commit_hash</span><span class="o">*</span><span class="p">,</span> <span class="n">base</span> <span class="n">base_commit_hash</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">git:</span></code> section</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">*</span></code> indicates uncommitted changes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base_commit_hash</span></code> points to a commit in <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch from which the
+current branch diverges</p></li>
+</ul>
+<p>To use envinfo plugin, add it to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> in <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ...</span>
+    <span class="s1">&#39;testsuite.envinfo&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Retrieving git status can be slow in docker due to network-related issues.
+If it affects you, turn git status off by <code class="docutils literal notranslate"><span class="pre">--envinfo-no-git</span></code> flag.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../reference/">API reference</a><ul>
+      <li>Previous: <a href="../databases/" title="previous chapter">Database support</a></li>
+      <li>Next: <a href="../examples/README/" title="next chapter">Examples</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

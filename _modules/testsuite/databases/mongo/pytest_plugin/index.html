@@ -1,0 +1,549 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>testsuite.databases.mongo.pytest_plugin &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex/" />
+    <link rel="search" title="Search" href="../../../../../search/" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for testsuite.databases.mongo.pytest_plugin</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">multiprocessing.pool</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">pymongo</span>
+<span class="kn">import</span> <span class="nn">pymongo.collection</span>
+<span class="kn">import</span> <span class="nn">pymongo.errors</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">testsuite</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">testsuite.environment</span> <span class="kn">import</span> <span class="n">service</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ensure_db_indexes</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">mongo_schema</span>
+
+<span class="c1"># pylint: disable=too-many-statements</span>
+
+<span class="n">DB_FILE_RE_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/db_(?P&lt;mongo_db_alias&gt;\w+)\.json$&#39;</span><span class="p">)</span>
+
+<span class="n">DEFAULT_CONFIG_SERVER_PORT</span> <span class="o">=</span> <span class="mi">27118</span>
+<span class="n">DEFAULT_MONGOS_PORT</span> <span class="o">=</span> <span class="mi">27217</span>
+<span class="n">DEFAULT_SHARD_PORT</span> <span class="o">=</span> <span class="mi">27119</span>
+
+<span class="n">SERVICE_SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;scripts/service-mongo&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base testsuite error&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">UnknownCollectionError</span><span class="p">(</span><span class="n">BaseError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">CollectionWrapper</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collections</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">alias</span><span class="p">,</span> <span class="n">collection</span> <span class="ow">in</span> <span class="n">collections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alias</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collections</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aliases</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pymongo</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collections</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">alias</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collections</span>
+
+    <span class="k">def</span> <span class="nf">get_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aliases</span>
+
+
+<span class="k">class</span> <span class="nc">CollectionWrapperFactory</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mongo_host</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mongo_host</span> <span class="o">=</span> <span class="n">mongo_host</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">connection_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mongo_host</span>
+
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">cached_property</span>
+    <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pymongo</span><span class="o">.</span><span class="n">MongoClient</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pymongo</span><span class="o">.</span><span class="n">MongoClient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mongo_host</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">create_collection_wrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">collection_names</span><span class="p">,</span> <span class="n">mongodb_settings</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CollectionWrapper</span><span class="p">:</span>
+        <span class="n">collections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">collection_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mongodb_settings</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnknownCollectionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Missing collection </span><span class="si">{name}</span><span class="s1"> in mongodb_settings fixture&#39;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="c1"># pylint: disable=unsubscriptable-object</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">mongodb_settings</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;settings&#39;</span><span class="p">]</span>
+            <span class="n">database</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]]</span>
+            <span class="n">collections</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">database</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">CollectionWrapper</span><span class="p">(</span><span class="n">collections</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_configure</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">addinivalue_line</span><span class="p">(</span>
+        <span class="s1">&#39;markers&#39;</span><span class="p">,</span> <span class="s1">&#39;noshuffledb: disable data set shuffle for marked test&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">addinivalue_line</span><span class="p">(</span>
+        <span class="s1">&#39;markers&#39;</span><span class="p">,</span> <span class="s1">&#39;filldb: specify mongo static file suffix&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">addinivalue_line</span><span class="p">(</span>
+        <span class="s1">&#39;markers&#39;</span><span class="p">,</span> <span class="s1">&#39;mongodb_collections: override mongo collections list&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_addoption</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param parser: pytest&#39;s argument parser</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">getgroup</span><span class="p">(</span><span class="s1">&#39;mongo&#39;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span><span class="s1">&#39;--mongo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Mongo connection string.&#39;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
+        <span class="s1">&#39;--no-indexes&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable index creation.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
+        <span class="s1">&#39;--no-shuffle-db&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable fixture data shuffle.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
+        <span class="s1">&#39;--no-sharding&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable collections sharding.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
+        <span class="s1">&#39;--no-mongo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable mongo startup&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_service_register</span><span class="p">(</span><span class="n">register_service</span><span class="p">):</span>
+    <span class="nd">@register_service</span><span class="p">(</span><span class="s1">&#39;mongo&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_create_mongo_service</span><span class="p">(</span>
+            <span class="n">service_name</span><span class="p">,</span>
+            <span class="n">working_dir</span><span class="p">,</span>
+            <span class="n">mongos_port</span><span class="o">=</span><span class="n">DEFAULT_MONGOS_PORT</span><span class="p">,</span>
+            <span class="n">config_server_port</span><span class="o">=</span><span class="n">DEFAULT_CONFIG_SERVER_PORT</span><span class="p">,</span>
+            <span class="n">shard_port</span><span class="o">=</span><span class="n">DEFAULT_SHARD_PORT</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">ScriptService</span><span class="p">(</span>
+            <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span>
+            <span class="n">script_path</span><span class="o">=</span><span class="n">SERVICE_SCRIPT_PATH</span><span class="p">,</span>
+            <span class="n">working_dir</span><span class="o">=</span><span class="n">working_dir</span><span class="p">,</span>
+            <span class="n">environment</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;MONGO_TMPDIR&#39;</span><span class="p">:</span> <span class="n">working_dir</span><span class="p">,</span>
+                <span class="s1">&#39;MONGOS_PORT&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">mongos_port</span><span class="p">),</span>
+                <span class="s1">&#39;CONFIG_SERVER_PORT&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_server_port</span><span class="p">),</span>
+                <span class="s1">&#39;SHARD_PORT&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">shard_port</span><span class="p">),</span>
+                <span class="o">**</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{}),</span>
+            <span class="p">},</span>
+            <span class="n">check_ports</span><span class="o">=</span><span class="p">[</span><span class="n">config_server_port</span><span class="p">,</span> <span class="n">mongos_port</span><span class="p">,</span> <span class="n">shard_port</span><span class="p">],</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="mongodb"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.mongo.pytest_plugin.mongodb">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mongodb</span><span class="p">(</span><span class="n">mongodb_init</span><span class="p">,</span> <span class="n">_mongodb_local</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CollectionWrapper</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_mongodb_local</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mongo_connections</span><span class="p">(</span>
+        <span class="n">mongodb_settings</span><span class="p">,</span>
+        <span class="n">mongo_host</span><span class="p">,</span>
+        <span class="n">mongo_extra_connections</span><span class="p">,</span>
+        <span class="n">_mongo_local_collections</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">mongodb_settings</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;settings&#39;</span><span class="p">][</span><span class="s1">&#39;connection&#39;</span><span class="p">]:</span> <span class="n">mongo_host</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_mongo_local_collections</span>
+        <span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">connection</span><span class="p">:</span> <span class="n">mongo_host</span> <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="n">mongo_extra_connections</span><span class="p">},</span>
+    <span class="p">}</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mongo_extra_connections</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Override this if you need to access mongo connections besides those</span>
+<span class="sd">    defined in mongo_connections fixture</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_mongo_indexes_ensured</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">_mongo_service</span><span class="p">(</span>
+        <span class="n">pytestconfig</span><span class="p">,</span>
+        <span class="n">ensure_service_started</span><span class="p">,</span>
+        <span class="n">_mongodb_local</span><span class="p">,</span>
+        <span class="n">_mongos_port</span><span class="p">,</span>
+        <span class="n">_mongo_config_server_port</span><span class="p">,</span>
+        <span class="n">_mongo_shard_port</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">aliases</span> <span class="o">=</span> <span class="n">_mongodb_local</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span>
+            <span class="n">aliases</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mongo</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">no_mongo</span>
+    <span class="p">):</span>
+        <span class="n">ensure_service_started</span><span class="p">(</span>
+            <span class="s1">&#39;mongo&#39;</span><span class="p">,</span>
+            <span class="n">mongos_port</span><span class="o">=</span><span class="n">_mongos_port</span><span class="p">,</span>
+            <span class="n">config_server_port</span><span class="o">=</span><span class="n">_mongo_config_server_port</span><span class="p">,</span>
+            <span class="n">shard_port</span><span class="o">=</span><span class="n">_mongo_shard_port</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">_mongo_create_indexes</span><span class="p">(</span>
+        <span class="n">_mongodb_local</span><span class="p">,</span>
+        <span class="n">mongodb_settings</span><span class="p">,</span>
+        <span class="n">pytestconfig</span><span class="p">,</span>
+        <span class="n">_mongo_indexes_ensured</span><span class="p">,</span>
+        <span class="n">_mongo_service</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">aliases</span> <span class="o">=</span> <span class="n">_mongodb_local</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">no_indexes</span><span class="p">:</span>
+        <span class="n">_ensure_indexes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">aliases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">alias</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_mongo_indexes_ensured</span>
+                    <span class="ow">and</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">mongodb_settings</span>
+            <span class="p">):</span>
+                <span class="n">_ensure_indexes</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">mongodb_settings</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">_ensure_indexes</span><span class="p">:</span>
+            <span class="n">sharding_enabled</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">no_sharding</span>
+            <span class="n">ensure_db_indexes</span><span class="o">.</span><span class="n">ensure_db_indexes</span><span class="p">(</span>
+                <span class="n">_mongodb_local</span><span class="p">,</span>
+                <span class="n">_ensure_indexes</span><span class="p">,</span>
+                <span class="n">sharding_enabled</span><span class="o">=</span><span class="n">sharding_enabled</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_mongo_indexes_ensured</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_ensure_indexes</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_mongo_thread_pool</span><span class="p">():</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">ThreadPool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">pool</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">pool</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mongodb_init</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span>
+        <span class="n">_mongodb_local</span><span class="p">,</span>
+        <span class="n">load_json</span><span class="p">,</span>
+        <span class="n">now</span><span class="p">,</span>
+        <span class="n">_mongo_thread_pool</span><span class="p">,</span>
+        <span class="n">_mongo_create_indexes</span><span class="p">,</span>
+        <span class="n">verify_file_paths</span><span class="p">,</span>
+        <span class="n">static_dir</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Populate mongodb with fixture data.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_closest_marker</span><span class="p">(</span><span class="s1">&#39;nofilldb&#39;</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Disable shuffle to make some buggy test work</span>
+    <span class="n">shuffle_enabled</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">no_shuffle_db</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_closest_marker</span><span class="p">(</span><span class="s1">&#39;noshuffledb&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">aliases</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_mongodb_local</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">()}</span>
+    <span class="n">requested</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">iter_markers</span><span class="p">(</span><span class="s1">&#39;filldb&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">marker</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dbname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">aliases</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnknownCollectionError</span><span class="p">(</span>
+                    <span class="s1">&#39;Unknown collection </span><span class="si">%s</span><span class="s1"> requested&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dbname</span><span class="p">,),</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">alias</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+                <span class="n">aliases</span><span class="p">[</span><span class="n">dbname</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span>
+            <span class="n">requested</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dbname</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_verify_db_alias</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_relevant_file</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">static_dir</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">DB_FILE_RE_PATTERN</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">db_alias</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;mongo_db_alias&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">db_alias</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">aliases</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="n">db_alias</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">alias</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">aliases</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">verify_file_paths</span><span class="p">(</span>
+        <span class="n">_verify_db_alias</span><span class="p">,</span>
+        <span class="n">check_name</span><span class="o">=</span><span class="s1">&#39;mongo_db_aliases&#39;</span><span class="p">,</span>
+        <span class="n">text_at_fail</span><span class="o">=</span><span class="s1">&#39;file has not valid mongo collection name alias &#39;</span>
+        <span class="s1">&#39;(probably should add to service.yaml)&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_collection</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="n">dbname</span><span class="p">,</span> <span class="n">alias</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_mongodb_local</span><span class="p">,</span> <span class="n">dbname</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">docs</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="s1">&#39;db_</span><span class="si">%s</span><span class="s1">.json&#39;</span> <span class="o">%</span> <span class="n">alias</span><span class="p">,</span> <span class="n">now</span><span class="o">=</span><span class="n">now</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dbname</span> <span class="ow">in</span> <span class="n">requested</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">docs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">col</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">shuffle_enabled</span><span class="p">:</span>
+            <span class="c1"># Make sure there is no tests that depend on order of</span>
+            <span class="c1"># documents in fixture file.</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">col</span><span class="o">.</span><span class="n">bulk_write</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">pymongo</span><span class="o">.</span><span class="n">DeleteMany</span><span class="p">({}),</span>
+                    <span class="o">*</span><span class="p">(</span><span class="n">pymongo</span><span class="o">.</span><span class="n">InsertOne</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">),</span>
+                <span class="p">],</span>
+                <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">pymongo</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">BulkWriteError</span> <span class="k">as</span> <span class="n">bwe</span><span class="p">:</span>
+            <span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">bwe</span><span class="o">.</span><span class="n">details</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="n">pool_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">aliases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">pool_args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dbname</span><span class="p">,</span> <span class="n">alias</span><span class="p">))</span>
+
+    <span class="n">_mongo_thread_pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">load_collection</span><span class="p">,</span> <span class="n">pool_args</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">_mongodb_local</span><span class="p">(</span>
+        <span class="n">mongodb_settings</span><span class="p">,</span>
+        <span class="n">_mongo_local_collections</span><span class="p">,</span>
+        <span class="n">_mongo_collection_wrapper_factory</span><span class="p">:</span> <span class="n">CollectionWrapperFactory</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="n">_mongo_collection_wrapper_factory</span><span class="o">.</span><span class="n">create_collection_wrapper</span><span class="p">(</span>
+        <span class="n">_mongo_local_collections</span><span class="p">,</span> <span class="n">mongodb_settings</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_mongo_collection_wrapper_factory</span><span class="p">(</span>
+        <span class="n">mongo_host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CollectionWrapperFactory</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">CollectionWrapperFactory</span><span class="p">(</span><span class="n">mongo_host</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_mongos_port</span><span class="p">(</span><span class="n">worker_id</span><span class="p">,</span> <span class="n">get_free_port</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">worker_id</span> <span class="o">==</span> <span class="s1">&#39;master&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DEFAULT_MONGOS_PORT</span>
+    <span class="k">return</span> <span class="n">get_free_port</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_mongo_config_server_port</span><span class="p">(</span><span class="n">worker_id</span><span class="p">,</span> <span class="n">get_free_port</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">worker_id</span> <span class="o">==</span> <span class="s1">&#39;master&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DEFAULT_CONFIG_SERVER_PORT</span>
+    <span class="k">return</span> <span class="n">get_free_port</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_mongo_shard_port</span><span class="p">(</span><span class="n">worker_id</span><span class="p">,</span> <span class="n">get_free_port</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">worker_id</span> <span class="o">==</span> <span class="s1">&#39;master&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DEFAULT_SHARD_PORT</span>
+    <span class="k">return</span> <span class="n">get_free_port</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">_mongo_local_collections</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">mongodb_collections</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">mongodb_collections</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">iter_markers</span><span class="p">(</span><span class="s1">&#39;mongodb_collections&#39;</span><span class="p">):</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">marker</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mongodb_collections</span><span class="p">(</span><span class="n">mongodb_settings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Override this to enable access to named collections within test module</span>
+
+<span class="sd">    Returns all available collections by default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">mongodb_settings</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="mongo_host"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.mongo.pytest_plugin.mongo_host">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mongo_host</span><span class="p">(</span><span class="n">pytestconfig</span><span class="p">,</span> <span class="n">_mongos_port</span><span class="p">):</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mongo</span>
+    <span class="k">return</span> <span class="n">host</span> <span class="ow">or</span> <span class="n">_get_connection_string</span><span class="p">(</span><span class="n">_mongos_port</span><span class="p">)</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">mongodb_settings</span><span class="p">(</span>
+        <span class="n">mongo_schema_directory</span><span class="p">,</span>
+        <span class="n">mongo_schema_extra_directories</span><span class="p">,</span>
+        <span class="n">_mongo_schema_cache</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="n">mongo_schema</span><span class="o">.</span><span class="n">MongoSchemas</span><span class="p">(</span>
+        <span class="n">_mongo_schema_cache</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">mongo_schema_directory</span><span class="p">,</span> <span class="o">*</span><span class="n">mongo_schema_extra_directories</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mongo_schema_extra_directories</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Override to use collection schemas besides those defined by</span>
+<span class="sd">    ``mongo_schema_directory`` fixture</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_mongo_schema_cache</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">mongo_schema</span><span class="o">.</span><span class="n">MongoSchemaCache</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_is_relevant_file</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">static_dir</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+    <span class="n">default_static_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">static_dir</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">)</span>
+    <span class="n">module_static_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">static_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">fspath</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_is_nested_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">default_static_dir</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_is_nested_path</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">module_static_dir</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_is_nested_path</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nested</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">(</span><span class="n">nested</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_get_connection_string</span><span class="p">(</span><span class="n">port</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;mongodb://localhost:</span><span class="si">%s</span><span class="s1">/&#39;</span> <span class="o">%</span> <span class="n">port</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../../">
+    <img class="logo" src="../../../../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../">Documentation overview</a><ul>
+  <li><a href="../../../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>testsuite.databases.pgsql.discover &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex/" />
+    <link rel="search" title="Search" href="../../../../../search/" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for testsuite.databases.pgsql.discover</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">exceptions</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">SINGLE_SHARD</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+
+<span class="k">class</span> <span class="nc">ShardName</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">shard</span><span class="p">:</span> <span class="nb">int</span>
+
+
+<span class="k">class</span> <span class="nc">ShardFiles</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">ShardName</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">PgShard</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dbname</span><span class="p">,</span>
+            <span class="n">service_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">shard_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">SINGLE_SHARD</span><span class="p">,</span>
+            <span class="n">files</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">migrations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">shard_id</span> <span class="o">==</span> <span class="n">SINGLE_SHARD</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shard_id</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pretty_name</span> <span class="o">=</span> <span class="n">dbname</span>
+            <span class="n">sharded_dbname</span> <span class="o">=</span> <span class="n">dbname</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shard_id</span> <span class="o">=</span> <span class="n">shard_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pretty_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">@</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">shard_id</span><span class="p">)</span>
+            <span class="n">sharded_dbname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">shard_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">service_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sharded_dbname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">_normalize_name</span><span class="p">(</span><span class="n">service_name</span><span class="p">),</span>
+                <span class="n">sharded_dbname</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span> <span class="o">=</span> <span class="n">sharded_dbname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="n">files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrations</span> <span class="o">=</span> <span class="n">migrations</span>
+
+
+<span class="k">class</span> <span class="nc">PgShardedDatabase</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">shards</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service_name</span> <span class="o">=</span> <span class="n">service_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span> <span class="o">=</span> <span class="n">dbname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shards</span> <span class="o">=</span> <span class="n">shards</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pgsql_control</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Initializing database </span><span class="si">%s</span><span class="s1"> for service </span><span class="si">%s</span><span class="s1">...&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">connections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">shard</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shards</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating database </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">)</span>
+            <span class="n">pgsql_control</span><span class="o">.</span><span class="n">create_database</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">shard</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;Running sql script </span><span class="si">%s</span><span class="s1"> against database </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">path</span><span class="p">,</span>
+                    <span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">schemas</span> <span class="o">=</span> <span class="n">pgsql_control</span><span class="o">.</span><span class="n">get_applied_schemas</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schemas</span><span class="p">:</span>
+                    <span class="n">pgsql_control</span><span class="o">.</span><span class="n">run_script</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                    <span class="n">schemas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">shard</span><span class="o">.</span><span class="n">migrations</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">shard</span><span class="o">.</span><span class="n">migrations</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s1">&#39;Running migrations from </span><span class="si">%s</span><span class="s1"> against database </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                        <span class="n">path</span><span class="p">,</span>
+                        <span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">schemas</span> <span class="o">=</span> <span class="n">pgsql_control</span><span class="o">.</span><span class="n">get_applied_schemas</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schemas</span><span class="p">:</span>
+                        <span class="n">pgsql_control</span><span class="o">.</span><span class="n">run_migrations</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                        <span class="n">schemas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+            <span class="n">connections</span><span class="p">[</span>
+                <span class="n">shard</span><span class="o">.</span><span class="n">pretty_name</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">pgsql_control</span><span class="o">.</span><span class="n">get_connection_cached</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">connections</span>
+
+
+<div class="viewcode-block" id="find_databases"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.pgsql.discover.find_databases">[docs]</a><span class="k">def</span> <span class="nf">find_databases</span><span class="p">(</span>
+        <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">schema_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">migrations_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">is_common_schema_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PgShardedDatabase</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Read database schemas from path ``schema_path``. ::</span>
+
+<span class="sd">     |- schema_path/</span>
+<span class="sd">       |- database1.sql</span>
+<span class="sd">       |- database2.sql</span>
+
+<span class="sd">    :param service_name: service name used as prefix for</span>
+<span class="sd">        database name if not empty, e.g. &quot;servicename_dbname&quot;.</span>
+<span class="sd">    :param schema_path: path to schemas directory</span>
+<span class="sd">    :param migrations_path: path to yandex-pgmigrate schemas</span>
+<span class="sd">    :returns: dictionary ``{database_name: PgShardedDatabase}``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schemas</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PgShardedDatabase</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">migrations</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PgShardedDatabase</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">parsed_schema_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">schema_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed_schema_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">schemas</span> <span class="o">=</span> <span class="n">_find_databases_schemas</span><span class="p">(</span>
+            <span class="n">service_name</span><span class="p">,</span> <span class="n">parsed_schema_path</span><span class="p">,</span> <span class="n">is_common_schema_path</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">migrations_path</span><span class="p">:</span>
+        <span class="n">parsed_migrations_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">migrations_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parsed_migrations_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">migrations</span> <span class="o">=</span> <span class="n">_find_databases_migrations</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="p">,</span> <span class="n">parsed_migrations_path</span><span class="p">,</span> <span class="n">is_common_schema_path</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">conflict</span> <span class="ow">in</span> <span class="n">schemas</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">migrations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
+            <span class="s1">&#39;Database </span><span class="si">%s</span><span class="s1"> has both migrations and schemas&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">conflict</span><span class="p">,),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="n">schemas</span><span class="p">,</span> <span class="o">**</span><span class="n">migrations</span><span class="p">}</span></div>
+
+
+<span class="k">def</span> <span class="nf">_find_databases_schemas</span><span class="p">(</span>
+        <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">schema_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">is_common_schema_path</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PgShardedDatabase</span><span class="p">]:</span>
+    <span class="n">fixtures</span> <span class="o">=</span> <span class="n">_build_shard_files_map</span><span class="p">(</span>
+        <span class="n">schema_path</span><span class="p">,</span> <span class="n">is_common_schema_path</span><span class="p">,</span> <span class="n">_get_shard_schema_files</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">shards</span> <span class="ow">in</span> <span class="n">fixtures</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">_raise_if_invalid_shards</span><span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+        <span class="n">pg_shards</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">shard_id</span><span class="p">,</span> <span class="n">shard_files</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">shards</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">pg_shards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">PgShard</span><span class="p">(</span>
+                    <span class="n">dbname</span><span class="p">,</span>
+                    <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span>
+                    <span class="n">shard_id</span><span class="o">=</span><span class="n">shard_id</span><span class="p">,</span>
+                    <span class="n">files</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">shard_files</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">dbname</span><span class="p">]</span> <span class="o">=</span> <span class="n">PgShardedDatabase</span><span class="p">(</span>
+            <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span> <span class="n">shards</span><span class="o">=</span><span class="n">pg_shards</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_find_databases_migrations</span><span class="p">(</span>
+        <span class="n">service_name</span><span class="p">,</span>
+        <span class="n">migrations_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">is_common_schemas_path</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PgShardedDatabase</span><span class="p">]:</span>
+    <span class="n">migrations</span> <span class="o">=</span> <span class="n">_build_shard_files_map</span><span class="p">(</span>
+        <span class="n">migrations_path</span><span class="p">,</span> <span class="n">is_common_schemas_path</span><span class="p">,</span> <span class="n">_get_shard_migration_files</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">shards</span> <span class="ow">in</span> <span class="n">migrations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">_raise_if_invalid_shards</span><span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+        <span class="n">pg_shards</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">shard_id</span><span class="p">,</span> <span class="n">shard_directory</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">shards</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">pg_shards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">PgShard</span><span class="p">(</span>
+                    <span class="n">dbname</span><span class="p">,</span>
+                    <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span>
+                    <span class="n">shard_id</span><span class="o">=</span><span class="n">shard_id</span><span class="p">,</span>
+                    <span class="n">migrations</span><span class="o">=</span><span class="n">shard_directory</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">dbname</span><span class="p">]</span> <span class="o">=</span> <span class="n">PgShardedDatabase</span><span class="p">(</span>
+            <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span> <span class="n">shards</span><span class="o">=</span><span class="n">pg_shards</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_build_shard_files_map</span><span class="p">(</span>
+        <span class="n">root_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">is_common_schemas_path</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">get_files</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
+            <span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">],</span>
+        <span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">DefaultDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">DefaultDict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">DefaultDict</span><span class="p">[</span>
+        <span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">DefaultDict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+    <span class="n">shard_files</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">is_common_schemas_path</span><span class="p">:</span>
+        <span class="n">shard_files</span> <span class="o">=</span> <span class="n">_find_common_shard_files</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">get_files</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shard_files</span> <span class="o">=</span> <span class="n">_find_shard_files</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">get_files</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">shard</span> <span class="ow">in</span> <span class="n">shard_files</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">shard</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">db_name</span><span class="p">][</span><span class="n">shard</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">shard</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_find_shard_files</span><span class="p">(</span>
+        <span class="n">schema_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">get_files</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
+            <span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">],</span>
+        <span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+        <span class="n">shard_files</span> <span class="o">=</span> <span class="n">get_files</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shard_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">shard_files</span>
+
+
+<span class="k">def</span> <span class="nf">_find_common_shard_files</span><span class="p">(</span>
+        <span class="n">schema_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">get_files</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
+            <span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">],</span>
+        <span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">db_path</span> <span class="ow">in</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">db_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Unexpected file </span><span class="se">\&#39;</span><span class="si">{db_path}</span><span class="se">\&#39;</span><span class="s1">, in schemas directory. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Expected subdirectory </span><span class="se">\&#39;</span><span class="si">{schema_path}</span><span class="s1">/database_name</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
+                <span class="s1">&#39;for each database&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">dbname</span> <span class="o">=</span> <span class="n">db_path</span><span class="o">.</span><span class="n">stem</span>
+        <span class="k">for</span> <span class="n">entry_path</span> <span class="ow">in</span> <span class="n">db_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+            <span class="n">shard_files</span> <span class="o">=</span> <span class="n">get_files</span><span class="p">(</span><span class="n">entry_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">shard_files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">shard_files</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">db_name</span> <span class="o">!=</span> <span class="n">dbname</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Invalid dbname </span><span class="se">\&#39;</span><span class="si">{shard_files.name.db_name}</span><span class="se">\&#39;</span><span class="s1">, &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;expected </span><span class="se">\&#39;</span><span class="si">{dbname}</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">yield</span> <span class="n">shard_files</span>
+
+
+<span class="k">def</span> <span class="nf">_get_shard_schema_files</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">]:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span>
+    <span class="n">shard_name</span> <span class="o">=</span> <span class="n">_parse_shard_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.sql&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ShardFiles</span><span class="p">(</span><span class="n">shard_name</span><span class="p">,</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+    <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">scan_sql_directory</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))]</span>
+        <span class="k">return</span> <span class="n">ShardFiles</span><span class="p">(</span><span class="n">shard_name</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_get_shard_migration_files</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ShardFiles</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">shard_name</span> <span class="o">=</span> <span class="n">_parse_shard_name</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ShardFiles</span><span class="p">(</span><span class="n">shard_name</span><span class="p">,</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_raise_if_invalid_shards</span><span class="p">(</span>
+        <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">DefaultDict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">SINGLE_SHARD</span> <span class="ow">in</span> <span class="n">shards</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shards</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
+                <span class="s1">&#39;Postgresql database </span><span class="si">%s</span><span class="s1"> has single shard configuration &#39;</span>
+                <span class="s1">&#39;while defined as multishard&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dbname</span><span class="p">,),</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">shards</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shards</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
+                <span class="s1">&#39;Postgresql database </span><span class="si">%s</span><span class="s1"> is missing fixtures &#39;</span>
+                <span class="s1">&#39;for some shards&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dbname</span><span class="p">,),</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_shard_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ShardName</span><span class="p">:</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shard_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ShardName</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shard_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ShardName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">SINGLE_SHARD</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_normalize_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../../">
+    <img class="logo" src="../../../../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../">Documentation overview</a><ul>
+  <li><a href="../../../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

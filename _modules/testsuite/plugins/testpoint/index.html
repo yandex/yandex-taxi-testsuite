@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>testsuite.plugins.testpoint &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex/" />
+    <link rel="search" title="Search" href="../../../../search/" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for testsuite.plugins.testpoint</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">callinfo</span>
+
+
+<span class="k">class</span> <span class="nc">TestpointSession</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Testpoint control object.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">get_handler</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">],</span> <span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns decorator for registering testpoint called ``name``.</span>
+
+<span class="sd">        After decoration function is wrapped with `AsyncCallQueue`_.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">:</span>
+            <span class="n">wrapped</span> <span class="o">=</span> <span class="n">callinfo</span><span class="o">.</span><span class="n">acallqueue</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrapped</span>
+            <span class="k">return</span> <span class="n">wrapped</span>
+
+        <span class="k">return</span> <span class="n">decorator</span>
+
+
+<div class="viewcode-block" id="testpoint"><a class="viewcode-back" href="../../../../testpoint/#testsuite.plugins.testpoint.testpoint">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">testpoint</span><span class="p">(</span><span class="n">mockserver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TestpointSession</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Testpoint fixture returns testpoint session instance that works</span>
+<span class="sd">    as decorator that registers testpoint handler. Original function is</span>
+<span class="sd">    wrapped with :ref:`AsyncCallQueue`</span>
+
+<span class="sd">    :param name: testpoint name</span>
+<span class="sd">    :returns: decorator</span>
+
+<span class="sd">    .. code-block::</span>
+
+<span class="sd">       def test_foo(testpoint):</span>
+<span class="sd">           @testpoint(&#39;foo&#39;):</span>
+<span class="sd">           def testpoint_handler(data):</span>
+<span class="sd">               pass</span>
+
+<span class="sd">           ...</span>
+<span class="sd">           # testpoint_handler is AsyncCallQueue instance, e.g.:</span>
+<span class="sd">           assert testpoint_handler.has_calls</span>
+<span class="sd">           assert testpoint_handler.next_call == {...}</span>
+<span class="sd">           aseert testpoint_handler.wait_call() == {...}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">session</span> <span class="o">=</span> <span class="n">TestpointSession</span><span class="p">()</span>
+
+    <span class="nd">@mockserver</span><span class="o">.</span><span class="n">json_handler</span><span class="p">(</span><span class="s1">&#39;/testpoint&#39;</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_handler</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_handler</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handler</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">session</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../">
+    <img class="logo" src="../../../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../">Documentation overview</a><ul>
+  <li><a href="../../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

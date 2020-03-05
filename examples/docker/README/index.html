@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Docker integration example &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" />
+    <link rel="next" title="Chat backend example" href="../../chat-backend/README/" />
+    <link rel="prev" title="Examples" href="../../README/" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="docker-integration-example">
+<h1>Docker integration example<a class="headerlink" href="#docker-integration-example" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dockerfile">
+<h2>Dockerfile<a class="headerlink" href="#dockerfile" title="Permalink to this headline">¶</a></h2>
+<p>First of all you need to build an image with testsuite, here is example
+Dockerfile:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FROM</span> <span class="n">ubuntu</span><span class="p">:</span><span class="mf">18.04</span>
+
+<span class="n">RUN</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span> <span class="o">&amp;&amp;</span> \
+    <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">python3</span><span class="o">-</span><span class="n">virtualenv</span> <span class="n">postgresql</span><span class="o">-</span><span class="n">client</span> <span class="o">&amp;&amp;</span> \
+    <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">clean</span>
+
+<span class="n">RUN</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span>
+<span class="n">RUN</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">-</span><span class="n">m</span> <span class="n">virtualenv</span> <span class="o">--</span><span class="n">python</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span>
+
+<span class="n">RUN</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span>
+
+<span class="c1"># Early install requirements</span>
+<span class="n">COPY</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">setup</span><span class="o">.</span><span class="n">cfg</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span>
+<span class="n">COPY</span> <span class="n">testsuite</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span>
+
+<span class="n">RUN</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="n">install</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span><span class="p">[</span><span class="n">mongodb</span><span class="p">,</span><span class="n">postgresql</span><span class="o">-</span><span class="n">binary</span><span class="p">]</span>
+
+<span class="c1"># Example requirements</span>
+<span class="n">RUN</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="n">install</span> <span class="n">asyncpg</span> <span class="n">motor</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="docker-compose-yaml">
+<h2>docker-compose.yaml<a class="headerlink" href="#docker-compose-yaml" title="Permalink to this headline">¶</a></h2>
+<p>Then you need to configure docker-compose to start required enironment and run
+testsuite:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FROM</span> <span class="n">ubuntu</span><span class="p">:</span><span class="mf">18.04</span>
+
+<span class="n">RUN</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span> <span class="o">&amp;&amp;</span> \
+    <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">python3</span><span class="o">-</span><span class="n">virtualenv</span> <span class="n">postgresql</span><span class="o">-</span><span class="n">client</span> <span class="o">&amp;&amp;</span> \
+    <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">clean</span>
+
+<span class="n">RUN</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span>
+<span class="n">RUN</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">-</span><span class="n">m</span> <span class="n">virtualenv</span> <span class="o">--</span><span class="n">python</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span>
+
+<span class="n">RUN</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span>
+
+<span class="c1"># Early install requirements</span>
+<span class="n">COPY</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">setup</span><span class="o">.</span><span class="n">cfg</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span>
+<span class="n">COPY</span> <span class="n">testsuite</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span>
+
+<span class="n">RUN</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="n">install</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span><span class="p">[</span><span class="n">mongodb</span><span class="p">,</span><span class="n">postgresql</span><span class="o">-</span><span class="n">binary</span><span class="p">]</span>
+
+<span class="c1"># Example requirements</span>
+<span class="n">RUN</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="n">install</span> <span class="n">asyncpg</span> <span class="n">motor</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../">
+    <img class="logo" src="../../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../README/">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples">Running examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples-in-docker">Running examples in docker</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../README/#id1">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../">Documentation overview</a><ul>
+  <li><a href="../../README/">Examples</a><ul>
+      <li>Previous: <a href="../../README/" title="previous chapter">Examples</a></li>
+      <li>Next: <a href="../../chat-backend/README/" title="next chapter">Chat backend example</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/examples/docker/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

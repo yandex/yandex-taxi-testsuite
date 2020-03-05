@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Overview &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="API reference" href="../reference/" />
+    <link rel="prev" title="testsuite: microservice testing framework" href="../" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-testsuite">
+<h2>What is testsuite<a class="headerlink" href="#what-is-testsuite" title="Permalink to this headline">¶</a></h2>
+<p>Testsuite is a microservice-oriented test framework written in Python based on
+<a class="reference external" href="https://pytest.org/">pytest</a>.</p>
+<p>Testsuite is written and supported by <a class="reference external" href="https://taxi.yandex.com/company/">Yandex.Taxi</a>, and is used to test
+Yandex.Taxi microservices written in C++ and Python.</p>
+<p>The principal suggested approach to testing - although not the only one - is
+black box, when the service is tested through http calls.</p>
+<p>Direct read and write access from test to database is supported to enable
+precondition setup and result assertions.</p>
+</div>
+<div class="section" id="supported-databases">
+<h2>Supported databases<a class="headerlink" href="#supported-databases" title="Permalink to this headline">¶</a></h2>
+<p>Out-of-the-box testsuite supports the following databases:</p>
+<ul class="simple">
+<li><p>PostgreSQL</p></li>
+<li><p>MongoDB</p></li>
+<li><p>Redis</p></li>
+</ul>
+</div>
+<div class="section" id="supported-operating-systems">
+<h2>Supported operating systems<a class="headerlink" href="#supported-operating-systems" title="Permalink to this headline">¶</a></h2>
+<p>Testsuite runs on GNU/Linux and macOS operating systems.</p>
+</div>
+<div class="section" id="principle-of-operation">
+<h2>Principle of operation<a class="headerlink" href="#principle-of-operation" title="Permalink to this headline">¶</a></h2>
+<p>Testsuite sets up the environment for the service being tested:</p>
+<ul class="simple">
+<li><p>Testsuite starts any required databases (postgresql, mongo, redis).</p></li>
+<li><p>Before each test, testsuite fills the database with test data.</p></li>
+<li><p>Testsuite starts its own web server (mockserver), which mimics (mocks)
+microservices other than the one being tested.</p></li>
+</ul>
+<p>Testsuite starts the microservice being tested in a separate process.</p>
+<p>Testsuite then runs tests.</p>
+<p>A test performs http requests to the service and verifies that the requests
+were processed properly.</p>
+<p>A test may check the results of an http call by looking directly into the
+service’s database.</p>
+<p>A test may check whether the service has made calls to external services,
+as well as the order of calls and the data that was sent and received.</p>
+<p>A test may check the internal state of the service as represented by the data
+the service sent to the test with the testpoint mechanism.</p>
+</div>
+<div class="section" id="running-testsuite">
+<h2>Running testsuite<a class="headerlink" href="#running-testsuite" title="Permalink to this headline">¶</a></h2>
+<p>self-tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest3</span> <span class="o">./</span><span class="n">tests</span>
+</pre></div>
+</div>
+<p>tests of example services:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span><span class="o">/</span><span class="n">examples</span> <span class="o">&amp;&amp;</span> <span class="n">make</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-testsuite">What is testsuite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-databases">Supported databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-operating-systems">Supported operating systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#principle-of-operation">Principle of operation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-testsuite">Running testsuite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+      <li>Previous: <a href="../" title="previous chapter">testsuite: microservice testing framework</a></li>
+      <li>Next: <a href="../reference/" title="next chapter">API reference</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/intro.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

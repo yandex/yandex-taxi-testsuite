@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Spawning and accessing service &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Testpoint" href="../testpoint/" />
+    <link rel="prev" title="Mockserver" href="../mockserver/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="spawning-and-accessing-service">
+<h1>Spawning and accessing service<a class="headerlink" href="#spawning-and-accessing-service" title="Permalink to this headline">¶</a></h1>
+<p>Testsuite starts process with a service being testsed.
+Service must implement <code class="docutils literal notranslate"><span class="pre">ping-url</span></code> that returns <code class="docutils literal notranslate"><span class="pre">200</span> <span class="pre">OK</span></code> when service is up.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">testsuite.daemons</span> <span class="kn">import</span> <span class="n">service_client</span>
+
+<span class="n">SERVICE_BASEURL</span> <span class="o">=</span> <span class="s1">&#39;http://localhost:8080/&#39;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">server_client</span><span class="p">(</span>
+        <span class="n">service_daemon</span><span class="p">,</span>
+        <span class="n">service_client_options</span><span class="p">,</span>
+        <span class="n">ensure_daemon_started</span><span class="p">,</span>
+        <span class="n">mockserver</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">ensure_daemon_started</span><span class="p">(</span><span class="n">service_daemon</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">service_client</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">SERVICE_BASEURL</span><span class="p">,</span> <span class="o">**</span><span class="n">service_client_options</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">service_daemon</span><span class="p">(</span><span class="n">register_daemon_scope</span><span class="p">,</span> <span class="n">service_spawner</span><span class="p">):</span>
+    <span class="c1"># Generate special config for testsuite.</span>
+    <span class="n">service_config_path</span> <span class="o">=</span> <span class="n">generate_service_config</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">register_daemon_scope</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;yandex-taxi-test-service&#39;</span><span class="p">,</span>
+            <span class="n">spawn</span><span class="o">=</span><span class="n">service_spawner</span><span class="p">(</span>
+                <span class="p">[</span><span class="s1">&#39;path-to-service-binary&#39;</span><span class="p">,</span> <span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="n">service_config_path</span><span class="p">],</span>
+                <span class="n">check_url</span><span class="o">=</span><span class="n">SERVICE_BASEURL</span> <span class="o">+</span> <span class="s1">&#39;ping&#39;</span><span class="p">,</span>
+            <span class="p">),</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">scope</span>
+</pre></div>
+</div>
+<div class="section" id="fixtures">
+<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="service-client-options">
+<h3>service_client_options<a class="headerlink" href="#service-client-options" title="Permalink to this headline">¶</a></h3>
+<p>Fixture that contains service client options.</p>
+</div>
+<div class="section" id="register-daemon-scope">
+<h3>register_daemon_scope<a class="headerlink" href="#register-daemon-scope" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.daemons.pytest_plugin.register_daemon_scope">
+<code class="descclassname">testsuite.daemons.pytest_plugin.</code><code class="descname">register_daemon_scope</code><span class="sig-paren">(</span><em>name</em>, <em>spawn</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#register_daemon_scope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.register_daemon_scope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Context manager that registers service process session.</p>
+<p>Yields daemon scope instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – service name</p>
+</dd>
+<dt class="field-even">Spawn spawn</dt>
+<dd class="field-even"><p>spawner function</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="ensure-daemon-started">
+<h3>ensure_daemon_started<a class="headerlink" href="#ensure-daemon-started" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.daemons.pytest_plugin.ensure_daemon_started">
+<code class="descclassname">testsuite.daemons.pytest_plugin.</code><code class="descname">ensure_daemon_started</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#ensure_daemon_started"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.ensure_daemon_started" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fixture that starts requested service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – service name</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="service-spawner">
+<h3>service_spawner<a class="headerlink" href="#service-spawner" title="Permalink to this headline">¶</a></h3>
+<p>Fixture that creates service spawner.</p>
+<dl class="function">
+<dt id="testsuite.daemons.pytest_plugin.service_spawner">
+<code class="descclassname">testsuite.daemons.pytest_plugin.</code><code class="descname">service_spawner</code><span class="sig-paren">(</span><em>args</em>, <em>check_url</em>, <em>*</em>, <em>...</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#service_spawner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.service_spawner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates service spawner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Service executable arguments list.</p></li>
+<li><p><strong>check_url</strong> – Service /ping url used to ensure that service
+is up and running.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="testsuite.daemons.service_client.Client">
+<em class="property">class </em><code class="descclassname">testsuite.daemons.service_client.</code><code class="descname">Client</code><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic asyncio HTTP service client.</p>
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>base_url: str</em>, <em>*</em>, <em>session: aiohttp.client.ClientSession</em>, <em>ssl_context=None</em>, <em>span_id_header=None</em>, <em>default_headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>service_headers=None</em>, <em>timeout: float = 120.0</em>, <em>raw_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> – Base client url</p></li>
+<li><p><strong>session</strong> – <code class="docutils literal notranslate"><span class="pre">aiohttp.ClientSession</span></code> instance</p></li>
+<li><p><strong>default_headers</strong> – default request headers dictionary</p></li>
+<li><p><strong>timeout</strong> – http client default timeout</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.delete">
+<em class="property">await </em><code class="descname">delete</code><span class="sig-paren">(</span><em>path</em>, <em>headers=None</em>, <em>bearer=None</em>, <em>x_real_ip=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform HTTP DELETE request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.get">
+<em class="property">await </em><code class="descname">get</code><span class="sig-paren">(</span><em>path</em>, <em>headers=None</em>, <em>bearer=None</em>, <em>x_real_ip=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform HTTP GET request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.options">
+<em class="property">await </em><code class="descname">options</code><span class="sig-paren">(</span><em>path</em>, <em>headers=None</em>, <em>bearer=None</em>, <em>x_real_ip=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform HTTP OPTIONS request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.patch">
+<em class="property">await </em><code class="descname">patch</code><span class="sig-paren">(</span><em>path</em>, <em>json=None</em>, <em>data=None</em>, <em>params=None</em>, <em>bearer=None</em>, <em>x_real_ip=None</em>, <em>headers=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform HTTP PATCH request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.post">
+<em class="property">await </em><code class="descname">post</code><span class="sig-paren">(</span><em>path</em>, <em>json=None</em>, <em>data=None</em>, <em>params=None</em>, <em>bearer=None</em>, <em>x_real_ip=None</em>, <em>headers=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform HTTP POST request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.put">
+<em class="property">await </em><code class="descname">put</code><span class="sig-paren">(</span><em>path</em>, <em>json=None</em>, <em>data=None</em>, <em>params=None</em>, <em>bearer=None</em>, <em>x_real_ip=None</em>, <em>headers=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform HTTP PUT request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.daemons.service_client.Client.request">
+<em class="property">await </em><code class="descname">request</code><span class="sig-paren">(</span><em>http_method: str</em>, <em>path: str</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client.request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform HTTP <code class="docutils literal notranslate"><span class="pre">http_method</span></code> request.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Spawning and accessing service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../reference/">API reference</a><ul>
+      <li>Previous: <a href="../mockserver/" title="previous chapter">Mockserver</a></li>
+      <li>Next: <a href="../testpoint/" title="next chapter">Testpoint</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/servicerunner.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

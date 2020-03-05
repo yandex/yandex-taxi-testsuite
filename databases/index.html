@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Database support &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Utils" href="../utils/" />
+    <link rel="prev" title="Testpoint" href="../testpoint/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="database-support">
+<h1>Database support<a class="headerlink" href="#database-support" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#common-database-marks" id="id5">Common database marks</a></p>
+<ul>
+<li><p><a class="reference internal" href="#pytest-mark-nofilldb" id="id6">pytest.mark.nofilldb</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#mongo" id="id7">Mongo</a></p>
+<ul>
+<li><p><a class="reference internal" href="#fixtures" id="id8">Fixtures</a></p></li>
+<li><p><a class="reference internal" href="#marks" id="id9">Marks</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#postgresql" id="id10">PostgreSQL</a></p>
+<ul>
+<li><p><a class="reference internal" href="#functions" id="id11">Functions</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id12">Fixtures</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id13">Marks</a></p></li>
+<li><p><a class="reference internal" href="#classes" id="id14">Classes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#redis" id="id15">Redis</a></p></li>
+</ul>
+</div>
+<p>Database plugins can start and stop database process.
+You can configure it to use existing database.</p>
+<p>Testsuite clears database and applies data fixtures before each test ensure
+database in known state.</p>
+<p>Data fixtures are loaded via staatic files, see <a class="reference internal" href="../staticfiles/#staticfiles"><span class="std std-ref">Working with static files</span></a>.</p>
+<div class="section" id="common-database-marks">
+<h2><a class="toc-backref" href="#id5">Common database marks</a><a class="headerlink" href="#common-database-marks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pytest-mark-nofilldb">
+<h3><a class="toc-backref" href="#id6">pytest.mark.nofilldb</a><a class="headerlink" href="#pytest-mark-nofilldb" title="Permalink to this headline">¶</a></h3>
+<p>Disables database loading.</p>
+<dl class="function">
+<dt id="pytest.mark.nofilldb">
+<code class="descclassname">pytest.mark.</code><code class="descname">nofilldb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pytest.mark.nofilldb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="mongo">
+<h2><a class="toc-backref" href="#id7">Mongo</a><a class="headerlink" href="#mongo" title="Permalink to this headline">¶</a></h2>
+<p>In ordrer to enable mongo support you have to add
+<code class="docutils literal notranslate"><span class="pre">testsuite.database.mongo.pytest_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
+<code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> file and configure mongodb collections.</p>
+<p>By default testsuite starts mongodb sharded cluster. In this case <a class="reference external" href="https://www.mongodb.com/">mongodb</a>
+installation is required.
+You can force it to use your own mongo installation with command-line option
+<code class="docutils literal notranslate"><span class="pre">--mongo=mongodb://host:port/</span></code>.</p>
+<p>Mongodb plugins re-fills the whole database with data on each test.
+It looks for data fixture static files using <code class="docutils literal notranslate"><span class="pre">db_collection_name.json</span></code>
+pattern. If no file is found collection is empty.</p>
+<p>Currently mongo plugin uses synchronous <a class="reference external" href="https://api.mongodb.com/python/current/">pymongo</a> driver.</p>
+<p>Example integration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;testsuite.pytest_plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;testsuite.databases.mongo.pytest_plugin&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">MONGO_COLLECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;example_collection&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;collection&#39;</span><span class="p">:</span> <span class="s1">&#39;example_collection&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;connection&#39;</span><span class="p">:</span> <span class="s1">&#39;example&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="s1">&#39;example_db&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;indexes&#39;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mongodb_settings</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">MONGO_COLLECTIONS</span>
+</pre></div>
+</div>
+<div class="section" id="fixtures">
+<h3><a class="toc-backref" href="#id8">Fixtures</a><a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4>mongodb<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.mongo.pytest_plugin.mongodb">
+<code class="descclassname">testsuite.databases.mongo.pytest_plugin.</code><code class="descname">mongodb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mongo/pytest_plugin/#mongodb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.mongo.pytest_plugin.mongodb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">CollectionWrapper</span></code> instance. Collection can be accessed
+by name, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_foo</span><span class="p">(</span><span class="n">mongodb</span><span class="p">):</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">mongodb</span><span class="o">.</span><span class="n">collection_name</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="mi">123</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="n">doc</span> <span class="o">==</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">pymongo.collection.Collection</span></code> instance is returned.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="mongo-host">
+<h4>mongo_host<a class="headerlink" href="#mongo-host" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.mongo.pytest_plugin.mongo_host">
+<code class="descclassname">testsuite.databases.mongo.pytest_plugin.</code><code class="descname">mongo_host</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mongo/pytest_plugin/#mongo_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.mongo.pytest_plugin.mongo_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns mongodb connection string, e.g.: <code class="docutils literal notranslate"><span class="pre">mongodb://localhost:27119/</span></code></p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="marks">
+<h3><a class="toc-backref" href="#id9">Marks</a><a class="headerlink" href="#marks" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pytest-mark-filldb">
+<h4>pytest.mark.filldb<a class="headerlink" href="#pytest-mark-filldb" title="Permalink to this headline">¶</a></h4>
+<p>Specify custom per-test collection data file prefix.</p>
+<dl class="function">
+<dt id="testsuite.databases.mongo.pytest_plugin.pytest.mark.filldb">
+<code class="descclassname">pytest.mark.</code><code class="descname">filldb</code><span class="sig-paren">(</span><em>**suffixes</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.databases.mongo.pytest_plugin.pytest.mark.filldb" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>suffixes</strong> – collection suffixes map, e.g.
+<code class="docutils literal notranslate"><span class="pre">{'collection':</span> <span class="pre">'suffix',</span> <span class="pre">...}</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>I
+In the following example plugin will look for filename
+<code class="docutils literal notranslate"><span class="pre">db_collection_name_foo.json</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">filldb</span><span class="p">(</span><span class="n">collection_name</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_foo</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="postgresql">
+<h2><a class="toc-backref" href="#id10">PostgreSQL</a><a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h2>
+<p>In ordrer to enable mongo support you have to add
+<code class="docutils literal notranslate"><span class="pre">testsuite.database.mongo.pgsql_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
+<code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> file and configure mongodb collections.</p>
+<p>By default testsuite starts <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> sharded cluster. In this case
+PostgreSQL installation is required.
+You can force it to use your own mongo installation with command-line option
+<code class="docutils literal notranslate"><span class="pre">--postgresql=postgresql://db-postgresql/</span></code>.</p>
+<p>Currently mongo plugin uses synchronous <a class="reference external" href="https://pypi.org/project/psycopg2/">psycopg2</a> driver.</p>
+<p>Pgsql plugin creates database schema once. And then populates database
+with data fixtures on each test. It looks for database fixtures by the
+following names:</p>
+<ul class="simple">
+<li><p>file <code class="docutils literal notranslate"><span class="pre">pg_DBNAME.sql</span></code></p></li>
+<li><p>directory <code class="docutils literal notranslate"><span class="pre">pg_DBNAME/</span></code></p></li>
+</ul>
+<p>Example integration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.databases.pgsql</span> <span class="kn">import</span> <span class="n">discover</span>
+
+<span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;testsuite.pytest_plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;testsuite.databases.pgsql.pytest_plugin&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">pgsql_local</span><span class="p">(</span><span class="n">pgsql_local_create</span><span class="p">):</span>
+    <span class="n">tests_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">sqldata_path</span> <span class="o">=</span> <span class="n">tests_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;../schemas/postgresql&#39;</span><span class="p">)</span>
+    <span class="n">databases</span> <span class="o">=</span> <span class="n">discover</span><span class="o">.</span><span class="n">find_databases</span><span class="p">(</span><span class="s1">&#39;service_name&#39;</span><span class="p">,</span> <span class="n">sqldata_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pgsql_local_create</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">databases</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+</pre></div>
+</div>
+<div class="section" id="functions">
+<h3><a class="toc-backref" href="#id11">Functions</a><a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="find-databases">
+<h4>find_databases<a class="headerlink" href="#find-databases" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.pgsql.discover.find_databases">
+<code class="descclassname">testsuite.databases.pgsql.discover.</code><code class="descname">find_databases</code><span class="sig-paren">(</span><em>service_name: str</em>, <em>schema_path: str</em>, <em>migrations_path: Optional[str] = None</em>, <em>is_common_schema_path: bool = False</em><span class="sig-paren">)</span> &#x2192; Dict[str, testsuite.databases.pgsql.discover.PgShardedDatabase]<a class="reference internal" href="../_modules/testsuite/databases/pgsql/discover/#find_databases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.pgsql.discover.find_databases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read database schemas from path <code class="docutils literal notranslate"><span class="pre">schema_path</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|-</span> <span class="n">schema_path</span><span class="o">/</span>
+  <span class="o">|-</span> <span class="n">database1</span><span class="o">.</span><span class="n">sql</span>
+  <span class="o">|-</span> <span class="n">database2</span><span class="o">.</span><span class="n">sql</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service_name</strong> – service name used as prefix for
+database name if not empty, e.g. “servicename_dbname”.</p></li>
+<li><p><strong>schema_path</strong> – path to schemas directory</p></li>
+<li><p><strong>migrations_path</strong> – path to yandex-pgmigrate schemas</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dictionary <code class="docutils literal notranslate"><span class="pre">{database_name:</span> <span class="pre">PgShardedDatabase}</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id12">Fixtures</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pgsql">
+<h4>pgsql<a class="headerlink" href="#pgsql" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.pgsql.pytest_plugin.pgsql">
+<code class="descclassname">testsuite.databases.pgsql.pytest_plugin.</code><code class="descname">pgsql</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/pgsql/pytest_plugin/#pgsql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.pgsql.pytest_plugin.pgsql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns pgsql wrapper dictionary.</p>
+<p>Example usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_pg</span><span class="p">(</span><span class="n">pgsql</span><span class="p">):</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="n">pgsql</span><span class="p">[</span><span class="s1">&#39;example_db&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT ... FROM ...WHERE ...&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">cusror</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="pgsql-local">
+<h4>pgsql_local<a class="headerlink" href="#pgsql-local" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.pgsql.pytest_plugin.pgsql_local">
+<code class="descclassname">testsuite.databases.pgsql.pytest_plugin.</code><code class="descname">pgsql_local</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/pgsql/pytest_plugin/#pgsql_local"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.pgsql.pytest_plugin.pgsql_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures local pgsql instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig" title="testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceLocalConfig</span></code></a> instance.</p>
+</dd>
+</dl>
+<p>In order to use pgsql fixture you have to override pgsql_local()
+in your local conftest.py file, example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">pgsql_local</span><span class="p">(</span><span class="n">pgsql_local_create</span><span class="p">):</span>
+    <span class="n">databases</span> <span class="o">=</span> <span class="n">discover</span><span class="o">.</span><span class="n">find_databases</span><span class="p">(</span>
+        <span class="s1">&#39;service_name&#39;</span><span class="p">,</span> <span class="n">PG_SCHEMAS_PATH</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pgsql_local_create</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">databases</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="pgsql-local-create">
+<h4>pgsql_local_create<a class="headerlink" href="#pgsql-local-create" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.pgsql.pytest_plugin.pgsql_local_create">
+<code class="descclassname">testsuite.databases.pgsql.pytest_plugin.</code><code class="descname">pgsql_local_create</code><span class="sig-paren">(</span><em>databases</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/pgsql/pytest_plugin/#pgsql_local_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.pgsql.pytest_plugin.pgsql_local_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates pgsql configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>databases</strong> – List of databases.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig" title="testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceLocalConfig</span></code></a> instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id13">Marks</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pytest-mark-pgsql">
+<h4>pytest.mark.pgsql<a class="headerlink" href="#pytest-mark-pgsql" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.pgsql.pytest_plugin.pytest.mark.pgsql">
+<code class="descclassname">pytest.mark.</code><code class="descname">pgsql</code><span class="sig-paren">(</span><em>dbname</em>, <em>files=()</em>, <em>directories=()</em>, <em>queries=()</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.databases.pgsql.pytest_plugin.pytest.mark.pgsql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this mark to override specify extra data fixtures in a per-test manner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dbname</strong> – Database name.</p></li>
+<li><p><strong>files</strong> – List of filenames to apply to the database.</p></li>
+<li><p><strong>directories</strong> – List of directories to apply to the database.</p></li>
+<li><p><strong>directories</strong> – List of queries to apply to the database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="classes">
+<h3><a class="toc-backref" href="#id14">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig">
+<em class="property">class </em><code class="descclassname">testsuite.databases.pgsql.pytest_plugin.</code><code class="descname">ServiceLocalConfig</code><a class="reference internal" href="../_modules/testsuite/databases/pgsql/pytest_plugin/#ServiceLocalConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig.get_connection_string">
+<code class="descname">get_connection_string</code><span class="sig-paren">(</span><em>dbname: str</em>, <em>shard: int = 0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/pgsql/pytest_plugin/#ServiceLocalConfig.get_connection_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig.get_connection_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns connections string for database <code class="docutils literal notranslate"><span class="pre">dbname</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="redis">
+<h2><a class="toc-backref" href="#id15">Redis</a><a class="headerlink" href="#redis" title="Permalink to this headline">¶</a></h2>
+<p>Testsuite provides basic support for redis.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Database support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../reference/">API reference</a><ul>
+      <li>Previous: <a href="../testpoint/" title="previous chapter">Testpoint</a></li>
+      <li>Next: <a href="../utils/" title="next chapter">Utils</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/databases.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

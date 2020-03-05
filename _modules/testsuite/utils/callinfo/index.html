@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>testsuite.utils.callinfo &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex/" />
+    <link rel="search" title="Search" href="../../../../search/" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for testsuite.utils.callinfo</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+
+<span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base exception class for this module.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">CallQueueError</span><span class="p">(</span><span class="n">BaseError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">CallQueueEmptyError</span><span class="p">(</span><span class="n">CallQueueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Call queue is empty error.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">CallQueueTimeoutError</span><span class="p">(</span><span class="n">CallQueueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Timed out while waiting for call.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="AsyncCallQueue"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.callinfo.AsyncCallQueue">[docs]</a><span class="k">class</span> <span class="nc">AsyncCallQueue</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Function wrapper that puts information about function call into async</span>
+<span class="sd">    queue.</span>
+
+<span class="sd">    This class provides methods to wait/check function underlying function</span>
+<span class="sd">    calls.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_callinfo</span> <span class="o">=</span> <span class="n">callinfo</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_coro</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call underlying function.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_coro</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+
+<div class="viewcode-block" id="AsyncCallQueue.flush"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.callinfo.AsyncCallQueue.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear call queue.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns ``True`` if call queue is not empty.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">times_called</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">times_called</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns call queue length.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">qsize</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AsyncCallQueue.next_call"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.callinfo.AsyncCallQueue.next_call">[docs]</a>    <span class="k">def</span> <span class="nf">next_call</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Pops call from queue and return its arguments dict.</span>
+
+<span class="sd">        Raises ``CallQueueError`` if queue is empty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_callinfo</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">())</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">queues</span><span class="o">.</span><span class="n">QueueEmpty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CallQueueEmptyError</span><span class="p">(</span>
+                <span class="s1">&#39;No calls for </span><span class="si">%s</span><span class="s1">() left in the queue&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,),</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AsyncCallQueue.wait_call"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.callinfo.AsyncCallQueue.wait_call">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">wait_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Wait for fucntion to be called. Pops call from queue. Blocks if</span>
+<span class="sd">        it&#39;s empty.</span>
+
+<span class="sd">        :param timeout: timeout in seconds</span>
+
+<span class="sd">        Raises ``CallQueueTimeoutError`` if queue is empty for ``timeout``</span>
+<span class="sd">        seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_callinfo</span><span class="p">(</span><span class="o">*</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CallQueueTimeoutError</span><span class="p">(</span>
+                <span class="s1">&#39;Timeout while waiting for </span><span class="si">%s</span><span class="s1">() to be called&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,),</span>
+            <span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">callinfo</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="n">func_spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">func_varkw</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">varkw</span>
+    <span class="n">func_kwonlyargs</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">kwonlyargs</span>
+    <span class="n">func_kwonlydefaults</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">kwonlydefaults</span>
+
+    <span class="n">func_args</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">args</span>
+    <span class="n">func_varargs</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">varargs</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">defaults</span> <span class="ow">or</span> <span class="p">()</span>
+    <span class="n">func_defaults</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">func_args</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span> <span class="p">:],</span> <span class="n">defaults</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">callinfo_getter</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">dct</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">func_args</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">argname</span> <span class="ow">in</span> <span class="n">func_args</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">argname</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">dct</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dct</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">argname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">func_varargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dct</span><span class="p">[</span><span class="n">func_varargs</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span> <span class="p">:]</span>
+        <span class="k">for</span> <span class="n">argname</span> <span class="ow">in</span> <span class="n">func_kwonlyargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">argname</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">dct</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dct</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_kwonlydefaults</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">func_varkw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dct</span><span class="p">[</span><span class="n">func_varkw</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">dct</span>
+
+    <span class="k">return</span> <span class="n">callinfo_getter</span>
+
+
+<div class="viewcode-block" id="acallqueue"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.callinfo.acallqueue">[docs]</a><span class="k">def</span> <span class="nf">acallqueue</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallQueue</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Turn function into async call queue.</span>
+
+<span class="sd">    :param func: async or sync callable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">AsyncCallQueue</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">func</span>
+    <span class="k">return</span> <span class="n">AsyncCallQueue</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../">
+    <img class="logo" src="../../../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../">Documentation overview</a><ul>
+  <li><a href="../../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

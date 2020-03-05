@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mongo service example &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" />
+    <link rel="next" title="PostgreSQL service example" href="../../postgres-example/README/" />
+    <link rel="prev" title="Mockserver service example" href="../../mockserver-example/README/" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="mongo-service-example">
+<h1>Mongo service example<a class="headerlink" href="#mongo-service-example" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#example-service" id="id1">Example Service</a></p></li>
+<li><p><a class="reference internal" href="#conftest" id="id2">Conftest</a></p></li>
+<li><p><a class="reference internal" href="#test" id="id3">Test</a></p></li>
+</ul>
+</div>
+<div class="section" id="example-service">
+<h2><a class="toc-backref" href="#id1">Example Service</a><a class="headerlink" href="#example-service" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">from</span> <span class="nn">aiohttp</span> <span class="kn">import</span> <span class="n">web</span>
+<span class="kn">from</span> <span class="nn">motor</span> <span class="kn">import</span> <span class="n">motor_asyncio</span>
+
+<span class="n">HTTP_TIMEOUT</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Testsuite service integration example.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--service-baseurl&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;http://localhost/&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Test service base url&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--mongo-uri&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;http://localhost:27017/&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;mongodb connection uri&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">connection</span> <span class="o">=</span> <span class="n">motor_asyncio</span><span class="o">.</span><span class="n">AsyncIOMotorClient</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">mongo_uri</span><span class="p">)</span>
+    <span class="n">collection</span> <span class="o">=</span> <span class="n">connection</span><span class="p">[</span><span class="s1">&#39;example_db&#39;</span><span class="p">][</span><span class="s1">&#39;example_collection&#39;</span><span class="p">]</span>
+    <span class="n">routes</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">RouteTableDef</span><span class="p">()</span>
+
+    <span class="nd">@routes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/ping&#39;</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">handle_ping</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;OK.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@routes</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/mongo/create&#39;</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+            <span class="n">doc_id</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">doc_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">doc_id</span>
+        <span class="k">await</span> <span class="n">collection</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">})</span>
+
+    <span class="nd">@routes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/mongo/</span><span class="si">{id}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="n">doc_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">match_info</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">collection</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;Foo not found&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+
+    <span class="n">app</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">Application</span><span class="p">()</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">add_routes</span><span class="p">(</span><span class="n">routes</span><span class="p">)</span>
+    <span class="n">web</span><span class="o">.</span><span class="n">run_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="conftest">
+<h2><a class="toc-backref" href="#id2">Conftest</a><a class="headerlink" href="#conftest" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">testsuite.daemons</span> <span class="kn">import</span> <span class="n">service_client</span>
+
+<span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;testsuite.pytest_plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;testsuite.databases.mongo.pytest_plugin&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">SERVICE_BASEURL</span> <span class="o">=</span> <span class="s1">&#39;http://localhost:8080/&#39;</span>
+
+<span class="n">MONGO_COLLECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;example_collection&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;collection&#39;</span><span class="p">:</span> <span class="s1">&#39;example_collection&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;connection&#39;</span><span class="p">:</span> <span class="s1">&#39;example&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="s1">&#39;example_db&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;indexes&#39;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">server_client</span><span class="p">(</span>
+        <span class="n">service_daemon</span><span class="p">,</span> <span class="n">service_client_options</span><span class="p">,</span> <span class="n">ensure_daemon_started</span><span class="p">,</span> <span class="n">mongodb</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">await</span> <span class="n">ensure_daemon_started</span><span class="p">(</span><span class="n">service_daemon</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">service_client</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">SERVICE_BASEURL</span><span class="p">,</span> <span class="o">**</span><span class="n">service_client_options</span><span class="p">)</span>
+
+
+<span class="c1"># remove scope=session to restart service on each test</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">service_daemon</span><span class="p">(</span><span class="n">register_daemon_scope</span><span class="p">,</span> <span class="n">service_spawner</span><span class="p">,</span> <span class="n">mongo_host</span><span class="p">):</span>
+    <span class="n">python_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;PYTHON3&#39;</span><span class="p">,</span> <span class="s1">&#39;python3&#39;</span><span class="p">)</span>
+    <span class="n">service_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">register_daemon_scope</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;yandex-taxi-test-service&#39;</span><span class="p">,</span>
+            <span class="n">spawn</span><span class="o">=</span><span class="n">service_spawner</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">python_path</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">service_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;server.py&#39;</span><span class="p">)),</span>
+                    <span class="s1">&#39;--mongo-uri&#39;</span><span class="p">,</span>
+                    <span class="n">mongo_host</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">check_url</span><span class="o">=</span><span class="n">SERVICE_BASEURL</span> <span class="o">+</span> <span class="s1">&#39;ping&#39;</span><span class="p">,</span>
+            <span class="p">),</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">scope</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mongodb_settings</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">MONGO_COLLECTIONS</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="test">
+<h2><a class="toc-backref" href="#id3">Test</a><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">test_create</span><span class="p">(</span><span class="n">server_client</span><span class="p">,</span> <span class="n">mongodb</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">server_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;mongo/create&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">doc_id</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doc_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># read directly from mongodb</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">mongodb</span><span class="o">.</span><span class="n">example_collection</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="n">doc</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">,</span> <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_read_preexisting</span><span class="p">(</span><span class="n">server_client</span><span class="p">):</span>
+    <span class="c1"># db_example_collection.json</span>
+    <span class="n">read_response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">server_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mongo/1&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">read_response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">read_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">doc</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;val&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../">testsuite</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../README/">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples">Running examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples-in-docker">Running examples in docker</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../README/#id1">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../">Documentation overview</a><ul>
+  <li><a href="../../README/">Examples</a><ul>
+      <li>Previous: <a href="../../mockserver-example/README/" title="previous chapter">Mockserver service example</a></li>
+      <li>Next: <a href="../../postgres-example/README/" title="next chapter">PostgreSQL service example</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/examples/mongo-example/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

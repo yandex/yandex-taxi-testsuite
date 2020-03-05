@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Working with static files &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Mockserver" href="../mockserver/" />
+    <link rel="prev" title="API reference" href="../reference/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="working-with-static-files">
+<span id="staticfiles"></span><h1>Working with static files<a class="headerlink" href="#working-with-static-files" title="Permalink to this headline">¶</a></h1>
+<p>Testsuite provides functions to work with static files associated with
+testscase. It searches for files in static directoy relative to the current
+file.
+If your tests is located in <code class="docutils literal notranslate"><span class="pre">tests/test_service.py</span></code> testsuite will search for
+the static file <code class="docutils literal notranslate"><span class="pre">foo.txt</span></code> in the following directories:</p>
+<ul class="simple">
+<li><p>test case local: <code class="docutils literal notranslate"><span class="pre">tests/static/test_services/test_case_name/foo.txt</span></code></p></li>
+<li><p>test file local: <code class="docutils literal notranslate"><span class="pre">tests/static/test_services/foo.txt</span></code></p></li>
+<li><p>test package local: <code class="docutils literal notranslate"><span class="pre">tests/static/default/foo.txt</span></code></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">FileNotFoundError</span></code> would be raised if no file is found.</p>
+<div class="section" id="fixtures">
+<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="load">
+<h3>load<a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.load">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load file from static directory.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="n">load</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s1">&#39;filename&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Loader (function).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="load-binary">
+<h3>load_binary<a class="headerlink" href="#load-binary" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.load_binary">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_binary</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load_binary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load_binary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load binary data from static directory.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="n">load_binary</span><span class="p">):</span>
+    <span class="n">bytes_data</span> <span class="o">=</span> <span class="n">load_binary</span><span class="p">(</span><span class="s1">&#39;data.bin&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="load-json">
+<h3>load_json<a class="headerlink" href="#load-json" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.load_json">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_json</code><span class="sig-paren">(</span><em>path</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load json doc from static directory.</p>
+<p>Json loader runs <code class="docutils literal notranslate"><span class="pre">json_util.loads(data,</span> <span class="pre">...,</span> <span class="pre">*args,</span> <span class="pre">**kwargs)</span></code> hooks.
+It does:
+* bson.json_util.object_hook()
+* mockserver substitution</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="n">load_json</span><span class="p">):</span>
+    <span class="n">json_obj</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="s1">&#39;filename.json&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="load-yaml">
+<h3>load_yaml<a class="headerlink" href="#load-yaml" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.load_yaml">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_yaml</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load yaml doc from static directory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="n">load_yaml</span><span class="p">):</span>
+    <span class="n">yaml_obj</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s1">&#39;filename.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Working with static files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../reference/">API reference</a><ul>
+      <li>Previous: <a href="../reference/" title="previous chapter">API reference</a></li>
+      <li>Next: <a href="../mockserver/" title="next chapter">Mockserver</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/staticfiles.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

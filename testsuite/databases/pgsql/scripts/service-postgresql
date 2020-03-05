@@ -1,0 +1,57 @@
+#!/bin/bash
+
+. $TESTSUITE_LIB_UTILS
+. $(dirname $0)/find-pg.sh
+
+if [ "x$POSTGRESQL_CONFIGS_DIR" = "x" ]; then
+    die "POSTGRESQL_CONFIGS_DIR must be set"
+fi
+if [ "x$POSTGRESQL_PORT" = "x" ]; then
+    die "POSTGRESQL_PORT must be set"
+fi
+if [ "x$POSTGRESQL_TMPDIR" = "x" ]; then
+    die "POSTGRESQL_TMPDIR must be set"
+fi
+
+# Use ramdisk for postgresql if available
+RAMDISK=/mnt/ramdisk/$USER
+if mkdir -p $RAMDISK 2> /dev/null; then
+    POSTGRESQL_DATADIR=$RAMDISK/_postgresql${WORKER_SUFFIX_PATH}/data
+else
+    POSTGRESQL_DATADIR=$POSTGRESQL_TMPDIR/data
+fi
+
+POSTGRESQL_LOGSDIR=$POSTGRESQL_TMPDIR/logs
+POSTGRESQL_SOCKETDIR=/tmp/testsuite-postgresql${WORKER_SUFFIX_PATH}
+
+mkdir -p $POSTGRESQL_DATADIR
+
+start() {
+    echo "Postgresql data directory: $POSTGRESQL_DATADIR"
+
+    mkdir -p $POSTGRESQL_TMPDIR
+    mkdir -p $POSTGRESQL_LOGSDIR
+    mkdir -p $POSTGRESQL_SOCKETDIR
+
+    set -e
+    $POSTGRESQL_BINPATH/initdb \
+        --locale=en_US.UTF-8 \
+        --lc-collate=C \
+        -U testsuite \
+        -D $POSTGRESQL_DATADIR
+    cp $POSTGRESQL_CONFIGS_DIR/*.conf $POSTGRESQL_DATADIR
+    $POSTGRESQL_BINPATH/pg_ctl \
+        -s -D $POSTGRESQL_DATADIR -w start \
+        -o "-c listen_addresses=*" \
+        -o "-c port=$POSTGRESQL_PORT" \
+        -o "-c unix_socket_directories=$POSTGRESQL_SOCKETDIR" \
+        -o "-c log_directory=$POSTGRESQL_LOGSDIR"
+}
+
+stop() {
+    $POSTGRESQL_BINPATH/pg_ctl -s -D $POSTGRESQL_DATADIR \
+                               -m immediate stop
+    rm -rf $POSTGRESQL_DATADIR $POSTGRESQL_SOCKETDIR
+}
+
+script_main "$@"

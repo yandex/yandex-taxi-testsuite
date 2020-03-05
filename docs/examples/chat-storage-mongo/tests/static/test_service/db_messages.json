@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "1",
+    "username": "Bob",
+    "created": {
+      "$date": "2020-01-01T12:01:00.000"
+    },
+    "text": "Hi, my name is Bob!"
+  },
+  {
+    "_id": "2",
+    "username": "Alice",
+    "created": {
+      "$date": "2020-01-01T12:02:00.000"
+    },
+    "text": "Hi Bob!"
+  }
+]

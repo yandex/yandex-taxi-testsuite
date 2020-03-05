@@ -1,0 +1,8 @@
+[
+  [
+    "hset",
+    "baz",
+    "default",
+    "really default"
+  ]
+]

@@ -1,0 +1,67 @@
+#!/bin/bash
+
+. $TESTSUITE_LIB_UTILS
+
+if [ "x$REDIS_TMPDIR" = "x" ]; then
+    die "REDIS_TMPDIR must be set"
+fi
+if [ "x$REDIS_CONFIGS_DIR" = "x" ]; then
+    die "REDIS_CONFIGS_DIR must be set"
+fi
+
+REDIS_SERVER=$(which redis-server)
+REDIS_ROLES="master0 master1 slave0 slave1 slave2"
+REDIS_SENTINEL_CONF=$REDIS_CONFIGS_DIR/redis_sentinel.conf
+REDIS_SLEEP_WORKAROUND_SECONDS=${REDIS_SLEEP_WORKAROUND_SECONDS:=1}
+REDIS_DATADIR=$REDIS_TMPDIR/data
+REDIS_LOGSDIR=$REDIS_TMPDIR/logs
+
+if [ "x$REDIS_SERVER" = "x" ]; then
+    die "No redis-server binary found"
+fi
+
+start() {
+    rm -rf $REDIS_DATADIR
+
+    mkdir -p $REDIS_TMPDIR
+    mkdir -p $REDIS_DATADIR
+    mkdir -p $REDIS_LOGSDIR
+
+    for role in $REDIS_ROLES; do
+        echo "Starting redis ($role)..."
+        config=$REDIS_CONFIGS_DIR/redis_${role}.conf
+        pidfile="$(get_pidfile $role)"
+        logfile=$REDIS_LOGSDIR/$role.log
+        $REDIS_SERVER $config -- \
+                      --pidfile $pidfile \
+                      --dir $REDIS_DATADIR \
+                      --dbfilename $role.db \
+                      --logfile $logfile
+    done
+
+    # Start sentinel
+    cp $REDIS_SENTINEL_CONF $REDIS_TMPDIR
+    config=$REDIS_TMPDIR/redis_sentinel.conf
+    pidfile="$(get_pidfile sentinel)"
+    logfile=$REDIS_LOGSDIR/sentinel.log
+    $REDIS_SERVER $config -- --pidfile $pidfile --logfile $logfile --sentinel
+
+    # hack
+    cat <<EOF
+Sleeping for $REDIS_SLEEP_WORKAROUND_SECONDS seconds to make stupid Redis
+sentinel see all Redis data servers...
+
+(use REDIS_SLEEP_WORKAROUND_SECONDS=0 to skip the sleep if you're sure what
+you're doing)"
+EOF
+    sleep $REDIS_SLEEP_WORKAROUND_SECONDS
+}
+
+stop() {
+    for role in $REDIS_ROLES sentinel; do
+        pidfile="$(get_pidfile $role)"
+        stop_daemon $REDIS_SERVER $pidfile
+    done
+}
+
+script_main "$@"

@@ -1,0 +1,4 @@
+settings:
+  collection: foo_extra
+  connection: local_connection
+  database: dbfoo

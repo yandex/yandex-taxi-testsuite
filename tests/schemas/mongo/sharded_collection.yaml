@@ -1,0 +1,6 @@
+settings:
+  collection: sharded_collection
+  connection: local_connection
+  database: dbshrd
+sharding:
+  key: _shard_id

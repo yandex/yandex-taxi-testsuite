@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat-example</title>
+    <link rel="stylesheet" href="static/chat.css">
+    <script src="static/chat.js"></script>
+</head>
+<body>
+<div class="hide">
+    <div class="wrapper your" id="message-template-your">
+        <div class="message">
+            You: {message}<br/><span class="date">{date}</span>
+        </div>
+    </div>
+    <div class="wrapper their" id="message-template-their">
+        <div class="message">
+            {username}: {message}<br/><span class="date">{date}</span>
+        </div>
+    </div>
+</div>
+<div class="chat-container">
+    <div class="wrapper login">
+        <input type="text" class="input" id="input-login">
+        <div class="nickname hide" id="nickname">
+        </div>
+        <div class="button" id="login">Login</div>
+    </div>
+    <div class="message-list hide" id="message-list">
+    </div>
+    <div class="wrapper input hide" id="input-message-wrapper">
+        <input type="text" class="input" id="input-message">
+        <div class="button" id="send">Send</div>
+    </div>
+</div>
+</body>
+</html>

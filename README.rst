@@ -53,6 +53,19 @@ as well as the order of calls and the data that was sent and received.
 A test may check the internal state of the service as represented by the data
 the service sent to the test with the testpoint mechanism.
 
+Source code
+-----------
+
+Testsuite open-source edition code is available
+`here <https://github.com/yandex/yandex-taxi-testsuite>`_.
+
+Documentation
+-------------
+
+For full documentation, including installation, tutorials,
+please see https://yandex.github.io/yandex-taxi-testsuite/.
+
+
 Running testsuite
 -----------------
 

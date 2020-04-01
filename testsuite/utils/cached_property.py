@@ -1,58 +1,63 @@
-# cached_property implementation taken from werkzeug project, see:
-# https://werkzeug.palletsprojects.com/
-#
-# pylint: disable=invalid-name,super-init-not-called,redefined-builtin
+# pylint: disable=invalid-name,redefined-builtin
+import functools
+import sys
+import threading
 
+_NOT_FOUND = object()
 
-class _Missing:
-    def __repr__(self):
-        return 'no value'
+if sys.version_info > (3, 8):
+    cached_property = functools.cached_property
+else:
+    class cached_property:
+        """
+        Copy from functools python 3.8
+        """
 
-    def __reduce__(self):
-        return '_missing'
+        def __init__(self, func):
+            self.func = func
+            self.attrname = None
+            self.__doc__ = func.__doc__
+            self.lock = threading.RLock()
 
+        def __set_name__(self, owner, name):
+            if self.attrname is None:
+                self.attrname = name
+            elif name != self.attrname:
+                raise TypeError(
+                    "Cannot assign the same cached_"
+                    "property to two different names "
+                    f"({self.attrname!r} and {name!r})."
+                )
 
-_missing = _Missing()
-
-
-class cached_property(property):
-
-    """A decorator that converts a function into a lazy property.  The
-    function wrapped is called the first time to retrieve the result
-    and then that calculated result is used the next time you access
-    the value::
-
-        class Foo(object):
-
-            @cached_property
-            def foo(self):
-                # calculate something important here
-                return 42
-
-    The class has to have a ``__dict__`` in order for this property to
-    work.
-    """
-
-    # implementation detail: A subclass of python's builtin property
-    # decorator, we override __get__ to check for a cached value. If one
-    # choses to invoke __get__ by hand the property will still work as
-    # expected because the lookup logic is replicated in __get__ for
-    # manual invocation.
-
-    def __init__(self, func, name=None, doc=None):
-        self.__name__ = name or func.__name__
-        self.__module__ = func.__module__
-        self.__doc__ = doc or func.__doc__
-        self.func = func
-
-    def __set__(self, obj, value):
-        obj.__dict__[self.__name__] = value
-
-    def __get__(self, obj, type=None):
-        if obj is None:
-            return self
-        value = obj.__dict__.get(self.__name__, _missing)
-        if value is _missing:
-            value = self.func(obj)
-            obj.__dict__[self.__name__] = value
-        return value
+        def __get__(self, instance, owner=None):
+            if instance is None:
+                return self
+            if self.attrname is None:
+                raise TypeError(
+                    "Cannot use cached_property instance "
+                    "without calling __set_name__ on it.")
+            try:
+                cache = instance.__dict__
+            except AttributeError:
+                msg = (
+                    f"No '__dict__' attribute on {type(instance).__name__!r} "
+                    f"instance to cache {self.attrname!r} property."
+                )
+                raise TypeError(msg) from None
+            val = cache.get(self.attrname, _NOT_FOUND)
+            if val is _NOT_FOUND:
+                with self.lock:
+                    val = cache.get(self.attrname, _NOT_FOUND)
+                    if val is _NOT_FOUND:
+                        val = self.func(instance)
+                        try:
+                            cache[self.attrname] = val
+                        except TypeError:
+                            msg = (
+                                f"The '__dict__' attribute "
+                                f"on {type(instance).__name__!r} instance "
+                                f"does not support item assignment "
+                                f"for caching {self.attrname!r} property."
+                            )
+                            raise TypeError(msg) from None
+            return val

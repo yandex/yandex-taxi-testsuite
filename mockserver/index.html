@@ -65,27 +65,28 @@ with <code class="docutils literal notranslate"><span class="pre">--mockserver-n
 <div class="section" id="id1">
 <h3>mockserver<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
-<dt id="testsuite.plugins.mockserver.mockserver">
-<code class="descclassname">testsuite.plugins.mockserver.</code><code class="descname">mockserver</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#mockserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.mockserver" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an instance of <a class="reference internal" href="#testsuite.plugins.mockserver.HandlerInstaller" title="testsuite.plugins.mockserver.HandlerInstaller"><code class="xref py py-class docutils literal notranslate"><span class="pre">HandlerInstaller</span></code></a>.</p>
+<dt id="testsuite.mockserver.pytest_plugin.mockserver">
+<code class="descclassname">testsuite.mockserver.pytest_plugin.</code><code class="descname">mockserver</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/mockserver/pytest_plugin/#mockserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.pytest_plugin.mockserver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an instance of
+<a class="reference internal" href="#testsuite.mockserver.server.MockserverFixture" title="testsuite.mockserver.server.MockserverFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.server.MockserverFixture</span></code></a>.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller">
-<em class="property">class </em><code class="descclassname">testsuite.plugins.mockserver.</code><code class="descname">HandlerInstaller</code><a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#HandlerInstaller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mockserver handler installer.</p>
+<dt id="testsuite.mockserver.server.MockserverFixture">
+<em class="property">class </em><code class="descclassname">testsuite.mockserver.server.</code><code class="descname">MockserverFixture</code><a class="reference internal" href="../_modules/testsuite/mockserver/server/#MockserverFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mockserver handler installer fixture.</p>
 <dl class="exception">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.NetworkError">
-<em class="property">exception </em><code class="descname">NetworkError</code><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.NetworkError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception used to mock HTTP client netowork errors.</p>
+<dt id="testsuite.mockserver.server.MockserverFixture.NetworkError">
+<em class="property">exception </em><code class="descname">NetworkError</code><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.NetworkError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception used to mock HTTP client network errors.</p>
 <p>Requires service side support.</p>
 <p>Available as <code class="docutils literal notranslate"><span class="pre">mockserver.NetworkError</span></code> alias
 or by full name <code class="docutils literal notranslate"><span class="pre">testsuite.utils.http.NetworkError</span></code>.</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.TimeoutError">
-<em class="property">exception </em><code class="descname">TimeoutError</code><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.TimeoutError" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.TimeoutError">
+<em class="property">exception </em><code class="descname">TimeoutError</code><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.TimeoutError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception used to mock HTTP client timeout errors.</p>
 <p>Requires service side support.</p>
 <p>Available as <code class="docutils literal notranslate"><span class="pre">mockserver.TimeoutError</span></code> alias
@@ -93,14 +94,14 @@ or by full name <code class="docutils literal notranslate"><span class="pre">tes
 </dd></dl>
 
 <dl class="attribute">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.base_url">
-<code class="descname">base_url</code><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.base_url" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.base_url">
+<code class="descname">base_url</code><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.base_url" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mockserver base url.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.handler">
-<code class="descname">handler</code><span class="sig-paren">(</span><em>path</em>, <em>prefix=False</em>, <em>raw_request=False</em>, <em>json_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#HandlerInstaller.handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.handler" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.handler">
+<code class="descname">handler</code><span class="sig-paren">(</span><em>path: str</em>, <em>*</em>, <em>prefix: bool = False</em>, <em>raw_request: bool = False</em>, <em>json_response: bool = False</em>, <em>regex: bool = False</em><span class="sig-paren">)</span> &#x2192; Callable[[Callable[[...], Union[aiohttp.web_response.Response, Awaitable[aiohttp.web_response.Response]]]], testsuite.utils.callinfo.AsyncCallQueue]<a class="reference internal" href="../_modules/testsuite/mockserver/server/#MockserverFixture.handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register basic http handler for <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p>
 <p>Returns decorator that registers handler <code class="docutils literal notranslate"><span class="pre">path</span></code>. Original function is
 wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a>.</p>
@@ -110,6 +111,10 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 <li><p><strong>path</strong> – match url by prefix if <code class="docutils literal notranslate"><span class="pre">True</span></code> exact match otherwise</p></li>
 <li><p><strong>raw_request</strong> – pass <code class="docutils literal notranslate"><span class="pre">aiohttp.web.Response</span></code> to handler instead of
 <code class="docutils literal notranslate"><span class="pre">testsuite.utils.http.Request</span></code></p></li>
+<li><p><strong>regex</strong> – set True to match path as regex pattern</p></li>
+<li><p><strong>prefix</strong> – set True to match path prefix instead of whole path</p></li>
+<li><p><strong>json_response</strong> – set True to let handler return json object
+instead of full response object</p></li>
 </ul>
 </dd>
 </dl>
@@ -121,14 +126,14 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 </dd></dl>
 
 <dl class="attribute">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.host">
-<code class="descname">host</code><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.host" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.host">
+<code class="descname">host</code><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mockserver hostname.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.json_handler">
-<code class="descname">json_handler</code><span class="sig-paren">(</span><em>path</em>, <em>prefix=False</em>, <em>raw_request=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#HandlerInstaller.json_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.json_handler" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.json_handler">
+<code class="descname">json_handler</code><span class="sig-paren">(</span><em>path: str</em>, <em>*</em>, <em>prefix: bool = False</em>, <em>raw_request: bool = False</em>, <em>regex: bool = False</em><span class="sig-paren">)</span> &#x2192; Callable[[Callable[[...], Union[aiohttp.web_response.Response, int, float, str, list, dict, None, Awaitable[Union[aiohttp.web_response.Response, int, float, str, list, dict, None]]]]], testsuite.utils.callinfo.AsyncCallQueue]<a class="reference internal" href="../_modules/testsuite/mockserver/server/#MockserverFixture.json_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.json_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register json http handler for <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p>
 <p>Returns decorator that registers handler <code class="docutils literal notranslate"><span class="pre">path</span></code>. Original function is
 wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a>.</p>
@@ -138,6 +143,8 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 <li><p><strong>path</strong> – match url by prefix if <code class="docutils literal notranslate"><span class="pre">True</span></code> exact match otherwise</p></li>
 <li><p><strong>raw_request</strong> – pass <code class="docutils literal notranslate"><span class="pre">aiohttp.web.Response</span></code> to handler instead of
 <code class="docutils literal notranslate"><span class="pre">testsuite.utils.http.Request</span></code></p></li>
+<li><p><strong>prefix</strong> – set True to match path prefix instead of whole path</p></li>
+<li><p><strong>regex</strong> – set True to match path as regex pattern</p></li>
 </ul>
 </dd>
 </dl>
@@ -152,8 +159,8 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 </dd></dl>
 
 <dl class="method">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.make_response">
-<em class="property">staticmethod </em><code class="descname">make_response</code><span class="sig-paren">(</span><em>response: Union[str</em>, <em>bytes</em>, <em>bytearray] = None</em>, <em>status: int = 200</em>, <em>headers: Mapping[str</em>, <em>str] = None</em>, <em>content_type: Optional[str] = None</em>, <em>charset: Optional[str] = None</em>, <em>*</em>, <em>json=&lt;class 'testsuite.utils.http._NoValue'&gt;</em><span class="sig-paren">)</span> &#x2192; aiohttp.web_response.Response<a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.make_response" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.make_response">
+<em class="property">staticmethod </em><code class="descname">make_response</code><span class="sig-paren">(</span><em>response: Union[str</em>, <em>bytes</em>, <em>bytearray] = None</em>, <em>status: int = 200</em>, <em>headers: Mapping[str</em>, <em>str] = None</em>, <em>content_type: Optional[str] = None</em>, <em>charset: Optional[str] = None</em>, <em>*</em>, <em>json=&lt;class 'testsuite.utils.http._NoValue'&gt;</em>, <em>form=&lt;class 'testsuite.utils.http._NoValue'&gt;</em><span class="sig-paren">)</span> &#x2192; aiohttp.web_response.Response<a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.make_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create HTTP response object. Returns <code class="docutils literal notranslate"><span class="pre">aiohttp.web.Response</span></code> instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -164,20 +171,27 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 <li><p><strong>content_type</strong> – HTTP Content-Type header</p></li>
 <li><p><strong>charset</strong> – Response character set</p></li>
 <li><p><strong>json</strong> – JSON response shortcut</p></li>
+<li><p><strong>form</strong> – x-www-form-urlencoded response shortcut</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="testsuite.mockserver.server.MockserverFixture.new">
+<code class="descname">new</code><span class="sig-paren">(</span><em>prefix: str</em><span class="sig-paren">)</span> &#x2192; testsuite.mockserver.server.MockserverFixture<a class="reference internal" href="../_modules/testsuite/mockserver/server/#MockserverFixture.new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create mockserver installer with given base prefix.</p>
+</dd></dl>
+
 <dl class="attribute">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.port">
-<code class="descname">port</code><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.port" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.port">
+<code class="descname">port</code><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.port" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mockserver port.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="testsuite.plugins.mockserver.HandlerInstaller.url">
-<code class="descname">url</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#HandlerInstaller.url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.HandlerInstaller.url" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.server.MockserverFixture.url">
+<code class="descname">url</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/testsuite/mockserver/server/#MockserverFixture.url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.url" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds mockserver url for <code class="docutils literal notranslate"><span class="pre">path</span></code></p>
 </dd></dl>
 
@@ -187,50 +201,82 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 <div class="section" id="mockserver-info">
 <h3>mockserver_info<a class="headerlink" href="#mockserver-info" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
-<dt id="testsuite.plugins.mockserver.mockserver_info">
-<code class="descclassname">testsuite.plugins.mockserver.</code><code class="descname">mockserver_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#mockserver_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.mockserver_info" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.pytest_plugin.mockserver_info">
+<code class="descclassname">testsuite.mockserver.pytest_plugin.</code><code class="descname">mockserver_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/mockserver/pytest_plugin/#mockserver_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.pytest_plugin.mockserver_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns mockserver information object.</p>
-<p>Returns <code class="docutils literal notranslate"><span class="pre">MockserverInfo</span></code> instance containing basic information about
+<p>Returns <a class="reference internal" href="#testsuite.mockserver.classes.MockserverInfo" title="testsuite.mockserver.classes.MockserverInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.classes.MockserverInfo</span></code></a> instance
+containing basic information about
 mockserver.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="testsuite.plugins.mockserver.MockserverInfo">
-<em class="property">class </em><code class="descclassname">testsuite.plugins.mockserver.</code><code class="descname">MockserverInfo</code><a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#MockserverInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.MockserverInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>MockserverInfo(host, port, base_url, ssl)</p>
-<dl class="attribute">
-<dt id="testsuite.plugins.mockserver.MockserverInfo.base_url">
-<code class="descname">base_url</code><a class="headerlink" href="#testsuite.plugins.mockserver.MockserverInfo.base_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 2</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="testsuite.plugins.mockserver.MockserverInfo.host">
-<code class="descname">host</code><a class="headerlink" href="#testsuite.plugins.mockserver.MockserverInfo.host" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="testsuite.plugins.mockserver.MockserverInfo.port">
-<code class="descname">port</code><a class="headerlink" href="#testsuite.plugins.mockserver.MockserverInfo.port" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 1</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="testsuite.plugins.mockserver.MockserverInfo.ssl">
-<code class="descname">ssl</code><a class="headerlink" href="#testsuite.plugins.mockserver.MockserverInfo.ssl" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 3</p>
-</dd></dl>
-
+<dt id="testsuite.mockserver.classes.MockserverInfo">
+<em class="property">class </em><code class="descclassname">testsuite.mockserver.classes.</code><code class="descname">MockserverInfo</code><a class="reference internal" href="../_modules/testsuite/mockserver/classes/#MockserverInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.classes.MockserverInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>MockserverInfo(host: str, port: int, base_url: str, ssl: Union[testsuite.mockserver.classes.SslCertInfo, NoneType])</p>
 <dl class="method">
-<dt id="testsuite.plugins.mockserver.MockserverInfo.url">
-<code class="descname">url</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/testsuite/plugins/mockserver/#MockserverInfo.url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mockserver.MockserverInfo.url" title="Permalink to this definition">¶</a></dt>
+<dt id="testsuite.mockserver.classes.MockserverInfo.url">
+<code class="descname">url</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/testsuite/mockserver/classes/#MockserverInfo.url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.classes.MockserverInfo.url" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concats <code class="docutils literal notranslate"><span class="pre">base_url</span></code> and provided <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
 
 </div>
+</div>
+<div class="section" id="magic-args">
+<h2>Magic args<a class="headerlink" href="#magic-args" title="Permalink to this headline">¶</a></h2>
+<p>By default mockserver handler receives <code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.utils.http.Request</span></code>
+or <code class="xref py py-class docutils literal notranslate"><span class="pre">aiohttp.web.BaseRequest</span></code> object. Mockserver also supports special
+arguments that are filled with values from request, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">test_mockserver</span><span class="p">(</span><span class="n">service_client</span><span class="p">,</span> <span class="n">mockserver</span><span class="p">):</span>
+    <span class="nd">@mockserver</span><span class="o">.</span><span class="n">json_handler</span><span class="p">(</span><span class="s1">&#39;/service-name/path&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">body_json</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span>
+        <span class="k">assert</span> <span class="n">body_json</span> <span class="o">==</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+        <span class="n">reutrn</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Currently supported arguments are:</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 70%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>body_binary</p></td>
+<td><p>Request body as binary</p></td>
+</tr>
+<tr class="row-odd"><td><p>body_json</p></td>
+<td><p>Request body as JSON object</p></td>
+</tr>
+<tr class="row-even"><td><p>content_type</p></td>
+<td><p>Content-Type header value</p></td>
+</tr>
+<tr class="row-odd"><td><p>cookies</p></td>
+<td><p>Cookies dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p>form</p></td>
+<td><p>Form data</p></td>
+</tr>
+<tr class="row-odd"><td><p>headers</p></td>
+<td><p>Headers dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p>method</p></td>
+<td><p>HTTP method string</p></td>
+</tr>
+<tr class="row-odd"><td><p>path</p></td>
+<td><p>Request path</p></td>
+</tr>
+<tr class="row-even"><td><p>query</p></td>
+<td><p>Query dictionary</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="timeouts-and-network-errors">
 <h2>Timeouts and network errors<a class="headerlink" href="#timeouts-and-network-errors" title="Permalink to this headline">¶</a></h2>
@@ -279,22 +325,24 @@ X-Testsuite-Error: network|timeout
 </div>
 <p>Available errors are:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#testsuite.plugins.mockserver.HandlerInstaller.TimeoutError" title="testsuite.plugins.mockserver.HandlerInstaller.TimeoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">HandlerInstaller.TimeoutError</span></code></a></p></li>
-<li><p><a class="reference internal" href="#testsuite.plugins.mockserver.HandlerInstaller.NetworkError" title="testsuite.plugins.mockserver.HandlerInstaller.NetworkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">HandlerInstaller.NetworkError</span></code></a></p></li>
+<li><p><a class="reference internal" href="#testsuite.mockserver.server.MockserverFixture.TimeoutError" title="testsuite.mockserver.server.MockserverFixture.TimeoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.server.MockserverFixture.TimeoutError</span></code></a></p></li>
+<li><p><a class="reference internal" href="#testsuite.mockserver.server.MockserverFixture.NetworkError" title="testsuite.mockserver.server.MockserverFixture.NetworkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.server.MockserverFixture.NetworkError</span></code></a></p></li>
 </ul>
 </div>
 <div class="section" id="opentracing">
 <h2>OpenTracing<a class="headerlink" href="#opentracing" title="Permalink to this headline">¶</a></h2>
 <p>To make tests fast, testsuite starts the service only once, at the beginning of
 test session.</p>
-<p>Consider a test case, when service starts a background task which periodically
-calls external service. Suppose the task continues after test completion.</p>
+<p>Consider a test case <em>TestA</em>, when service starts a background task which
+periodically calls external service. Suppose the task continues after test
+completion.</p>
+<p>Observe, the background task started in <em>TestA</em>, causes http requests to
+mockserver, while another <em>TestB</em> is running.</p>
 <p>Now recall that by default testsuite requires <em>all</em> calls to external services,
 which happen in test case, to be mocked.</p>
-<p>Observe, the background task started in one test, causes http requests to
-mockserver, while another test is running, which will cause it to fail unless
-it is happens to be mocked in another test.</p>
-<p>What choices are there to make another test pass:</p>
+<p>It causes <em>TestB</em> to fail while handling request from <em>TestA</em> unless request
+from <em>TestA</em> coincidentally happens to be mocked in <em>TestB</em>.</p>
+<p>What choices are there to make <em>TestB</em> pass:</p>
 <ul class="simple">
 <li><p>Setup global mocks for any external APIs called from background tasks. It is
 undesirable because these mocks are only actually required by some of the
@@ -352,6 +400,7 @@ and test case proceeds normally.</p>
 <li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../other_plugins/">Other plugins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
 </ul>
 </li>

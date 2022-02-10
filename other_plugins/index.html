@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Other plugins &#8212; testsuite 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Utils" href="../utils/" />
+    <link rel="prev" title="Database support" href="../databases/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="other-plugins">
+<h1>Other plugins<a class="headerlink" href="#other-plugins" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="envinfo">
+<span id="otherplugins"></span><h2>Envinfo<a class="headerlink" href="#envinfo" title="Permalink to this headline">¶</a></h2>
+<p>Envinfo plugin adds some details to test report header</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">args</span><span class="p">:</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="o">-</span><span class="n">vv</span> <span class="o">-</span><span class="n">x</span>
+<span class="n">hostname</span><span class="p">:</span> <span class="n">machine</span><span class="o">-</span><span class="n">hostname</span>
+<span class="n">git</span><span class="p">:</span> <span class="n">branch</span> <span class="n">current_branch</span><span class="p">,</span> <span class="n">commit_hash</span><span class="o">*</span><span class="p">,</span> <span class="n">base</span> <span class="n">base_commit_hash</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">git:</span></code> section</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">*</span></code> indicates uncommitted changes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base_commit_hash</span></code> points to a commit in <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch from which the
+current branch diverges</p></li>
+</ul>
+<p>To use envinfo plugin, add it to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> in <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ...</span>
+    <span class="s1">&#39;testsuite.envinfo&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Retrieving git status can be slow in docker due to network-related issues.
+If it affects you, turn git status off by <code class="docutils literal notranslate"><span class="pre">--envinfo-no-git</span></code> flag.</p>
+</div>
+<div class="section" id="mocked-time">
+<h2>Mocked_time<a class="headerlink" href="#mocked-time" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fixtures">
+<h3>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.mocked_time.mocked_time">
+<code class="descclassname">testsuite.plugins.mocked_time.</code><code class="descname">mocked_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#mocked_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.mocked_time" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#testsuite.plugins.mocked_time.MockedTime" title="testsuite.plugins.mocked_time.MockedTime"><code class="xref py py-class docutils literal notranslate"><span class="pre">MockedTime</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p><code class="docutils literal notranslate"><span class="pre">mocked_time</span></code> fixture provides control over mock time in a centralized way.</p>
+</div>
+<div class="section" id="disabling-mocked-time">
+<h3>Disabling mocked_time<a class="headerlink" href="#disabling-mocked-time" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mocked-time-enabled</span> <span class="pre">=</span> <span class="pre">false</span></code> flag in <code class="docutils literal notranslate"><span class="pre">pytest.ini</span></code> disables mocked time
+by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--service-runner-mode</span></code> command line flag disables mocked time by default.</p></li>
+</ul>
+<p>When mocked time is disabled by default, it has to explicitly enabled to be
+used in a particular test: <code class="docutils literal notranslate"><span class="pre">&#64;pytest.mark.now('2016-12-01T12:00:00')</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&#64;pytest.mark.now(enabled=True)</span></code>.</p>
+<p>If time is not specified in <code class="docutils literal notranslate"><span class="pre">&#64;pytest.mark.now</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">datetime.datetime.utcnow()</span></code> value at the start of test is used as time value
+until it is modified by calling <code class="docutils literal notranslate"><span class="pre">mocked_time.set(...)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">mocked_time.sleep(...)</span></code></p>
+</div>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="testsuite.plugins.mocked_time.MockedTime">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.mocked_time.</code><code class="descname">MockedTime</code><span class="sig-paren">(</span><em>time: datetime.datetime</em>, <em>*</em>, <em>is_enabled: bool</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#MockedTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.MockedTime" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="testsuite.plugins.mocked_time.MockedTime.now">
+<code class="descname">now</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; datetime.datetime<a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#MockedTime.now"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.MockedTime.now" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>current value of mock time</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.plugins.mocked_time.MockedTime.set">
+<code class="descname">set</code><span class="sig-paren">(</span><em>time: datetime.datetime</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#MockedTime.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.MockedTime.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set mock time value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testsuite.plugins.mocked_time.MockedTime.sleep">
+<code class="descname">sleep</code><span class="sig-paren">(</span><em>delta: float</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#MockedTime.sleep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.MockedTime.sleep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase mock time value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>delta</strong> – increase value in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Other plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../reference/">API reference</a><ul>
+      <li>Previous: <a href="../databases/" title="previous chapter">Database support</a></li>
+      <li>Next: <a href="../utils/" title="next chapter">Utils</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/other_plugins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

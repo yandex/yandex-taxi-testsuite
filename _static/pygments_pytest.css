@@ -1,4 +1,6 @@
 .-Color-Bold { font-weight: bold; }
+.-Color-Bold-Cyan{ color: #06989a; font-weight: bold; }
+.-Color-Cyan{ color: #06989a; }
 .-Color-Bold-Green{ color: #4e9a06; font-weight: bold; }
 .-Color-Green{ color: #4e9a06; }
 .-Color-Bold-Red{ color: #c00; font-weight: bold; }

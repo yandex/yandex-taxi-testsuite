@@ -121,8 +121,15 @@
             <span class="p">)</span></div></div>
 
 
+<span class="k">def</span> <span class="nf">getfullargspec</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">):</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__func__</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s1">&#39;__wrapped__&#39;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">callinfo</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="n">func_spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">func_spec</span> <span class="o">=</span> <span class="n">getfullargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="n">func_varkw</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">varkw</span>
     <span class="n">func_kwonlyargs</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">kwonlyargs</span>
     <span class="n">func_kwonlydefaults</span> <span class="o">=</span> <span class="n">func_spec</span><span class="o">.</span><span class="n">kwonlydefaults</span>
@@ -155,11 +162,12 @@
 
 <div class="viewcode-block" id="acallqueue"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.callinfo.acallqueue">[docs]</a><span class="k">def</span> <span class="nf">acallqueue</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCallQueue</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Turn function into async call queue.</span>
-
-<span class="sd">    :param func: async or sync callable</span>
+<span class="sd">    :param func: async or sync callable, can be decorated with @staticmethod</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">AsyncCallQueue</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">func</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">):</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__func__</span>
     <span class="k">return</span> <span class="n">AsyncCallQueue</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></div>
 </pre></div>
 

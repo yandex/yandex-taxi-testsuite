@@ -41,8 +41,9 @@ simple HTTP service written in Python. <code class="docutils literal notranslate
 external storage service to actually store chat messages.</p>
 <p>Two alternative storage services are implemented:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">chat-storage-postgres</span></code> - stores chat messages in PostgreSQL database</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">chat-storage-mongo</span></code> - stores chat messages in MongoDB database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chat-storage-mysql</span></code> - stores chat messages in MySQL database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chat-storage-postgres</span></code> - stores chat messages in PostgreSQL database</p></li>
 </ul>
 <p>Directory structure</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chat</span><span class="o">-</span><span class="n">xxx</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span> <span class="n">simple</span> <span class="n">microservice</span> <span class="n">written</span> <span class="ow">in</span> <span class="n">python</span>
@@ -58,8 +59,9 @@ external storage service to actually store chat messages.</p>
 </div>
 <p>Run tests for a particular example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">backend</span>
-<span class="n">make</span> <span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
 <span class="n">make</span> <span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mongo</span>
+<span class="n">make</span> <span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mysql</span>
+<span class="n">make</span> <span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
 </pre></div>
 </div>
 </div>
@@ -70,11 +72,15 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 <div class="section" id="run-application">
 <h3>Run application<a class="headerlink" href="#run-application" title="Permalink to this headline">¶</a></h3>
 <p>Run chat backend with PostgreSQL storage</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">run</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">postgres</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">run</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
 </pre></div>
 </div>
 <p>Run chat backend with MongoDB storage</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">run</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">mongo</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">run</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mongo</span>
+</pre></div>
+</div>
+<p>Run chat backend with MySQL storage</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">run</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mysql</span>
 </pre></div>
 </div>
 <p>On startup completion you will see output similar to</p>
@@ -91,8 +97,9 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 </pre></div>
 </div>
 <p>Run tests for a particular example</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span><span class="o">-</span><span class="n">mockserver</span><span class="o">-</span><span class="n">example</span>
-<span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span><span class="o">-</span><span class="n">mongo</span><span class="o">-</span><span class="n">example</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">backend</span>
+<span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mongo</span>
+<span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mysql</span>
 <span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
 </pre></div>
 </div>
@@ -117,6 +124,12 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 <li class="toctree-l2"><a class="reference internal" href="../chat-storage-mongo/README/#example-service">Example Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../chat-storage-mongo/README/#conftest">Conftest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../chat-storage-mongo/README/#test">Test</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../chat-storage-mysql/README/">MySQL chat storage backend example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chat-storage-mysql/README/#example-service">Example Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chat-storage-mysql/README/#conftest">Conftest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chat-storage-mysql/README/#test">Test</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../chat-storage-postgres/README/">PostgreSQL chat storage backend example</a><ul>

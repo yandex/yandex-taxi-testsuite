@@ -52,7 +52,13 @@ the static file <code class="docutils literal notranslate"><span class="pre">foo
 <h3>load<a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load">
-<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.LoadFixture" title="testsuite.plugins.common.LoadFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.LoadFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">LoadFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadFixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load file from static directory.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="n">load</span><span class="p">):</span>
@@ -61,9 +67,30 @@ the static file <code class="docutils literal notranslate"><span class="pre">foo
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Loader (function).</p>
+<dd class="field-odd"><p><a class="reference internal" href="#testsuite.plugins.common.LoadFixture" title="testsuite.plugins.common.LoadFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadFixture</span></code></a> callable instance.</p>
 </dd>
 </dl>
+<dl class="method">
+<dt id="testsuite.plugins.common.LoadFixture.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path], mode='r', encoding='utf-8', errors=None</em><span class="sig-paren">)</span> &#x2192; Union[bytes, str]<a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load static text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – static file name part.</p></li>
+<li><p><strong>mode</strong> – file open mode, see <code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code>, read-only modes are
+supported.</p></li>
+<li><p><strong>encoding</strong> – stream encoding, see <code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code>.</p></li>
+<li><p><strong>errors</strong> – error handling mode see <code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">str</span></code> instance. Binary mode is obsolte, use
+<a class="reference internal" href="#testsuite.plugins.common.load_binary" title="testsuite.plugins.common.load_binary"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_binary()</span></code></a> fixture instead.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -71,13 +98,33 @@ the static file <code class="docutils literal notranslate"><span class="pre">foo
 <h3>load_binary<a class="headerlink" href="#load-binary" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load_binary">
-<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_binary</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load_binary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load_binary" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_binary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.load_binary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.LoadBinaryFixture" title="testsuite.plugins.common.LoadBinaryFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadBinaryFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.LoadBinaryFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">LoadBinaryFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadBinaryFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadBinaryFixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load binary data from static directory.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="n">load_binary</span><span class="p">):</span>
     <span class="n">bytes_data</span> <span class="o">=</span> <span class="n">load_binary</span><span class="p">(</span><span class="s1">&#39;data.bin&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="method">
+<dt id="testsuite.plugins.common.LoadBinaryFixture.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadBinaryFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadBinaryFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load static binary file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename&quot;</strong> – static file name part</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">bytes</span></code> file content.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -85,7 +132,13 @@ the static file <code class="docutils literal notranslate"><span class="pre">foo
 <h3>load_json<a class="headerlink" href="#load-json" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load_json">
-<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_json</code><span class="sig-paren">(</span><em>path</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load_json" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.load_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.LoadJsonFixture" title="testsuite.plugins.common.LoadJsonFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadJsonFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.LoadJsonFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">LoadJsonFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadJsonFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadJsonFixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load json doc from static directory.</p>
 <p>Json loader runs <code class="docutils literal notranslate"><span class="pre">json_util.loads(data,</span> <span class="pre">...,</span> <span class="pre">*args,</span> <span class="pre">**kwargs)</span></code> hooks.
 It does:
@@ -96,6 +149,12 @@ It does:
     <span class="n">json_obj</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="s1">&#39;filename.json&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="method">
+<dt id="testsuite.plugins.common.LoadJsonFixture.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path], *args, **kwargs</em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadJsonFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadJsonFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -103,12 +162,24 @@ It does:
 <h3>load_yaml<a class="headerlink" href="#load-yaml" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load_yaml">
-<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_yaml</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/common/#load_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.load_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">load_yaml</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.load_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.LoadYamlFixture" title="testsuite.plugins.common.LoadYamlFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadYamlFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.LoadYamlFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">LoadYamlFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadYamlFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadYamlFixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load yaml doc from static directory.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="n">load_yaml</span><span class="p">):</span>
     <span class="n">yaml_obj</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s1">&#39;filename.yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="method">
+<dt id="testsuite.plugins.common.LoadYamlFixture.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path], *args, **kwargs</em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadYamlFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadYamlFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -145,6 +216,7 @@ It does:
 <li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../other_plugins/">Other plugins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
 </ul>
 </li>

@@ -46,6 +46,34 @@ black box, when the service is tested through http calls.</p>
 <p>Direct read and write access from test to database is supported to enable
 precondition setup and result assertions.</p>
 </div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Installation using <a class="reference external" href="https://pypi.org/project/yandex-taxi-testsuite/">pip</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span>
+
+<span class="c1"># testsuite with mongodb support</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span><span class="p">[</span><span class="n">mongodb</span><span class="p">]</span>
+
+<span class="c1"># testsuite with postgresql support</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span><span class="p">[</span><span class="n">postgresql</span><span class="p">]</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span><span class="p">[</span><span class="n">postgresql</span><span class="o">-</span><span class="n">binary</span><span class="p">]</span>
+
+<span class="c1"># testsuite with redis support</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span><span class="p">[</span><span class="n">redis</span><span class="p">]</span>
+
+<span class="c1"># testsuite with mysql support</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span><span class="p">[</span><span class="n">mysql</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>You can also include testsuite into your project as submodule, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">submodules</span>
+<span class="n">git</span> <span class="n">submodule</span> <span class="n">add</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">yandex</span><span class="o">/</span><span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span><span class="o">.</span><span class="n">git</span> <span class="n">submodules</span><span class="o">/</span><span class="n">testsuite</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="supported-databases">
 <h2>Supported databases<a class="headerlink" href="#supported-databases" title="Permalink to this headline">¶</a></h2>
 <p>Out-of-the-box testsuite supports the following databases:</p>
@@ -53,6 +81,7 @@ precondition setup and result assertions.</p>
 <li><p>PostgreSQL</p></li>
 <li><p>MongoDB</p></li>
 <li><p>Redis</p></li>
+<li><p>MySQL</p></li>
 </ul>
 </div>
 <div class="section" id="supported-operating-systems">
@@ -127,6 +156,8 @@ please see <a class="reference external" href="https://yandex.github.io/yandex-t
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-testsuite">What is testsuite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-databases">Supported databases</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-operating-systems">Supported operating systems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#principle-of-operation">Principle of operation</a></li>

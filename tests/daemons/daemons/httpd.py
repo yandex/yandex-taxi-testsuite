@@ -4,13 +4,12 @@ import argparse
 import http.server
 import socket
 import socketserver
+import typing
 
 
 class ExternalSocketHTTPServer(socketserver.TCPServer):
     def __init__(self, sock, request_handler_class):
-        socketserver.BaseServer.__init__(
-            self, sock.getsockname(), request_handler_class
-        )
+        super().__init__(sock.getsockname(), request_handler_class)
         self.socket = sock
         self.server_bind()
         self.server_activate()
@@ -23,7 +22,7 @@ class ExternalSocketHTTPServer(socketserver.TCPServer):
 
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
-    _GET_methods = {}
+    _GET_methods: typing.Dict[str, typing.Callable] = {}
 
     def do_GET(self):
         if self.path not in self._GET_methods:
@@ -36,10 +35,12 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         def _route(func):
             cls._GET_methods[path] = func
             return func
+
         return _route
 
-    def make_response(self, data, *, content_type='text/plain',
-                      status_code=200):
+    def make_response(
+            self, data, *, content_type='text/plain', status_code=200,
+    ):
         self.send_response(status_code)
         self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', len(data))
@@ -65,34 +66,44 @@ def hello(request):
 
 
 @RequestHandler.route('/exit')
-def exit(request):
+def exit_(request):
     request.make_response(b'Exiting!\n')
-    raise SystemExit
+
+    def server_shutdown(server):
+        server.shutdown()
+
+    import threading
+    thread = threading.Thread(target=server_shutdown, args=(request.server,))
+    thread.start()
 
 
 def server_main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--hostname', default='localhost',
-        help='Hostname to bind HTTP server (default: %(default)s)'
+        '--hostname',
+        default='localhost',
+        help='Hostname to bind HTTP server (default: %(default)s)',
     )
     parser.add_argument(
-        '--port', default=8000, type=int,
-        help='Port to bind HTTP server (default: %(default)s)'
+        '--port',
+        default=8000,
+        type=int,
+        help='Port to bind HTTP server (default: %(default)s)',
     )
     parser.add_argument(
-        '--server-fd', type=int,
-        help='Server socket descriptor (default: %(default)s)'
+        '--server-fd',
+        type=int,
+        help='Server socket descriptor (default: %(default)s)',
     )
     args = parser.parse_args()
 
     if args.server_fd is not None:
         httpd = ExternalSocketHTTPServer(
-            socket.socket(fileno=args.server_fd), RequestHandler
+            socket.socket(fileno=args.server_fd), RequestHandler,
         )
     else:
         httpd = http.server.HTTPServer(
-            (args.hostname, args.port), RequestHandler
+            (args.hostname, args.port), RequestHandler,
         )
     try:
         httpd.serve_forever()

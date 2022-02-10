@@ -1,14 +1,14 @@
+import hashlib
 import pathlib
 import typing
 import urllib.parse
 
-_PLUGIN_DIR = pathlib.Path(__file__).parent
-PLUGIN_DIR = str(_PLUGIN_DIR)
-CONFIGS_DIR = str(_PLUGIN_DIR.joinpath('configs'))
-SCRIPTS_DIR = str(_PLUGIN_DIR.joinpath('scripts'))
+from testsuite import annotations
 
 
-def scan_sql_directory(root: str) -> typing.List[pathlib.Path]:
+def scan_sql_directory(
+        root: annotations.PathOrStr,
+) -> typing.List[pathlib.Path]:
     return [
         path
         for path in sorted(pathlib.Path(root).iterdir())
@@ -27,3 +27,24 @@ def connstr_replace_dbname(connstr: str, dbname: str) -> str:
     raise RuntimeError(
         f'Unsupported PostgreSQL connection string format {connstr!r}',
     )
+
+
+def get_files_hash(paths: typing.Iterable[pathlib.Path]) -> str:
+    result = hashlib.md5()
+    for path in paths:
+        if path.is_dir():
+            files = sorted(
+                child for child in path.rglob('*') if child.is_file()
+            )
+        elif path.is_file():
+            files = [path]
+        else:
+            continue
+
+        for file_path in files:
+            result.update(bytes(str(file_path) + '\n', 'utf8'))
+            with file_path.open('rb') as file:
+                content = file.read()
+            result.update(b'%d\n' % len(content))
+            result.update(content)
+    return result.hexdigest()

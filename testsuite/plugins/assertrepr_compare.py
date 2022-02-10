@@ -6,6 +6,8 @@ import typing
 
 import py
 
+from testsuite.utils import matching
+
 # pylint: disable=unidiomatic-typecheck
 
 CMP_SIMPLE_DIFF = 0
@@ -69,17 +71,19 @@ class Comparator:
         return self._compare(left, right, level=0)
 
     def _compare(self, left, right, level):
-        same_types = type(left) is type(right)
+        type_left = _match_type(left)
+        type_right = _match_type(right)
+        same_types = type_left is type_right
         different_sequence_lengths = (
-            type(left) in SEQUENCE_TYPES
-            and type(right) in SEQUENCE_TYPES
+            type_left in SEQUENCE_TYPES
+            and type_right in SEQUENCE_TYPES
             and len(left) != len(right)
         )
         if (not same_types or different_sequence_lengths) and (
                 left is not None and right is not None
         ):
-            left_type_info = type(left)
-            right_type_info = type(right)
+            left_type_info = type_left
+            right_type_info = type_right
             if different_sequence_lengths:
                 left_type_info = _make_length_info(left)
                 right_type_info = _make_length_info(right)
@@ -88,14 +92,14 @@ class Comparator:
             )
         if (
                 not same_types
-                or type(left) not in TYPES
+                or type_left not in TYPES
                 or (self.depth is not None and level >= self.depth)
         ):
             if left != right:
                 yield (), CmpInfo(CMP_SIMPLE_DIFF, left, right, None)
             return
 
-        parent_type = type(left)
+        parent_type = type_left
         is_set = isinstance(left, SET_TYPES)
         if isinstance(left, SEQUENCE_TYPES):
             keys = range(max(len(left), len(right)))
@@ -363,3 +367,10 @@ def _get_full_diff(left, right):
         for line in difflib.ndiff(left_formatting, right_formatting)
     )
     return explanation
+
+
+def _match_type(obj):
+    obj_type = type(obj)
+    if issubclass(obj_type, matching.AnyString):
+        return str
+    return obj_type

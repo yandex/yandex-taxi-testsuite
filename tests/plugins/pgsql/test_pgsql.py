@@ -1,21 +1,17 @@
-import os.path
+import pathlib
 
 import pytest
 
 from testsuite.databases.pgsql import discover
 
-SQLDATA_PATH = os.path.join(
-    os.path.dirname(__file__), 'static/postgresql/schemas',
-)
-
-MIGRATIONS = os.path.join(
-    os.path.dirname(__file__), 'static/postgresql/migrations',
-)
+BASE_PATH = pathlib.Path(__file__).parent / 'static/postgresql'
+SQLDATA_PATH = BASE_PATH / 'schemas'
+MIGRATIONS = BASE_PATH / 'migrations'
 
 
 @pytest.fixture(scope='session')
 def pgsql_local(pgsql_local_create):
-    databases = discover.find_databases('service', SQLDATA_PATH, MIGRATIONS)
+    databases = discover.find_schemas('service', [SQLDATA_PATH, MIGRATIONS])
 
     assert sorted(databases) == [
         'foo',
@@ -38,6 +34,18 @@ def test_shards(pgsql):
         result = list(row[0] for row in cursor)
         cursor.close()
         assert result == ['This is shard %d' % shard_id]
+
+
+def test_pgsql_apply_queries(pgsql):
+    pgsql['foo@0'].apply_queries(['INSERT INTO foo VALUES (\'mark0\')'])
+    pgsql['foo@1'].apply_queries(['INSERT INTO foo VALUES (\'mark1\')'])
+
+    for shard_id, dbname in enumerate(['foo@0', 'foo@1']):
+        cursor = pgsql[dbname].cursor()
+        cursor.execute('SELECT value from foo')
+        result = list(row[0] for row in cursor)
+        cursor.close()
+        assert result == ['mark%d' % shard_id]
 
 
 @pytest.mark.pgsql('foo@0', queries=['INSERT INTO foo VALUES (\'mark0\')'])
@@ -91,3 +99,18 @@ def test_migrations_shards(pgsql):
     cursor.execute('SELECT value1 from migrations')
     result = list(row[0] for row in cursor)
     assert result == []
+
+
+def test_reconnect(pgsql):
+    pgsql['foo@0'].conn.close()
+    with pytest.warns(UserWarning):
+        assert pgsql['foo@0'].conn is not None
+
+
+@pytest.mark.pgsql('foo@0', queries=['INSERT INTO foo VALUES (\'mark1\')'])
+def test_dict_cursor(pgsql):
+    cursor = pgsql['foo@0'].dict_cursor()
+    cursor.execute('SELECT value from foo')
+    row = cursor.fetchone()
+    assert row == ['mark1']
+    assert {**row} == {'value': 'mark1'}

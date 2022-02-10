@@ -4,6 +4,14 @@ import urllib.parse
 
 import aiohttp.web
 
+CONTENT_IN_GET_REQUEST_ERROR = (
+    'GET requests cannot have content, but Content-Length header was sent.'
+)
+CHUNKED_CONTENT_IN_GET_REQUEST_ERROR = (
+    'GET requests cannot have content, but \'Transfer-Encoding: chunked\' '
+    'header was sent.'
+)
+
 
 class BaseError(Exception):
     pass
@@ -28,7 +36,7 @@ class TimeoutError(MockedError):  # pylint: disable=redefined-builtin
 
 
 class NetworkError(MockedError):
-    """Exception used to mock HTTP client netowork errors.
+    """Exception used to mock HTTP client network errors.
 
     Requires service side support.
 
@@ -46,13 +54,17 @@ class HttpResponseError(BaseError):
         super().__init__(f'status={self.status}, url=\'{self.url}\'')
 
 
+class InvalidRequestError(BaseError):
+    """Invalid request which cannot be wrapped"""
+
+
 class Request:
-    """ Adapts aiohttp.web.Request to mimic a frequently used subset of
+    """ Adapts aiohttp.web.BaseRequest to mimic a frequently used subset of
     werkzeug.Request interface. ``data`` property is not supported,
     use get_data() instead.
     """
 
-    def __init__(self, request: aiohttp.web.Request, data: bytes):
+    def __init__(self, request: aiohttp.web.BaseRequest, data: bytes):
         self._request = request
         self._data: bytes = data
         self._json: object = None
@@ -70,7 +82,7 @@ class Request:
     def path(self) -> str:
         return self._request.path
 
-    # For backward compatibility with code using aiohttp.web.Request
+    # For backward compatibility with code using aiohttp.web.BaseRequest
     @property
     def path_qs(self) -> str:
         return self._request.raw_path
@@ -117,7 +129,8 @@ class Request:
         if self._json is None:
             bytes_body = self.get_data()
             encoding = self._request.charset or 'utf-8'
-            self._json = json.loads(bytes_body, encoding=encoding)
+            str_body = bytes_body.decode(encoding)
+            self._json = json.loads(str_body)
         return self._json
 
     @property
@@ -128,7 +141,7 @@ class Request:
     def args(self):
         return self._request.query
 
-    # For backward compatibility with code using aiohttp.web.Request
+    # For backward compatibility with code using aiohttp.web.BaseRequest
     @property
     def query(self):
         return self._request.query
@@ -138,7 +151,12 @@ class _NoValue:
     pass
 
 
-async def wrap_request(request: aiohttp.web.Request):
+async def wrap_request(request: aiohttp.web.BaseRequest) -> Request:
+    if request.method == 'GET':
+        if request.content_length:
+            raise InvalidRequestError(CONTENT_IN_GET_REQUEST_ERROR)
+        if request.headers.get('Transfer-Encoding', '') == 'chunked':
+            raise InvalidRequestError(CHUNKED_CONTENT_IN_GET_REQUEST_ERROR)
     if request.headers.get('expect') == '100-continue':
         await request.writer.write(b'HTTP/1.1 100 Continue\r\n\r\n')
         await request.writer.drain()
@@ -147,10 +165,18 @@ async def wrap_request(request: aiohttp.web.Request):
 
 
 class ClientResponse:
-    def __init__(self, response: aiohttp.ClientResponse, content: bytes):
+    def __init__(
+            self,
+            response: aiohttp.ClientResponse,
+            content: bytes,
+            *,
+            json_loads,
+    ):
         self._response = response
         self._content: bytes = content
         self._text: typing.Optional[str] = None
+        self._form: typing.Optional[typing.Dict[str, str]] = None
+        self._json_loads = json_loads
 
     @property
     def status_code(self) -> int:
@@ -177,8 +203,20 @@ class ClientResponse:
         return self._text
 
     def json(self) -> typing.Any:
-        encoding = self._response.get_encoding()
-        return json.loads(self._content, encoding=encoding)
+        return self._json_loads(self.text)
+
+    @property
+    def form(self):
+        if self._form is None:
+            if self.content_type in ('', 'application/x-www-form-urlencoded'):
+                items = urllib.parse.parse_qsl(
+                    self.text, keep_blank_values=True, encoding=self.encoding,
+                )
+                self._form = {key: value for key, value in items}
+            else:
+                self._form = {}
+
+        return self._form
 
     @property
     def headers(self):
@@ -205,9 +243,11 @@ class ClientResponse:
         )
 
 
-async def wrap_client_response(response: aiohttp.ClientResponse):
+async def wrap_client_response(
+        response: aiohttp.ClientResponse, *, json_loads=json.loads,
+):
     content = await response.read()
-    wrapped = ClientResponse(response, content)
+    wrapped = ClientResponse(response, content, json_loads=json_loads)
     return wrapped
 
 
@@ -219,6 +259,7 @@ def make_response(
         charset: typing.Optional[str] = None,
         *,
         json=_NoValue,
+        form=_NoValue,
 ) -> aiohttp.web.Response:
     """
     Create HTTP response object. Returns ``aiohttp.web.Response`` instance.
@@ -229,11 +270,22 @@ def make_response(
     :param content_type: HTTP Content-Type header
     :param charset: Response character set
     :param json: JSON response shortcut
+    :param form: x-www-form-urlencoded response shortcut
     """
+    if json is not _NoValue and form is not _NoValue:
+        raise RuntimeError(
+            'Response params "json" and "form" can not be used '
+            'at the same time',
+        )
     if json is not _NoValue:
         response = _json_response(json)
         if content_type is None:
             content_type = 'application/json'
+    if form is not _NoValue:
+        response = _form_response(form)
+        if content_type is None:
+            content_type = 'application/x-www-form-urlencoded'
+
     if isinstance(response, (bytes, bytearray)):
         return aiohttp.web.Response(
             body=response,
@@ -262,4 +314,9 @@ def make_response(
 
 def _json_response(data: typing.Any) -> bytes:
     text = json.dumps(data, ensure_ascii=False)
+    return text.encode('utf-8')
+
+
+def _form_response(data: typing.Any) -> bytes:
+    text = urllib.parse.urlencode(data)
     return text.encode('utf-8')

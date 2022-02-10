@@ -27,8 +27,8 @@ def _order(source, paths):
                 continue
             value = source_copy[head]
             if len(head_tail) == 1:
-                assert isinstance(value, (list, tuple))
-                source_copy[head] = sorted(value, key=_sort_key)
+                if isinstance(value, (list, tuple)):
+                    source_copy[head] = sorted(value, key=_sort_key)
             else:
                 source_copy[head] = _order(value, [head_tail[1]])
         result = source_copy

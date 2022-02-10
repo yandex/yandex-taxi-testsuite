@@ -1,0 +1,5 @@
+linters:
+    disable-plugins:
+        pylint:
+          - redefined-outer-name # declare and use fixture in the same file
+          - unused-variable

@@ -1,14 +1,17 @@
 import asyncio
 import contextlib
 import ctypes
-import itertools
+import logging
 import signal
 import subprocess
 import sys
+import time
+from typing import AsyncGenerator
+from typing import Dict
+from typing import Sequence
 
 
-ALLOWED_EXIT_CODES = frozenset([0, -signal.SIGKILL, -signal.SIGINT])
-_KNOWN_SIGNALS = {
+_KNOWN_SIGNALS: Dict[int, str] = {
     signal.SIGABRT: 'SIGABRT',
     signal.SIGBUS: 'SIGBUS',
     signal.SIGFPE: 'SIGFPE',
@@ -19,73 +22,110 @@ _KNOWN_SIGNALS = {
     signal.SIGSEGV: 'SIGSEGV',
     signal.SIGTERM: 'SIGTERM',
 }
+_POLL_TIMEOUT = 0.1
+
+logger = logging.getLogger(__name__)
 
 
 class ExitCodeError(RuntimeError):
-    def __init__(self, message, exit_code):
-        super(ExitCodeError, self).__init__(message)
+    def __init__(self, message: str, exit_code: int) -> None:
+        super().__init__(message)
         self.exit_code = exit_code
 
 
 @contextlib.asynccontextmanager
 async def spawned(
-        args,
+        args: Sequence[str],
         *,
-        graceful_shutdown=True,
-        allowed_exit_codes=ALLOWED_EXIT_CODES,
+        shutdown_signal: int = signal.SIGINT,
+        shutdown_timeout: float = 120,
         **kwargs,
-):
+) -> AsyncGenerator[subprocess.Popen, None]:
     kwargs['preexec_fn'] = kwargs.get('preexec_fn', _setup_process)
     process = subprocess.Popen(args, **kwargs)
     try:
         yield process
     finally:
-        for sig in _shutdown_signals(graceful_shutdown):
+        await _service_shutdown(
+            process,
+            shutdown_signal=shutdown_signal,
+            shutdown_timeout=shutdown_timeout,
+        )
+
+
+async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
+    allowed_exit_codes = (-shutdown_signal, 0)
+
+    retcode = process.poll()
+    if retcode is not None:
+        logger.info('Process already finished with code %d', retcode)
+        if retcode not in allowed_exit_codes:
+            raise _exit_code_error(retcode)
+        return retcode
+
+    try:
+        process.send_signal(shutdown_signal)
+    except OSError:
+        pass
+    else:
+        logger.info(
+            'Trying to stop process with signal %s',
+            _pretty_signal(shutdown_signal),
+        )
+        poll_start = time.monotonic()
+        while True:
             retcode = process.poll()
             if retcode is not None:
                 if retcode not in allowed_exit_codes:
                     raise _exit_code_error(retcode)
+                return retcode
+            current_time = time.monotonic()
+            if current_time - poll_start > shutdown_timeout:
                 break
-            try:
-                process.send_signal(sig)
-            except OSError:
-                continue
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(_POLL_TIMEOUT)
+
+        logger.warning(
+            'Process did not finished within shutdown timeout %d seconds',
+            shutdown_timeout,
+        )
+
+    logger.warning('Now killing process with signal SIGKILL')
+    while True:
+        retcode = process.poll()
+        if retcode is not None:
+            raise _exit_code_error(retcode)
+        try:
+            process.send_signal(signal.SIGKILL)
+        except OSError:
+            continue
+        await asyncio.sleep(_POLL_TIMEOUT)
 
 
-def _exit_code_error(retcode):
+def _exit_code_error(retcode: int) -> ExitCodeError:
     if retcode >= 0:
         return ExitCodeError(
-            'Daemon exited with status code %d' % (retcode,), retcode,
+            f'Daemon exited with status code {retcode}', retcode,
         )
 
     return ExitCodeError(
-        'Daemon was killed by %s signal' % (_pretty_signal(-retcode),),
-        retcode,
+        'Daemon was killed by %s signal' % _pretty_signal(-retcode), retcode,
     )
 
 
-def _pretty_signal(signal):
-    return _KNOWN_SIGNALS.get(signal, signal)
-
-
-def _shutdown_signals(graceful=False):
-    if graceful:
-        return itertools.chain(
-            itertools.repeat(signal.SIGINT, 100),
-            itertools.repeat(signal.SIGKILL),
-        )
-    return itertools.repeat(signal.SIGKILL)
+def _pretty_signal(signum: int) -> str:
+    if signum in _KNOWN_SIGNALS:
+        return _KNOWN_SIGNALS[signum]
+    return str(signum)
 
 
 # Send SIGKILL to child process on unexpected parent termination
+_PR_SET_PDEATHSIG = 1
 if sys.platform == 'linux':
-    _PR_SET_PDEATHSIG = 1
     _LIBC = ctypes.CDLL('libc.so.6')
-
-    def _setup_process():
-        _LIBC.prctl(_PR_SET_PDEATHSIG, signal.SIGKILL)
-
-
 else:
-    _setup_process = None  # pylint: disable=invalid-name
+    _LIBC = None
+
+
+def _setup_process() -> None:
+    if _LIBC is not None:
+        _LIBC.prctl(_PR_SET_PDEATHSIG, signal.SIGKILL)

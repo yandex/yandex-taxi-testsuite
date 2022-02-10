@@ -1,8 +1,31 @@
+import contextlib
 import logging
 import threading
+import typing
 
 from testsuite.utils import colors
 from testsuite.utils import tskv
+
+
+class Manager:
+    def __init__(
+            self,
+            line_logger: 'LineLogger',
+            output: typing.IO,
+            ensure_newline: bool,
+    ):
+        self._line_logger = line_logger
+        self._output = output
+        self._ensure_newline = ensure_newline
+        self._resumed = False
+
+    def resume(self):
+        if not self._resumed:
+            self._line_logger.resume(self._output, self._ensure_newline)
+            self._resumed = True
+
+    def clear(self):
+        self._line_logger.clear()
 
 
 class LineLogger:
@@ -34,6 +57,22 @@ class LineLogger:
     def suspend(self):
         with self._lock:
             self._output = None
+
+    def clear(self):
+        with self._lock:
+            self._buffer = []
+
+    @contextlib.contextmanager
+    def temporary_suspend(self):
+        with self._lock:
+            log_manager = Manager(
+                self, self._output, ensure_newline=self._ensure_newline,
+            )
+            self._output = None
+        try:
+            yield log_manager
+        finally:
+            log_manager.resume()
 
     def _writeline(self, line: str) -> None:
         if self._ensure_newline:

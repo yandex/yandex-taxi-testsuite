@@ -1,0 +1,6 @@
+CREATE TABLE messages  (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    username TEXT  NOT NULL,
+    text TEXT  NOT NULL
+);

@@ -1,3 +1,6 @@
+import sys
+
+
 class Colors:
     BLACK = '\033[30m'
     RED = '\033[31m'
@@ -12,3 +15,8 @@ class Colors:
     DEFAULT = '\033[0m'
     DEFAULT_BG = '\033[49m'
     BG_BLACK = '\033[40m'
+
+
+def should_enable_color(pytestconfig) -> bool:
+    option = getattr(pytestconfig.option, 'color', 'no')
+    return option == 'yes' or option == 'auto' and sys.stderr.isatty()

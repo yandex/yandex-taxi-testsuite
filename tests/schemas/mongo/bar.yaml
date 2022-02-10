@@ -1,4 +1,4 @@
 settings:
-  collection: bar
-  connection: local_connection
-  database: dbbar
+    collection: bar
+    connection: local_connection
+    database: dbbar

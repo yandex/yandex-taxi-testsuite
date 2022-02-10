@@ -87,8 +87,15 @@ class AsyncCallQueue:
             )
 
 
+def getfullargspec(func):
+    if isinstance(func, staticmethod):
+        func = func.__func__
+    func = getattr(func, '__wrapped__', func)
+    return inspect.getfullargspec(func)
+
+
 def callinfo(func):
-    func_spec = inspect.getfullargspec(func)
+    func_spec = getfullargspec(func)
     func_varkw = func_spec.varkw
     func_kwonlyargs = func_spec.kwonlyargs
     func_kwonlydefaults = func_spec.kwonlydefaults
@@ -121,9 +128,10 @@ def callinfo(func):
 
 def acallqueue(func: typing.Callable) -> AsyncCallQueue:
     """Turn function into async call queue.
-
-    :param func: async or sync callable
+    :param func: async or sync callable, can be decorated with @staticmethod
     """
     if isinstance(func, AsyncCallQueue):
         return func
+    if isinstance(func, staticmethod):
+        func = func.__func__
     return AsyncCallQueue(func)

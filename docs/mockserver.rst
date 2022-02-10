@@ -1,8 +1,6 @@
 Mockserver
 ==========
 
-.. currentmodule:: testsuite.plugins.mockserver
-
 Mockserver is a simple http server running inside pytest instance.
 Using ``mockserver`` fixture you can install per-test handler.
 
@@ -38,15 +36,18 @@ Example:
 Fixtures
 --------
 
+.. currentmodule:: testsuite.mockserver.pytest_plugin
+
 mockserver
 ~~~~~~~~~~
 
 .. autofunction:: mockserver()
    :no-auto-options:
 
-   Returns an instance of :py:class:`HandlerInstaller`.
+   Returns an instance of
+   :py:class:`testsuite.mockserver.server.MockserverFixture`.
 
-.. autoclass:: HandlerInstaller()
+.. autoclass:: testsuite.mockserver.server.MockserverFixture()
     :members:
 
 mockserver_info
@@ -55,12 +56,46 @@ mockserver_info
 .. autofunction:: mockserver_info()
    :no-auto-options:
 
-   Returns ``MockserverInfo`` instance containing basic information about
+   Returns :py:class:`testsuite.mockserver.classes.MockserverInfo` instance
+   containing basic information about
    mockserver.
 
-.. autoclass:: MockserverInfo()
+.. autoclass:: testsuite.mockserver.classes.MockserverInfo()
     :members:
 
+
+Magic args
+----------
+
+By default mockserver handler receives :py:class:`testsuite.utils.http.Request`
+or :py:class:`aiohttp.web.BaseRequest` object. Mockserver also supports special
+arguments that are filled with values from request, e.g.:
+
+.. code-block:: python
+
+  async def test_mockserver(service_client, mockserver):
+      @mockserver.json_handler('/service-name/path')
+      def handler(*, body_json, method):
+          assert method == 'POST'
+          assert body_json == {...}
+          reutrn {...}
+
+
+Currently supported arguments are:
+
+=============   ==============================
+Name            Meaning
+=============   ==============================
+body_binary     Request body as binary
+body_json       Request body as JSON object
+content_type    Content-Type header value
+cookies         Cookies dictionary
+form            Form data
+headers         Headers dictionary
+method          HTTP method string
+path            Request path
+query           Query dictionary
+=============   ==============================
 
 Timeouts and network errors
 ---------------------------
@@ -120,8 +155,8 @@ Then you can raise mockserver error in the testcase, e.g.:
 
 Available errors are:
 
-* :py:class:`HandlerInstaller.TimeoutError`
-* :py:class:`HandlerInstaller.NetworkError`
+* :py:class:`testsuite.mockserver.server.MockserverFixture.TimeoutError`
+* :py:class:`testsuite.mockserver.server.MockserverFixture.NetworkError`
 
 OpenTracing
 -----------
@@ -129,17 +164,20 @@ OpenTracing
 To make tests fast, testsuite starts the service only once, at the beginning of
 test session.
 
-Consider a test case, when service starts a background task which periodically
-calls external service. Suppose the task continues after test completion.
+Consider a test case *TestA*, when service starts a background task which
+periodically calls external service. Suppose the task continues after test
+completion.
+
+Observe, the background task started in *TestA*, causes http requests to
+mockserver, while another *TestB* is running.
 
 Now recall that by default testsuite requires *all* calls to external services,
 which happen in test case, to be mocked.
 
-Observe, the background task started in one test, causes http requests to
-mockserver, while another test is running, which will cause it to fail unless
-it is happens to be mocked in another test.
+It causes *TestB* to fail while handling request from *TestA* unless request
+from *TestA* coincidentally happens to be mocked in *TestB*.
 
-What choices are there to make another test pass:
+What choices are there to make *TestB* pass:
 
 * Setup global mocks for any external APIs called from background tasks. It is
   undesirable because these mocks are only actually required by some of the
@@ -167,3 +205,4 @@ OpenTracing can be enabled in ``pytest.ini`` ::
  mockserver-tracing-enabled = true
  mockserver-trace-id-header = X-TraceId
  mockserver-span-id-header = X-SpanId
+

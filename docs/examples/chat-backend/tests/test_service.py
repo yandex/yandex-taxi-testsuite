@@ -1,4 +1,4 @@
-async def test_messages_send(server_client, mockserver):
+async def test_messages_send(example_client, mockserver):
     @mockserver.handler('/storage/messages/send')
     async def handle_send(request):
         assert request.json == {
@@ -7,7 +7,7 @@ async def test_messages_send(server_client, mockserver):
         }
         return mockserver.make_response(status=204)
 
-    response = await server_client.post(
+    response = await example_client.post(
         'messages/send',
         json={'username': 'Bob', 'text': 'Hello, my name is Bob!'},
     )
@@ -15,7 +15,7 @@ async def test_messages_send(server_client, mockserver):
     assert handle_send.times_called == 1
 
 
-async def test_messages_retrieve(server_client, mockserver):
+async def test_messages_retrieve(example_client, mockserver):
     messages = [
         {
             'username': 'Bob',
@@ -33,7 +33,7 @@ async def test_messages_retrieve(server_client, mockserver):
     async def handle_retrieve(request):
         return {'messages': messages}
 
-    response = await server_client.post('messages/retrieve')
+    response = await example_client.post('messages/retrieve')
     assert response.status == 200
     body = response.json()
     assert body == {'messages': list(reversed(messages))}

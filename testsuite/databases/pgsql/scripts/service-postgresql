@@ -28,6 +28,7 @@ mkdir -p $POSTGRESQL_DATADIR
 
 start() {
     echo "Postgresql data directory: $POSTGRESQL_DATADIR"
+    echo "Postgresql version: $($POSTGRESQL_BINPATH/pg_config --version)"
 
     mkdir -p $POSTGRESQL_TMPDIR
     mkdir -p $POSTGRESQL_LOGSDIR
@@ -35,11 +36,19 @@ start() {
 
     set -e
     $POSTGRESQL_BINPATH/initdb \
+        --encoding=UTF-8 \
         --locale=en_US.UTF-8 \
         --lc-collate=C \
+        --lc-ctype=C \
         -U testsuite \
         -D $POSTGRESQL_DATADIR
+
     cp $POSTGRESQL_CONFIGS_DIR/*.conf $POSTGRESQL_DATADIR
+    # disable jit for PostgreSQL 12+
+    if [[ $($POSTGRESQL_BINPATH/pg_config --version | awk -F '[^0-9]+' '{ print $2 }') > 11 ]]; then
+        echo "jit = off" >> $POSTGRESQL_DATADIR/postgresql.conf
+    fi
+
     $POSTGRESQL_BINPATH/pg_ctl \
         -s -D $POSTGRESQL_DATADIR -w start \
         -o "-c listen_addresses=*" \

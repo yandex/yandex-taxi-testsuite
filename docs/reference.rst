@@ -17,4 +17,5 @@ pytest plugins:
    servicerunner
    testpoint
    databases
+   other_plugins
    utils

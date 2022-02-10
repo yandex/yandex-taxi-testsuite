@@ -1,4 +1,4 @@
 settings:
-  collection: config
-  connection: local_connection
-  database: dbconfig
+    collection: config
+    connection: local_connection
+    database: dbconfig

@@ -2,19 +2,33 @@ import argparse
 import contextlib
 import importlib
 import logging
+import pathlib
 import subprocess
 import sys
 
-from testsuite.logging import logger
+from testsuite.logging import logger as testsuite_logger
 
 from . import control
+from . import shell
 from . import utils
 
 DEFAULT_SERVICE_PLUGINS = [
     'testsuite.databases.mongo.pytest_plugin',
     'testsuite.databases.pgsql.pytest_plugin',
     'testsuite.databases.redis.pytest_plugin',
+    'testsuite.databases.mysql.pytest_plugin',
 ]
+
+logger = logging.getLogger(__name__)
+
+
+def csv_arg(value: str):
+    result = []
+    for arg in value.split(','):
+        arg = arg.strip()
+        if arg:
+            result.append(arg)
+    return result
 
 
 def main(service_plugins=None):
@@ -22,25 +36,43 @@ def main(service_plugins=None):
     if service_plugins is None:
         service_plugins = DEFAULT_SERVICE_PLUGINS
     testsuite_services = _register_services(service_plugins)
+    default_services = sorted(testsuite_services.keys())
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--build-dir', help='Build directory path', required=True,
+        '--env-dir',
+        help='Path environment data directry.',
+        type=pathlib.Path,
+        default=None,
     )
     parser.add_argument(
+        '-f',
+        '--force',
+        action='store_true',
+        help='Force run, ignore failures',
+    )
+    services_group = parser.add_mutually_exclusive_group()
+    services_group.add_argument(
+        '-s',
+        '--databases',
+        dest='services',
+        type=csv_arg,
+        help='Comma separated list of services (default: %(default)s)',
+        default=default_services,
+    )
+    services_group.add_argument(
         '--services',
         nargs='+',
-        help='List of services (default: %(default)s)',
-        default=sorted(testsuite_services.keys()),
+        help='Deprecated! List of services (default: %(default)s)',
+        default=default_services,
     )
     parser.add_argument(
         '--log-level',
         choices=['debug', 'info', 'warning', 'error', 'critical'],
         default='debug',
     )
-    parser.set_defaults(handler=None)
 
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(metavar='command', required=True)
 
     command_parser = subparsers.add_parser('start', help='Start services')
     command_parser.set_defaults(handler=_command_start)
@@ -56,17 +88,12 @@ def main(service_plugins=None):
 
     args = parser.parse_args()
 
-    if args.handler is None:
-        parser.error('No command given')
-
     _setup_logging(args.log_level.upper())
 
-    env = control.TestsuiteEnvironment(
-        worker_id='master',
-        build_dir=args.build_dir,
-        reuse_services=False,
-        verbose=2,
+    config = control.load_environment_config(
+        env_dir=args.env_dir, reuse_services=False, verbose=2,
     )
+    env = control.TestsuiteEnvironment(config)
     for service_name, service_class in testsuite_services.items():
         env.register_service(service_name, service_class)
     args.handler(env, args)
@@ -77,19 +104,43 @@ def _setup_logging(log_level):
     root_logger.setLevel(log_level)
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(
-        logger.ColoredLevelFormatter(colors_enabled=sys.stderr.isatty()),
+        testsuite_logger.ColoredLevelFormatter(
+            colors_enabled=sys.stderr.isatty(),
+        ),
     )
     root_logger.addHandler(handler)
 
 
 def _command_start(env, args):
+    status = True
     for service_name in args.services:
-        env.ensure_started(service_name)
+        try:
+            env.ensure_started(service_name)
+        except shell.SubprocessFailed as exc:
+            logger.error(
+                'Failed to start service %s: %s', service_name, str(exc),
+            )
+            status = False
+            if not args.force:
+                break
+    if not status:
+        sys.exit(1)
 
 
 def _command_stop(env, args):
+    status = True
     for service_name in args.services:
-        env.stop_service(service_name)
+        try:
+            env.stop_service(service_name)
+        except shell.SubprocessFailed as exc:
+            logger.error(
+                'Failed to stop service %s: %s', service_name, str(exc),
+            )
+            status = False
+            if not args.force:
+                break
+    if not status:
+        sys.exit(1)
 
 
 def _command_run(env, args):

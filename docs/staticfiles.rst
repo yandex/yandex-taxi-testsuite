@@ -23,25 +23,40 @@ Fixtures
 load
 ~~~~
 
-.. autofunction:: load(path)
-   :no-auto-options:
+.. py:function:: load
+
+   Returns :py:class:`LoadFixture` instance.
+
+.. autoclass:: LoadFixture()
+    :members: __call__
 
 load_binary
 ~~~~~~~~~~~
 
-.. autofunction:: load_binary(path)
-   :no-auto-options:
+.. py:function:: load_binary
 
+   Returns :py:class:`LoadBinaryFixture` instance.
+
+.. autoclass:: LoadBinaryFixture()
+    :members: __call__
 
 load_json
 ~~~~~~~~~
 
-.. autofunction:: load_json(path, *args, **kwargs)
-   :no-auto-options:
+.. py:function:: load_json
+
+   Returns :py:class:`LoadJsonFixture` instance.
+
+.. autoclass:: LoadJsonFixture()
+    :members: __call__
 
 
 load_yaml
 ~~~~~~~~~
 
-.. autofunction:: load_yaml(path)
-   :no-auto-options:
+.. py:function:: load_yaml
+
+   Returns :py:class:`LoadYamlFixture` instance.
+
+.. autoclass:: LoadYamlFixture()
+    :members: __call__

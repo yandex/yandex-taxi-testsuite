@@ -1,0 +1,4 @@
+# Services dependencies
+asyncpg
+motor
+aiomysql

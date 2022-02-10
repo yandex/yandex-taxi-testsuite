@@ -1,10 +1,10 @@
+# pylint: disable=blacklisted-name,eval-used
 import asyncio
+import functools
 
 import pytest
 
 from testsuite.utils import callinfo
-
-# pylint: disable=eval-used
 
 
 def test_callinfo():
@@ -97,6 +97,21 @@ def test_callinfo():
     }
 
 
+def test_callinfo_wrapped():
+    def foo(a, b, c):
+        pass
+
+    getter = callinfo.callinfo(foo)
+    assert getter((1, 2, 3), {}) == {'a': 1, 'b': 2, 'c': 3}
+
+    @functools.wraps(foo)
+    def bar(*args, **kwargs):
+        pass
+
+    getter = callinfo.callinfo(bar)
+    assert getter((1, 2, 3), {}) == {'a': 1, 'b': 2, 'c': 3}
+
+
 async def test_callqueue_wait():
     @callinfo.acallqueue
     def method(arg):
@@ -166,3 +181,37 @@ async def test_acallqueue_next_call():
     assert not method.has_calls
     with pytest.raises(callinfo.CallQueueEmptyError):
         assert method.next_call()
+
+
+async def test_acallqueue_with_static_method():
+    class SomeClass:
+        @callinfo.acallqueue
+        @staticmethod
+        def method(arg):
+            pass
+
+    async def async_task():
+        await SomeClass.method(1)
+        await SomeClass.method(2)
+
+    asyncio.create_task(async_task())
+
+    assert await SomeClass.method.wait_call() == {'arg': 1}
+    assert await SomeClass.method.wait_call() == {'arg': 2}
+
+
+def test_getfullargspec():
+    def foo(a, b, c):
+        pass
+
+    @functools.wraps(foo)
+    def bar(a, b, c):
+        pass
+
+    @functools.wraps(bar)
+    def maurice(a, b, c):
+        pass
+
+    assert callinfo.getfullargspec(foo).args == ['a', 'b', 'c']
+    assert callinfo.getfullargspec(bar).args == ['a', 'b', 'c']
+    assert callinfo.getfullargspec(maurice).args == ['a', 'b', 'c']

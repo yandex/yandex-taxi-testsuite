@@ -2,7 +2,7 @@ from testsuite.plugins import testpoint
 
 
 async def test_session():
-    session = testpoint.TestpointSession()
+    session = testpoint.TestpointFixture()
 
     @session('foo')
     def point(data):

@@ -1,19 +1,44 @@
-import dateutil
+import datetime
+
 import pytest
 
-from testsuite.plugins import mockserver
 from testsuite.utils import json_util
 
-NOW = dateutil.parser.parse('2019-09-19-13:04:00.000000')
-MOCKSERVER_INFO = mockserver.MockserverInfo(
-    'localhost', 123, 'http://localhost:123/', None,
+NOW = datetime.datetime(2019, 9, 19, 13, 4)
+
+
+@pytest.mark.parametrize(
+    'json_input',
+    [
+        ({'$timeDelta': 60}),
+        ({'$mockserver': '/path'}),
+        ({'$date': '2020-01-01'}),
+    ],
 )
-MOCKSERVER_SSL_INFO = mockserver.MockserverInfo(
-    'localhost',
-    456,
-    'https://localhost:456/',
-    mockserver.SslInfo('/some_dir/cert.cert', '/some_dir/cert.key'),
+def test_substitute_hook_disabled(json_input):
+    result = json_util.substitute(json_input, object_hook=None)
+    assert result == json_input
+
+
+@pytest.mark.parametrize(
+    'json_input,expected_result',
+    [
+        ({'$timeDelta': 60}, '<time-delta>'),
+        ({'$mockserver': '/path'}, '<unexpected>'),
+        ({'$date': '2020-01-01'}, '<unexpected>'),
+        ({'$myVar': 'value'}, '<my-var-value>'),
+    ],
 )
+def test_substitute_custom_hook(json_input, expected_result):
+    def _my_obj_hook(doc: dict):
+        if '$timeDelta' in doc:
+            return '<time-delta>'
+        if '$myVar' in doc:
+            return '<my-var-%s>' % doc['$myVar']
+        return '<unexpected>'
+
+    result = json_util.substitute(json_input, object_hook=_my_obj_hook)
+    assert result == expected_result
 
 
 @pytest.mark.parametrize(
@@ -60,44 +85,46 @@ MOCKSERVER_SSL_INFO = mockserver.MockserverInfo(
         ),
     ],
 )
-def test_substitute_now(json_input, expected_result):
-    result = json_util.substitute(json_input, now=NOW)
+@pytest.mark.now('2019-09-19 13:04:00')
+def test_substitute_now(object_hook, json_input, expected_result):
+    result = json_util.substitute(json_input, object_hook=object_hook)
     assert result == expected_result
 
 
 @pytest.mark.parametrize(
     'json_input,expected_result',
     [
-        (
-            ({'client_url': {'$mockserver': '/path'}}),
-            ({'client_url': 'http://localhost:123/path'}),
-        ),
-        (
-            ({'client_url': {'$mockserver': '/path', '$schema': False}}),
-            ({'client_url': 'localhost:123/path'}),
-        ),
+        ({'$timeDelta': 60}, datetime.timedelta(seconds=60)),
+        ({'$timeDelta': '1e-6'}, datetime.timedelta(microseconds=1)),
+        ({'$timeDelta': -0.5}, -(datetime.timedelta(milliseconds=500))),
     ],
 )
-def test_substitute_mockserver(json_input, expected_result):
-    result = json_util.substitute(json_input, mockserver=MOCKSERVER_INFO)
+def test_substitute_timedelta(object_hook, json_input, expected_result):
+    result = json_util.substitute(json_input, object_hook=object_hook)
     assert result == expected_result
 
 
 @pytest.mark.parametrize(
     'json_input,expected_result',
     [
-        (
-            ({'client_url': {'$mockserver_https': '/path'}}),
-            ({'client_url': 'https://localhost:456/path'}),
-        ),
-        (
-            ({'client_url': {'$mockserver_https': '/path', '$schema': False}}),
-            ({'client_url': 'localhost:456/path'}),
-        ),
+        ({'$myObjHook': 'any-string'}, '<my-custom-obj>'),
+        ({'key': {'$myObjHook': 'any-string'}}, {'key': '<my-custom-obj>'}),
     ],
 )
-def test_substitute_mockserver_https(json_input, expected_result):
-    result = json_util.substitute(
-        json_input, mockserver_https=MOCKSERVER_SSL_INFO,
-    )
+def test_substitute_with_custom_hook(object_hook, json_input, expected_result):
+    result = json_util.substitute(json_input, object_hook=object_hook)
+    assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    'json_input,expected_result',
+    [
+        ({'$match': 'any-string'}, 'any string matches'),
+        ({'$match': {'type': 'any-string'}}, 'other string matches'),
+        ({'$match': {'type': 'regex', 'pattern': '^[0-9]{2}$'}}, '38'),
+        ({'$match': {'type': 'custom-matching'}}, '<my-custom-type>'),
+    ],
+)
+def test_substitute_with_matching(object_hook, json_input, expected_result):
+    result = json_util.substitute(json_input, object_hook=object_hook)
     assert result == expected_result

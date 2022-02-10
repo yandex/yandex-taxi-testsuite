@@ -1,118 +1,134 @@
 version: '2.1'
 
 services:
-  db-mongo-test:
-    image: mongo
+    db-mongo-test:
+        image: mongo
 
-  db-postgresql-test:
-    image: "postgres:11"
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_USER=testsuite
-      - POSTGRES_PASSWORD=testsuite
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    db-postgresql-test:
+        image: "postgres:11"
+        environment:
+          - POSTGRES_HOST_AUTH_METHOD=trust
+          - POSTGRES_USER=testsuite
+          - POSTGRES_PASSWORD=testsuite
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
-  db-postgresql:
-    extends:
-      service: db-postgresql-test
-    volumes:
-      - ../chat-storage-postgres/schemas/postgresql:/schema
-      - ./db-postgresql:/docker-entrypoint-initdb.d
+    db-mysql-test:
+        image: "mysql:5.7"
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+          - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+        healthcheck:
+            test: ["CMD-SHELL", "mysql -uroot -e \"select 1;\""]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
-  db-mongo:
-    extends:
-      service: db-mongo-test
-    volumes:
-      - ./db-mongo:/docker-entrypoint-initdb.d
+    db-postgresql:
+        extends:
+            service: db-postgresql-test
+        volumes:
+          - ../chat-storage-postgres/schemas/postgresql:/schema
+          - ./db-postgresql:/docker-entrypoint-initdb.d
 
-  testsuite:
-    image: testsuite
-    environment:
-      - TESTSUITE_ALLOW_ROOT=1
-      - PATH=/opt/yandex/testsuite/bin:/bin:/usr/bin
-    working_dir: /testsuite/example
-    volumes:
-      - ..:/testsuite/example
+    db-mongo:
+        extends:
+            service: db-mongo-test
+        volumes:
+          - ./db-mongo:/docker-entrypoint-initdb.d
 
-  runtests-chat-backend:
-    extends:
-      service: testsuite
+    db-mysql:
+        extends:
+            service: db-mysql-test
+        volumes:
+          - ./db-mysql:/docker-entrypoint-initdb.d
+          - ../chat-storage-mysql/schemas/mysql:/schema
 
-  runtests-chat-storage-mongo:
-    extends:
-      service: testsuite
-    depends_on:
-      db-mongo-test:
-        condition: service_healthy
-    environment:
-      - PYTEST_ADDOPTS="--mongo=mongodb://db-mongo-test/"
-    links:
-      - db-mongo-test
+    testsuite:
+        image: testsuite
+        environment:
+          - TESTSUITE_ALLOW_ROOT=1
+          - PATH=/opt/yandex/testsuite/bin:/bin:/usr/bin
+        working_dir: /testsuite/example
+        volumes:
+          - ..:/testsuite/example
 
-  runtests-chat-storage-postgres:
-    extends:
-      service: testsuite
-    depends_on:
-      db-postgresql-test:
-        condition: service_healthy
-    environment:
-      - PYTEST_ADDOPTS="--postgresql=postgresql://testsuite:testsuite@db-postgresql-test/"
-    links:
-      - db-postgresql-test
+    runtests-chat-backend:
+        extends:
+            service: testsuite
 
-  chat-postgres:
-    extends:
-      service: testsuite
-    depends_on:
-      - chat-storage-postgres
-    links:
-      - chat-storage-postgres
-    ports:
-      - "8081:8081"
-    command: >
-      python3.7 -u chat-backend/server.py --port 8081
-      --storage-service-url http://chat-storage-postgres:8080/
+    runtests-chat-storage-mongo:
+        extends:
+            service: testsuite
+        depends_on:
+            db-mongo-test:
+                condition: service_healthy
+        environment:
+          - PYTEST_ADDOPTS="--mongo=mongodb://db-mongo-test/"
+        links:
+          - db-mongo-test
 
-  chat-mongo:
-    extends:
-      service: testsuite
-    depends_on:
-      - chat-storage-mongo
-    links:
-      - chat-storage-mongo
-    ports:
-      - "8082:8082"
-    command: >
-      python3.7 -u chat-backend/server.py --port 8082
-      --storage-service-url http://chat-storage-mongo:8080/
+    runtests-chat-storage-postgres:
+        extends:
+            service: testsuite
+        depends_on:
+            db-postgresql-test:
+                condition: service_healthy
+        environment:
+          - PYTEST_ADDOPTS="--postgresql=postgresql://testsuite:testsuite@db-postgresql-test/"
+        links:
+          - db-postgresql-test
 
-  chat-storage-mongo:
-    extends:
-      service: testsuite
-    depends_on:
-      - db-mongo
-    links:
-      - db-mongo
-    expose:
-      - "8080"
-    command: >
-      python3.7 chat-storage-mongo/server.py --port 8080
-      --mongo-uri mongodb://db-mongo/
+    runtests-chat-storage-mysql:
+        extends:
+            service: testsuite
+        depends_on:
+            db-mysql-test:
+                condition: service_healthy
+        environment:
+          - PYTEST_ADDOPTS="--mysql=mysql://root@db-mysql-test/"
+        links:
+          - db-postgresql-test
 
-  chat-storage-postgres:
-    extends:
-      service: testsuite
-    depends_on:
-      db-postgresql:
-        condition: service_healthy
-    links:
-      - db-postgresql
-    expose:
-      - "8080"
-    command: >
-      python3.7 chat-storage-postgres/server.py --port 8080
-      --postgresql postgresql://testsuite:testsuite@db-postgresql/chat_messages
+    chat-storage-mongo:
+        extends:
+            service: testsuite
+        depends_on:
+          - db-mongo
+        links:
+          - db-mongo
+        expose:
+          - "8080"
+        command: >
+            python3.7 chat-storage-mongo/server.py --port 8080
+            --mongo-uri mongodb://db-mongo/
+
+    chat-storage-postgres:
+        extends:
+            service: testsuite
+        depends_on:
+            db-postgresql:
+                condition: service_healthy
+        links:
+          - db-postgresql
+        expose:
+          - "8080"
+        command: >
+            python3.7 chat-storage-postgres/server.py --port 8080
+            --postgresql postgresql://testsuite:testsuite@db-postgresql/chat_messages
+
+    chat-storage-mysql:
+        extends:
+            service: testsuite
+        depends_on:
+            db-mysql:
+                condition: service_healthy
+        links:
+          - db-mysql
+        expose:
+          - "8080"
+        command: >
+            python3.7 chat-storage-mysql/server.py --port 8080 --mysql-host=db-mysql

@@ -1,20 +1,13 @@
-import os
+import pathlib
 
 import pytest
 
 
 @pytest.fixture(scope='session')
 def mongo_schema_extra_directories():
-    extra_dir = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            os.path.pardir,
-            os.path.pardir,
-            'schemas',
-            'mongo_extra',
-        ),
-    )
-    return (extra_dir,)
+    return [
+        pathlib.Path(__file__).parent.parent.parent / 'schemas/mongo_extra',
+    ]
 
 
 def test_extra_collection_is_accessible(mongodb):

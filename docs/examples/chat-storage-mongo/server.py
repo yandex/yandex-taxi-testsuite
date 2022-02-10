@@ -20,6 +20,10 @@ def main():
     )
 
     args = parser.parse_args()
+    web.run_app(create_app(args), port=args.port)
+
+
+async def create_app(args):
     connection = motor_asyncio.AsyncIOMotorClient(args.mongo_uri)
     collection = connection['chat_db']['messages']
     routes = web.RouteTableDef()
@@ -59,7 +63,7 @@ def main():
 
     app = web.Application()
     app.add_routes(routes)
-    web.run_app(app, port=args.port)
+    return app
 
 
 if __name__ == '__main__':

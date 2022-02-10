@@ -12,17 +12,11 @@ if [ "x$TESTSUITE_DEBUG" != "x" ]; then
     set -x
 fi
 
-if [ "x$TAXI_BUILD_DIR" = "x" ]; then
-    die "TAXI_BUILD_DIR must be set"
-fi
 if [ "x$WORKER_SUFFIX" != "x" ]; then
     WORKER_SUFFIX_PATH=/$WORKER_SUFFIX
 else
     WORKER_SUFFIX_PATH=""
 fi
-
-TESTSUITE_TMPDIR=$TAXI_BUILD_DIR/testsuite/tmp
-TESTSUITE_BUILD_DIR=$TAXI_BUILD_DIR/testsuite
 
 ulimit_files() {
     local current=$(ulimit -n)

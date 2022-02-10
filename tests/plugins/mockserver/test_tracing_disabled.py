@@ -1,10 +1,10 @@
 # pylint: disable=protected-access
-import typing
-
+import aiohttp.test_utils
 import pytest
 
-from testsuite.plugins import mockserver as mockserver_module
-from testsuite.utils import net
+from testsuite.mockserver import exceptions
+from testsuite.mockserver import reporter_plugin
+from testsuite.mockserver import server
 
 
 @pytest.fixture(autouse=True)
@@ -22,9 +22,7 @@ async def test_mockserver_handles_request_from_other_test(
 
     client = create_service_client(
         mockserver.base_url,
-        service_headers={
-            mockserver.trace_id_header: mockserver_module._generate_trace_id(),
-        },
+        headers={mockserver.trace_id_header: server.generate_trace_id()},
     )
 
     response = await client.post('arbitrary/path')
@@ -36,27 +34,22 @@ async def test_mockserver_handles_request_from_other_test(
     'http_headers',
     [
         {},  # no trace_id in http headers
-        {mockserver_module._DEFAULT_TRACE_ID_HEADER: ''},
-        {
-            mockserver_module._DEFAULT_TRACE_ID_HEADER: (
-                'id_without_testsuite-_prefix'
-            ),
-        },
+        {server.DEFAULT_TRACE_ID_HEADER: ''},
+        {server.DEFAULT_TRACE_ID_HEADER: 'id_without_testsuite-_prefix'},
     ],
 )
 async def test_mockserver_raises_on_unhandled_request_from_other_sources(
-        http_headers, create_service_client,
+        http_headers, mockserver_info,
 ):
-    class RequestStub(typing.NamedTuple):
-        headers: dict
-        path: str
-
-    server = mockserver_module.Server(net.bind_socket(), tracing_enabled=False)
-    context = server.new_session()
-    context.__enter__()  # pylint: disable=no-member
-    request = RequestStub(http_headers, '/arbitrary/path')
-    with pytest.raises(mockserver_module.HandlerNotFoundError):
-        await server._handle_request(request)
-    # session.handle_failures
-    with pytest.raises(mockserver_module.MockServerError):
-        context.__exit__(None, None, None)  # pylint: disable=no-member
+    reporter = reporter_plugin.MockserverReporterPlugin(colors_enabled=False)
+    mockserver = server.Server(
+        mockserver_info, tracing_enabled=False, reporter=reporter,
+    )
+    with mockserver.new_session():
+        request = aiohttp.test_utils.make_mocked_request(
+            'POST', '/arbitrary/path', headers=http_headers,
+        )
+        await mockserver._handle_request(request)
+        assert len(reporter._errors) == 1
+        error, _report_msg = reporter._errors[0]
+        assert isinstance(error, exceptions.HandlerNotFoundError)

@@ -61,4 +61,7 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
             )
 
     if exit_code != 0:
-        raise SubprocessFailed(f'{command_alias} exited with code {exit_code}')
+        raise SubprocessFailed(
+            f'{command_alias} subprocess {process.args!r} '
+            f'exited with code {exit_code}',
+        )

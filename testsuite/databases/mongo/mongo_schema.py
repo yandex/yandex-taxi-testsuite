@@ -1,40 +1,45 @@
 import collections.abc
-import glob
-import os
+import pathlib
 import typing
 
+from testsuite import annotations
 from testsuite.utils import yaml_util
 
 
 class MongoSchema(collections.abc.Mapping):
-    def __init__(self, directory):
-        self._directory = directory
-        self._loaded = {}
-        self._paths = _get_paths(directory)
+    _directory: pathlib.Path
+    _loaded: typing.Dict[str, typing.Dict]
+    _paths: typing.Dict[str, pathlib.Path]
 
-    def __getitem__(self, name):
+    def __init__(self, directory: annotations.PathOrStr) -> None:
+        self._directory = pathlib.Path(directory)
+        self._loaded = {}
+        self._paths = _get_paths(self._directory)
+
+    def __getitem__(self, name: str) -> typing.Dict:
         if name not in self._paths:
             raise KeyError(f'Missing schema file for collection {name}')
         if name not in self._loaded:
             self._loaded[name] = yaml_util.load_file(self._paths[name])
         return self._loaded[name]
 
-    def __iter__(self):
+    def __iter__(self) -> typing.Iterator[str]:
         return iter(self._paths)
 
     def __len__(self) -> int:
         return len(self._paths)
 
     @property
-    def directory(self):
+    def directory(self) -> pathlib.Path:
         return self._directory
 
 
 class MongoSchemaCache:
-    def __init__(self):
-        self._cache: typing.Dict[str, MongoSchema] = {}
+    def __init__(self) -> None:
+        self._cache: typing.Dict[pathlib.Path, MongoSchema] = {}
 
-    def get_schema(self, directory):
+    def get_schema(self, directory: annotations.PathOrStr) -> MongoSchema:
+        directory = pathlib.Path(directory)
         if directory not in self._cache:
             self._cache[directory] = MongoSchema(directory)
         return self._cache[directory]
@@ -42,12 +47,16 @@ class MongoSchemaCache:
 
 class MongoSchemas(collections.abc.Mapping):
     def __init__(
-            self, cache: MongoSchemaCache, directories: typing.Iterable[str],
+            self,
+            cache: MongoSchemaCache,
+            directories: typing.Iterable[annotations.PathOrStr],
     ):
         self._cache = cache
-        self._directories = directories
+        self._directories = [
+            pathlib.Path(directory) for directory in directories
+        ]
         self._schema_by_collection: typing.Dict[str, MongoSchema] = {}
-        for directory in directories:
+        for directory in self._directories:
             schema = cache.get_schema(directory)
             for name in schema:
                 if name in self._schema_by_collection:
@@ -75,9 +84,5 @@ class MongoSchemas(collections.abc.Mapping):
         )
 
 
-def _get_paths(directory) -> typing.Dict[str, str]:
-    result = {}
-    for path in glob.glob(os.path.join(directory, '*.yaml')):
-        collection, _ = os.path.splitext(os.path.basename(path))
-        result[collection] = path
-    return result
+def _get_paths(directory: pathlib.Path) -> typing.Dict[str, pathlib.Path]:
+    return {path.stem: path for path in directory.glob('*.yaml')}

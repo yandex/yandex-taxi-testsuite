@@ -1,6 +1,6 @@
 import contextlib
+import dataclasses
 import multiprocessing.pool
-import os
 import pathlib
 import pprint
 import random
@@ -12,23 +12,17 @@ import pymongo.collection
 import pymongo.errors
 import pytest
 
+from testsuite import annotations
 from testsuite import utils
-from testsuite.environment import service
 
+from . import connection
 from . import ensure_db_indexes
 from . import mongo_schema
+from . import service
 
 # pylint: disable=too-many-statements
 
-DB_FILE_RE_PATTERN = re.compile(r'/db_(?P<mongo_db_alias>\w+)\.json$')
-
-DEFAULT_CONFIG_SERVER_PORT = 27118
-DEFAULT_MONGOS_PORT = 27217
-DEFAULT_SHARD_PORT = 27119
-
-SERVICE_SCRIPT_PATH = os.path.join(
-    os.path.dirname(__file__), 'scripts/service-mongo',
-)
+DB_FILE_RE_PATTERN = re.compile(r'^db_(?P<mongo_db_alias>\w+)\.json$')
 
 
 class BaseError(Exception):
@@ -41,6 +35,7 @@ class UnknownCollectionError(BaseError):
 
 class CollectionWrapper:
     def __init__(self, collections):
+        # TODO: deprecate collection as attribute
         for alias, collection in collections.items():
             setattr(self, alias, collection)
         self._collections = collections.copy()
@@ -57,16 +52,16 @@ class CollectionWrapper:
 
 
 class CollectionWrapperFactory:
-    def __init__(self, mongo_host):
-        self._mongo_host = mongo_host
+    def __init__(self, connection_info: connection.ConnectionInfo):
+        self._connection_info = connection_info
 
     @property
-    def connection_string(self):
-        return self._mongo_host
+    def connection_string(self) -> str:
+        return self._connection_info.get_uri()
 
     @utils.cached_property
     def client(self) -> pymongo.MongoClient:
-        return pymongo.MongoClient(self._mongo_host)
+        return pymongo.MongoClient(self.connection_string)
 
     def create_collection_wrapper(
             self, collection_names, mongodb_settings,
@@ -118,56 +113,52 @@ def pytest_addoption(parser):
     group.addoption(
         '--no-mongo', help='Disable mongo startup', action='store_true',
     )
+    parser.addini(
+        'mongo-retry-writes',
+        type='bool',
+        default=False,
+        help=(
+            'Controls value of \'retryWrites\' parameter of mongo connection '
+            'string.'
+        ),
+    )
 
 
 def pytest_service_register(register_service):
-    @register_service('mongo')
-    def _create_mongo_service(
-            service_name,
-            working_dir,
-            mongos_port=DEFAULT_MONGOS_PORT,
-            config_server_port=DEFAULT_CONFIG_SERVER_PORT,
-            shard_port=DEFAULT_SHARD_PORT,
-            env=None,
-    ):
-        return service.ScriptService(
-            service_name=service_name,
-            script_path=SERVICE_SCRIPT_PATH,
-            working_dir=working_dir,
-            environment={
-                'MONGO_TMPDIR': working_dir,
-                'MONGOS_PORT': str(mongos_port),
-                'CONFIG_SERVER_PORT': str(config_server_port),
-                'SHARD_PORT': str(shard_port),
-                **(env or {}),
-            },
-            check_ports=[config_server_port, mongos_port, shard_port],
-        )
+    register_service('mongo', service.create_mongo_service)
 
 
 @pytest.fixture
-def mongodb(mongodb_init, _mongodb_local) -> CollectionWrapper:
+def mongodb(
+        mongodb_init, _mongodb_local: CollectionWrapper,
+) -> CollectionWrapper:
     return _mongodb_local
 
 
 @pytest.fixture
 def mongo_connections(
         mongodb_settings,
-        mongo_host,
+        mongo_connection_info,
         mongo_extra_connections,
         _mongo_local_collections,
-):
+) -> typing.Dict[str, str]:
+    mongo_connection_uri = mongo_connection_info.get_uri()
     return {
         **{
-            mongodb_settings[name]['settings']['connection']: mongo_host
+            mongodb_settings[name]['settings'][
+                'connection'
+            ]: mongo_connection_uri
             for name in _mongo_local_collections
         },
-        **{connection: mongo_host for connection in mongo_extra_connections},
+        **{
+            extra_conn: mongo_connection_uri
+            for extra_conn in mongo_extra_connections
+        },
     }
 
 
 @pytest.fixture
-def mongo_extra_connections():
+def mongo_extra_connections() -> typing.Tuple[str, ...]:
     """
     Override this if you need to access mongo connections besides those
     defined in mongo_connections fixture
@@ -176,7 +167,58 @@ def mongo_extra_connections():
 
 
 @pytest.fixture(scope='session')
-def _mongo_indexes_ensured():
+def mongo_host(mongo_connection_info) -> str:
+    """Deprecated, use ``mongo_connection_info`` instead
+    returns: string with mongo connection uri
+    """
+    return mongo_connection_info.get_uri()
+
+
+@pytest.fixture(scope='session')
+def mongo_connection_info(
+        pytestconfig, _mongo_service_settings,
+) -> connection.ConnectionInfo:
+    # External mongo instance
+    if pytestconfig.option.mongo:
+        return connection.parse_connection_uri(pytestconfig.option.mongo)
+    connection_info = _mongo_service_settings.get_connection_info()
+    retry_writes = pytestconfig.getini('mongo-retry-writes')
+    return dataclasses.replace(connection_info, retry_writes=retry_writes)
+
+
+@pytest.fixture
+def mongodb_settings(
+        mongo_schema_directory,
+        mongo_schema_extra_directories,
+        _mongo_schema_cache,
+) -> mongo_schema.MongoSchemas:
+    return mongo_schema.MongoSchemas(
+        _mongo_schema_cache,
+        (mongo_schema_directory, *mongo_schema_extra_directories),
+    )
+
+
+@pytest.fixture
+def mongodb_collections(mongodb_settings) -> typing.Tuple[str, ...]:
+    """
+    Override this to enable access to named collections within test module
+
+    Returns all available collections by default.
+    """
+    return tuple(mongodb_settings.keys())
+
+
+@pytest.fixture(scope='session')
+def mongo_schema_extra_directories() -> typing.Tuple[str, ...]:
+    """
+    Override to use collection schemas besides those defined by
+    ``mongo_schema_directory`` fixture
+    """
+    return ()
+
+
+@pytest.fixture(scope='session')
+def _mongo_indexes_ensured() -> typing.Set[str]:
     return set()
 
 
@@ -185,22 +227,15 @@ def _mongo_service(
         pytestconfig,
         ensure_service_started,
         _mongodb_local,
-        _mongos_port,
-        _mongo_config_server_port,
-        _mongo_shard_port,
-):
+        _mongo_service_settings,
+) -> None:
     aliases = _mongodb_local.get_aliases()
     if (
             aliases
             and not pytestconfig.option.mongo
             and not pytestconfig.option.no_mongo
     ):
-        ensure_service_started(
-            'mongo',
-            mongos_port=_mongos_port,
-            config_server_port=_mongo_config_server_port,
-            shard_port=_mongo_shard_port,
-        )
+        ensure_service_started('mongo', settings=_mongo_service_settings)
 
 
 @pytest.fixture
@@ -210,7 +245,7 @@ def _mongo_create_indexes(
         pytestconfig,
         _mongo_indexes_ensured,
         _mongo_service,
-):
+) -> None:
     aliases = _mongodb_local.get_aliases()
     if not pytestconfig.option.no_indexes:
         _ensure_indexes = {}
@@ -231,7 +266,9 @@ def _mongo_create_indexes(
 
 
 @pytest.fixture(scope='session')
-def _mongo_thread_pool():
+def _mongo_thread_pool() -> annotations.YieldFixture[
+        multiprocessing.pool.ThreadPool,
+]:
     pool = multiprocessing.pool.ThreadPool(processes=20)
     with contextlib.closing(pool):
         yield pool
@@ -240,14 +277,13 @@ def _mongo_thread_pool():
 @pytest.fixture
 def mongodb_init(
         request,
-        _mongodb_local,
         load_json,
-        now,
+        verify_file_paths,
+        static_dir: pathlib.Path,
+        _mongodb_local,
         _mongo_thread_pool,
         _mongo_create_indexes,
-        verify_file_paths,
-        static_dir,
-):
+) -> None:
     """Populate mongodb with fixture data."""
 
     if request.node.get_closest_marker('nofilldb'):
@@ -271,10 +307,10 @@ def mongodb_init(
                 aliases[dbname] = '%s_%s' % (dbname, alias)
             requested.add(dbname)
 
-    def _verify_db_alias(file_path: str):
+    def _verify_db_alias(file_path: pathlib.Path) -> bool:
         if not _is_relevant_file(request, static_dir, file_path):
             return True
-        match = DB_FILE_RE_PATTERN.search(file_path)
+        match = DB_FILE_RE_PATTERN.search(file_path.name)
         if match:
             db_alias = match.group('mongo_db_alias')
             if db_alias not in aliases and not any(
@@ -297,12 +333,12 @@ def mongodb_init(
         except AttributeError:
             return
         try:
-            docs = load_json('db_%s.json' % alias, now=now)
+            docs = load_json('db_%s.json' % alias)
         except FileNotFoundError:
             if dbname in requested:
                 raise
             docs = []
-        if not docs and not col.count():
+        if not docs and col.find_one({}, []) is None:
             return
 
         if shuffle_enabled:
@@ -334,7 +370,7 @@ def _mongodb_local(
         mongodb_settings,
         _mongo_local_collections,
         _mongo_collection_wrapper_factory: CollectionWrapperFactory,
-):
+) -> CollectionWrapper:
     return _mongo_collection_wrapper_factory.create_collection_wrapper(
         _mongo_local_collections, mongodb_settings,
     )
@@ -342,99 +378,46 @@ def _mongodb_local(
 
 @pytest.fixture(scope='session')
 def _mongo_collection_wrapper_factory(
-        mongo_host: str,
+        mongo_connection_info: connection.ConnectionInfo,
 ) -> CollectionWrapperFactory:
-    return CollectionWrapperFactory(mongo_host)
-
-
-@pytest.fixture(scope='session')
-def _mongos_port(worker_id, get_free_port) -> int:
-    if worker_id == 'master':
-        return DEFAULT_MONGOS_PORT
-    return get_free_port()
-
-
-@pytest.fixture(scope='session')
-def _mongo_config_server_port(worker_id, get_free_port):
-    if worker_id == 'master':
-        return DEFAULT_CONFIG_SERVER_PORT
-    return get_free_port()
-
-
-@pytest.fixture(scope='session')
-def _mongo_shard_port(worker_id, get_free_port):
-    if worker_id == 'master':
-        return DEFAULT_SHARD_PORT
-    return get_free_port()
+    return CollectionWrapperFactory(mongo_connection_info)
 
 
 @pytest.fixture
-def _mongo_local_collections(request, mongodb_collections):
+def _mongo_local_collections(request, mongodb_collections) -> typing.Set[str]:
     result = set(mongodb_collections)
     for marker in request.node.iter_markers('mongodb_collections'):
         result.update(marker.args)
     return result
 
 
-@pytest.fixture
-def mongodb_collections(mongodb_settings):
-    """
-    Override this to enable access to named collections within test module
-
-    Returns all available collections by default.
-    """
-    return tuple(mongodb_settings.keys())
-
-
 @pytest.fixture(scope='session')
-def mongo_host(pytestconfig, _mongos_port):
-    host = pytestconfig.option.mongo
-    return host or _get_connection_string(_mongos_port)
-
-
-@pytest.fixture
-def mongodb_settings(
-        mongo_schema_directory,
-        mongo_schema_extra_directories,
-        _mongo_schema_cache,
-):
-    return mongo_schema.MongoSchemas(
-        _mongo_schema_cache,
-        (mongo_schema_directory, *mongo_schema_extra_directories),
-    )
-
-
-@pytest.fixture(scope='session')
-def mongo_schema_extra_directories():
-    """
-    Override to use collection schemas besides those defined by
-    ``mongo_schema_directory`` fixture
-    """
-    return ()
-
-
-@pytest.fixture(scope='session')
-def _mongo_schema_cache():
+def _mongo_schema_cache() -> mongo_schema.MongoSchemaCache:
     return mongo_schema.MongoSchemaCache()
 
 
-def _is_relevant_file(request, static_dir, file_path):
-    default_static_dir = os.path.join(static_dir, 'default')
-    module_static_dir = os.path.join(
-        static_dir, os.path.basename(request.fspath),
-    )
+@pytest.fixture(scope='session')
+def _mongo_service_settings(
+        pytestconfig,
+) -> typing.Optional[service.ServiceSettings]:
+    if pytestconfig.option.mongo:
+        return None
+    return service.get_service_settings()
+
+
+def _is_relevant_file(
+        request, static_dir: pathlib.Path, file_path: pathlib.Path,
+) -> bool:
+    default_static_dir = static_dir / 'default'
+    module_static_dir = static_dir / pathlib.Path(request.fspath).stem
     return _is_nested_path(file_path, default_static_dir) or _is_nested_path(
         file_path, module_static_dir,
     )
 
 
-def _is_nested_path(parent: str, nested: str) -> bool:
+def _is_nested_path(parent: pathlib.Path, nested: pathlib.Path) -> bool:
     try:
         pathlib.PurePath(nested).relative_to(parent)
         return True
     except ValueError:
         return False
-
-
-def _get_connection_string(port):
-    return 'mongodb://localhost:%s/' % port

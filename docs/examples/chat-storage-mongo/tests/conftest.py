@@ -1,16 +1,12 @@
-import os
 import pathlib
+import sys
 
 import pytest
-
-from testsuite.daemons import service_client
 
 pytest_plugins = [
     'testsuite.pytest_plugin',
     'testsuite.databases.mongo.pytest_plugin',
 ]
-
-SERVICE_BASEURL = 'http://localhost:8080/'
 
 MONGO_COLLECTIONS = {
     'messages': {
@@ -24,30 +20,66 @@ MONGO_COLLECTIONS = {
 }
 
 
+def pytest_addoption(parser):
+    group = parser.getgroup('Example service')
+    group.addoption(
+        '--example-service-port',
+        help='Bind example services to this port (default is %(default)s)',
+        default=8080,
+        type=int,
+    )
+
+
 @pytest.fixture
-async def server_client(
-        service_daemon, service_client_options, ensure_daemon_started, mongodb,
+async def example_service(
+        ensure_daemon_started,
+        # Service process holder
+        example_service_scope,
+        # Service dependencies
+        mongodb,
+        mockserver,
 ):
-    await ensure_daemon_started(service_daemon)
-    yield service_client.Client(SERVICE_BASEURL, **service_client_options)
+    # Start service if not started yet
+    await ensure_daemon_started(example_service_scope)
 
 
-# remove scope=session to restart service on each test
+@pytest.fixture
+async def example_client(
+        create_service_client, example_service_baseurl, example_service,
+):
+    # Create service client instance
+    return create_service_client(example_service_baseurl)
+
+
 @pytest.fixture(scope='session')
-async def service_daemon(register_daemon_scope, service_spawner, mongo_host):
-    python_path = os.getenv('PYTHON3', 'python3')
-    service_path = pathlib.Path(__file__).parent.parent
-    async with register_daemon_scope(
-            name='chat-storage-mongo',
-            spawn=service_spawner(
-                [
-                    python_path,
-                    str(service_path.joinpath('server.py')),
-                    '--mongo-uri',
-                    mongo_host + '?retryWrites=false',
-                ],
-                check_url=SERVICE_BASEURL + 'ping',
-            ),
+def example_service_baseurl(pytestconfig):
+    return f'http://localhost:{pytestconfig.option.example_service_port}/'
+
+
+@pytest.fixture(scope='session')
+def example_root():
+    """Path to example service root."""
+    return pathlib.Path(__file__).parent.parent
+
+
+@pytest.fixture(scope='session')
+async def example_service_scope(
+        pytestconfig,
+        create_daemon_scope,
+        example_service_baseurl,
+        example_root,
+        mongo_connection_info,
+):
+    async with create_daemon_scope(
+            args=[
+                sys.executable,
+                str(example_root.joinpath('server.py')),
+                '--port',
+                str(pytestconfig.option.example_service_port),
+                '--mongo-uri',
+                mongo_connection_info.get_uri(),
+            ],
+            check_url=example_service_baseurl + 'ping',
     ) as scope:
         yield scope
 

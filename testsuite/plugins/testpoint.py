@@ -2,14 +2,26 @@ import typing
 
 import pytest
 
+from testsuite import annotations
+from testsuite.mockserver import server
 from testsuite.utils import callinfo
+from testsuite.utils import http
 
 
-class TestpointSession:
+TestpointHandler = typing.Callable[
+    [annotations.JsonAnyOptional],
+    annotations.MaybeAsyncResult[annotations.JsonAnyOptional],
+]
+TestpointDecorator = typing.Callable[
+    [TestpointHandler], callinfo.AsyncCallQueue,
+]
+
+
+class TestpointFixture:
     """Testpoint control object."""
 
-    def __init__(self):
-        self._handlers = {}
+    def __init__(self) -> None:
+        self._handlers: typing.Dict[str, callinfo.AsyncCallQueue] = {}
 
     def get_handler(
             self, name: str,
@@ -19,9 +31,7 @@ class TestpointSession:
     def __getitem__(self, name: str) -> callinfo.AsyncCallQueue:
         return self._handlers[name]
 
-    def __call__(
-            self, name: str,
-    ) -> typing.Callable[[typing.Callable], callinfo.AsyncCallQueue]:
+    def __call__(self, name: str) -> TestpointDecorator:
         """Returns decorator for registering testpoint called ``name``.
 
         After decoration function is wrapped with `AsyncCallQueue`_.
@@ -37,7 +47,7 @@ class TestpointSession:
 
 
 @pytest.fixture
-def testpoint(mockserver) -> TestpointSession:
+async def testpoint(mockserver: server.MockserverFixture) -> TestpointFixture:
     """Testpoint fixture returns testpoint session instance that works
     as decorator that registers testpoint handler. Original function is
     wrapped with :ref:`AsyncCallQueue`
@@ -59,10 +69,10 @@ def testpoint(mockserver) -> TestpointSession:
            aseert testpoint_handler.wait_call() == {...}
     """
 
-    session = TestpointSession()
+    session = TestpointFixture()
 
     @mockserver.json_handler('/testpoint')
-    async def _handler(request):
+    async def _handler(request: http.Request):
         body = request.json
         handler = session.get_handler(body['name'])
         if handler is not None:

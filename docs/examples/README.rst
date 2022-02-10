@@ -8,8 +8,9 @@ external storage service to actually store chat messages.
 
 Two alternative storage services are implemented:
 
-* ``chat-storage-postgres`` - stores chat messages in PostgreSQL database
 * ``chat-storage-mongo`` - stores chat messages in MongoDB database
+* ``chat-storage-mysql`` - stores chat messages in MySQL database
+* ``chat-storage-postgres`` - stores chat messages in PostgreSQL database
 
 Directory structure ::
 
@@ -28,8 +29,9 @@ Run tests for all examples ::
 Run tests for a particular example ::
 
    make runtests-chat-backend
-   make runtests-chat-storage-postgres
    make runtests-chat-storage-mongo
+   make runtests-chat-storage-mysql
+   make runtests-chat-storage-postgres
 
 
 Running examples in docker
@@ -43,11 +45,15 @@ Run application
 
 Run chat backend with PostgreSQL storage ::
 
-   make run-chat-postgres
+   make run-chat-storage-postgres
 
 Run chat backend with MongoDB storage ::
 
-   make run-chat-mongo
+   make run-chat-storage-mongo
+
+Run chat backend with MySQL storage ::
+
+   make run-chat-storage-mysql
 
 On startup completion you will see output similar to ::
 
@@ -65,8 +71,9 @@ Run tests for all examples ::
 
 Run tests for a particular example ::
 
-   make docker-runtests-mockserver-example
-   make docker-runtests-mongo-example
+   make docker-runtests-chat-backend
+   make docker-runtests-chat-storage-mongo
+   make docker-runtests-chat-storage-mysql
    make docker-runtests-chat-storage-postgres
 
 
@@ -82,4 +89,5 @@ Examples
    docker/README
    chat-backend/README
    chat-storage-mongo/README
+   chat-storage-mysql/README
    chat-storage-postgres/README

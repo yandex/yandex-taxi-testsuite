@@ -1,16 +1,18 @@
 import logging
 import os
+import pathlib
 import typing
+
+from testsuite import annotations
 
 from . import shell
 from . import utils
 
 logger = logging.getLogger(__name__)
 
-_TESTSUITE_LIB_UTILS = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'scripts/utils.sh'),
+_TESTSUITE_LIB_UTILS = pathlib.Path(__file__).parent.joinpath(
+    'scripts/utils.sh',
 )
-
 COMMAND_START = 'start'
 COMMAND_STOP = 'stop'
 
@@ -26,7 +28,7 @@ class ScriptService:
             check_ports: typing.List[int],
             environment: typing.Optional[typing.Dict[str, str]] = None,
             prestart_hook: typing.Optional[typing.Callable] = None,
-    ):
+    ) -> None:
         self._service_name = service_name
         self._script_path = script_path
         self._environment = environment
@@ -35,7 +37,7 @@ class ScriptService:
         self._prestart_hook = prestart_hook
         self._started_mark = StartedMark(working_dir)
 
-    def ensure_started(self, *, verbose: int):
+    def ensure_started(self, *, verbose: int) -> None:
         self._started_mark.delete()
         self.stop(verbose=0)
         if self._prestart_hook:
@@ -47,7 +49,7 @@ class ScriptService:
             logger.info('Service %s started.', self._service_name)
         self._started_mark.create()
 
-    def stop(self, *, verbose: int):
+    def stop(self, *, verbose: int) -> None:
         self._started_mark.delete()
         if verbose:
             logger.info('Stopping %s services...', self._service_name)
@@ -55,7 +57,7 @@ class ScriptService:
         if verbose:
             logger.info('Service %s stopped.', self._service_name)
 
-    def is_running(self):
+    def is_running(self) -> bool:
         if not self._started_mark.exists():
             return False
         return all(
@@ -63,9 +65,9 @@ class ScriptService:
             for port in self._check_ports
         )
 
-    def _command(self, command: str, verbose: int):
+    def _command(self, command: str, verbose: int) -> None:
         env = os.environ.copy()
-        env['TESTSUITE_LIB_UTILS'] = _TESTSUITE_LIB_UTILS
+        env['TESTSUITE_LIB_UTILS'] = str(_TESTSUITE_LIB_UTILS)
         if self._environment:
             env.update(self._environment)
         args = [self._script_path, command]
@@ -78,20 +80,18 @@ class ScriptService:
 
 
 class StartedMark:
-    def __init__(self, working_dir):
-        self._working_dir = working_dir
-        self._path = os.path.join(working_dir, '.started')
+    def __init__(self, working_dir: annotations.PathOrStr) -> None:
+        self._path = pathlib.Path(working_dir) / '.started'
 
-    def create(self):
-        os.makedirs(self._working_dir, exist_ok=True)
-        with open(self._path, 'w'):
-            pass
+    def create(self) -> None:
+        self._path.parent.mkdir(exist_ok=True, parents=True)
+        self._path.write_text('')
 
-    def delete(self):
+    def delete(self) -> None:
         try:
-            os.remove(self._path)
+            self._path.unlink()
         except FileNotFoundError:
             pass
 
-    def exists(self):
-        return os.path.exists(self._path)
+    def exists(self) -> bool:
+        return self._path.exists()

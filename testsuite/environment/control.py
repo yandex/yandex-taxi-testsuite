@@ -1,9 +1,16 @@
-import os
+import dataclasses
+import getpass
+import pathlib
 import typing
 
-from testsuite.environment import utils
+from testsuite.utils import yaml_util
 
 from . import service
+from . import utils
+
+
+CONFIG_PATH = pathlib.Path('~/.config/yasuite/env.yaml')
+DEFAULT_WORKER_ID = 'master'
 
 
 class BaseError(Exception):
@@ -18,84 +25,116 @@ class ServiceUnknown(BaseError):
     pass
 
 
+@dataclasses.dataclass(frozen=True)
+class Config:
+    env_dir: pathlib.Path
+    worker_id: str
+    reuse_services: bool
+    verbose: int
+
+
 class Environment:
+    config: Config
+    _services: typing.Dict[str, service.ScriptService]
+    _services_start_order: typing.List[str]
+    _env: typing.Optional[typing.Dict[str, str]]
+    _service_factories: typing.Dict[str, typing.Callable]
+
     def __init__(
-            self, worker_id, build_dir, reuse_services, verbose, env=None,
-    ):
-        self.worker_id = worker_id
-        self.build_dir = os.path.abspath(build_dir)
-        self.services: typing.Dict[str, service.ScriptService] = {}
-        self.services_start_order = []
-        self.reuse_services = reuse_services
-        self.env = env
-        self._verbose = verbose
+            self,
+            config: Config,
+            env: typing.Optional[typing.Dict[str, str]] = None,
+    ) -> None:
+        self.config = config
+        self._services = {}
+        self._services_start_order = []
+        self._env = env
         self._service_factories = {}
 
-    def register_service(self, name, factory):
+    def register_service(self, name: str, factory) -> None:
         self._service_factories[name] = factory
 
-    def ensure_started(self, service_name, **kwargs):
-        if service_name not in self.services:
+    def ensure_started(self, service_name: str, **kwargs) -> None:
+        if service_name not in self._services:
             self.start_service(service_name, **kwargs)
 
-    def start_service(self, service_name, **kwargs):
-        if service_name in self.services:
-            raise AlreadyStarted(
-                'Service \'%s\' is already started' % (service_name,),
-            )
+    def start_service(self, service_name: str, **kwargs) -> None:
+        if service_name in self._services:
+            raise AlreadyStarted(f'Service {service_name} is already started')
         script_service = self._create_service(service_name, **kwargs)
-        if not (self.reuse_services and script_service.is_running()):
-            script_service.ensure_started(verbose=self._verbose)
-        self.services_start_order.append(service_name)
-        self.services[service_name] = script_service
+        if not (self.config.reuse_services and script_service.is_running()):
+            script_service.ensure_started(verbose=self.config.verbose)
+        self._services_start_order.append(service_name)
+        self._services[service_name] = script_service
 
-    def stop_service(self, service_name):
-        if service_name not in self.services:
-            self.services[service_name] = self._create_service(service_name)
-        if not self.reuse_services:
-            self.services[service_name].stop(verbose=self._verbose)
+    def stop_service(self, service_name: str) -> None:
+        if service_name not in self._services:
+            self._services[service_name] = self._create_service(service_name)
+        if not self.config.reuse_services:
+            self._services[service_name].stop(verbose=self.config.verbose)
 
-    def close(self):
-        while self.services_start_order:
-            service_name = self.services_start_order.pop()
+    def close(self) -> None:
+        while self._services_start_order:
+            service_name = self._services_start_order.pop()
             self.stop_service(service_name)
-            self.services.pop(service_name)
+            self._services.pop(service_name)
 
-    def _create_service(self, service_name, **kwargs) -> service.ScriptService:
+    def _create_service(
+            self, service_name: str, **kwargs,
+    ) -> service.ScriptService:
         if service_name not in self._service_factories:
             raise ServiceUnknown(f'Unknown service {service_name} requested')
         service_class = self._service_factories[service_name]
         return service_class(
             service_name=service_name,
             working_dir=self._get_working_dir_for(service_name),
-            env=self.env,
+            env=self._env,
             **kwargs,
         )
 
-    def _get_working_dir_for(self, service_name):
-        working_dir = os.path.join(
-            self.build_dir,
-            'testsuite',
-            'tmp',
-            utils.DOCKERTEST_WORKER,
-            service_name,
+    def _get_working_dir_for(self, service_name: str) -> pathlib.Path:
+        working_dir = self.config.env_dir.joinpath(
+            'services', utils.DOCKERTEST_WORKER, service_name,
         )
-        if self.worker_id != 'master':
-            return os.path.join(working_dir, '_' + self.worker_id)
+        if self.config.worker_id != 'master':
+            return working_dir.joinpath('_' + self.config.worker_id)
         return working_dir
 
 
 class TestsuiteEnvironment(Environment):
-    def __init__(
-            self, worker_id, build_dir, reuse_services, verbose, env=None,
-    ):
+    def __init__(self, config: Config) -> None:
+        if config.worker_id == DEFAULT_WORKER_ID:
+            worker_suffix = '_' + config.worker_id
+        else:
+            worker_suffix = ''
         super(TestsuiteEnvironment, self).__init__(
-            worker_id, build_dir, reuse_services, verbose, env,
+            config=config, env={'WORKER_SUFFIX': worker_suffix},
         )
-        worker_suffix = '_' + worker_id if worker_id != 'master' else ''
-        testsuite_env = {
-            'TAXI_BUILD_DIR': self.build_dir,
-            'WORKER_SUFFIX': worker_suffix,
-        }
-        testsuite_env.update(self.env or {})
-        self.env = testsuite_env
+
+
+def load_environment_config(
+        *,
+        env_dir: typing.Optional[pathlib.Path] = None,
+        worker_id: str = DEFAULT_WORKER_ID,
+        reuse_services: bool = False,
+        verbose: int = 0,
+) -> Config:
+    base_config = _load_config()
+    if env_dir is None:
+        if 'direcotry' in base_config:
+            env_dir = pathlib.Path(base_config['direcotry'])
+        else:
+            env_dir = pathlib.Path(f'/tmp/.yasuite-{getpass.getuser()}')
+    return Config(
+        env_dir=env_dir.expanduser().resolve(),
+        worker_id=worker_id,
+        reuse_services=reuse_services,
+        verbose=verbose,
+    )
+
+
+def _load_config():
+    config_path = CONFIG_PATH.expanduser()
+    if config_path.exists():
+        return yaml_util.load_file(config_path)
+    return {}

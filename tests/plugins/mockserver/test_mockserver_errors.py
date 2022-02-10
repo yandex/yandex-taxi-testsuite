@@ -2,7 +2,8 @@
 import multidict
 import pytest
 
-from testsuite.plugins import mockserver as mockserver_mod
+from testsuite.mockserver import exceptions
+from testsuite.mockserver import server
 from testsuite.utils import http
 
 
@@ -57,6 +58,6 @@ async def test_mockserver_error(
     ],
 )
 def test_mocked_error_fail(http_request, error_code, message):
-    with pytest.raises(mockserver_mod.MockServerError) as exc:
-        mockserver_mod._mocked_error_response(http_request, error_code)
+    with pytest.raises(exceptions.MockServerError) as exc:
+        server._mocked_error_response(http_request, error_code)
     assert str(exc.value) == message

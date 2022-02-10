@@ -1,6 +1,13 @@
-async def test_handler(mockserver, mockserver_client):
+from testsuite._internal import fixture_types
+from testsuite.daemons import service_client
+
+
+async def test_handler(
+        mockserver: fixture_types.MockserverFixture,
+        mockserver_client: service_client.Client,
+):
     @mockserver.handler('/test')
-    def _test(request):
+    def _test(request: fixture_types.MockserverRequest):
         return mockserver.make_response('test', 200)
 
     response = await mockserver_client.get('test')
@@ -8,9 +15,12 @@ async def test_handler(mockserver, mockserver_client):
     assert response.content == b'test'
 
 
-async def test_json_handler(mockserver, mockserver_client):
+async def test_json_handler(
+        mockserver: fixture_types.MockserverFixture,
+        mockserver_client: service_client.Client,
+):
     @mockserver.json_handler('/test')
-    def _test(request):
+    def _test(request: fixture_types.MockserverRequest):
         assert request.json == {'cmd': 'ping'}
         return {'msg': 'pong'}
 
@@ -19,9 +29,12 @@ async def test_json_handler(mockserver, mockserver_client):
     assert response.json() == {'msg': 'pong'}
 
 
-async def test_handler_callqueue(mockserver, mockserver_client):
+async def test_handler_callqueue(
+        mockserver: fixture_types.MockserverFixture,
+        mockserver_client: service_client.Client,
+):
     @mockserver.json_handler('/test')
-    def test(request):
+    def test(request: fixture_types.MockserverRequest):
         assert request.json == {'cmd': 'ping'}
         return {'msg': 'pong'}
 
@@ -36,9 +49,12 @@ async def test_handler_callqueue(mockserver, mockserver_client):
     assert call['request'].path == '/test'
 
 
-async def test_handler_callqueue_wait(mockserver, mockserver_client):
+async def test_handler_callqueue_wait(
+        mockserver: fixture_types.MockserverFixture,
+        mockserver_client: service_client.Client,
+):
     @mockserver.json_handler('/test')
-    def test(request):
+    def test(request: fixture_types.MockserverRequest):
         assert request.json == {'cmd': 'ping'}
         return {'msg': 'pong'}
 
@@ -50,9 +66,12 @@ async def test_handler_callqueue_wait(mockserver, mockserver_client):
     assert call['request'].path == '/test'
 
 
-async def test_prefix_handler(mockserver, mockserver_client):
+async def test_prefix_handler(
+        mockserver: fixture_types.MockserverFixture,
+        mockserver_client: service_client.Client,
+):
     @mockserver.json_handler('/test', prefix=True)
-    def test(request):
+    def test(request: fixture_types.MockserverRequest):
         return {'msg': 'pong'}
 
     response = await mockserver_client.get('test')

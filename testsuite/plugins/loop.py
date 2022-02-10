@@ -15,3 +15,8 @@ def loop():
         yield event_loop
     finally:
         event_loop.close()
+
+
+@pytest.fixture(scope='session')
+def event_loop(loop):
+    return loop

@@ -2,7 +2,7 @@ import datetime
 
 from bson import json_util
 
-JSON_OPTIONS = json_util.JSONOptions(tz_aware=False)
+from testsuite.utils import object_hook as object_hook_util
 
 
 def loads(string, *args, **kwargs):
@@ -11,31 +11,21 @@ def loads(string, *args, **kwargs):
     Automatically passes the object_hook for BSON type conversion.
     """
 
-    default_hook = kwargs.pop('object_hook', None)
-    mockserver = kwargs.pop('mockserver', None)
-    mockserver_https = kwargs.pop('mockserver_https', None)
-    now = kwargs.pop('now', None)
-    kwargs['object_hook'] = _build_object_hook(
-        default_hook, mockserver, mockserver_https, now,
+    object_hook = kwargs.pop('object_hook', None)
+    kwargs['object_hook'] = object_hook_util.build_object_hook(
+        object_hook=object_hook,
     )
     return json_util.json.loads(string, *args, **kwargs)
 
 
-def substitute(
-        json_obj,
-        *,
-        object_hook=None,
-        mockserver=None,
-        mockserver_https=None,
-        now=None,
-):
+def substitute(json_obj, *, object_hook=None):
     """Create transformed json by making substitutions:
 
     {"$mockserver": "/path", "$schema": true} -> "http://localhost:9999/path"
     {"$dateDiff": 10} -> datetime.utcnow() + timedelta(seconds=10)
     """
-    hook = _build_object_hook(object_hook, mockserver, mockserver_https, now)
-    return _substitute(json_obj, hook)
+    hook = object_hook_util.build_object_hook(object_hook=object_hook)
+    return object_hook_util.substitute(json_obj, hook)
 
 
 def dumps(obj, *args, **kwargs):
@@ -69,52 +59,5 @@ def relative_dates_default(obj):
     """Add ``$dateDiff`` hook to ``bson.json_util.default``."""
     if isinstance(obj, datetime.datetime):
         diff = obj.replace(tzinfo=None) - datetime.datetime.utcnow()
-        seconds = int(diff.total_seconds())
-        return {'$dateDiff': seconds}
+        return {'$dateDiff': diff.total_seconds()}
     return default(obj)
-
-
-def _substitute(json_obj, hook):
-    if isinstance(json_obj, dict):
-        return hook(
-            {key: _substitute(value, hook) for key, value in json_obj.items()},
-        )
-    if isinstance(json_obj, list):
-        return hook([_substitute(element, hook) for element in json_obj])
-    return json_obj
-
-
-def _build_object_hook(default_hook, mockserver, mockserver_https, now=None):
-    if now is None:
-        now = datetime.datetime.utcnow()
-
-    mockserver_substitutions = [
-        ('$mockserver', mockserver),
-        ('$mockserver_https', mockserver_https),
-    ]
-
-    def _hook(dct):
-        for key, mockserver_info in mockserver_substitutions:
-            if key in dct:
-                if mockserver_info is None:
-                    raise RuntimeError(f'Missing {key} argument')
-                if not dct.get('$schema', True):
-                    schema = ''
-                elif mockserver_info.ssl is not None:
-                    schema = 'https://'
-                else:
-                    schema = 'http://'
-                return '%s%s:%d%s' % (
-                    schema,
-                    mockserver_info.host,
-                    mockserver_info.port,
-                    dct[key],
-                )
-        if '$dateDiff' in dct:
-            seconds = int(dct['$dateDiff'])
-            return now + datetime.timedelta(seconds=seconds)
-        if default_hook is not None:
-            return default_hook(dct)
-        return json_util.object_hook(dct, JSON_OPTIONS)
-
-    return _hook

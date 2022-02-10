@@ -1,1 +1,1 @@
-.[mongodb,postgresql,redis]
+.[mongodb,postgresql,redis,mysql]

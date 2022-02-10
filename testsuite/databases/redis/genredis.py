@@ -1,6 +1,10 @@
 import argparse
-import os
+import pathlib
 import string
+import subprocess
+import typing
+
+from testsuite.utils import subprocess_helper
 
 
 MASTER_TPL_FILENAME = 'redis_master.conf.tpl'
@@ -23,7 +27,9 @@ SENTINEL_PARAMS = [
 
 def _parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output', help='Path to output directory')
+    parser.add_argument(
+        '--output', help='Path to output directory', type=pathlib.Path,
+    )
     parser.add_argument(
         '--host',
         type=int,
@@ -52,80 +58,142 @@ def _parse_args():
 
 
 def _generate_redis_config(
-        input_file, output_file, host, port, master_port=None,
-):
-    with open(input_file, 'r') as fconfig:
-        config_tpl = fconfig.read()
-        config_body = string.Template(config_tpl).substitute(
-            host=host, port=port, master_port=master_port,
-        )
+        input_file: pathlib.Path,
+        output_file: pathlib.Path,
+        protected_mode_no: str,
+        host: str,
+        port: int,
+        master_port: typing.Optional[int] = None,
+) -> None:
+    config_tpl = input_file.read_text()
+    config_body = string.Template(config_tpl).substitute(
+        protected_mode_no=protected_mode_no,
+        host=host,
+        port=port,
+        master_port=master_port,
+    )
+    output_file.write_text(config_body)
 
-    with open(output_file, 'w') as fconfig:
-        fconfig.write(config_body)
 
-
-def _generate_master(host, port, output_path, index):
-    input_file = os.path.join(_redis_config_directory(), MASTER_TPL_FILENAME)
+def _generate_master(
+        protected_mode_no: str,
+        host: str,
+        port: int,
+        output_path: pathlib.Path,
+        index: int,
+) -> None:
+    input_file = _redis_config_directory() / MASTER_TPL_FILENAME
     output_file = _construct_output_filename(
         output_path, MASTER_TPL_FILENAME, index,
     )
-    _generate_redis_config(input_file, output_file, host, port)
+    _generate_redis_config(
+        input_file, output_file, protected_mode_no, host, port,
+    )
 
 
-def _generate_slave(host, port, master_port, output_path, index):
-    input_file = os.path.join(_redis_config_directory(), SLAVE_TPL_FILENAME)
+def _generate_slave(
+        protected_mode_no: str,
+        host: str,
+        port: int,
+        master_port: int,
+        output_path: pathlib.Path,
+        index: int,
+) -> None:
+    input_file = _redis_config_directory() / SLAVE_TPL_FILENAME
     output_file = _construct_output_filename(
         output_path, SLAVE_TPL_FILENAME, index,
     )
-    _generate_redis_config(input_file, output_file, host, port, master_port)
+    _generate_redis_config(
+        input_file, output_file, protected_mode_no, host, port, master_port,
+    )
 
 
-def _generate_sentinel(host, sentinel_port, ports, output_path, params):
-    input_file = os.path.join(_redis_config_directory(), SENTINEL_TPL_FILENAME)
+def _generate_sentinel(
+        protected_mode_no: str,
+        host: str,
+        sentinel_port: int,
+        ports: typing.List[int],
+        output_path: pathlib.Path,
+        params: typing.List,
+) -> None:
+    input_file = _redis_config_directory() / SENTINEL_TPL_FILENAME
     lines = ['daemonize yes', 'port %d' % sentinel_port, '']
-    with open(input_file, 'r') as fconfig:
-        config_tpl = fconfig.read()
+    config_tpl = input_file.read_text()
 
     for index, (port, param) in enumerate(zip(ports, params)):
         config_body = string.Template(config_tpl).substitute(
-            index=index, host=host, port=port, **param,
+            index=index,
+            protected_mode_no=protected_mode_no,
+            host=host,
+            port=port,
+            **param,
         )
         lines.append(config_body)
 
-    output_file = os.path.join(output_path, 'redis_sentinel.conf')
-    with open(output_file, 'w') as fconfig:
-        fconfig.write('\n'.join(lines))
+    output_path.joinpath('redis_sentinel.conf').write_text('\n'.join(lines))
 
 
-def _construct_output_filename(output_path, tpl_filename, number):
-    config_filename, _ = os.path.splitext(tpl_filename)
-    name, exp = os.path.splitext(config_filename)
-    config_filename = ''.join((name, str(number), exp))
-    return os.path.join(output_path, config_filename)
+def _construct_output_filename(
+        output_path: pathlib.Path, tpl_filename: str, number: int,
+) -> pathlib.Path:
+    name = tpl_filename.split('.', 1)[0]
+    config_filename = ''.join((name, str(number), '.conf'))
+    return output_path / config_filename
 
 
-def _redis_config_directory():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), 'configs'))
+def _redis_config_directory() -> pathlib.Path:
+    return pathlib.Path(__file__).parent / 'configs'
+
+
+def redis_version() -> typing.List[int]:
+    try:
+        reply = subprocess_helper.sh('redis-server', '--version')
+    except subprocess.CalledProcessError as err:
+        raise RuntimeError(f'Subprocess error: {err}')
+
+    start = 'Redis server '
+    if not reply.startswith(start):
+        raise RuntimeError(
+            f'Can not parse redis server version from "{reply}"',
+        )
+    version_key = 'v'
+    for token in reply[len(start) :].split(' '):
+        key, value = token.split('=', 1)
+        if key == version_key:
+            return list(map(int, value.split('.')))
+    raise RuntimeError(
+        f'Tag "{version_key}" not found in redis server reply "{reply}"',
+    )
 
 
 def generate_redis_configs(
-        output_path,
-        host,
-        master0_port,
-        master1_port,
-        slave0_port,
-        slave1_port,
-        slave2_port,
-        sentinel_port,
-):
-    _generate_master(host, master0_port, output_path, 0)
-    _generate_master(host, master1_port, output_path, 1)
+        output_path: pathlib.Path,
+        host: str,
+        master0_port: int,
+        master1_port: int,
+        slave0_port: int,
+        slave1_port: int,
+        slave2_port: int,
+        sentinel_port: int,
+) -> None:
+    protected_mode_no = ''
+    if redis_version() >= [3, 2, 0]:
+        protected_mode_no = 'protected-mode no'
+    _generate_master(protected_mode_no, host, master0_port, output_path, 0)
+    _generate_master(protected_mode_no, host, master1_port, output_path, 1)
 
-    _generate_slave(host, slave0_port, master0_port, output_path, 0)
-    _generate_slave(host, slave1_port, master1_port, output_path, 1)
-    _generate_slave(host, slave2_port, master0_port, output_path, 2)
+    _generate_slave(
+        protected_mode_no, host, slave0_port, master0_port, output_path, 0,
+    )
+    _generate_slave(
+        protected_mode_no, host, slave1_port, master1_port, output_path, 1,
+    )
+    _generate_slave(
+        protected_mode_no, host, slave2_port, master0_port, output_path, 2,
+    )
 
     _generate_sentinel(
+        protected_mode_no,
         host,
         sentinel_port,
         [master0_port, master1_port],

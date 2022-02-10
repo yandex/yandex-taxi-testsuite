@@ -1,7 +1,13 @@
 import collections
+import dataclasses
+import itertools
 import logging
 import pathlib
-import typing
+from typing import DefaultDict
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
 
 from . import exceptions
 from . import utils
@@ -11,177 +17,98 @@ logger = logging.getLogger(__name__)
 SINGLE_SHARD = -1
 
 
-class ShardName(typing.NamedTuple):
+@dataclasses.dataclass(frozen=True)
+class ShardName:
     db_name: str
     shard: int
 
 
-class ShardFiles(typing.NamedTuple):
+@dataclasses.dataclass
+class ShardFiles:
     name: ShardName
-    files: typing.List[str]
+    files: Optional[List[pathlib.Path]] = None
+    pg_migrations: Optional[List[pathlib.Path]] = None
 
 
+@dataclasses.dataclass
+class ShardFileInfo:
+    files: List[pathlib.Path]
+    pg_migrations: List[pathlib.Path]
+
+    def extend(self, other: ShardFiles) -> None:
+        if other.files:
+            self.files.extend(other.files)
+        if other.pg_migrations:
+            self.pg_migrations.extend(other.pg_migrations)
+
+
+ShardPathesDict = Dict[int, ShardFileInfo]
+
+
+@dataclasses.dataclass(frozen=True)
 class PgShard:
-    def __init__(
-            self,
-            dbname,
-            service_name=None,
-            shard_id: int = SINGLE_SHARD,
-            files=(),
-            migrations=None,
-    ):
-        if shard_id == SINGLE_SHARD:
-            self.shard_id = 0
-            self.pretty_name = dbname
-            sharded_dbname = dbname
-        else:
-            self.shard_id = shard_id
-            self.pretty_name = '%s@%d' % (dbname, shard_id)
-            sharded_dbname = '%s_%d' % (dbname, shard_id)
+    shard_id: int
+    pretty_name: str
+    dbname: str
+    files: List[pathlib.Path]
+    migrations: List[pathlib.Path]
 
-        if service_name is not None:
-            sharded_dbname = '%s_%s' % (
-                _normalize_name(service_name),
-                sharded_dbname,
-            )
-        self.dbname = sharded_dbname
-        self.files = files
-        self.migrations = migrations
-
-
-class PgShardedDatabase:
-    def __init__(self, service_name, dbname, shards):
-        self.service_name = service_name
-        self.dbname = dbname
-        self.shards = shards
-
-    def initialize(self, pgsql_control):
-        logger.info(
-            'Initializing database %s for service %s...',
-            self.dbname,
-            self.service_name,
+    def get_schema_hash(self) -> str:
+        return utils.get_files_hash(
+            itertools.chain(self.files, self.migrations),
         )
-        connections = {}
-        for shard in self.shards:
-            logger.info('Creating database %s', shard.dbname)
-            pgsql_control.create_database(shard.dbname)
-            for path in shard.files:
-                logger.info(
-                    'Running sql script %s against database %s',
-                    path,
-                    shard.dbname,
-                )
-                schemas = pgsql_control.get_applied_schemas(shard.dbname)
-                if path not in schemas:
-                    pgsql_control.run_script(shard.dbname, path)
-                    schemas.add(path)
-
-            if shard.migrations:
-                for path in shard.migrations:
-                    logger.info(
-                        'Running migrations from %s against database %s',
-                        path,
-                        shard.dbname,
-                    )
-                    schemas = pgsql_control.get_applied_schemas(shard.dbname)
-                    if path not in schemas:
-                        pgsql_control.run_migrations(shard.dbname, path)
-                        schemas.add(path)
-
-            connections[
-                shard.pretty_name
-            ] = pgsql_control.get_connection_cached(shard.dbname)
-        return connections
 
 
-def find_databases(
-        service_name: str,
-        schema_path: str,
-        migrations_path: typing.Optional[str] = None,
-        is_common_schema_path: bool = False,
-) -> typing.Dict[str, PgShardedDatabase]:
-    """Read database schemas from path ``schema_path``. ::
+@dataclasses.dataclass(frozen=True)
+class PgShardedDatabase:
+    service_name: str
+    dbname: str
+    shards: List[PgShard]
 
+
+def find_schemas(
+        service_name: str, schema_dirs: List[pathlib.Path],
+) -> Dict[str, PgShardedDatabase]:
+    """Read database schemas from directories ``schema_dirs``. ::
      |- schema_path/
        |- database1.sql
        |- database2.sql
-
-    :param service_name: service name used as prefix for
-        database name if not empty, e.g. "servicename_dbname".
-    :param schema_path: path to schemas directory
-    :param migrations_path: path to yandex-pgmigrate schemas
-    :returns: dictionary ``{database_name: PgShardedDatabase}``
+    :param service_name: service name used as prefix for database name if not
+           empty, e.g. "servicename_dbname".
+    :param schema_dirs: list of pathes to scan for schemas
+    :returns: :py:class:`Dict[str, PgShardedDatabase]` where key is
+              database name as stored in :py:attr:`PgShard.dbname`
     """
-    schemas: typing.Dict[str, PgShardedDatabase] = {}
-    migrations: typing.Dict[str, PgShardedDatabase] = {}
-
-    parsed_schema_path = pathlib.Path(schema_path)
-    if parsed_schema_path.is_dir():
-        schemas = _find_databases_schemas(
-            service_name, parsed_schema_path, is_common_schema_path,
-        )
-
-    if migrations_path:
-        parsed_migrations_path = pathlib.Path(migrations_path)
-        if parsed_migrations_path.is_dir():
-            migrations = _find_databases_migrations(
-                service_name, parsed_migrations_path, is_common_schema_path,
+    result: Dict[str, PgShardedDatabase] = {}
+    for path in schema_dirs:
+        if not path.is_dir():
+            continue
+        schemas = _find_databases_schemas(service_name, path)
+        for dbname in schemas.keys() & result.keys():
+            raise exceptions.PostgresqlError(
+                f'Database {dbname} is declared twice',
             )
-
-    for conflict in schemas.keys() & migrations.keys():
-        raise exceptions.PostgresqlError(
-            'Database %s has both migrations and schemas' % (conflict,),
-        )
-
-    return {**schemas, **migrations}
+        result.update(schemas)
+    return result
 
 
 def _find_databases_schemas(
-        service_name: str,
-        schema_path: pathlib.Path,
-        is_common_schema_path: bool,
-) -> typing.Dict[str, PgShardedDatabase]:
-    fixtures = _build_shard_files_map(
-        schema_path, is_common_schema_path, _get_shard_schema_files,
-    )
+        service_name: str, schema_path: pathlib.Path,
+) -> Dict[str, PgShardedDatabase]:
+    logger.debug('Looking up for PostgreSQL schemas at %s', schema_path)
+    shard_files_map = _build_shard_files_map(schema_path)
     result = {}
-    for dbname, shards in fixtures.items():
+    for dbname, shards in shard_files_map.items():
         _raise_if_invalid_shards(dbname, shards)
         pg_shards = []
         for shard_id, shard_files in sorted(shards.items()):
             pg_shards.append(
-                PgShard(
+                _create_pgshard(
                     dbname,
                     service_name=service_name,
                     shard_id=shard_id,
-                    files=sorted(shard_files),
-                ),
-            )
-        result[dbname] = PgShardedDatabase(
-            service_name=service_name, dbname=dbname, shards=pg_shards,
-        )
-    return result
-
-
-def _find_databases_migrations(
-        service_name,
-        migrations_path: pathlib.Path,
-        is_common_schemas_path: bool,
-) -> typing.Dict[str, PgShardedDatabase]:
-    migrations = _build_shard_files_map(
-        migrations_path, is_common_schemas_path, _get_shard_migration_files,
-    )
-    result = {}
-    for dbname, shards in migrations.items():
-        _raise_if_invalid_shards(dbname, shards)
-        pg_shards = []
-        for shard_id, shard_directory in sorted(shards.items()):
-            pg_shards.append(
-                PgShard(
-                    dbname,
-                    service_name=service_name,
-                    shard_id=shard_id,
-                    migrations=shard_directory,
+                    files=sorted(shard_files.files),
+                    migrations=sorted(shard_files.pg_migrations),
                 ),
             )
         result[dbname] = PgShardedDatabase(
@@ -192,87 +119,36 @@ def _find_databases_migrations(
 
 def _build_shard_files_map(
         root_path: pathlib.Path,
-        is_common_schemas_path: bool,
-        get_files: typing.Callable[
-            [pathlib.Path], typing.Optional[ShardFiles],
-        ],
-) -> typing.DefaultDict[str, typing.DefaultDict[int, typing.List[str]]]:
-    result: typing.DefaultDict[
-        str, typing.DefaultDict[int, typing.List[str]],
-    ] = collections.defaultdict(lambda: collections.defaultdict(list))
-    shard_files: typing.Iterable[ShardFiles]
-    if is_common_schemas_path:
-        shard_files = _find_common_shard_files(root_path, get_files)
-    else:
-        shard_files = _find_shard_files(root_path, get_files)
-    for shard in shard_files:
-        result[shard.name.db_name][shard.name.shard].extend(shard.files)
+) -> DefaultDict[str, ShardPathesDict]:
+    result: DefaultDict[str, ShardPathesDict]
+    result = collections.defaultdict(
+        lambda: collections.defaultdict(lambda: ShardFileInfo([], [])),
+    )
+    for shard in _find_shard_files(root_path):
+        result[shard.name.db_name][shard.name.shard].extend(shard)
     return result
 
 
-def _find_shard_files(
-        schema_path: pathlib.Path,
-        get_files: typing.Callable[
-            [pathlib.Path], typing.Optional[ShardFiles],
-        ],
-) -> typing.Iterable[ShardFiles]:
+def _find_shard_files(schema_path: pathlib.Path) -> Iterable[ShardFiles]:
     for entry in schema_path.iterdir():
-        shard_files = get_files(entry)
+        shard_files = _get_shard_schema_files(entry)
         if shard_files is not None:
             yield shard_files
 
 
-def _find_common_shard_files(
-        schema_path: pathlib.Path,
-        get_files: typing.Callable[
-            [pathlib.Path], typing.Optional[ShardFiles],
-        ],
-) -> typing.Iterable[ShardFiles]:
-    for db_path in schema_path.iterdir():
-        if db_path.is_file():
-            raise exceptions.PostgresqlError(
-                f'Unexpected file \'{db_path}\', in schemas directory. '
-                f'Expected subdirectory \'{schema_path}/database_name\' '
-                'for each database',
-            )
-        dbname = db_path.stem
-        for entry_path in db_path.iterdir():
-            shard_files = get_files(entry_path)
-            if shard_files is None:
-                continue
-            if shard_files.name.db_name != dbname:
-                raise exceptions.PostgresqlError(
-                    f'Invalid dbname \'{shard_files.name.db_name}\', '
-                    f'expected \'{dbname}\'',
-                )
-            yield shard_files
-
-
-def _get_shard_schema_files(path: pathlib.Path) -> typing.Optional[ShardFiles]:
-    name = path.stem
-    ext = path.suffix
-    shard_name = _parse_shard_name(name)
+def _get_shard_schema_files(path: pathlib.Path) -> Optional[ShardFiles]:
+    shard_name = _parse_shard_name(path.stem)
     if path.is_file():
-        if ext == '.sql':
-            return ShardFiles(shard_name, [str(path)])
+        if path.suffix == '.sql':
+            return ShardFiles(shard_name, files=[path])
     elif path.is_dir():
-        files = [str(file) for file in utils.scan_sql_directory(str(path))]
-        return ShardFiles(shard_name, files)
+        if path.joinpath('migrations').is_dir():
+            return ShardFiles(shard_name, pg_migrations=[path])
+        return ShardFiles(shard_name, files=utils.scan_sql_directory(path))
     return None
 
 
-def _get_shard_migration_files(
-        path: pathlib.Path,
-) -> typing.Optional[ShardFiles]:
-    if path.is_dir():
-        shard_name = _parse_shard_name(path.stem)
-        return ShardFiles(shard_name, [str(path)])
-    return None
-
-
-def _raise_if_invalid_shards(
-        dbname: str, shards: typing.DefaultDict[int, typing.List[str]],
-) -> None:
+def _raise_if_invalid_shards(dbname: str, shards: ShardPathesDict) -> None:
     if SINGLE_SHARD in shards:
         if len(shards) != 1:
             raise exceptions.PostgresqlError(
@@ -285,6 +161,40 @@ def _raise_if_invalid_shards(
                 'Postgresql database %s is missing fixtures '
                 'for some shards' % (dbname,),
             )
+
+
+def _create_pgshard(
+        dbname: str,
+        service_name: Optional[str] = None,
+        shard_id: int = SINGLE_SHARD,
+        files: Optional[List[pathlib.Path]] = None,
+        migrations: Optional[List[pathlib.Path]] = None,
+) -> PgShard:
+    if files is None:
+        files = []
+    if migrations is None:
+        migrations = []
+    if shard_id == SINGLE_SHARD:
+        shard_id = 0
+        pretty_name = dbname
+        sharded_dbname = dbname
+    else:
+        shard_id = shard_id
+        pretty_name = '%s@%d' % (dbname, shard_id)
+        sharded_dbname = '%s_%d' % (dbname, shard_id)
+
+    if service_name is not None:
+        sharded_dbname = '%s_%s' % (
+            _normalize_name(service_name),
+            sharded_dbname,
+        )
+    return PgShard(
+        shard_id=shard_id,
+        pretty_name=pretty_name,
+        dbname=sharded_dbname,
+        files=files,
+        migrations=migrations,
+    )
 
 
 def _parse_shard_name(name) -> ShardName:

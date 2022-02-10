@@ -1,3 +1,6 @@
+import pathlib
+import typing
+
 import pytest
 
 from . import control
@@ -10,6 +13,8 @@ class Hookspec:
 
 
 class TestsuiteEnvironmentPlugin:
+    _env: typing.Optional[control.TestsuiteEnvironment]
+
     def __init__(self):
         self._env = None
 
@@ -26,13 +31,15 @@ class TestsuiteEnvironmentPlugin:
         elif session.config.pluginmanager.getplugin('dsession'):
             return
         else:
-            worker_id = 'master'
-        self._env = control.TestsuiteEnvironment(
+            worker_id = control.DEFAULT_WORKER_ID
+
+        config = control.load_environment_config(
+            env_dir=session.config.option.env_dir,
             worker_id=worker_id,
-            build_dir=session.config.option.build_dir,
             reuse_services=start_environment == 'auto',
             verbose=session.config.option.verbose,
         )
+        self._env = control.TestsuiteEnvironment(config)
 
         def register_service(service_name, factory=None):
             def decorator(factory):
@@ -53,9 +60,29 @@ class TestsuiteEnvironmentPlugin:
     def pytest_addhooks(self, pluginmanager):
         pluginmanager.add_hookspecs(Hookspec)
 
+    def pytest_report_header(self, config):
+        headers = []
+        if self._env:
+            if self._env.config.reuse_services:
+                kind = 'auto'
+            else:
+                kind = 'new'
+            headers.append(
+                f'testsuite env: {kind}, dir: {self._env.config.env_dir}',
+            )
+        else:
+            headers.append('testsuite env: external')
+        return headers
+
 
 def pytest_addoption(parser):
     group = parser.getgroup('env', 'Testsuite environment')
+    group.addoption(
+        '--env-dir',
+        default=None,
+        type=pathlib.Path,
+        help='Path environment data directry.',
+    )
     group.addoption(
         '--start-environment', choices=['yes', 'no', 'auto'], default='yes',
     )
@@ -90,6 +117,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture(scope='session')
-def ensure_service_started(request, pytestconfig):
-    taxi_env = pytestconfig.pluginmanager.get_plugin('testsuite_environment')
-    return taxi_env.ensure_started
+def ensure_service_started(pytestconfig):
+    env: TestsuiteEnvironmentPlugin
+    env = pytestconfig.pluginmanager.get_plugin('testsuite_environment')
+    return env.ensure_started

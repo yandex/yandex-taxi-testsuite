@@ -1,5 +1,5 @@
-async def test_messages_send(server_client, pgsql):
-    response = await server_client.post(
+async def test_messages_send(example_client, pgsql):
+    response = await example_client.post(
         '/messages/send', json={'username': 'foo', 'text': 'bar'},
     )
     assert response.status_code == 200
@@ -14,8 +14,8 @@ async def test_messages_send(server_client, pgsql):
     assert record == ('foo', 'bar')
 
 
-async def test_messages_retrieve(server_client, pgsql):
-    response = await server_client.post('/messages/retrieve', json={})
+async def test_messages_retrieve(example_client, pgsql):
+    response = await example_client.post('/messages/retrieve', json={})
     assert response.json() == {
         'messages': [
             {

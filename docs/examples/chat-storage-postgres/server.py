@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 
 from aiohttp import web
 import asyncpg
@@ -14,6 +13,11 @@ def main():
     parser.add_argument('--postgresql', help='PostgreSQL connection string')
     parser.add_argument('--port', type=int, default=8080)
     args = parser.parse_args()
+
+    web.run_app(create_app(args), port=args.port)
+
+
+async def create_app(args):
     routes = web.RouteTableDef()
 
     @routes.get('/ping')
@@ -49,15 +53,9 @@ def main():
         ]
         return web.json_response({'messages': messages})
 
-    loop = asyncio.get_event_loop()
-    app = loop.run_until_complete(_init_app(args))
-    app.add_routes(routes)
-    web.run_app(app, port=args.port)
-
-
-async def _init_app(args):
     app = web.Application()
     app['pool'] = await asyncpg.create_pool(dsn=args.postgresql)
+    app.add_routes(routes)
     return app
 
 

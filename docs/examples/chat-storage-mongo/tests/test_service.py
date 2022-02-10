@@ -1,9 +1,9 @@
-async def test_messages_send(server_client, mongodb):
+async def test_messages_send(example_client, mongodb):
     message = {
         'username': 'Alice',
         'text': 'Rabbits are so cute, love them ^_^',
     }
-    response = await server_client.post('messages/send', json=message)
+    response = await example_client.post('messages/send', json=message)
     assert response.status_code == 200
     body = response.json()
     msg_id = body['id']
@@ -15,9 +15,9 @@ async def test_messages_send(server_client, mongodb):
     assert stored_message == message
 
 
-async def test_messages_retrieve(server_client):
+async def test_messages_retrieve(example_client):
     # db_messages.json
-    read_response = await server_client.post('messages/retrieve')
+    read_response = await example_client.post('messages/retrieve')
     assert read_response.status_code == 200
     doc = read_response.json()
     assert doc == {

@@ -12,7 +12,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -20,6 +20,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install database dependencies
+      run: |
+        apt update
+        apt install -y     \
+            postgresql-12  \
+            redis-server   \
+            mongodb-server \
+            mysql-server-core-8.0 mysql-client-8.0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -37,4 +45,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=79 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        TESTSUITE_ALLOW_ROOT=1 pytest -v

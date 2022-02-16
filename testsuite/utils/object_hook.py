@@ -12,7 +12,7 @@ def substitute(json_obj, hook):
             {key: substitute(value, hook) for key, value in json_obj.items()},
         )
     if isinstance(json_obj, list):
-        return hook([substitute(element, hook) for element in json_obj])
+        return [substitute(element, hook) for element in json_obj]
     return json_obj
 
 

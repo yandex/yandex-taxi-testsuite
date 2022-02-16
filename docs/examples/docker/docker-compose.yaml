@@ -103,7 +103,7 @@ services:
         expose:
           - "8080"
         command: >
-            python3.7 chat-storage-mongo/server.py --port 8080
+            python3 chat-storage-mongo/server.py --port 8080
             --mongo-uri mongodb://db-mongo/
 
     chat-storage-postgres:
@@ -117,7 +117,7 @@ services:
         expose:
           - "8080"
         command: >
-            python3.7 chat-storage-postgres/server.py --port 8080
+            python3 chat-storage-postgres/server.py --port 8080
             --postgresql postgresql://testsuite:testsuite@db-postgresql/chat_messages
 
     chat-storage-mysql:
@@ -131,4 +131,4 @@ services:
         expose:
           - "8080"
         command: >
-            python3.7 chat-storage-mysql/server.py --port 8080 --mysql-host=db-mysql
+            python3 chat-storage-mysql/server.py --port 8080 --mysql-host=db-mysql

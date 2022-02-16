@@ -1,14 +1,14 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 RUN apt-get update && \
     apt-get install -y \
-            python3.7 python3-virtualenv \
+            python3.8 python3-virtualenv \
             postgresql-client \
-            mysql-client-5.7 && \
+            mysql-client-8.0 && \
     apt-get clean
 
 RUN mkdir -p /opt/yandex
-RUN python3.7 -m virtualenv --python=/usr/bin/python3.7 /opt/yandex/testsuite
+RUN python3 -m virtualenv --python=/usr/bin/python3 /opt/yandex/testsuite
 
 RUN mkdir -p /tmp/testsuite
 

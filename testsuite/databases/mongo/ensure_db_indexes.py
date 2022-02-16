@@ -34,7 +34,7 @@ def shard_collection(collection, sharding):
 def ensure_db_indexes(dbase, db_settings, sharding_enabled=True):
     for alias, value in db_settings.items():
         collection = getattr(dbase, alias, None)
-        if collection:
+        if collection is not None:
             create_collection(collection)
 
             indexes = value.get('indexes')

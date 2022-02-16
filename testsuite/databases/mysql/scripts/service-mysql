@@ -18,6 +18,7 @@ else
 fi
 MYSQL_DATADIR=$MYSQL_BASEDIR/data
 MYSQL_PIDFILE=$MYSQL_BASEDIR/mysql.pid
+MYSQL_LOGFILE=$MYSQL_BASEDIR/mysql.log
 
 MYSQLD=$(which mysqld 2>/dev/null)
 
@@ -33,8 +34,7 @@ mkdir -p $MYSQL_BASEDIR
 run_mysqld() {
     $MYSQLD --datadir="$MYSQL_DATADIR"                  \
             --pid-file="$MYSQL_PIDFILE"                 \
-            --log-error="$MYSQL_BASEDIR/mysql.log"      \
-            --log-syslog=OFF                            \
+            --log-error="$MYSQL_LOGFILE"                \
             --socket="$MYSQL_BASEDIR/mysql.sock"        \
             --secure-file-priv="$MYSQL_BASEDIR"         \
             --port=$MYSQL_PORT                          \
@@ -43,13 +43,23 @@ run_mysqld() {
             "$@"
 }
 
+mysql_die() {
+    if [ -a "$MYSQL_LOGFILE" ]; then
+        exec >&2
+        echo "==== MySQL log tail, see $MYSQL_LOGFILE:"
+        tail -n 20 "$MYSQL_LOGFILE"
+        echo "===="
+    fi
+    die "$@"
+}
+
 start() {
     $MYSQLD --version
     echo "Testsuite Mysql directory: $MYSQL_BASEDIR"
 
     rm -rf "$MYSQL_DATADIR"
 
-    run_mysqld --initialize-insecure || die "mysqld initialization failed:
+    run_mysqld --initialize-insecure || mysql_die "mysqld initialization failed:
 
 if you see permissions denied error for data directory that may be
 caused by AppArmoor rules. Try this:
@@ -58,7 +68,7 @@ $ sudo apt-get install apparmor-utils
 $ sudo aa-disable /usr/sbin/mysqld
 "
 
-    run_mysqld --daemonize || die "mysqld_safe start failed"
+    run_mysqld --daemonize || mysql_die "mysqld_safe start failed"
 }
 
 stop() {

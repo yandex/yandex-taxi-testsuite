@@ -41,8 +41,13 @@ async def test_service_daemon(mockserver, dummy_daemon, logger_plugin):
 @pytest.mark.parametrize(
     'daemon_args,expected_message',
     [
-        (['--raise-signal', '15'], 'Daemon was killed by SIGTERM signal'),
-        (['--exit-code', '1'], 'Daemon exited with status code 1'),
+        (['--raise-signal', '6'], 'Service aborted by SIGABRT signal'),
+        (
+            ['--raise-signal', '11'],
+            'Service crashed with SIGSEGV signal (segmentation fault)',
+        ),
+        (['--raise-signal', '15'], 'Service terminated by SIGTERM signal'),
+        (['--exit-code', '1'], 'Service exited with status code 1'),
     ],
 )
 async def test_service_daemon_failure(

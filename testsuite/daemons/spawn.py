@@ -11,6 +11,14 @@ from typing import Dict
 from typing import Sequence
 
 
+SIGNAL_ERRORS: Dict[int, str] = {
+    signal.SIGSEGV: (
+        'Service crashed with {signal_name} signal (segmentation fault)'
+    ),
+    signal.SIGABRT: 'Service aborted by {signal_name} signal',
+}
+DEFAULT_SIGNAL_ERROR = 'Service terminated by {signal_name} signal'
+
 _KNOWN_SIGNALS: Dict[int, str] = {
     signal.SIGABRT: 'SIGABRT',
     signal.SIGBUS: 'SIGBUS',
@@ -104,11 +112,12 @@ async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
 def _exit_code_error(retcode: int) -> ExitCodeError:
     if retcode >= 0:
         return ExitCodeError(
-            f'Daemon exited with status code {retcode}', retcode,
+            f'Service exited with status code {retcode}', retcode,
         )
-
+    signal_name = _pretty_signal(-retcode)
+    signal_error_fmt = SIGNAL_ERRORS.get(-retcode, DEFAULT_SIGNAL_ERROR)
     return ExitCodeError(
-        'Daemon was killed by %s signal' % _pretty_signal(-retcode), retcode,
+        signal_error_fmt.format(signal_name=signal_name), retcode,
     )
 
 

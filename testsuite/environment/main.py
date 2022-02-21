@@ -33,8 +33,6 @@ def csv_arg(value: str):
 
 def main(service_plugins=None):
     utils.ensure_non_root_user()
-    if service_plugins is None:
-        service_plugins = DEFAULT_SERVICE_PLUGINS
     testsuite_services = _register_services(service_plugins)
     default_services = sorted(testsuite_services.keys())
 
@@ -150,7 +148,7 @@ def _command_run(env, args):
         sys.exit(exit_code)
 
 
-def _register_services(service_plugins):
+def _register_services(service_plugins=None):
     services = {}
 
     def _register_service(name, factory=None):
@@ -161,8 +159,19 @@ def _register_services(service_plugins):
             return decorator
         return decorator(factory)
 
+    if service_plugins is None:
+        service_plugins = DEFAULT_SERVICE_PLUGINS
+        strict_check = False
+    else:
+        strict_check = True
+
     for modname in service_plugins:
-        mod = importlib.import_module(modname)
+        try:
+            mod = importlib.import_module(modname)
+        except ImportError:
+            if strict_check:
+                raise
+            continue
         mod.pytest_service_register(register_service=_register_service)
     return services
 

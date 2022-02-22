@@ -59,7 +59,9 @@ MONGOD_CONFIG_SERVER_ARGS="$MONGO_ARGS --configsvr --port $CONFIG_SERVER_PORT
             --logpath $MONGOD_CONFIG_SERVER_LOG_FILE"
 
 MONGOD_SHARD_SERVER_LOG_FILE=$MONGO_SHARD0_DIR/mongod-shrd.log
-MONGOD_SHARD_SERVER_ARGS="$MONGO_ARGS --shardsvr --port $SHARD_PORT
+MONGOD_SHARD_SERVER_ARGS="$MONGO_ARGS --shardsvr
+            --replSet rs0
+            --port $SHARD_PORT
             --dbpath $MONGO_SHARD0_DIR --fork
             --pidfilepath $MONGO_SHARD0_PID_FILE
             --logpath $MONGOD_SHARD_SERVER_LOG_FILE"
@@ -86,7 +88,7 @@ start_sharded_cluster() {
 
     sleep 1
 
-    echo "Initiating a replica set..."
+    echo "Initiating config server replica set..."
     $MONGO --port $CONFIG_SERVER_PORT --eval 'rs.initiate({_id: "crs0", configsvr: true, members: [{_id: 0, host: "localhost:'"$CONFIG_SERVER_PORT"'"}]})'
 
     echo "Starting shard at $MONGO_SHARD0_DIR..."
@@ -95,6 +97,9 @@ start_sharded_cluster() {
         exit 1
     }
 
+    echo "Initiating shard0 replica set..."
+    $MONGO --port $SHARD_PORT --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host: "localhost:'"$SHARD_PORT"'"}]})'
+
     echo "Starting mongos..."
     $MONGOS $MONGOS_ARGS || {
         print_log $MONGOS_LOG_FILE
@@ -102,7 +107,7 @@ start_sharded_cluster() {
     }
 
     echo "Adding shard..."
-    $MONGO --port $MONGOS_PORT --eval 'sh.addShard("localhost:'"$SHARD_PORT"'")'
+    $MONGO --port $MONGOS_PORT --eval 'sh.addShard("rs0/localhost:'"$SHARD_PORT"'")'
 }
 
 start() {

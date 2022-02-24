@@ -8,7 +8,7 @@ Envinfo
 
 Envinfo plugin adds some details to test report header ::
 
-   args: python3.7 -m pytest -vv -x
+   args: python3 -m pytest -vv -x
    hostname: machine-hostname
    git: branch current_branch, commit_hash*, base base_commit_hash
 

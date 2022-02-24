@@ -39,17 +39,17 @@
 <h2>Dockerfile<a class="headerlink" href="#dockerfile" title="Permalink to this headline">¶</a></h2>
 <p>First of all you need to build an image with testsuite, here is example
 Dockerfile:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FROM</span> <span class="n">ubuntu</span><span class="p">:</span><span class="mf">18.04</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FROM</span> <span class="n">ubuntu</span><span class="p">:</span><span class="mf">20.04</span>
 
 <span class="n">RUN</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span> <span class="o">&amp;&amp;</span> \
     <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> \
-            <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">python3</span><span class="o">-</span><span class="n">virtualenv</span> \
+            <span class="n">python3</span><span class="o">.</span><span class="mi">8</span> <span class="n">python3</span><span class="o">-</span><span class="n">virtualenv</span> \
             <span class="n">postgresql</span><span class="o">-</span><span class="n">client</span> \
-            <span class="n">mysql</span><span class="o">-</span><span class="n">client</span><span class="o">-</span><span class="mf">5.7</span> <span class="o">&amp;&amp;</span> \
+            <span class="n">mysql</span><span class="o">-</span><span class="n">client</span><span class="o">-</span><span class="mf">8.0</span> <span class="o">&amp;&amp;</span> \
     <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">clean</span>
 
 <span class="n">RUN</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span>
-<span class="n">RUN</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">-</span><span class="n">m</span> <span class="n">virtualenv</span> <span class="o">--</span><span class="n">python</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span>
+<span class="n">RUN</span> <span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">virtualenv</span> <span class="o">--</span><span class="n">python</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python3</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span>
 
 <span class="n">RUN</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">testsuite</span>
 
@@ -174,7 +174,7 @@ testsuite:</p>
         <span class="n">expose</span><span class="p">:</span>
           <span class="o">-</span> <span class="s2">&quot;8080&quot;</span>
         <span class="n">command</span><span class="p">:</span> <span class="o">&gt;</span>
-            <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mongo</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8080</span>
+            <span class="n">python3</span> <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mongo</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8080</span>
             <span class="o">--</span><span class="n">mongo</span><span class="o">-</span><span class="n">uri</span> <span class="n">mongodb</span><span class="p">:</span><span class="o">//</span><span class="n">db</span><span class="o">-</span><span class="n">mongo</span><span class="o">/</span>
 
     <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span><span class="p">:</span>
@@ -188,7 +188,7 @@ testsuite:</p>
         <span class="n">expose</span><span class="p">:</span>
           <span class="o">-</span> <span class="s2">&quot;8080&quot;</span>
         <span class="n">command</span><span class="p">:</span> <span class="o">&gt;</span>
-            <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8080</span>
+            <span class="n">python3</span> <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8080</span>
             <span class="o">--</span><span class="n">postgresql</span> <span class="n">postgresql</span><span class="p">:</span><span class="o">//</span><span class="n">testsuite</span><span class="p">:</span><span class="n">testsuite</span><span class="nd">@db</span><span class="o">-</span><span class="n">postgresql</span><span class="o">/</span><span class="n">chat_messages</span>
 
     <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mysql</span><span class="p">:</span>
@@ -202,7 +202,7 @@ testsuite:</p>
         <span class="n">expose</span><span class="p">:</span>
           <span class="o">-</span> <span class="s2">&quot;8080&quot;</span>
         <span class="n">command</span><span class="p">:</span> <span class="o">&gt;</span>
-            <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mysql</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8080</span> <span class="o">--</span><span class="n">mysql</span><span class="o">-</span><span class="n">host</span><span class="o">=</span><span class="n">db</span><span class="o">-</span><span class="n">mysql</span>
+            <span class="n">python3</span> <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mysql</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8080</span> <span class="o">--</span><span class="n">mysql</span><span class="o">-</span><span class="n">host</span><span class="o">=</span><span class="n">db</span><span class="o">-</span><span class="n">mysql</span>
 </pre></div>
 </div>
 </div>

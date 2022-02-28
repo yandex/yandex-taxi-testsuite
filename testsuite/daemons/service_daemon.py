@@ -1,6 +1,5 @@
 # pylint: disable=not-async-context-manager
 import asyncio
-import contextlib
 import itertools
 import os
 import signal
@@ -14,13 +13,14 @@ from typing import Tuple
 import aiohttp
 
 from testsuite.daemons import spawn
+from testsuite.utils import compat
 
 
 POLL_RETRIES = 2000
 PING_REQUEST_TIMEOUT = 1.0
 
 
-@contextlib.asynccontextmanager
+@compat.asynccontextmanager
 async def start(
         args: Sequence[str],
         check_url: str,
@@ -53,7 +53,7 @@ async def start(
             yield process
 
 
-@contextlib.asynccontextmanager
+@compat.asynccontextmanager
 async def service_wait(
         args: Sequence[str],
         check_url: str,
@@ -92,7 +92,7 @@ async def service_wait(
 
 
 async def start_dummy_process():
-    @contextlib.asynccontextmanager
+    @compat.asynccontextmanager
     async def _dummy_process():
         yield None
 
@@ -146,7 +146,7 @@ def _prepare_env(*envs: Optional[Dict[str, str]]) -> Dict[str, str]:
     return result
 
 
-@contextlib.asynccontextmanager
+@compat.asynccontextmanager
 async def _service_daemon(
         args: Sequence[str],
         check_url: str,

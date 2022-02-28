@@ -1,10 +1,15 @@
 # pylint: disable=blacklisted-name,eval-used
 import asyncio
 import functools
+import sys
 
 import pytest
 
 from testsuite.utils import callinfo
+
+python37_or_higher = pytest.mark.skipif(
+    sys.version_info < (3, 7), reason='requires Python3.7 or higher',
+)
 
 
 def test_callinfo():
@@ -112,6 +117,7 @@ def test_callinfo_wrapped():
     assert getter((1, 2, 3), {}) == {'a': 1, 'b': 2, 'c': 3}
 
 
+@python37_or_higher
 async def test_callqueue_wait():
     @callinfo.acallqueue
     def method(arg):
@@ -183,6 +189,7 @@ async def test_acallqueue_next_call():
         assert method.next_call()
 
 
+@python37_or_higher
 async def test_acallqueue_with_static_method():
     class SomeClass:
         @callinfo.acallqueue

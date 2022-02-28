@@ -12,6 +12,7 @@ import warnings
 import aiohttp.web
 
 from testsuite.utils import callinfo
+from testsuite.utils import compat
 from testsuite.utils import http
 from testsuite.utils import net as net_utils
 from testsuite.utils import url_util
@@ -567,7 +568,7 @@ def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
     )
 
 
-@contextlib.asynccontextmanager
+@compat.asynccontextmanager
 async def create_server(
         host: str,
         port: int,

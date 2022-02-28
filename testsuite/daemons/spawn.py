@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 import ctypes
 import logging
 import signal
@@ -10,6 +9,7 @@ from typing import AsyncGenerator
 from typing import Dict
 from typing import Sequence
 
+from testsuite.utils import compat
 
 SIGNAL_ERRORS: Dict[int, str] = {
     signal.SIGSEGV: (
@@ -41,7 +41,7 @@ class ExitCodeError(RuntimeError):
         self.exit_code = exit_code
 
 
-@contextlib.asynccontextmanager
+@compat.asynccontextmanager
 async def spawned(
         args: Sequence[str],
         *,

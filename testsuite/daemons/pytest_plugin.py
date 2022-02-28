@@ -15,6 +15,7 @@ import pytest
 from testsuite import annotations
 from testsuite._internal import fixture_class
 from testsuite._internal import fixture_types
+from testsuite.utils import compat
 
 from . import service_client
 from . import service_daemon
@@ -61,7 +62,7 @@ class _DaemonStore:
             await self._close_daemon(daemon)
         self.cells = {}
 
-    @contextlib.asynccontextmanager
+    @compat.asynccontextmanager
     async def scope(self, name, spawn) -> AsyncGenerator[_DaemonScope, None]:
         scope = _DaemonScope(name, spawn)
         try:

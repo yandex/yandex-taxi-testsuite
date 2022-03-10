@@ -36,7 +36,10 @@ start() {
                       --pidfile $pidfile \
                       --dir $REDIS_DATADIR \
                       --dbfilename $role.db \
-                      --logfile $logfile
+                      --logfile "$logfile" || {
+            dump_log "$logfile" >&2
+            die "Failed to start redis ($role) server"
+        }
     done
 
     # Start sentinel
@@ -44,15 +47,18 @@ start() {
     config=$REDIS_TMPDIR/redis_sentinel.conf
     pidfile="$(get_pidfile sentinel)"
     logfile=$REDIS_LOGSDIR/sentinel.log
-    $REDIS_SERVER $config -- --pidfile $pidfile --logfile $logfile --sentinel
+    echo "Starting redis sentinel..."
+    $REDIS_SERVER $config -- \
+                  --pidfile $pidfile --logfile $logfile --sentinel || {
+        dump_log "$logfile" >&2
+        die "Failed to start redis sentinel server"
+    }
 
     # hack
     cat <<EOF
-Sleeping for $REDIS_SLEEP_WORKAROUND_SECONDS seconds to make stupid Redis
-sentinel see all Redis data servers...
+Sleeping for $REDIS_SLEEP_WORKAROUND_SECONDS seconds to make Redis sentinel see all redis data servers...
 
-(use REDIS_SLEEP_WORKAROUND_SECONDS=0 to skip the sleep if you're sure what
-you're doing)"
+(use REDIS_SLEEP_WORKAROUND_SECONDS=0 to skip the sleep phase)
 EOF
     sleep $REDIS_SLEEP_WORKAROUND_SECONDS
 }
@@ -62,6 +68,17 @@ stop() {
         pidfile="$(get_pidfile $role)"
         stop_daemon $REDIS_SERVER $pidfile
     done
+}
+
+dump_log() {
+    local logfile=$1
+    if [ -f $logfile ]; then
+        echo ">>> Dumping $logfile logfile:"
+        cat $logfile
+        echo ">>> EOF ($logfile)"
+    else
+        echo "Log file not found at $logfile"
+    fi
 }
 
 script_main "$@"

@@ -1,6 +1,8 @@
 import os
 import pathlib
+import socket
 import typing
+import warnings
 
 from testsuite.environment import service
 from testsuite.environment import utils
@@ -43,14 +45,14 @@ class ServiceSettings(typing.NamedTuple):
 
 def get_service_settings():
     return ServiceSettings(
-        os.getenv(key='HOSTNAME', default='::1'),
-        utils.getenv_ints(
+        host=_get_hostname(),
+        master_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_MASTER_PORTS', default=DEFAULT_MASTER_PORTS,
         ),
-        utils.getenv_int(
+        sentinel_port=utils.getenv_int(
             key='TESTSUITE_REDIS_SENTINEL_PORT', default=DEFAULT_SENTINEL_PORT,
         ),
-        utils.getenv_ints(
+        slave_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_SLAVE_PORTS', default=DEFAULT_SLAVE_PORTS,
         ),
     )
@@ -98,3 +100,26 @@ def create_redis_service(
         check_ports=check_ports,
         prestart_hook=prestart_hook,
     )
+
+
+def _get_hostname():
+    hostname = 'localhost'
+    for var in ('TESTSUITE_REDIS_HOSTNAME', 'HOSTNAME'):
+        if var in os.environ:
+            hostname = os.environ[var]
+            break
+    return _resolve_hostname(hostname)
+
+
+def _resolve_hostname(hostname: str) -> str:
+    for family in socket.AF_INET6, socket.AF_INET:
+        try:
+            result = socket.getaddrinfo(
+                hostname, None, family=family, type=socket.SOCK_STREAM,
+            )
+        except socket.error:
+            continue
+        if result:
+            return result[0][4][0]
+    warnings.warn(f'Failed to resolve hostname {hostname}')
+    return hostname

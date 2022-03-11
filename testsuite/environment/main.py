@@ -31,7 +31,7 @@ def csv_arg(value: str):
     return result
 
 
-def main(service_plugins=None):
+def main(args=None, service_plugins=None):
     utils.ensure_non_root_user()
     testsuite_services = _register_services(service_plugins)
     default_services = sorted(testsuite_services.keys())
@@ -69,8 +69,9 @@ def main(service_plugins=None):
         choices=['debug', 'info', 'warning', 'error', 'critical'],
         default='debug',
     )
+    parser.set_defaults(handler=None)
 
-    subparsers = parser.add_subparsers(metavar='command', required=True)
+    subparsers = parser.add_subparsers(metavar='command')
 
     command_parser = subparsers.add_parser('start', help='Start services')
     command_parser.set_defaults(handler=_command_start)
@@ -84,7 +85,9 @@ def main(service_plugins=None):
     command_parser.add_argument('command', nargs='+', help='Command to run')
     command_parser.set_defaults(handler=_command_run)
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=args)
+    if args.handler is None:
+        parser.error('the following arguments are required: command')
 
     _setup_logging(args.log_level.upper())
 

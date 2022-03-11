@@ -139,6 +139,9 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
             subprocess_options: Optional[Dict[str, Any]] = None,
             setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
             shutdown_signal: Optional[int] = None,
+            subprocess_spawner: Optional[
+                Callable[..., subprocess.Popen]
+            ] = None,
     ):
         """Creates service spawner.
 
@@ -184,6 +187,7 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
                 logger_plugin=logger_plugin,
+                subprocess_spawner=subprocess_spawner,
             )
 
         return spawn

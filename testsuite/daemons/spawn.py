@@ -47,10 +47,14 @@ async def spawned(
         *,
         shutdown_signal: int = signal.SIGINT,
         shutdown_timeout: float = 120,
+        subprocess_spawner=None,
         **kwargs,
 ) -> AsyncGenerator[subprocess.Popen, None]:
     kwargs['preexec_fn'] = kwargs.get('preexec_fn', _setup_process)
-    process = subprocess.Popen(args, **kwargs)
+    if subprocess_spawner:
+        process = subprocess_spawner(args, **kwargs)
+    else:
+        process = subprocess.Popen(args, **kwargs)
     try:
         yield process
     finally:

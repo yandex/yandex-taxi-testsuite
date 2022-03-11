@@ -34,6 +34,7 @@ async def start(
         ping_request_timeout: float = PING_REQUEST_TIMEOUT,
         subprocess_options=None,
         setup_service=None,
+        subprocess_spawner=None,
 ) -> AsyncGenerator[Optional[subprocess.Popen], None]:
     with logger_plugin.temporary_suspend() as log_manager:
         async with _service_daemon(
@@ -47,6 +48,7 @@ async def start(
                 ping_request_timeout=ping_request_timeout,
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
+                subprocess_spawner=subprocess_spawner,
         ) as process:
             log_manager.clear()
             log_manager.resume()
@@ -158,6 +160,7 @@ async def _service_daemon(
         ping_request_timeout: float,
         subprocess_options=None,
         setup_service=None,
+        subprocess_spawner=None,
 ) -> AsyncGenerator[subprocess.Popen, None]:
     options = subprocess_options.copy() if subprocess_options else {}
     options['env'] = _prepare_env(env, options.get('env'))
@@ -165,6 +168,7 @@ async def _service_daemon(
             _build_command_args(args, base_command),
             shutdown_signal=shutdown_signal,
             shutdown_timeout=shutdown_timeout,
+            subprocess_spawner=subprocess_spawner,
             **options,
     ) as process:
         if setup_service is not None:

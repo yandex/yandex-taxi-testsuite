@@ -37,7 +37,7 @@ start() {
                       --dir $REDIS_DATADIR \
                       --dbfilename $role.db \
                       --logfile "$logfile" || {
-            dump_log "$logfile" >&2
+            dump_log_stderr "$logfile"
             die "Failed to start redis ($role) server"
         }
     done
@@ -68,17 +68,6 @@ stop() {
         pidfile="$(get_pidfile $role)"
         stop_daemon $REDIS_SERVER $pidfile
     done
-}
-
-dump_log() {
-    local logfile=$1
-    if [ -f $logfile ]; then
-        echo ">>> Dumping $logfile logfile:"
-        cat $logfile
-        echo ">>> EOF ($logfile)"
-    else
-        echo "Log file not found at $logfile"
-    fi
 }
 
 script_main "$@"

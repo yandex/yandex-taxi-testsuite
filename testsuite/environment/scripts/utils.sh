@@ -82,3 +82,18 @@ get_pidfile() {
     mkdir -p "$(dirname "$path")"
     echo $path
 }
+
+dump_log() {
+    local logfile="$1"
+    if [ -f "$logfile" ]; then
+        echo ">>> Dumping $logfile:"
+        cat "$logfile"
+        echo ">>> EOF ($logfile)"
+    else
+        echo ">>> Log file not found at $logfile"
+    fi
+}
+
+dump_log_stderr() {
+    dump_log "$@" >&2
+}

@@ -4,8 +4,8 @@
 . $(dirname $0)/find-clickhouse.sh
 
 # use ramdisk for clickhouse if available
-RAMDISK=/mnt/ramdisk/$USER
-if mkdir -p $RAMDISK 2> /dev/null; then
+RAMDISK="/mnt/ramdisk/$USER"
+if mkdir -p "$RAMDISK" 2> /dev/null; then
     CLICKHOUSE_TMPDIR=$RAMDISK/_clickhouse${WORKER_SUFFIX_PATH}
 fi
 
@@ -33,11 +33,11 @@ CLICKHOUSE_ARGS="
         --listen_host=localhost"
 
 start_clickhouse() {
-    mkdir -p $CLICKHOUSE_TMPDIR
-    mkdir -p $CLICKHOUSE_TMPDIR/data
-    ln -s $CLICKHOUSE_BINPATH $CLICKHOUSE_TMPDIR
-    $CLICKHOUSE_TMPDIR/clickhouse "server" $CLICKHOUSE_ARGS || {
-        print_log $CLICKHOUSE_LOG_FILE >&2
+    mkdir -p "$CLICKHOUSE_TMPDIR"
+    mkdir -p "$CLICKHOUSE_TMPDIR/data"
+    ln -s "$CLICKHOUSE_BINPATH" "$CLICKHOUSE_TMPDIR"
+    "$CLICKHOUSE_TMPDIR/clickhouse" server $CLICKHOUSE_ARGS || {
+        dump_log_stderr "$CLICKHOUSE_LOG_FILE"
         exit 1
     }
 
@@ -49,18 +49,8 @@ start() {
 }
 
 stop() {
-    stop_daemon $CLICKHOUSE_BINPATH $CLICKHOUSE_PID_FILE
-    rm -rf $CLICKHOUSE_TMPDIR
-}
-
-print_log() {
-    local logfile=$1
-    if [ -f $logfile ]; then
-        echo "Log output from $logfile:"
-        cat $logfile
-    else
-        echo "Log file not found at $logfile"
-    fi
+    stop_daemon "$CLICKHOUSE_BINPATH" "$CLICKHOUSE_PID_FILE"
+    rm -rf "$CLICKHOUSE_TMPDIR"
 }
 
 script_main "$@"

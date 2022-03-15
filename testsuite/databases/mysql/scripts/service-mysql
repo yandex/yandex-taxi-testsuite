@@ -44,12 +44,7 @@ run_mysqld() {
 }
 
 mysql_die() {
-    if [ -a "$MYSQL_LOGFILE" ]; then
-        exec >&2
-        echo "==== MySQL log tail, see $MYSQL_LOGFILE:"
-        tail -n 20 "$MYSQL_LOGFILE"
-        echo "===="
-    fi
+    dump_log_stderr "$MYSQL_LOGFILE"
     die "$@"
 }
 

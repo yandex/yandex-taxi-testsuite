@@ -74,15 +74,15 @@ MONGOS_ARGS="$MONGO_ARGS --configdb crs0/localhost:$CONFIG_SERVER_PORT
 
 
 start_sharded_cluster() {
-    mkdir -p $MONGO_SHARD0_DIR
-    mkdir -p $MONGOS_DIR
-    mkdir -p $CONFIG_SERVER_DIR
+    mkdir -p "$MONGO_SHARD0_DIR"
+    mkdir -p "$MONGOS_DIR"
+    mkdir -p "$CONFIG_SERVER_DIR"
 
     echo "Mongo data directory: $MONGO_TMPDIR"
 
     echo "Starting sharded cluster's config server at $CONFIG_SERVER_DIR..."
     $MONGOD $MONGOD_CONFIG_SERVER_ARGS || {
-        print_log $MONGOD_CONFIG_SERVER_LOG_FILE
+        dump_log_stderr "$MONGOD_CONFIG_SERVER_LOG_FILE"
         exit 1
     }
 
@@ -93,7 +93,7 @@ start_sharded_cluster() {
 
     echo "Starting shard at $MONGO_SHARD0_DIR..."
     $MONGOD $MONGOD_SHARD_SERVER_ARGS || {
-        print_log $MONGOD_SHARD_SERVER_LOG_FILE
+        dump_log_stderr "$MONGOD_SHARD_SERVER_LOG_FILE"
         exit 1
     }
 
@@ -115,20 +115,10 @@ start() {
 }
 
 stop() {
-    stop_daemon $MONGOD $CONFIG_SERVER_PID_FILE
-    stop_daemon $MONGOD $MONGO_SHARD0_PID_FILE
-    stop_daemon $MONGOS $MONGOS_PID_FILE
-    rm -rf $MONGO_TMPDIR
-}
-
-print_log() {
-    local logfile=$1
-    if [ -f $logfile ]; then
-        echo "Log output from $logfile:"
-        cat $logfile
-    else
-        echo "Log file not found at $logfile"
-    fi
+    stop_daemon $MONGOD "$CONFIG_SERVER_PID_FILE"
+    stop_daemon $MONGOD "$MONGO_SHARD0_PID_FILE"
+    stop_daemon $MONGOS "$MONGOS_PID_FILE"
+    rm -rf "$MONGO_TMPDIR"
 }
 
 script_main "$@"

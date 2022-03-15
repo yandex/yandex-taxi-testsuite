@@ -25,6 +25,7 @@ setuptools.setup(
         'mongodb': [],
         'postgresql': ['psycopg2>=2.7.5', 'yandex-pgmigrate'],
         'postgresql-binary': ['psycopg2-binary>=2.7.5'],
+        'clickhouse': ['clickhouse-driver>=0.2.0'],
         'redis': ['python-redis>=0.2.1', 'redis>=2.10.6'],
         'mysql': ['PyMySQL>=0.9.2'],
     },
@@ -49,5 +50,6 @@ setuptools.setup(
             'scripts/psql-helper',
             'scripts/service-postgresql',
         ],
+        'testsuite.databases.clickhouse': ['scripts/service-clickhouse'],
     },
 )

@@ -33,6 +33,9 @@ Installation using pip_::
    # testsuite with mysql support
    pip3 install yandex-taxi-testsuite[mysql]
 
+   # testsuite with clickhouse support
+   pip3 install yandex-taxi-testsuite[clickhouse]
+
 You can also include testsuite into your project as submodule, e.g.::
 
   mkdir -p submodules
@@ -48,6 +51,7 @@ Out-of-the-box testsuite supports the following databases:
 * MongoDB
 * Redis
 * MySQL
+* ClickHouse
 
 Supported operating systems
 ---------------------------

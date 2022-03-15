@@ -50,6 +50,9 @@ setuptools.setup(
             'scripts/psql-helper',
             'scripts/service-postgresql',
         ],
-        'testsuite.databases.clickhouse': ['scripts/service-clickhouse'],
+        'testsuite.databases.clickhouse': [
+            'scripts/service-clickhouse',
+            'scripts/find-clickhouse.sh',
+        ],
     },
 )

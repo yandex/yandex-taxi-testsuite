@@ -327,3 +327,5 @@ are specified:
 - ``TESTSUITE_REDIS_SENTINEL_PORT`` - if set, must be integer
 - ``TESTSUITE_REDIS_SLAVE_PORTS`` - if set must be three comma separated
   integers
+
+.. include:: clickhouse.rst

@@ -2,7 +2,7 @@ MySQL
 =====
 
 In order to enable mysql support you have to add
-``testsuite.database.mysql_plugin`` to ``pytest_plugins`` list in your
+``testsuite.databases.mysql.pytest_plugin`` to ``pytest_plugins`` list in your
 ``conftest.py`` file and configure MySQL schemas location.
 
 By default testsuite starts MySQL_ service. In this case MySQL installation

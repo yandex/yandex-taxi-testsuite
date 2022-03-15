@@ -37,44 +37,57 @@
 <h1>Database support<a class="headerlink" href="#database-support" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#common-database-marks" id="id23">Common database marks</a></p>
+<li><p><a class="reference internal" href="#common-database-marks" id="id33">Common database marks</a></p>
 <ul>
-<li><p><a class="reference internal" href="#pytest-mark-nofilldb" id="id24">pytest.mark.nofilldb</a></p></li>
+<li><p><a class="reference internal" href="#pytest-mark-nofilldb" id="id34">pytest.mark.nofilldb</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#mongo" id="id25">Mongo</a></p>
+<li><p><a class="reference internal" href="#mongo" id="id35">Mongo</a></p>
 <ul>
-<li><p><a class="reference internal" href="#fixtures" id="id26">Fixtures</a></p></li>
-<li><p><a class="reference internal" href="#marks" id="id27">Marks</a></p></li>
-<li><p><a class="reference internal" href="#classes" id="id28">Classes</a></p></li>
+<li><p><a class="reference internal" href="#fixtures" id="id36">Fixtures</a></p></li>
+<li><p><a class="reference internal" href="#marks" id="id37">Marks</a></p></li>
+<li><p><a class="reference internal" href="#classes" id="id38">Classes</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#postgresql" id="id29">PostgreSQL</a></p>
+<li><p><a class="reference internal" href="#postgresql" id="id39">PostgreSQL</a></p>
 <ul>
-<li><p><a class="reference internal" href="#customize-port" id="id30">Customize port</a></p></li>
-<li><p><a class="reference internal" href="#use-external-instance" id="id31">Use external instance</a></p></li>
-<li><p><a class="reference internal" href="#reuse-database-between-simultaneous-sessions" id="id32">Reuse database between simultaneous sessions</a></p></li>
-<li><p><a class="reference internal" href="#example-integration" id="id33">Example integration</a></p></li>
-<li><p><a class="reference internal" href="#database-access-example" id="id34">Database access example</a></p></li>
-<li><p><a class="reference internal" href="#functions" id="id35">Functions</a></p></li>
-<li><p><a class="reference internal" href="#id9" id="id36">Fixtures</a></p></li>
-<li><p><a class="reference internal" href="#id10" id="id37">Marks</a></p></li>
-<li><p><a class="reference internal" href="#id11" id="id38">Classes</a></p></li>
+<li><p><a class="reference internal" href="#customize-port" id="id40">Customize port</a></p></li>
+<li><p><a class="reference internal" href="#use-external-instance" id="id41">Use external instance</a></p></li>
+<li><p><a class="reference internal" href="#reuse-database-between-simultaneous-sessions" id="id42">Reuse database between simultaneous sessions</a></p></li>
+<li><p><a class="reference internal" href="#example-integration" id="id43">Example integration</a></p></li>
+<li><p><a class="reference internal" href="#database-access-example" id="id44">Database access example</a></p></li>
+<li><p><a class="reference internal" href="#functions" id="id45">Functions</a></p></li>
+<li><p><a class="reference internal" href="#id9" id="id46">Fixtures</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id47">Marks</a></p></li>
+<li><p><a class="reference internal" href="#id11" id="id48">Classes</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#mysql" id="id39">MySQL</a></p>
+<li><p><a class="reference internal" href="#mysql" id="id49">MySQL</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id12" id="id40">Customize port</a></p></li>
-<li><p><a class="reference internal" href="#id13" id="id41">Use external instance</a></p></li>
-<li><p><a class="reference internal" href="#id14" id="id42">Example integration</a></p></li>
-<li><p><a class="reference internal" href="#id15" id="id43">Database access example</a></p></li>
-<li><p><a class="reference internal" href="#id17" id="id44">Functions</a></p></li>
-<li><p><a class="reference internal" href="#id19" id="id45">Fixtures</a></p></li>
-<li><p><a class="reference internal" href="#id21" id="id46">Marks</a></p></li>
-<li><p><a class="reference internal" href="#id22" id="id47">Classes</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id50">Customize port</a></p></li>
+<li><p><a class="reference internal" href="#id13" id="id51">Use external instance</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id52">Example integration</a></p></li>
+<li><p><a class="reference internal" href="#id15" id="id53">Database access example</a></p></li>
+<li><p><a class="reference internal" href="#id17" id="id54">Functions</a></p></li>
+<li><p><a class="reference internal" href="#id19" id="id55">Fixtures</a></p></li>
+<li><p><a class="reference internal" href="#id21" id="id56">Marks</a></p></li>
+<li><p><a class="reference internal" href="#id22" id="id57">Classes</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#redis" id="id48">Redis</a></p></li>
+<li><p><a class="reference internal" href="#redis" id="id58">Redis</a></p></li>
+<li><p><a class="reference internal" href="#clickhouse" id="id59">ClickHouse</a></p>
+<ul>
+<li><p><a class="reference internal" href="#clickhouse-installation" id="id60">ClickHouse installation</a></p></li>
+<li><p><a class="reference internal" href="#customize-ports" id="id61">Customize ports</a></p></li>
+<li><p><a class="reference internal" href="#id23" id="id62">Use external instance</a></p></li>
+<li><p><a class="reference internal" href="#id24" id="id63">Example integration</a></p></li>
+<li><p><a class="reference internal" href="#id25" id="id64">Database access example</a></p></li>
+<li><p><a class="reference internal" href="#id27" id="id65">Functions</a></p></li>
+<li><p><a class="reference internal" href="#id29" id="id66">Fixtures</a></p></li>
+<li><p><a class="reference internal" href="#id31" id="id67">Marks</a></p></li>
+<li><p><a class="reference internal" href="#id32" id="id68">Classes</a></p></li>
+</ul>
+</li>
 </ul>
 </div>
 <p>Database plugins can start and stop database process.
@@ -83,9 +96,9 @@ You can configure it to use existing database.</p>
 database in known state.</p>
 <p>Data fixtures are loaded via staatic files, see <a class="reference internal" href="../staticfiles/#staticfiles"><span class="std std-ref">Working with static files</span></a>.</p>
 <div class="section" id="common-database-marks">
-<h2><a class="toc-backref" href="#id23">Common database marks</a><a class="headerlink" href="#common-database-marks" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id33">Common database marks</a><a class="headerlink" href="#common-database-marks" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="pytest-mark-nofilldb">
-<h3><a class="toc-backref" href="#id24">pytest.mark.nofilldb</a><a class="headerlink" href="#pytest-mark-nofilldb" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id34">pytest.mark.nofilldb</a><a class="headerlink" href="#pytest-mark-nofilldb" title="Permalink to this headline">¶</a></h3>
 <p>Disables database loading.</p>
 <dl class="function">
 <dt id="pytest.mark.nofilldb">
@@ -95,7 +108,7 @@ database in known state.</p>
 </div>
 </div>
 <div class="section" id="mongo">
-<h2><a class="toc-backref" href="#id25">Mongo</a><a class="headerlink" href="#mongo" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id35">Mongo</a><a class="headerlink" href="#mongo" title="Permalink to this headline">¶</a></h2>
 <p>In ordrer to enable mongo support you have to add
 <code class="docutils literal notranslate"><span class="pre">testsuite.database.mongo.pytest_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
 <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> file and configure mongodb collections.</p>
@@ -137,7 +150,7 @@ pattern. If no file is found collection is empty.</p>
 </pre></div>
 </div>
 <div class="section" id="fixtures">
-<h3><a class="toc-backref" href="#id26">Fixtures</a><a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id36">Fixtures</a><a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="id1">
 <h4>mongodb<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <dl class="function">
@@ -182,7 +195,7 @@ required since mongodb version 4.2 and pymongo version 3.9.</p>
 </div>
 </div>
 <div class="section" id="marks">
-<h3><a class="toc-backref" href="#id27">Marks</a><a class="headerlink" href="#marks" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id37">Marks</a><a class="headerlink" href="#marks" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="pytest-mark-filldb">
 <h4>pytest.mark.filldb<a class="headerlink" href="#pytest-mark-filldb" title="Permalink to this headline">¶</a></h4>
 <p>Specify custom per-test collection data file prefix.</p>
@@ -207,7 +220,7 @@ In the following example plugin will look for filename
 </div>
 </div>
 <div class="section" id="classes">
-<h3><a class="toc-backref" href="#id28">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id38">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="testsuite.databases.mongo.connection.ConnectionInfo">
 <em class="property">class </em><code class="descclassname">testsuite.databases.mongo.connection.</code><code class="descname">ConnectionInfo</code><a class="reference internal" href="../_modules/testsuite/databases/mongo/connection/#ConnectionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.mongo.connection.ConnectionInfo" title="Permalink to this definition">¶</a></dt>
@@ -223,7 +236,7 @@ In the following example plugin will look for filename
 </div>
 </div>
 <div class="section" id="postgresql">
-<h2><a class="toc-backref" href="#id29">PostgreSQL</a><a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id39">PostgreSQL</a><a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h2>
 <p>In order to enable postgres support you have to add
 <code class="docutils literal notranslate"><span class="pre">testsuite.database.pgsql_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
 <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> file and configure postgresql schemas location.</p>
@@ -238,17 +251,17 @@ following names:</p>
 <li><p>directory <code class="docutils literal notranslate"><span class="pre">pg_DBNAME/</span></code></p></li>
 </ul>
 <div class="section" id="customize-port">
-<h3><a class="toc-backref" href="#id30">Customize port</a><a class="headerlink" href="#customize-port" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id40">Customize port</a><a class="headerlink" href="#customize-port" title="Permalink to this headline">¶</a></h3>
 <p>Testsuite may start postgres with custom port, if <code class="docutils literal notranslate"><span class="pre">TESTSUITE_POSTGRESQL_PORT</span></code>
 environment variable is specified</p>
 </div>
 <div class="section" id="use-external-instance">
-<h3><a class="toc-backref" href="#id31">Use external instance</a><a class="headerlink" href="#use-external-instance" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id41">Use external instance</a><a class="headerlink" href="#use-external-instance" title="Permalink to this headline">¶</a></h3>
 <p>You can force it to use your own postgres installation with command-line option
 <code class="docutils literal notranslate"><span class="pre">--postgresql=postgresql://db-postgresql/</span></code>.</p>
 </div>
 <div class="section" id="reuse-database-between-simultaneous-sessions">
-<h3><a class="toc-backref" href="#id32">Reuse database between simultaneous sessions</a><a class="headerlink" href="#reuse-database-between-simultaneous-sessions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id42">Reuse database between simultaneous sessions</a><a class="headerlink" href="#reuse-database-between-simultaneous-sessions" title="Permalink to this headline">¶</a></h3>
 <p>In general, testsuite does not support running simultaneous sessions, except
 when testsuite is started with <code class="docutils literal notranslate"><span class="pre">--postgresql-keep-existing-db</span></code> or
 <code class="docutils literal notranslate"><span class="pre">--service-runner-mode</span></code> flag.</p>
@@ -259,7 +272,7 @@ then the next one will skip applying schemas on initialization, unless schemas
 were modified since then.</p>
 </div>
 <div class="section" id="example-integration">
-<h3><a class="toc-backref" href="#id33">Example integration</a><a class="headerlink" href="#example-integration" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id43">Example integration</a><a class="headerlink" href="#example-integration" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.databases.pgsql</span> <span class="kn">import</span> <span class="n">discover</span>
 
 <span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span>
@@ -278,7 +291,7 @@ were modified since then.</p>
 </div>
 </div>
 <div class="section" id="database-access-example">
-<h3><a class="toc-backref" href="#id34">Database access example</a><a class="headerlink" href="#database-access-example" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id44">Database access example</a><a class="headerlink" href="#database-access-example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_read_from_database</span><span class="p">(</span><span class="n">pgsql</span><span class="p">):</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="n">pgsql</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -290,7 +303,7 @@ were modified since then.</p>
 </div>
 </div>
 <div class="section" id="functions">
-<h3><a class="toc-backref" href="#id35">Functions</a><a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id45">Functions</a><a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="find-schemas">
 <h4>find_schemas<a class="headerlink" href="#find-schemas" title="Permalink to this headline">¶</a></h4>
 <dl class="function">
@@ -322,7 +335,7 @@ database name as stored in <code class="xref py py-attr docutils literal notrans
 </div>
 </div>
 <div class="section" id="id9">
-<h3><a class="toc-backref" href="#id36">Fixtures</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id46">Fixtures</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="pgsql">
 <h4>pgsql<a class="headerlink" href="#pgsql" title="Permalink to this headline">¶</a></h4>
 <dl class="function">
@@ -415,7 +428,7 @@ particular test or tests group. This can be achieved by by overriding
 </div>
 </div>
 <div class="section" id="id10">
-<h3><a class="toc-backref" href="#id37">Marks</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id47">Marks</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="pytest-mark-pgsql">
 <h4>pytest.mark.pgsql<a class="headerlink" href="#pytest-mark-pgsql" title="Permalink to this headline">¶</a></h4>
 <dl class="function">
@@ -437,7 +450,7 @@ particular test or tests group. This can be achieved by by overriding
 </div>
 </div>
 <div class="section" id="id11">
-<h3><a class="toc-backref" href="#id38">Classes</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id48">Classes</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig">
 <em class="property">class </em><code class="descclassname">testsuite.databases.pgsql.pytest_plugin.</code><code class="descname">ServiceLocalConfig</code><a class="reference internal" href="../_modules/testsuite/databases/pgsql/pytest_plugin/#ServiceLocalConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig" title="Permalink to this definition">¶</a></dt>
@@ -522,9 +535,9 @@ fields with new values</p>
 </div>
 </div>
 <div class="section" id="mysql">
-<h2><a class="toc-backref" href="#id39">MySQL</a><a class="headerlink" href="#mysql" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id49">MySQL</a><a class="headerlink" href="#mysql" title="Permalink to this headline">¶</a></h2>
 <p>In order to enable mysql support you have to add
-<code class="docutils literal notranslate"><span class="pre">testsuite.database.mysql_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
+<code class="docutils literal notranslate"><span class="pre">testsuite.databases.mysql.pytest_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
 <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> file and configure MySQL schemas location.</p>
 <p>By default testsuite starts <a class="reference external" href="https://dev.mysql.com/">MySQL</a> service. In this case MySQL installation
 is required.</p>
@@ -537,17 +550,17 @@ following names:</p>
 <li><p>directory <code class="docutils literal notranslate"><span class="pre">my_DBNAME/</span></code></p></li>
 </ul>
 <div class="section" id="id12">
-<h3><a class="toc-backref" href="#id40">Customize port</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id50">Customize port</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
 <p>Testsuite may start MySQL with custom port, if <code class="docutils literal notranslate"><span class="pre">TESTSUITE_MYSQL_PORT</span></code>
 environment variable is specified</p>
 </div>
 <div class="section" id="id13">
-<h3><a class="toc-backref" href="#id41">Use external instance</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id51">Use external instance</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
 <p>You can force it to use your own mysql installation with command-line option
 <code class="docutils literal notranslate"><span class="pre">--mysql=mysql://user:password&#64;hostname/</span></code>.</p>
 </div>
 <div class="section" id="id14">
-<h3><a class="toc-backref" href="#id42">Example integration</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id52">Example integration</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.databases.mysql</span> <span class="kn">import</span> <span class="n">discover</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
@@ -557,7 +570,7 @@ environment variable is specified</p>
 </div>
 </div>
 <div class="section" id="id15">
-<h3><a class="toc-backref" href="#id43">Database access example</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id53">Database access example</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_read_from_database</span><span class="p">(</span><span class="n">mysql</span><span class="p">):</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="n">mysql</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -569,7 +582,7 @@ environment variable is specified</p>
 </div>
 </div>
 <div class="section" id="id17">
-<h3><a class="toc-backref" href="#id44">Functions</a><a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id54">Functions</a><a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="id18">
 <h4>find_schemas<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
 <dl class="function">
@@ -615,7 +628,7 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </div>
 </div>
 <div class="section" id="id19">
-<h3><a class="toc-backref" href="#id45">Fixtures</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id55">Fixtures</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="id20">
 <h4>mysql<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
 <dl class="function">
@@ -646,7 +659,7 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </div>
 </div>
 <div class="section" id="id21">
-<h3><a class="toc-backref" href="#id46">Marks</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id56">Marks</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="pytest-mark-mysql">
 <h4>pytest.mark.mysql<a class="headerlink" href="#pytest-mark-mysql" title="Permalink to this headline">¶</a></h4>
 <dl class="function">
@@ -668,7 +681,7 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </div>
 </div>
 <div class="section" id="id22">
-<h3><a class="toc-backref" href="#id47">Classes</a><a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id57">Classes</a><a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt>
 <em class="property">class </em><code class="descclassname">testsuite.databases.mysql.control.</code><code class="descname">ConnectionWrapper</code><a class="reference internal" href="../_modules/testsuite/databases/mysql/control/#ConnectionWrapper"><span class="viewcode-link">[source]</span></a></dt>
@@ -713,7 +726,7 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </div>
 </div>
 <div class="section" id="redis">
-<h2><a class="toc-backref" href="#id48">Redis</a><a class="headerlink" href="#redis" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id58">Redis</a><a class="headerlink" href="#redis" title="Permalink to this headline">¶</a></h2>
 <p>Testsuite provides basic support for redis.</p>
 <p>Testsuite may start redis with custom ports, if following environment variables
 are specified:</p>
@@ -724,6 +737,131 @@ integers</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TESTSUITE_REDIS_SLAVE_PORTS</span></code> - if set must be three comma separated
 integers</p></li>
 </ul>
+</div>
+<div class="section" id="clickhouse">
+<h2><a class="toc-backref" href="#id59">ClickHouse</a><a class="headerlink" href="#clickhouse" title="Permalink to this headline">¶</a></h2>
+<p>In order to enable clickhouse support you have to add
+<code class="docutils literal notranslate"><span class="pre">testsuite.databases.clickhouse.pytest_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
+<code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> file and configure ClickHouse schemas location.</p>
+<p>By default testsuite starts <a class="reference external" href="https://clickhouse.com/">ClickHouse</a> service. In this case ClickHouse installation
+is required.</p>
+<p>Currently clickhouse plugin uses synchronous <a class="reference external" href="https://github.com/mymarilyn/clickhouse-driver">clickhouse-driver</a> driver.</p>
+<p>ClickHouse plugin creates database schema once. And then populates database
+with data fixtures on each test. It looks for database fixtures by the
+following names:</p>
+<ul class="simple">
+<li><p>file <code class="docutils literal notranslate"><span class="pre">ch_DBNAME.sql</span></code></p></li>
+<li><p>directory <code class="docutils literal notranslate"><span class="pre">ch_DBNAME/</span></code></p></li>
+</ul>
+<div class="section" id="clickhouse-installation">
+<h3><a class="toc-backref" href="#id60">ClickHouse installation</a><a class="headerlink" href="#clickhouse-installation" title="Permalink to this headline">¶</a></h3>
+<p>For debian please run these commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt update <span class="o">&amp;&amp;</span> apt install clickhouse-common-static
+</pre></div>
+</div>
+<p>(<a class="reference external" href="https://clickhouse.com/docs/en/getting-started/install/#packages">https://clickhouse.com/docs/en/getting-started/install/#packages</a>),</p>
+<p>For macos follow instructions at <a class="reference external" href="https://clickhouse.com/docs/en/getting-started/install/#from-binaries-non-linux">https://clickhouse.com/docs/en/getting-started/install/#from-binaries-non-linux</a></p>
+<p>If you already have clickhouse installed, please symlink it to <code class="docutils literal notranslate"><span class="pre">/usr/bin/clickhouse</span></code></p>
+</div>
+<div class="section" id="customize-ports">
+<h3><a class="toc-backref" href="#id61">Customize ports</a><a class="headerlink" href="#customize-ports" title="Permalink to this headline">¶</a></h3>
+<p>Testsuite may start ClickHouse with custom ports, if
+<code class="docutils literal notranslate"><span class="pre">TESTSUITE_CLICKHOUSE_SERVER_TCP_PORT</span></code> or <code class="docutils literal notranslate"><span class="pre">TESTSUITE_CLICKHOUSE_SERVER_HTTP_PORT</span></code>
+environment variables are specified.</p>
+</div>
+<div class="section" id="id23">
+<h3><a class="toc-backref" href="#id62">Use external instance</a><a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<p>Usage of external installation is not supported for now.</p>
+</div>
+<div class="section" id="id24">
+<h3><a class="toc-backref" href="#id63">Example integration</a><a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.databases.clickhouse</span> <span class="kn">import</span> <span class="n">discover</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clickhouse_local</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">discover</span><span class="o">.</span><span class="n">find_schemas</span><span class="p">([</span><span class="n">SCHEMAS_DIR</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id25">
+<h3><a class="toc-backref" href="#id64">Database access example</a><a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_read_from_database</span><span class="p">(</span><span class="n">clickhouse</span><span class="p">):</span>
+    <span class="n">connection</span> <span class="o">=</span> <span class="n">clickhouse</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM system.numbers LIMIT 5&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id27">
+<h3><a class="toc-backref" href="#id65">Functions</a><a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id28">
+<h4>find_schemas<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="testsuite.databases.clickhouse.discover.find_schemas">
+<code class="descclassname">testsuite.databases.clickhouse.discover.</code><code class="descname">find_schemas</code><span class="sig-paren">(</span><em>schema_dirs: List[pathlib.Path], dbprefix: str = 'testsuite-'</em><span class="sig-paren">)</span> &#x2192; Dict[str, testsuite.databases.clickhouse.classes.DatabaseConfig]<a class="reference internal" href="../_modules/testsuite/databases/clickhouse/discover/#find_schemas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.clickhouse.discover.find_schemas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="id29">
+<h3><a class="toc-backref" href="#id66">Fixtures</a><a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id30">
+<h4>clickhouse<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt>
+<code class="descclassname">testsuite.databases.clickhouse.pytest_plugin.</code><code class="descname">clickhouse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/clickhouse/pytest_plugin/#clickhouse"><span class="viewcode-link">[source]</span></a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="clickhouse-local">
+<h4>clickhouse_local<a class="headerlink" href="#clickhouse-local" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt>
+<code class="descclassname">testsuite.databases.clickhouse.pytest_plugin.</code><code class="descname">clickhouse_local</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/clickhouse/pytest_plugin/#clickhouse_local"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Use to override databases configuration.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="clickhouse-conn-info">
+<h4>clickhouse_conn_info<a class="headerlink" href="#clickhouse-conn-info" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt>
+<code class="descclassname">testsuite.databases.clickhouse.pytest_plugin.</code><code class="descname">clickhouse_conn_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/clickhouse/pytest_plugin/#clickhouse_conn_info"><span class="viewcode-link">[source]</span></a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="id31">
+<h3><a class="toc-backref" href="#id67">Marks</a><a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pytest-mark-clickhouse">
+<h4>pytest.mark.clickhouse<a class="headerlink" href="#pytest-mark-clickhouse" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt>
+<code class="descname">pytest.mark.clickhouse(dbname, *, files=(), directories=(), queries=()):</code></dt>
+<dd><p>Use this mark to specify extra data fixtures in a per-test manner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dbname</strong> – Database name.</p></li>
+<li><p><strong>files</strong> – List of filenames to apply to the database.</p></li>
+<li><p><strong>directories</strong> – List of directories to apply to the database.</p></li>
+<li><p><strong>queries</strong> – List of queries to apply to the database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="id32">
+<h3><a class="toc-backref" href="#id68">Classes</a><a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">testsuite.databases.clickhouse.classes.</code><code class="descname">ConnectionInfo</code><a class="reference internal" href="../_modules/testsuite/databases/clickhouse/classes/#ConnectionInfo"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Clickhouse connection parameters</p>
+</dd></dl>
+
+</div>
 </div>
 </div>
 

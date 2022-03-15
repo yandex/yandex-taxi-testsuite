@@ -14,16 +14,21 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import configparser
+import datetime
 
+today = datetime.date.today()
+setup_config = configparser.ConfigParser()
+setup_config.read('../setup.cfg')
 
 # -- Project information -----------------------------------------------------
 
-project = 'testsuite'
-copyright = '2020, Yandex LLC'
+project = 'yandex-taxi-testsuite'
+copyright = f'2020-{today.year}, Yandex LLC'
 author = 'Yandex LLC'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = setup_config['metadata']['version']
 
 
 # -- General configuration ---------------------------------------------------

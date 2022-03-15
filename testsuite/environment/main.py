@@ -17,6 +17,7 @@ DEFAULT_SERVICE_PLUGINS = [
     'testsuite.databases.pgsql.pytest_plugin',
     'testsuite.databases.redis.pytest_plugin',
     'testsuite.databases.mysql.pytest_plugin',
+    'testsuite.databases.clickhouse.pytest_plugin',
 ]
 
 logger = logging.getLogger(__name__)

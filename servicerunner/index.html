@@ -62,7 +62,7 @@ Service must implement <code class="docutils literal notranslate"><span class="p
 
     <span class="k">async</span> <span class="k">with</span> <span class="n">create_daemon_scope</span><span class="p">(</span>
             <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;path-to-service-binary&#39;</span><span class="p">,</span> <span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="n">service_config_path</span><span class="p">],</span>
-            <span class="n">check_url</span><span class="o">=</span><span class="n">SERVICE_BASEURL</span> <span class="o">+</span> <span class="s1">&#39;ping&#39;</span><span class="p">,</span>
+            <span class="n">ping_url</span><span class="o">=</span><span class="n">SERVICE_BASEURL</span> <span class="o">+</span> <span class="s1">&#39;ping&#39;</span><span class="p">,</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">scope</span>
 </pre></div>
@@ -154,17 +154,20 @@ Service must implement <code class="docutils literal notranslate"><span class="p
 <dd><p>Create daemon scope for daemon with command to start.</p>
 <dl class="method">
 <dt id="testsuite.daemons.pytest_plugin.CreateDaemonScope.__call__">
-<code class="descname">__call__</code><span class="sig-paren">(</span><em>*, args: Sequence[str], check_url: str, name: Optional[str] = None, base_command: Optional[Sequence[T_co]] = None, env: Optional[Dict[str, str]] = None, poll_retries: int = 2000, ping_request_timeout: float = 1.0, subprocess_options: Optional[Dict[str, Any]] = None, setup_service: Optional[Callable[[subprocess.Popen], None]] = None, shutdown_signal: Optional[int] = None</em><span class="sig-paren">)</span> &#x2192; AbstractAsyncContextManager[testsuite.daemons.pytest_plugin._DaemonScope]<a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#CreateDaemonScope.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.CreateDaemonScope.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>*, args: Sequence[str], check_url: str = None, ping_url: str = None, name: Optional[str] = None, base_command: Optional[Sequence[T_co]] = None, env: Optional[Dict[str, str]] = None, poll_retries: int = 2000, ping_request_timeout: float = 1.0, ping_response_codes: Tuple[int] = (200,), health_check: Optional[Callable[[...], Awaitable[bool]]] = None, subprocess_options: Optional[Dict[str, Any]] = None, setup_service: Optional[Callable[[subprocess.Popen], None]] = None, shutdown_signal: Optional[int] = None</em><span class="sig-paren">)</span> &#x2192; AbstractAsyncContextManager[testsuite.daemons.pytest_plugin._DaemonScope]<a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#CreateDaemonScope.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.CreateDaemonScope.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>args</strong> – command arguments</p></li>
-<li><p><strong>check_url</strong> – service health check url, service is considered up
-when 200 received.</p></li>
 <li><p><strong>base_command</strong> – Arguments to be prepended to <code class="docutils literal notranslate"><span class="pre">args</span></code>.</p></li>
 <li><p><strong>env</strong> – Environment variables dictionary.</p></li>
 <li><p><strong>poll_retries</strong> – Number of tries for service health check</p></li>
-<li><p><strong>ping_request_timeout</strong> – Timeout for check_url request</p></li>
+<li><p><strong>ping_url</strong> – service health check url, service is considered up
+when 200 received.</p></li>
+<li><p><strong>ping_request_timeout</strong> – Timeout for ping_url request</p></li>
+<li><p><strong>ping_response_codes</strong> – HTTP resopnse codes tuple meaning that
+service is up and running.</p></li>
+<li><p><strong>health_check</strong> – Async function to check service is running.</p></li>
 <li><p><strong>subprocess_options</strong> – Custom subprocess options.</p></li>
 <li><p><strong>setup_service</strong> – Function to be called right after service
 is started.</p></li>
@@ -186,7 +189,7 @@ is started.</p></li>
 <p>Fixture that creates service spawner.</p>
 <dl class="function">
 <dt id="testsuite.daemons.pytest_plugin.service_spawner">
-<code class="descclassname">testsuite.daemons.pytest_plugin.</code><code class="descname">service_spawner</code><span class="sig-paren">(</span><em>args</em>, <em>check_url</em>, <em>*</em>, <em>...</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.daemons.pytest_plugin.service_spawner" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.daemons.pytest_plugin.</code><code class="descname">service_spawner</code><span class="sig-paren">(</span><em>args</em>, <em>*</em>, <em>...</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.daemons.pytest_plugin.service_spawner" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>

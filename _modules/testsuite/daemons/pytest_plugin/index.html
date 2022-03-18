@@ -42,6 +42,8 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">aiohttp</span>
 <span class="kn">import</span> <span class="nn">pytest</span>
@@ -60,6 +62,7 @@
     <span class="s1">&#39;SIGQUIT&#39;</span><span class="p">:</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGQUIT</span><span class="p">,</span>
     <span class="s1">&#39;SIGTERM&#39;</span><span class="p">:</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span>
 <span class="p">}</span>
+<span class="n">CHECK_URL_DEPRECATION</span> <span class="o">=</span> <span class="s1">&#39;`check_url` is deprecated, use `ping_url` instead&#39;</span>
 
 
 <span class="k">class</span> <span class="nc">_DaemonScope</span><span class="p">:</span>
@@ -164,12 +167,17 @@
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-            <span class="n">check_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">check_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="o">*</span><span class="p">,</span>
             <span class="n">base_command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">poll_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">POLL_RETRIES</span><span class="p">,</span>
+            <span class="n">ping_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">ping_request_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">PING_REQUEST_TIMEOUT</span><span class="p">,</span>
+            <span class="n">ping_response_codes</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span>
+                <span class="nb">int</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">PING_RESPONSE_CODES</span><span class="p">,</span>
+            <span class="n">health_check</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">service_daemon</span><span class="o">.</span><span class="n">HealthCheckType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">subprocess_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">setup_service</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">shutdown_signal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -180,9 +188,11 @@
         <span class="sd">&quot;&quot;&quot;Creates service spawner.</span>
 
 <span class="sd">        :param args: Service executable arguments list.</span>
-<span class="sd">        :param check_url: Service /ping url used to ensure that service</span>
+<span class="sd">        :param ping_url: Service /ping url used to ensure that service</span>
 <span class="sd">            is up and running.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">check_url</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">CHECK_URL_DEPRECATION</span><span class="p">,</span> <span class="ne">PendingDeprecationWarning</span><span class="p">)</span>
 
         <span class="n">pytestconfig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_pytestconfig</span>
         <span class="n">logger_plugin</span> <span class="o">=</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">pluginmanager</span><span class="o">.</span><span class="n">getplugin</span><span class="p">(</span>
@@ -201,23 +211,27 @@
             <span class="k">if</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_wait</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">service_wait</span><span class="p">(</span>
                     <span class="n">args</span><span class="p">,</span>
-                    <span class="n">check_url</span><span class="p">,</span>
+                    <span class="n">ping_url</span><span class="o">=</span><span class="n">ping_url</span> <span class="ow">or</span> <span class="n">check_url</span><span class="p">,</span>
                     <span class="n">reporter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_reporter</span><span class="p">,</span>
                     <span class="n">base_command</span><span class="o">=</span><span class="n">base_command</span><span class="p">,</span>
                     <span class="n">ping_request_timeout</span><span class="o">=</span><span class="n">ping_request_timeout</span><span class="p">,</span>
+                    <span class="n">ping_response_codes</span><span class="o">=</span><span class="n">ping_response_codes</span><span class="p">,</span>
+                    <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_disable</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">start_dummy_process</span><span class="p">()</span>
 
             <span class="k">return</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">start</span><span class="p">(</span>
                 <span class="n">args</span><span class="p">,</span>
-                <span class="n">check_url</span><span class="p">,</span>
+                <span class="n">ping_url</span><span class="o">=</span><span class="n">ping_url</span> <span class="ow">or</span> <span class="n">check_url</span><span class="p">,</span>
                 <span class="n">base_command</span><span class="o">=</span><span class="n">base_command</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
                 <span class="n">shutdown_signal</span><span class="o">=</span><span class="n">shutdown_signal</span><span class="p">,</span>
                 <span class="n">shutdown_timeout</span><span class="o">=</span><span class="n">shutdown_timeout</span><span class="p">,</span>
                 <span class="n">poll_retries</span><span class="o">=</span><span class="n">poll_retries</span><span class="p">,</span>
                 <span class="n">ping_request_timeout</span><span class="o">=</span><span class="n">ping_request_timeout</span><span class="p">,</span>
+                <span class="n">ping_response_codes</span><span class="o">=</span><span class="n">ping_response_codes</span><span class="p">,</span>
+                <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
                 <span class="n">subprocess_options</span><span class="o">=</span><span class="n">subprocess_options</span><span class="p">,</span>
                 <span class="n">setup_service</span><span class="o">=</span><span class="n">setup_service</span><span class="p">,</span>
                 <span class="n">logger_plugin</span><span class="o">=</span><span class="n">logger_plugin</span><span class="p">,</span>
@@ -237,24 +251,32 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="o">*</span><span class="p">,</span>
             <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-            <span class="n">check_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">check_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">ping_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">base_command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">poll_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">POLL_RETRIES</span><span class="p">,</span>
             <span class="n">ping_request_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">PING_REQUEST_TIMEOUT</span><span class="p">,</span>
+            <span class="n">ping_response_codes</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span>
+                <span class="nb">int</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">PING_RESPONSE_CODES</span><span class="p">,</span>
+            <span class="n">health_check</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">service_daemon</span><span class="o">.</span><span class="n">HealthCheckType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">subprocess_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">setup_service</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">shutdown_signal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncContextManager</span><span class="p">[</span><span class="n">_DaemonScope</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param args: command arguments</span>
-<span class="sd">        :param check_url: service health check url, service is considered up</span>
-<span class="sd">            when 200 received.</span>
 <span class="sd">        :param base_command: Arguments to be prepended to ``args``.</span>
 <span class="sd">        :param env: Environment variables dictionary.</span>
 <span class="sd">        :param poll_retries: Number of tries for service health check</span>
-<span class="sd">        :param ping_request_timeout: Timeout for check_url request</span>
+<span class="sd">        :param ping_url: service health check url, service is considered up</span>
+<span class="sd">            when 200 received.</span>
+<span class="sd">        :param ping_request_timeout: Timeout for ping_url request</span>
+<span class="sd">        :param ping_response_codes: HTTP resopnse codes tuple meaning that</span>
+<span class="sd">            service is up and running.</span>
+<span class="sd">        :param health_check: Async function to check service is running.</span>
 <span class="sd">        :param subprocess_options: Custom subprocess options.</span>
 <span class="sd">        :param setup_service: Function to be called right after service</span>
 <span class="sd">            is started.</span>
@@ -262,17 +284,21 @@
 <span class="sd">        :returns: Returns internal daemon scope instance to be used with</span>
 <span class="sd">            ``ensure_daemon_started`` fixture.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">check_url</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">CHECK_URL_DEPRECATION</span><span class="p">,</span> <span class="ne">PendingDeprecationWarning</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture__global_daemon_store</span><span class="o">.</span><span class="n">scope</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">spawn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fixture_service_spawner</span><span class="p">(</span>
                 <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-                <span class="n">check_url</span><span class="o">=</span><span class="n">check_url</span><span class="p">,</span>
                 <span class="n">base_command</span><span class="o">=</span><span class="n">base_command</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
                 <span class="n">poll_retries</span><span class="o">=</span><span class="n">poll_retries</span><span class="p">,</span>
+                <span class="n">ping_url</span><span class="o">=</span><span class="n">ping_url</span> <span class="ow">or</span> <span class="n">check_url</span><span class="p">,</span>
                 <span class="n">ping_request_timeout</span><span class="o">=</span><span class="n">ping_request_timeout</span><span class="p">,</span>
+                <span class="n">ping_response_codes</span><span class="o">=</span><span class="n">ping_response_codes</span><span class="p">,</span>
+                <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
                 <span class="n">subprocess_options</span><span class="o">=</span><span class="n">subprocess_options</span><span class="p">,</span>
                 <span class="n">setup_service</span><span class="o">=</span><span class="n">setup_service</span><span class="p">,</span>
                 <span class="n">shutdown_signal</span><span class="o">=</span><span class="n">shutdown_signal</span><span class="p">,</span>

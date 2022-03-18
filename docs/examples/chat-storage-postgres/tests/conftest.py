@@ -71,7 +71,7 @@ async def example_service_scope(
                 '--postgresql',
                 pgsql_local['chat_messages'].get_uri(),
             ],
-            check_url=example_service_baseurl + 'ping',
+            ping_url=example_service_baseurl + 'ping',
     ) as scope:
         yield scope
 

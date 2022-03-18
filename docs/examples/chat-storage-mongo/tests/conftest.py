@@ -79,7 +79,7 @@ async def example_service_scope(
                 '--mongo-uri',
                 mongo_connection_info.get_uri(),
             ],
-            check_url=example_service_baseurl + 'ping',
+            ping_url=example_service_baseurl + 'ping',
     ) as scope:
         yield scope
 

@@ -37,7 +37,7 @@ async def httpd_scope(
                     '--server-fd',
                     str(httpd_socket.fileno()),
                 ],
-                httpd_baseurl + '/ping',
+                ping_url=httpd_baseurl + '/ping',
                 subprocess_options={'pass_fds': [httpd_socket.fileno()]},
             ),
     ) as scope:

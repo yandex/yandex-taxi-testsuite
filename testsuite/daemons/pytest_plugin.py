@@ -8,6 +8,8 @@ from typing import Callable
 from typing import Dict
 from typing import Optional
 from typing import Sequence
+from typing import Tuple
+import warnings
 
 import aiohttp
 import pytest
@@ -26,6 +28,7 @@ SHUTDOWN_SIGNALS = {
     'SIGQUIT': signal.SIGQUIT,
     'SIGTERM': signal.SIGTERM,
 }
+CHECK_URL_DEPRECATION = '`check_url` is deprecated, use `ping_url` instead'
 
 
 class _DaemonScope:
@@ -130,12 +133,17 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
     def __call__(
             self,
             args: Sequence[str],
-            check_url: str,
+            check_url: Optional[str] = None,
             *,
             base_command: Optional[Sequence[str]] = None,
             env: Optional[Dict[str, str]] = None,
             poll_retries: int = service_daemon.POLL_RETRIES,
+            ping_url: Optional[str] = None,
             ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
+            ping_response_codes: Tuple[
+                int
+            ] = service_daemon.PING_RESPONSE_CODES,
+            health_check: Optional[service_daemon.HealthCheckType] = None,
             subprocess_options: Optional[Dict[str, Any]] = None,
             setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
             shutdown_signal: Optional[int] = None,
@@ -146,9 +154,11 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
         """Creates service spawner.
 
         :param args: Service executable arguments list.
-        :param check_url: Service /ping url used to ensure that service
+        :param ping_url: Service /ping url used to ensure that service
             is up and running.
         """
+        if check_url:
+            warnings.warn(CHECK_URL_DEPRECATION, PendingDeprecationWarning)
 
         pytestconfig = self._fixture_pytestconfig
         logger_plugin = pytestconfig.pluginmanager.getplugin(
@@ -167,23 +177,27 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
             if pytestconfig.option.service_wait:
                 return service_daemon.service_wait(
                     args,
-                    check_url,
+                    ping_url=ping_url or check_url,
                     reporter=self._reporter,
                     base_command=base_command,
                     ping_request_timeout=ping_request_timeout,
+                    ping_response_codes=ping_response_codes,
+                    health_check=health_check,
                 )
             if pytestconfig.option.service_disable:
                 return service_daemon.start_dummy_process()
 
             return service_daemon.start(
                 args,
-                check_url,
+                ping_url=ping_url or check_url,
                 base_command=base_command,
                 env=env,
                 shutdown_signal=shutdown_signal,
                 shutdown_timeout=shutdown_timeout,
                 poll_retries=poll_retries,
                 ping_request_timeout=ping_request_timeout,
+                ping_response_codes=ping_response_codes,
+                health_check=health_check,
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
                 logger_plugin=logger_plugin,
@@ -203,24 +217,32 @@ class CreateDaemonScope(fixture_class.Fixture):
             self,
             *,
             args: Sequence[str],
-            check_url: str,
+            check_url: str = None,
+            ping_url: str = None,
             name: Optional[str] = None,
             base_command: Optional[Sequence] = None,
             env: Optional[Dict[str, str]] = None,
             poll_retries: int = service_daemon.POLL_RETRIES,
             ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
+            ping_response_codes: Tuple[
+                int
+            ] = service_daemon.PING_RESPONSE_CODES,
+            health_check: Optional[service_daemon.HealthCheckType] = None,
             subprocess_options: Optional[Dict[str, Any]] = None,
             setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
             shutdown_signal: Optional[int] = None,
     ) -> AsyncContextManager[_DaemonScope]:
         """
         :param args: command arguments
-        :param check_url: service health check url, service is considered up
-            when 200 received.
         :param base_command: Arguments to be prepended to ``args``.
         :param env: Environment variables dictionary.
         :param poll_retries: Number of tries for service health check
-        :param ping_request_timeout: Timeout for check_url request
+        :param ping_url: service health check url, service is considered up
+            when 200 received.
+        :param ping_request_timeout: Timeout for ping_url request
+        :param ping_response_codes: HTTP resopnse codes tuple meaning that
+            service is up and running.
+        :param health_check: Async function to check service is running.
         :param subprocess_options: Custom subprocess options.
         :param setup_service: Function to be called right after service
             is started.
@@ -228,17 +250,21 @@ class CreateDaemonScope(fixture_class.Fixture):
         :returns: Returns internal daemon scope instance to be used with
             ``ensure_daemon_started`` fixture.
         """
+        if check_url:
+            warnings.warn(CHECK_URL_DEPRECATION, PendingDeprecationWarning)
         if name is None:
             name = ' '.join(args)
         return self._fixture__global_daemon_store.scope(
             name=name,
             spawn=self._fixture_service_spawner(
                 args=args,
-                check_url=check_url,
                 base_command=base_command,
                 env=env,
                 poll_retries=poll_retries,
+                ping_url=ping_url or check_url,
                 ping_request_timeout=ping_request_timeout,
+                ping_response_codes=ping_response_codes,
+                health_check=health_check,
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
                 shutdown_signal=shutdown_signal,

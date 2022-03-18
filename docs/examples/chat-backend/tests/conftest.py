@@ -64,6 +64,6 @@ async def example_service_scope(
                 '--storage-service-url',
                 mockserver_info.base_url + 'storage/',
             ],
-            check_url=example_service_baseurl + 'ping',
+            ping_url=example_service_baseurl + 'ping',
     ) as scope:
         yield scope

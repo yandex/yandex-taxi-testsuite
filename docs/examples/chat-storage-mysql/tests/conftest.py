@@ -78,7 +78,7 @@ async def example_service_scope(
                 '--mysql-dbname',
                 mysql_local['chat_messages'].dbname,
             ],
-            check_url=example_service_baseurl + 'ping',
+            ping_url=example_service_baseurl + 'ping',
     ) as scope:
         yield scope
 

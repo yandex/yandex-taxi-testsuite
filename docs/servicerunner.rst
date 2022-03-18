@@ -32,7 +32,7 @@ Service must implement ``ping-url`` that returns ``200 OK`` when service is up.
 
       async with create_daemon_scope(
               args=['path-to-service-binary', '--config', service_config_path],
-              check_url=SERVICE_BASEURL + 'ping',
+              ping_url=SERVICE_BASEURL + 'ping',
       ) as scope:
           yield scope
 
@@ -91,7 +91,7 @@ service_spawner
 
 Fixture that creates service spawner.
 
-.. autofunction:: service_spawner(args, check_url, *, ...)
+.. autofunction:: service_spawner(args, *, ...)
    :no-auto-options:
 
 Classes

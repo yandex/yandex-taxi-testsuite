@@ -5,6 +5,7 @@ import pytest
 
 from testsuite.daemons import service_daemon
 from testsuite.daemons import spawn
+from testsuite.utils import callinfo
 
 
 @pytest.fixture
@@ -36,6 +37,40 @@ async def test_service_daemon(mockserver, dummy_daemon, logger_plugin):
         pass
 
     assert ping_handler.times_called == 2
+
+
+async def test_service_daemon_custom_health(
+        mockserver, dummy_daemon, logger_plugin,
+):
+    @callinfo.acallqueue
+    async def health_check(*, process, session):
+        return health_check.times_called > 0
+
+    async with service_daemon.start(
+            [sys.executable, dummy_daemon.path],
+            logger_plugin=logger_plugin,
+            health_check=health_check,
+    ):
+        pass
+
+    assert health_check.times_called == 2
+
+
+async def test_service_wait_custom_health(
+        mockserver, dummy_daemon, logger_plugin, pytestconfig,
+):
+    @callinfo.acallqueue
+    async def health_check(*, process, session):
+        return health_check.times_called > 0
+
+    async with service_daemon.service_wait(
+            [sys.executable, dummy_daemon.path],
+            reporter=pytestconfig.pluginmanager.getplugin('terminalreporter'),
+            health_check=health_check,
+    ):
+        pass
+
+    assert health_check.times_called == 2
 
 
 @pytest.mark.parametrize(

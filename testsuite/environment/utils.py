@@ -1,5 +1,6 @@
 import os
 import socket
+import time
 import typing
 
 DOCKERTEST_WORKER = os.getenv('DOCKERTEST_WORKER', '')
@@ -17,12 +18,27 @@ class EnvironmentVariableError(BaseError):
     pass
 
 
-def test_tcp_connection(host: str, port: int, timeout: float = 1) -> bool:
+def test_tcp_connection(host: str, port: int, timeout: float = 1.0) -> bool:
     try:
         with socket.create_connection((host, port), timeout=timeout):
             return True
     except OSError:
         return False
+
+
+def wait_tcp_connection(host: str, port: int, timeout: float = 1.0) -> bool:
+    start_time = time.perf_counter()
+    while True:
+        time_passed = time.perf_counter() - start_time
+        if time_passed >= timeout:
+            return False
+
+        if test_tcp_connection(
+                host=host, port=port, timeout=timeout - time_passed,
+        ):
+            return True
+
+        time.sleep(0.1)
 
 
 def ensure_non_root_user() -> None:

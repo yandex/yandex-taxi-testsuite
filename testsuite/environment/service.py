@@ -1,6 +1,7 @@
 import logging
 import os
 import pathlib
+import time
 import typing
 
 from testsuite import annotations
@@ -28,6 +29,7 @@ class ScriptService:
             check_ports: typing.List[int],
             environment: typing.Optional[typing.Dict[str, str]] = None,
             prestart_hook: typing.Optional[typing.Callable] = None,
+            start_timeout: float = 2.0,
     ) -> None:
         self._service_name = service_name
         self._script_path = script_path
@@ -35,6 +37,7 @@ class ScriptService:
         self._check_host = check_host
         self._check_ports = check_ports
         self._prestart_hook = prestart_hook
+        self._start_timeout = start_timeout
         self._started_mark = StartedMark(working_dir)
 
     def ensure_started(self, *, verbose: int) -> None:
@@ -45,6 +48,11 @@ class ScriptService:
         if verbose:
             logger.info('Starting %s service...', self._service_name)
         self._command(COMMAND_START, verbose)
+        if not self._wait_for_ports():
+            raise RuntimeError(
+                'Service %s failed to start within %f seconds.'
+                % (self._service_name, self._start_timeout),
+            )
         if verbose:
             logger.info('Service %s started.', self._service_name)
         self._started_mark.create()
@@ -77,6 +85,22 @@ class ScriptService:
             verbose=verbose,
             command_alias=f'env/{self._service_name}/{command}',
         )
+
+    def _wait_for_ports(self) -> bool:
+        start_time = time.perf_counter()
+        for port in self._check_ports:
+            time_passed = time.perf_counter() - start_time
+            if time_passed >= self._start_timeout:
+                return False
+
+            if not utils.wait_tcp_connection(
+                    host=self._check_host,
+                    port=port,
+                    timeout=self._start_timeout - time_passed,
+            ):
+                return False
+
+        return True
 
 
 class StartedMark:

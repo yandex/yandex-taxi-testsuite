@@ -75,10 +75,9 @@ async def testpoint(mockserver: server.MockserverFixture) -> TestpointFixture:
     async def _handler(request: http.Request):
         body = request.json
         handler = session.get_handler(body['name'])
-        if handler is not None:
-            data = await handler(body['data'])
-        else:
-            data = None
-        return {'data': data}
+        if handler is None:
+            return {'data': None, 'handled': False}
+        data = await handler(body['data'])
+        return {'data': data, 'handled': True}
 
     return session

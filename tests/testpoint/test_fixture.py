@@ -15,7 +15,7 @@ async def test_basic(
         'testpoint', json={'name': 'ping', 'data': data},
     )
     assert response.status_code == 200
-    assert response.json() == {'data': data}
+    assert response.json() == {'data': data, 'handled': True}
     assert ping.next_call() == {'data': data}
 
 
@@ -30,7 +30,7 @@ async def test_basic_async(
         'testpoint', json={'name': 'ping', 'data': 'test'},
     )
     assert response.status_code == 200
-    assert response.json() == {'data': 'test'}
+    assert response.json() == {'data': 'test', 'handled': True}
     assert ping.next_call() == {'data': 'test'}
 
 
@@ -62,3 +62,13 @@ async def test_wait_call(
     )
     assert response.status_code == 200
     assert await foo_point.wait_call() == {'data': 'test'}
+
+
+async def test_not_handled(
+        mockserver_client, testpoint: fixture_types.TestpointFixture,
+):
+    response = await mockserver_client.post(
+        'testpoint', json={'name': 'ping', 'data': 'data string'},
+    )
+    assert response.status_code == 200
+    assert response.json() == {'data': None, 'handled': False}

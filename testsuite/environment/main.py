@@ -50,6 +50,11 @@ def main(args=None, service_plugins=None):
         action='store_true',
         help='Force run, ignore failures',
     )
+    parser.add_argument(
+        '--reuse-services',
+        action='store_true',
+        help='Do not re-raise already running services',
+    )
     services_group = parser.add_mutually_exclusive_group()
     services_group.add_argument(
         '-s',
@@ -93,7 +98,7 @@ def main(args=None, service_plugins=None):
     _setup_logging(args.log_level.upper())
 
     config = control.load_environment_config(
-        env_dir=args.env_dir, reuse_services=False, verbose=2,
+        env_dir=args.env_dir, reuse_services=args.reuse_services, verbose=2,
     )
     env = control.TestsuiteEnvironment(config)
     for service_name, service_class in testsuite_services.items():

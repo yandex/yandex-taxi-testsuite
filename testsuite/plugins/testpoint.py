@@ -20,8 +20,9 @@ TestpointDecorator = typing.Callable[
 class TestpointFixture:
     """Testpoint control object."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, checker_factory) -> None:
         self._handlers: typing.Dict[str, callinfo.AsyncCallQueue] = {}
+        self._checker_factory = checker_factory
 
     def get_handler(
             self, name: str,
@@ -35,19 +36,49 @@ class TestpointFixture:
         """Returns decorator for registering testpoint called ``name``.
 
         After decoration function is wrapped with `AsyncCallQueue`_.
-
         """
 
+        checker = self._checker_factory(name)
+
         def decorator(func) -> callinfo.AsyncCallQueue:
-            wrapped = callinfo.acallqueue(func)
+            wrapped = callinfo.acallqueue(func, checker=checker)
             self._handlers[name] = wrapped
             return wrapped
 
         return decorator
 
 
+@pytest.fixture(scope='session')
+def testpoint_checker_factory():
+    """Testpoint checker factory fixture.
+
+    Can be used to control whether or not testpoint is valid.
+    Feel free to override, e.g.:
+
+    .. code-block::
+
+       @pytest.fixture
+       def testpoint_checker_factory(testpoint_enabled)
+           def create_checker(name):
+               def checker(opname):
+                   if testpoint_enabled(name):
+                       return
+                   pytest.fail(
+                       f'{opname}() called on disabled testpoint {name}'
+                   )
+           return create_checker
+    """
+
+    def create_checker(name):
+        return None
+
+    return create_checker
+
+
 @pytest.fixture
-async def testpoint(mockserver: server.MockserverFixture) -> TestpointFixture:
+async def testpoint(
+        mockserver: server.MockserverFixture, testpoint_checker_factory,
+) -> TestpointFixture:
     """Testpoint fixture returns testpoint session instance that works
     as decorator that registers testpoint handler. Original function is
     wrapped with :ref:`AsyncCallQueue`
@@ -69,7 +100,7 @@ async def testpoint(mockserver: server.MockserverFixture) -> TestpointFixture:
            aseert testpoint_handler.wait_call() == {...}
     """
 
-    session = TestpointFixture()
+    session = TestpointFixture(checker_factory=testpoint_checker_factory)
 
     @mockserver.json_handler('/testpoint')
     async def _handler(request: http.Request):

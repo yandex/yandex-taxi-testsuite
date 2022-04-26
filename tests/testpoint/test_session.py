@@ -1,8 +1,10 @@
 from testsuite.plugins import testpoint
 
 
-async def test_session():
-    session = testpoint.TestpointFixture()
+async def test_session(testpoint_checker_factory):
+    session = testpoint.TestpointFixture(
+        checker_factory=testpoint_checker_factory,
+    )
 
     @session('foo')
     def point(data):

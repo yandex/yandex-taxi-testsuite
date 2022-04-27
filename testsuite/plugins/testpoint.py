@@ -1,3 +1,4 @@
+import collections
 import typing
 
 import pytest
@@ -17,20 +18,21 @@ TestpointDecorator = typing.Callable[
 ]
 
 
-class TestpointFixture:
+class TestpointFixture(collections.Mapping):
     """Testpoint control object."""
 
     def __init__(self, *, checker_factory) -> None:
         self._handlers: typing.Dict[str, callinfo.AsyncCallQueue] = {}
         self._checker_factory = checker_factory
 
-    def get_handler(
-            self, name: str,
-    ) -> typing.Optional[callinfo.AsyncCallQueue]:
-        return self._handlers.get(name)
-
     def __getitem__(self, name: str) -> callinfo.AsyncCallQueue:
         return self._handlers[name]
+
+    def __len__(self):
+        return len(self._handlers)
+
+    def __iter__(self):
+        return iter(self)
 
     def __call__(self, name: str) -> TestpointDecorator:
         """Returns decorator for registering testpoint called ``name``.
@@ -105,7 +107,7 @@ async def testpoint(
     @mockserver.json_handler('/testpoint')
     async def _handler(request: http.Request):
         body = request.json
-        handler = session.get_handler(body['name'])
+        handler = session.get(body['name'])
         if handler is None:
             return {'data': None, 'handled': False}
         data = await handler(body['data'])

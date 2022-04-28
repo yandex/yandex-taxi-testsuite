@@ -1,4 +1,4 @@
-import collections
+import collections.abc
 import typing
 
 import pytest
@@ -18,7 +18,7 @@ TestpointDecorator = typing.Callable[
 ]
 
 
-class TestpointFixture(collections.Mapping):
+class TestpointFixture(collections.abc.Mapping):
     """Testpoint control object."""
 
     def __init__(self, *, checker_factory) -> None:

@@ -32,7 +32,7 @@ class TestpointFixture(collections.Mapping):
         return len(self._handlers)
 
     def __iter__(self):
-        return iter(self)
+        return iter(self._handlers)
 
     def __call__(self, name: str) -> TestpointDecorator:
         """Returns decorator for registering testpoint called ``name``.

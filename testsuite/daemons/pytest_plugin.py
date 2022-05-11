@@ -1,4 +1,5 @@
 import contextlib
+import itertools
 import signal
 import subprocess
 from typing import Any
@@ -123,12 +124,7 @@ class EnsureDaemonStartedFixture(fixture_class.Fixture):
 
 class ServiceSpawnerFixture(fixture_class.Fixture):
     _fixture_pytestconfig: Any
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._reporter = self._fixture_pytestconfig.pluginmanager.getplugin(
-            'terminalreporter',
-        )
+    _fixture_wait_service_started: Any
 
     def __call__(
             self,
@@ -173,30 +169,29 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
                 self._fixture_pytestconfig.option.service_shutdown_signal
             ]
 
+        health_check = service_daemon.make_health_check(
+            ping_url=ping_url or check_url,
+            ping_request_timeout=ping_request_timeout,
+            ping_response_codes=ping_response_codes,
+            health_check=health_check,
+        )
+
+        command_args = _build_command_args(args, base_command)
+
         async def spawn():
             if pytestconfig.option.service_wait:
-                return service_daemon.service_wait(
-                    args,
-                    ping_url=ping_url or check_url,
-                    reporter=self._reporter,
-                    base_command=base_command,
-                    ping_request_timeout=ping_request_timeout,
-                    ping_response_codes=ping_response_codes,
-                    health_check=health_check,
+                return self._fixture_wait_service_started(
+                    args=command_args, health_check=health_check,
                 )
             if pytestconfig.option.service_disable:
                 return service_daemon.start_dummy_process()
 
             return service_daemon.start(
-                args,
-                ping_url=ping_url or check_url,
-                base_command=base_command,
+                args=command_args,
                 env=env,
                 shutdown_signal=shutdown_signal,
                 shutdown_timeout=shutdown_timeout,
                 poll_retries=poll_retries,
-                ping_request_timeout=ping_request_timeout,
-                ping_response_codes=ping_response_codes,
                 health_check=health_check,
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
@@ -320,6 +315,20 @@ create_service_client = fixture_class.create_fixture_factory(
 )
 
 
+@pytest.fixture(scope='session')
+def wait_service_started(pytestconfig):
+    reporter = pytestconfig.pluginmanager.getplugin('terminalreporter')
+
+    @compat.asynccontextmanager
+    async def waiter(*, args, health_check):
+        await service_daemon.service_wait(
+            args=args, reporter=reporter, health_check=health_check,
+        )
+        yield None
+
+    return waiter
+
+
 def pytest_addoption(parser):
     group = parser.getgroup('services')
     group.addoption(
@@ -422,3 +431,9 @@ def _testsuite_suspend_capture(pytestconfig):
             capmanager.resume_global_capture()
 
     return suspend
+
+
+def _build_command_args(
+        args: Sequence, base_command: Optional[Sequence],
+) -> Tuple[str, ...]:
+    return tuple(str(arg) for arg in itertools.chain(base_command or (), args))

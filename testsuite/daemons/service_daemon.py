@@ -1,7 +1,6 @@
 # pylint: disable=not-async-context-manager
 import asyncio
 import functools
-import itertools
 import os
 import signal
 import subprocess
@@ -30,32 +29,20 @@ HealthCheckType = Callable[..., Awaitable[bool]]
 @compat.asynccontextmanager
 async def start(
         args: Sequence[str],
-        ping_url: Optional[str] = None,
         *,
+        health_check: HealthCheckType,
         logger_plugin,
-        base_command: Optional[Sequence[str]] = None,
         env: Optional[Dict[str, str]] = None,
         shutdown_signal: int = signal.SIGINT,
         shutdown_timeout: float = 120,
         poll_retries: int = POLL_RETRIES,
-        ping_request_timeout: float = PING_REQUEST_TIMEOUT,
-        ping_response_codes: Tuple[int] = PING_RESPONSE_CODES,
-        health_check: Optional[HealthCheckType] = None,
         subprocess_options=None,
         setup_service=None,
         subprocess_spawner=None,
 ) -> AsyncGenerator[Optional[subprocess.Popen], None]:
-    health_check = _make_health_check(
-        ping_url=ping_url,
-        health_check=health_check,
-        ping_request_timeout=ping_request_timeout,
-        ping_response_codes=ping_response_codes,
-    )
-
     with logger_plugin.temporary_suspend() as log_manager:
         async with _service_daemon(
                 args=args,
-                base_command=base_command,
                 env=env,
                 shutdown_signal=shutdown_signal,
                 shutdown_timeout=shutdown_timeout,
@@ -70,30 +57,14 @@ async def start(
             yield process
 
 
-@compat.asynccontextmanager
 async def service_wait(
-        args: Sequence[str],
-        ping_url: Optional[str] = None,
-        *,
-        reporter,
-        base_command: Optional[Sequence[str]] = None,
-        ping_request_timeout: float = PING_REQUEST_TIMEOUT,
-        ping_response_codes: Tuple[int] = PING_RESPONSE_CODES,
-        health_check: Optional[HealthCheckType] = None,
-) -> AsyncGenerator[Optional[subprocess.Popen], None]:
-    health_check = _make_health_check(
-        ping_url=ping_url,
-        health_check=health_check,
-        ping_request_timeout=ping_request_timeout,
-        ping_response_codes=ping_response_codes,
-    )
-
+        args: Sequence[str], *, health_check: HealthCheckType, reporter,
+):
     process = None
-    base_command = base_command or []
     flush_supported = hasattr(reporter, 'flush')
     async with aiohttp.ClientSession() as session:
         if not await health_check(session=session, process=process):
-            command = ' '.join(_build_command_args(args, base_command))
+            command = ' '.join(args)
             reporter.write_line('')
             reporter.write_line(
                 'Service is not running yet you may want to start it from '
@@ -111,7 +82,6 @@ async def service_wait(
                 if flush_supported:
                     reporter.flush()
             reporter.write_line('')
-    yield None
 
 
 async def start_dummy_process():
@@ -122,7 +92,7 @@ async def start_dummy_process():
     return _dummy_process()
 
 
-def _health_check_with_timeout(health_check: HealthCheckType):
+def health_check_with_timeout(health_check: HealthCheckType):
     @functools.wraps(health_check)
     async def wrapped(
             *,
@@ -141,25 +111,12 @@ def _health_check_with_timeout(health_check: HealthCheckType):
     return wrapped
 
 
-async def _service_wait(
-        process: Optional[subprocess.Popen],
+def make_health_check(
         *,
-        poll_retries: int,
-        health_check: HealthCheckType,
-) -> bool:
-    async with aiohttp.ClientSession() as session:
-        for _ in range(poll_retries):
-            if await health_check(session=session, process=process):
-                return True
-        raise RuntimeError('service daemon is not ready')
-
-
-def _make_health_check(
-        *,
+        health_check: Optional[HealthCheckType] = None,
         ping_url: Optional[str],
-        ping_request_timeout: float,
-        ping_response_codes: Tuple[int],
-        health_check: Optional[HealthCheckType],
+        ping_request_timeout: float = PING_REQUEST_TIMEOUT,
+        ping_response_codes: Tuple[int] = PING_RESPONSE_CODES,
 ) -> HealthCheckType:
     if ping_url:
         return _make_ping_health_check(
@@ -168,7 +125,7 @@ def _make_health_check(
             ping_response_codes=ping_response_codes,
         )
     if health_check:
-        return _health_check_with_timeout(health_check)
+        return health_check_with_timeout(health_check)
 
     raise RuntimeError('Either `ping_url` or `health_check` must be set')
 
@@ -179,7 +136,7 @@ def _make_ping_health_check(
         ping_request_timeout: float,
         ping_response_codes: Tuple[int],
 ) -> HealthCheckType:
-    @_health_check_with_timeout
+    @health_check_with_timeout
     async def ping_health_check(
             session: aiohttp.ClientSession,
             process: Optional[subprocess.Popen],
@@ -201,6 +158,19 @@ def _make_ping_health_check(
     return ping_health_check
 
 
+async def _service_wait(
+        process: Optional[subprocess.Popen],
+        *,
+        poll_retries: int,
+        health_check: HealthCheckType,
+) -> bool:
+    async with aiohttp.ClientSession() as session:
+        for _ in range(poll_retries):
+            if await health_check(session=session, process=process):
+                return True
+        raise RuntimeError('service daemon is not ready')
+
+
 def _prepare_env(*envs: Optional[Dict[str, str]]) -> Dict[str, str]:
     result = os.environ.copy()
     for env in envs:
@@ -216,7 +186,6 @@ def _prepare_env(*envs: Optional[Dict[str, str]]) -> Dict[str, str]:
 async def _service_daemon(
         args: Sequence[str],
         *,
-        base_command: Sequence[str],
         env: Optional[Dict[str, str]],
         shutdown_signal: int,
         shutdown_timeout: float,
@@ -229,7 +198,7 @@ async def _service_daemon(
     options = subprocess_options.copy() if subprocess_options else {}
     options['env'] = _prepare_env(env, options.get('env'))
     async with spawn.spawned(
-            _build_command_args(args, base_command),
+            args,
             shutdown_signal=shutdown_signal,
             shutdown_timeout=shutdown_timeout,
             subprocess_spawner=subprocess_spawner,
@@ -243,9 +212,3 @@ async def _service_daemon(
             health_check=health_check,
         )
         yield process
-
-
-def _build_command_args(
-        args: Sequence, base_command: Optional[Sequence],
-) -> Tuple[str, ...]:
-    return tuple(str(arg) for arg in itertools.chain(base_command or (), args))

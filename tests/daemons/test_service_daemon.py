@@ -31,7 +31,9 @@ async def test_service_daemon(mockserver, dummy_daemon, logger_plugin):
 
     async with service_daemon.start(
             [sys.executable, dummy_daemon.path],
-            dummy_daemon.ping_url,
+            health_check=service_daemon.make_health_check(
+                ping_url=dummy_daemon.ping_url,
+            ),
             logger_plugin=logger_plugin,
     ):
         pass
@@ -43,11 +45,12 @@ async def test_service_daemon_custom_health(
         mockserver, dummy_daemon, logger_plugin,
 ):
     @callinfo.acallqueue
+    @service_daemon.health_check_with_timeout
     async def health_check(*, process, session):
         return health_check.times_called > 0
 
     async with service_daemon.start(
-            [sys.executable, dummy_daemon.path],
+            args=[sys.executable, dummy_daemon.path],
             logger_plugin=logger_plugin,
             health_check=health_check,
     ):
@@ -57,15 +60,19 @@ async def test_service_daemon_custom_health(
 
 
 async def test_service_wait_custom_health(
-        mockserver, dummy_daemon, logger_plugin, pytestconfig,
+        mockserver,
+        dummy_daemon,
+        logger_plugin,
+        pytestconfig,
+        wait_service_started,
 ):
     @callinfo.acallqueue
+    @service_daemon.health_check_with_timeout
     async def health_check(*, process, session):
         return health_check.times_called > 0
 
-    async with service_daemon.service_wait(
-            [sys.executable, dummy_daemon.path],
-            reporter=pytestconfig.pluginmanager.getplugin('terminalreporter'),
+    async with wait_service_started(
+            args=[sys.executable, str(dummy_daemon.path)],
             health_check=health_check,
     ):
         pass
@@ -96,7 +103,9 @@ async def test_service_daemon_failure(
         start_command = [dummy_daemon.path] + daemon_args
         async with service_daemon.start(
                 start_command,
-                dummy_daemon.ping_url,
+                health_check=service_daemon.make_health_check(
+                    ping_url=dummy_daemon.ping_url,
+                ),
                 logger_plugin=logger_plugin,
         ):
             pass

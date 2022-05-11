@@ -43,6 +43,9 @@ def create_clickhouse_service(
             **(env or {}),
         },
         check_ports=[settings.tcp_port, settings.http_port],
+        start_timeout=utils.getenv_float(
+            key='TESTSUITE_CLICKHOUSE_SERVER_START_TIMEOUT', default=4.0,
+        ),
     )
 
 

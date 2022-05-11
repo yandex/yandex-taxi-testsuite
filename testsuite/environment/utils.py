@@ -61,6 +61,21 @@ def getenv_int(key: str, default: int) -> int:
         return result
 
 
+def getenv_float(key: str, default: float) -> float:
+    env_value = os.getenv(key)
+    if env_value is None:
+        return default
+    try:
+        result = float(env_value)
+    except ValueError as err:
+        raise EnvironmentVariableError(
+            f'{key} environment variable is expected to have float value. '
+            f'Actual value: {env_value}',
+        ) from err
+    else:
+        return result
+
+
 def getenv_ints(
         key: str, default: typing.Tuple[int, ...],
 ) -> typing.Tuple[int, ...]:

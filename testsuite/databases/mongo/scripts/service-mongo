@@ -102,7 +102,7 @@ start_sharded_cluster() {
 
     echo "Starting mongos..."
     $MONGOS $MONGOS_ARGS || {
-        print_log $MONGOS_LOG_FILE
+        dump_log_stderr "$MONGOS_LOG_FILE"
         exit 1
     }
 

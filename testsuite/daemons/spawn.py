@@ -65,6 +65,18 @@ async def spawned(
         )
 
 
+def exit_code_error(retcode: int) -> ExitCodeError:
+    if retcode >= 0:
+        return ExitCodeError(
+            f'Service exited with status code {retcode}', retcode,
+        )
+    signal_name = _pretty_signal(-retcode)
+    signal_error_fmt = SIGNAL_ERRORS.get(-retcode, DEFAULT_SIGNAL_ERROR)
+    return ExitCodeError(
+        signal_error_fmt.format(signal_name=signal_name), retcode,
+    )
+
+
 async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
     allowed_exit_codes = (-shutdown_signal, 0)
 
@@ -72,7 +84,7 @@ async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
     if retcode is not None:
         logger.info('Process already finished with code %d', retcode)
         if retcode not in allowed_exit_codes:
-            raise _exit_code_error(retcode)
+            raise exit_code_error(retcode)
         return retcode
 
     try:
@@ -89,7 +101,7 @@ async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
             retcode = process.poll()
             if retcode is not None:
                 if retcode not in allowed_exit_codes:
-                    raise _exit_code_error(retcode)
+                    raise exit_code_error(retcode)
                 return retcode
             current_time = time.monotonic()
             if current_time - poll_start > shutdown_timeout:
@@ -105,24 +117,12 @@ async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
     while True:
         retcode = process.poll()
         if retcode is not None:
-            raise _exit_code_error(retcode)
+            raise exit_code_error(retcode)
         try:
             process.send_signal(signal.SIGKILL)
         except OSError:
             continue
         await asyncio.sleep(_POLL_TIMEOUT)
-
-
-def _exit_code_error(retcode: int) -> ExitCodeError:
-    if retcode >= 0:
-        return ExitCodeError(
-            f'Service exited with status code {retcode}', retcode,
-        )
-    signal_name = _pretty_signal(-retcode)
-    signal_error_fmt = SIGNAL_ERRORS.get(-retcode, DEFAULT_SIGNAL_ERROR)
-    return ExitCodeError(
-        signal_error_fmt.format(signal_name=signal_name), retcode,
-    )
 
 
 def _pretty_signal(signum: int) -> str:

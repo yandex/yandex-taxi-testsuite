@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import contextlib
 import os
 import sys
 import time
@@ -27,12 +28,14 @@ def main():
             time.sleep(args.timeout)
         sys.exit(args.exit_code)
     else:
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            pass
+        with contextlib.closing(sys.stdout):
+            print('ready', flush=True)
+        while True:
+            time.sleep(1)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass

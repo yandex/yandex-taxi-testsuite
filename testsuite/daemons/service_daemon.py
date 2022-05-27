@@ -1,6 +1,5 @@
 # pylint: disable=not-async-context-manager
 import asyncio
-import functools
 import os
 import signal
 import subprocess
@@ -63,7 +62,9 @@ async def service_wait(
     process = None
     flush_supported = hasattr(reporter, 'flush')
     async with aiohttp.ClientSession() as session:
-        if not await health_check(session=session, process=process):
+        if not await _run_health_check(
+                health_check, session=session, process=process,
+        ):
             command = ' '.join(args)
             reporter.write_line('')
             reporter.write_line(
@@ -75,8 +76,8 @@ async def service_wait(
             reporter.write_line('gdb --args {}'.format(command), green=True)
             reporter.write_line('')
             reporter.write('Waiting for service to start...')
-            while not await health_check(
-                    session=session, process=process, sleep=0.2,
+            while not await _run_health_check(
+                    health_check, session=session, process=process, sleep=0.2,
             ):
                 reporter.write('.')
                 if flush_supported:
@@ -90,25 +91,6 @@ async def start_dummy_process():
         yield None
 
     return _dummy_process()
-
-
-def health_check_with_timeout(health_check: HealthCheckType):
-    @functools.wraps(health_check)
-    async def wrapped(
-            *,
-            session: aiohttp.ClientSession,
-            process: Optional[subprocess.Popen],
-            sleep: float = 0.05,
-    ):
-        begin = time.perf_counter()
-        if await health_check(session=session, process=process):
-            return True
-        end = time.perf_counter()
-        to_sleep = begin + sleep - end
-        if to_sleep > 0:
-            await asyncio.sleep(to_sleep)
-
-    return wrapped
 
 
 def make_health_check(
@@ -125,9 +107,29 @@ def make_health_check(
             ping_response_codes=ping_response_codes,
         )
     if health_check:
-        return health_check_with_timeout(health_check)
+        return health_check
 
     raise RuntimeError('Either `ping_url` or `health_check` must be set')
+
+
+async def _run_health_check(
+        health_check: HealthCheckType,
+        *,
+        session: aiohttp.ClientSession,
+        process: Optional[subprocess.Popen],
+        sleep: float = 0.05,
+):
+    if process and process.poll() is not None:
+        raise spawn.exit_code_error(process.poll())
+
+    begin = time.perf_counter()
+    if await health_check(session=session, process=process):
+        return True
+    end = time.perf_counter()
+    to_sleep = begin + sleep - end
+    if to_sleep > 0:
+        await asyncio.sleep(to_sleep)
+    return False
 
 
 def _make_ping_health_check(
@@ -136,13 +138,10 @@ def _make_ping_health_check(
         ping_request_timeout: float,
         ping_response_codes: Tuple[int],
 ) -> HealthCheckType:
-    @health_check_with_timeout
     async def ping_health_check(
             session: aiohttp.ClientSession,
             process: Optional[subprocess.Popen],
     ) -> bool:
-        if process and process.poll() is not None:
-            raise RuntimeError('service daemon is not running')
         try:
             response = await session.get(
                 ping_url, timeout=ping_request_timeout,
@@ -166,7 +165,9 @@ async def _service_wait(
 ) -> bool:
     async with aiohttp.ClientSession() as session:
         for _ in range(poll_retries):
-            if await health_check(session=session, process=process):
+            if await _run_health_check(
+                    health_check, session=session, process=process,
+            ):
                 return True
         raise RuntimeError('service daemon is not ready')
 

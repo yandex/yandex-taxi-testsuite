@@ -3,15 +3,11 @@ import pathlib
 import typing
 import urllib.parse
 
-from testsuite import annotations
 
-
-def scan_sql_directory(
-        root: annotations.PathOrStr,
-) -> typing.List[pathlib.Path]:
+def scan_sql_directory(root: pathlib.Path) -> typing.List[pathlib.Path]:
     return [
         path
-        for path in sorted(pathlib.Path(root).iterdir())
+        for path in sorted(root.iterdir())
         if path.is_file() and path.suffix == '.sql'
     ]
 

@@ -72,6 +72,10 @@ def pytest_register_object_hooks():
     }
 
 
+def pytest_servicetest_modifyitem(session, item):
+    item.add_marker(pytest.mark.now(enabled=False))
+
+
 @pytest.fixture
 def mocked_time(_mocked_time_enabled, now) -> MockedTime:
     """:returns: :py:class:`MockedTime`"""

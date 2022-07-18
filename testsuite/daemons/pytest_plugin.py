@@ -124,6 +124,7 @@ class EnsureDaemonStartedFixture(fixture_class.Fixture):
 
 class ServiceSpawnerFixture(fixture_class.Fixture):
     _fixture_pytestconfig: Any
+    _fixture_service_client_session_factory: Any
     _fixture_wait_service_started: Any
 
     def __call__(
@@ -193,6 +194,7 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
                 shutdown_timeout=shutdown_timeout,
                 poll_retries=poll_retries,
                 health_check=health_check,
+                session_factory=self._fixture_service_client_session_factory,
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
                 logger_plugin=logger_plugin,
@@ -316,13 +318,16 @@ create_service_client = fixture_class.create_fixture_factory(
 
 
 @pytest.fixture(scope='session')
-def wait_service_started(pytestconfig):
+def wait_service_started(pytestconfig, service_client_session_factory):
     reporter = pytestconfig.pluginmanager.getplugin('terminalreporter')
 
     @compat.asynccontextmanager
     async def waiter(*, args, health_check):
         await service_daemon.service_wait(
-            args=args, reporter=reporter, health_check=health_check,
+            args=args,
+            reporter=reporter,
+            health_check=health_check,
+            session_factory=service_client_session_factory,
         )
         yield None
 
@@ -377,11 +382,22 @@ def register_daemon_scope(_global_daemon_store: _DaemonStore):
     return _global_daemon_store.scope
 
 
+@pytest.fixture(scope='session')
+def service_client_session_factory(
+        event_loop,
+) -> service_daemon.ClientSessionFactory:
+    def make_session(**kwargs):
+        kwargs.setdefault('loop', event_loop)
+        return aiohttp.ClientSession(**kwargs)
+
+    return make_session
+
+
 @pytest.fixture
-async def service_client_session() -> annotations.AsyncYieldFixture[
-        aiohttp.ClientSession,
-]:
-    async with aiohttp.ClientSession() as session:
+async def service_client_session(
+        service_client_session_factory,
+) -> annotations.AsyncYieldFixture[aiohttp.ClientSession]:
+    async with service_client_session_factory() as session:
         yield session
 
 

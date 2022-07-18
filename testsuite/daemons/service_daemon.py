@@ -24,12 +24,15 @@ PING_RESPONSE_CODES = (200,)
 
 HealthCheckType = Callable[..., Awaitable[bool]]
 
+ClientSessionFactory = Callable[..., aiohttp.ClientSession]
+
 
 @compat.asynccontextmanager
 async def start(
         args: Sequence[str],
         *,
         health_check: HealthCheckType,
+        session_factory: ClientSessionFactory = aiohttp.ClientSession,
         logger_plugin,
         env: Optional[Dict[str, str]] = None,
         shutdown_signal: int = signal.SIGINT,
@@ -40,28 +43,34 @@ async def start(
         subprocess_spawner=None,
 ) -> AsyncGenerator[Optional[subprocess.Popen], None]:
     with logger_plugin.temporary_suspend() as log_manager:
-        async with _service_daemon(
-                args=args,
-                env=env,
-                shutdown_signal=shutdown_signal,
-                shutdown_timeout=shutdown_timeout,
-                poll_retries=poll_retries,
-                subprocess_options=subprocess_options,
-                setup_service=setup_service,
-                subprocess_spawner=subprocess_spawner,
-                health_check=health_check,
-        ) as process:
-            log_manager.clear()
-            log_manager.resume()
-            yield process
+        async with session_factory() as session:
+            async with _service_daemon(
+                    args=args,
+                    env=env,
+                    shutdown_signal=shutdown_signal,
+                    shutdown_timeout=shutdown_timeout,
+                    poll_retries=poll_retries,
+                    subprocess_options=subprocess_options,
+                    setup_service=setup_service,
+                    subprocess_spawner=subprocess_spawner,
+                    health_check=health_check,
+                    session=session,
+            ) as process:
+                log_manager.clear()
+                log_manager.resume()
+                yield process
 
 
 async def service_wait(
-        args: Sequence[str], *, health_check: HealthCheckType, reporter,
+        args: Sequence[str],
+        *,
+        health_check: HealthCheckType,
+        session_factory: ClientSessionFactory = aiohttp.ClientSession,
+        reporter,
 ):
     process = None
     flush_supported = hasattr(reporter, 'flush')
-    async with aiohttp.ClientSession() as session:
+    async with session_factory() as session:
         if not await _run_health_check(
                 health_check, session=session, process=process,
         ):
@@ -162,14 +171,14 @@ async def _service_wait(
         *,
         poll_retries: int,
         health_check: HealthCheckType,
+        session: aiohttp.ClientSession,
 ) -> bool:
-    async with aiohttp.ClientSession() as session:
-        for _ in range(poll_retries):
-            if await _run_health_check(
-                    health_check, session=session, process=process,
-            ):
-                return True
-        raise RuntimeError('service daemon is not ready')
+    for _ in range(poll_retries):
+        if await _run_health_check(
+                health_check, session=session, process=process,
+        ):
+            return True
+    raise RuntimeError('service daemon is not ready')
 
 
 def _prepare_env(*envs: Optional[Dict[str, str]]) -> Dict[str, str]:
@@ -195,6 +204,7 @@ async def _service_daemon(
         setup_service=None,
         subprocess_spawner=None,
         health_check,
+        session: aiohttp.ClientSession,
 ) -> AsyncGenerator[subprocess.Popen, None]:
     options = subprocess_options.copy() if subprocess_options else {}
     options['env'] = _prepare_env(env, options.get('env'))
@@ -211,5 +221,6 @@ async def _service_daemon(
             process=process,
             poll_retries=poll_retries,
             health_check=health_check,
+            session=session,
         )
         yield process

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . $TESTSUITE_LIB_UTILS
+. $(dirname $0)/find-rabbitmq.sh
 
 # use ramdisk for rabbitmq if available
 RAMDISK="/mnt/ramdisk/$USER"
@@ -34,7 +35,8 @@ export RABBITMQ_ERLANG_COOKIE="$RABBITMQ_ERLANG_COOKIE"
 start_rabbitmq() {
     mkdir -p "$RABBITMQ_DATA_DIR"
     mkdir -p "$RABBITMQ_LOG_DIR"
-    rabbitmq-server &
+    # '-detached' doesn't work with systemwide installation for some reason
+    "$RABBITMQ_BINDIR/rabbitmq-server" &
 }
 
 start() {
@@ -42,7 +44,7 @@ start() {
 }
 
 stop() {
-    /usr/lib/rabbitmq/bin/rabbitmqctl shutdown -n "$RABBITMQ_NODENAME" --erlang-cookie="$RABBITMQ_ERLANG_COOKIE"
+    "$RABBITMQ_BINDIR/rabbitmqctl" shutdown -n "$RABBITMQ_NODENAME" --erlang-cookie="$RABBITMQ_ERLANG_COOKIE"
     epmd -kill
     rm -rf "$RABBITMQ_TMPDIR"
 }

@@ -1,14 +1,19 @@
-from pika.adapters.blocking_connection import BlockingChannel
-
 def test_rabbitmq_basic(rabbitmq):
-    channel : BlockingChannel = rabbitmq.channel()
-    channel.exchange_declare(exchange='testsuite', exchange_type='fanout')
-    channel.queue_declare(queue='testsuite')
-    channel.queue_bind(queue='testsuite', exchange='testsuite', routing_key='testsuite')
-    channel.basic_publish(exchange='testsuite', routing_key='testsuite', body='hi!')
+    exchange = 'testsuite_exchange'
+    queue = 'testsuite_queue'
+    routing_key = 'testsuite_routing_key'
 
-    for _, _, body in channel.consume(queue='testsuite'):
-        assert body == b'hi!'
-        break
+    with rabbitmq.get_channel() as channel:
+        channel.declare_exchange(exchange=exchange, exchange_type="fanout")
+        channel.declare_queue(queue=queue)
+        channel.bind_queue(
+            queue=queue, exchange=exchange, routing_key=routing_key
+        )
+        channel.publish(
+            exchange=exchange,
+            routing_key=routing_key,
+            body=b"hi from testsuite!",
+        )
 
-    channel.cancel()
+        messages = channel.consume(queue=queue, count=1)
+        assert messages == [b"hi from testsuite!"]

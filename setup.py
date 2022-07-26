@@ -52,6 +52,7 @@ setuptools.setup(
         ],
         'testsuite.databases.rabbitmq': [
             'scripts/service-rabbitmq',
+            'scripts/find-rabbitmq.sh',
         ]
     },
 )

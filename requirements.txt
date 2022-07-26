@@ -1,1 +1,1 @@
-.[mongodb,postgresql,redis,mysql,clickhouse]
+.[mongodb,postgresql,redis,mysql,clickhouse,rabbitmq]

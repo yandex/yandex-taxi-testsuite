@@ -8,6 +8,14 @@ from pika import ConnectionParameters
 from pika.exchange_type import ExchangeType
 
 
+class BaseError(Exception):
+    pass
+
+
+class RabbitMqDisabledError(BaseError):
+    pass
+
+
 @dataclasses.dataclass(frozen=True)
 class ConnectionInfo:
     """RabbitMQ connection parameters"""
@@ -83,6 +91,6 @@ class Control:
 
     def get_channel(self) -> Channel:
         if not self._enabled:
-            raise Exception("rabbitmq is disabled")
+            raise RabbitMqDisabledError
 
         return self._client.get_channel()

@@ -27,8 +27,12 @@ jobs:
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 8919F6BD2B48D754
         echo "deb https://packages.clickhouse.com/deb stable main" | sudo tee \
           /etc/apt/sources.list.d/clickhouse.list
-
-        # convoluted setup of rabbitmq + erlang
+        sudo apt-get update
+        sudo apt-get install -y redis-server clickhouse-common-static=22.3.2.2
+    - uses: actions/checkout@v2
+    - name: Install RabbitMQ
+      run: |
+        # convoluted setup of rabbitmq + erlang taken from https://www.rabbitmq.com/install-debian.html#apt-quick-start-packagecloud
         ## Team RabbitMQ's main signing key
         curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
         ## Launchpad PPA that provides modern Erlang releases
@@ -53,20 +57,23 @@ jobs:
         deb-src [signed-by=/usr/share/keyrings/io.packagecloud.rabbitmq.gpg] https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ bionic main
         EOF
 
-        # hackery to disable autostart at installation https://askubuntu.com/questions/74061/install-packages-without-starting-background-processes-and-services
-        sudo mkdir /root/fake && ln -s /bin/true/ /root/fake/initctl && \
-                            ln -s /bin/true /root/fake/invoke-rc.d && \
-                            ln -s /bin/true /root/fake/restart && \
-                            ln -s /bin/true /root/fake/start && \
-                            ln -s /bin/true /root/fake/stop && \
-                            ln -s /bin/true /root/fake/start-stop-daemon && \
-                            ln -s /bin/true /root/fake/service && \
-                            ln -s /bin/true /root/fake/deb-systemd-helper
+        ## Install Erlang packages
+        sudo apt-get install -y erlang-base \
+                        erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+                        erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+                        erlang-runtime-tools erlang-snmp erlang-ssl \
+                        erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
 
-        sudo apt-get update
-        sudo apt-get install -y redis-server clickhouse-common-static=22.3.2.2
-        sudo PATH=/root/fake:$PATH apt-get install -y rabbitmq-server
-    - uses: actions/checkout@v2
+        # hackery to disable autostart at installation https://askubuntu.com/questions/74061/install-packages-without-starting-background-processes-and-services
+        mkdir /tmp/fake && ln -s /bin/true/ /tmp/fake/initctl && \
+                            ln -s /bin/true /tmp/fake/invoke-rc.d && \
+                            ln -s /bin/true /tmp/fake/restart && \
+                            ln -s /bin/true /tmp/fake/start && \
+                            ln -s /bin/true /tmp/fake/stop && \
+                            ln -s /bin/true /tmp/fake/start-stop-daemon && \
+                            ln -s /bin/true /tmp/fake/service && \
+                            ln -s /bin/true /tmp/fake/deb-systemd-helper
+        sudo PATH=/tmp/fake:$PATH apt-get install -y rabbitmq-server
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

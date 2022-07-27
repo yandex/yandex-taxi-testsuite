@@ -50,7 +50,7 @@ setuptools.setup(
             'scripts/service-clickhouse',
             'scripts/find-clickhouse.sh',
         ],
-        'testsuite.databases.rabbitmq': [
+        'testsuite.rabbitmq': [
             'scripts/service-rabbitmq',
             'scripts/find-rabbitmq.sh',
         ]

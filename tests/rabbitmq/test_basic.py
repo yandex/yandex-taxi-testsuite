@@ -1,7 +1,7 @@
 def test_rabbitmq_basic(rabbitmq):
-    exchange = 'testsuite_exchange'
-    queue = 'testsuite_queue'
-    routing_key = 'testsuite_routing_key'
+    exchange = "testsuite_exchange"
+    queue = "testsuite_queue"
+    routing_key = "testsuite_routing_key"
 
     with rabbitmq.get_channel() as channel:
         channel.declare_exchange(exchange=exchange, exchange_type="fanout")

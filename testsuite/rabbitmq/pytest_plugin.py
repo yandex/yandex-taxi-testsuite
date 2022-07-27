@@ -1,4 +1,3 @@
-import pika
 import pytest
 
 from . import classes
@@ -29,7 +28,7 @@ def pytest_service_register(register_service):
 @pytest.fixture
 def rabbitmq(
     _rabbitmq,
-) -> pika.BlockingConnection:
+) -> classes.Control:
     return _rabbitmq
 
 

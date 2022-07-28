@@ -55,12 +55,6 @@ Out-of-the-box testsuite supports the following databases:
 * Redis
 * MySQL
 * ClickHouse
-
-Supported message brokers
--------------------------
-
-Out-of-the-box testsuite supports the following brokers:
-
 * RabbitMQ
 
 Supported operating systems

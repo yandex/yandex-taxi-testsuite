@@ -1,10 +1,6 @@
 RabbitMQ
 ========
 
-.. contents::
-   :depth: 2
-   :local:
-
 In order to enable RabbitMQ support you have to add
 ``testsuite.rabbitmq.pytest_plugin`` to ``pytest_plugins`` list in your
 ``conftest.py``.
@@ -12,7 +8,7 @@ In order to enable RabbitMQ support you have to add
 By default testsuite starts RabbitMQ_ service. In this case RabbitMQ installation
 is required.
 
-Currently RabbitMQ plugin uses blocking adapters from pika_ driver.
+Currently RabbitMQ plugin uses async aio-pika_ driver.
 
 RabbitMQ installation
 ---------------------
@@ -43,33 +39,37 @@ Usage example
 
 .. code-block:: python
 
-    def test_rabbitmq_basic(rabbitmq):
+    async def test_rabbitmq_basic(rabbitmq):
         exchange = 'testsuite_exchange'
         queue = 'testsuite_queue'
         routing_key = 'testsuite_routing_key'
 
-        with rabbitmq.get_channel() as channel:
-            channel.declare_exchange(exchange=exchange, exchange_type="fanout")
-            channel.declare_queue(queue=queue)
-            channel.bind_queue(
+        channel = await rabbitmq.get_channel()
+
+        async with channel:
+            await channel.declare_exchange(
+                exchange=exchange, exchange_type='fanout'
+            )
+            await channel.declare_queue(queue=queue)
+            await channel.bind_queue(
                 queue=queue, exchange=exchange, routing_key=routing_key
             )
-            channel.publish(
+            await channel.publish(
                 exchange=exchange,
                 routing_key=routing_key,
-                body=b"hi from testsuite!",
+                body=b'hi from testsuite!',
             )
 
-            messages = channel.consume(queue=queue, count=1)
-            assert messages == [b"hi from testsuite!"]
+            messages = await channel.consume(queue=queue, count=1)
+            assert messages == [b'hi from testsuite!']
 
 .. _RabbitMQ: https://www.rabbitmq.com/
-.. _pika: https://pika.readthedocs.io/en/stable/
+.. _aio-pika: https://github.com/mosquito/aio-pika
 
 Fixtures
 --------
 
-.. currentmodule:: testsuite.rabbitmq.pytest_plugin
+.. currentmodule:: testsuite.databases.rabbitmq.pytest_plugin
 
 rabbitmq
 ~~~~~~~~~~
@@ -80,7 +80,7 @@ rabbitmq
 Classes
 -------
 
-.. currentmodule:: testsuite.rabbitmq.classes
+.. currentmodule:: testsuite.databases.rabbitmq.classes
 
 .. autoclass:: ConnectionInfo()
   :noindex:

@@ -17,6 +17,5 @@ pytest plugins:
    servicerunner
    testpoint
    databases
-   rabbitmq
    other_plugins
    utils

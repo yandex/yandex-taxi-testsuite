@@ -36,11 +36,14 @@ def rabbitmq(
 def _rabbitmq_connection(
     _rabbitmq_service,
     _rabbitmq_service_settings,
+    event_loop,
 ) -> classes.Control:
-    return classes.Control(
+    control = classes.Control(
         enabled=_rabbitmq_service,
         conn_info=_rabbitmq_service_settings.get_connection_info(),
     )
+    yield control
+    event_loop.run_until_complete(control.teardown())
 
 
 @pytest.fixture(scope='session')

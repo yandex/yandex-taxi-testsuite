@@ -10,7 +10,7 @@ DEFAULT_RABBITMQ_TCP_PORT = 19002
 DEFAULT_RABBITMQ_EPMD_PORT = 19003
 
 SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
-    "scripts/service-rabbitmq"
+    'scripts/service-rabbitmq'
 )
 
 
@@ -19,7 +19,7 @@ class ServiceSettings(typing.NamedTuple):
     epmd_port: int
 
     def get_connection_info(self) -> classes.ConnectionInfo:
-        return classes.ConnectionInfo(host="localhost", tcp_port=self.tcp_port)
+        return classes.ConnectionInfo(host='localhost', tcp_port=self.tcp_port)
 
 
 def create_rabbitmq_service(
@@ -35,17 +35,17 @@ def create_rabbitmq_service(
         script_path=str(SERVICE_SCRIPT_PATH),
         working_dir=working_dir,
         environment={
-            "RABBITMQ_TMPDIR": working_dir,
-            "RABBITMQ_TCP_PORT": str(settings.tcp_port),
-            "RABBITMQ_EPMD_PORT": str(settings.epmd_port),
-            "RABBITMQ_BINDIR": utils.getenv_str(
-                key="TESTSUITE_RABBITMQ_BINDIR",
-                default="/usr/lib/rabbitmq/bin/",
+            'RABBITMQ_TMPDIR': working_dir,
+            'RABBITMQ_TCP_PORT': str(settings.tcp_port),
+            'RABBITMQ_EPMD_PORT': str(settings.epmd_port),
+            'RABBITMQ_BINDIR': utils.getenv_str(
+                key='TESTSUITE_RABBITMQ_BINDIR',
+                default='/usr/lib/rabbitmq/bin/',
             ),
         },
         check_ports=[settings.tcp_port, settings.epmd_port],
         start_timeout=utils.getenv_float(
-            key="TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT", default=10.0
+            key='TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT', default=10.0
         ),
     )
 
@@ -53,11 +53,11 @@ def create_rabbitmq_service(
 def get_service_settings() -> ServiceSettings:
     return ServiceSettings(
         utils.getenv_int(
-            key="TESTSUITE_RABBITMQ_TCP_PORT",
+            key='TESTSUITE_RABBITMQ_TCP_PORT',
             default=DEFAULT_RABBITMQ_TCP_PORT,
         ),
         utils.getenv_int(
-            key="TESTSUITE_RABBITMQ_EPMD_PORT",
+            key='TESTSUITE_RABBITMQ_EPMD_PORT',
             default=DEFAULT_RABBITMQ_EPMD_PORT,
         ),
     )

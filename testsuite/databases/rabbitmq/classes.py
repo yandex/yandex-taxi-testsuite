@@ -14,7 +14,7 @@ class RabbitMqDisabledError(BaseError):
 
 @dataclasses.dataclass(frozen=True)
 class ConnectionInfo:
-    '''RabbitMQ connection parameters'''
+    """RabbitMQ connection parameters"""
 
     host: str
     tcp_port: int

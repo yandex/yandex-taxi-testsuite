@@ -46,6 +46,13 @@ def ensure_non_root_user() -> None:
         raise RootUserForbiddenError('Running testsuite as root is forbidden')
 
 
+def getenv_str(key: str, default: str) -> str:
+    env_value = os.getenv(key)
+    if env_value is None:
+        return default
+    return env_value
+
+
 def getenv_int(key: str, default: int) -> int:
     env_value = os.getenv(key)
     if env_value is None:

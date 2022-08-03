@@ -16,6 +16,8 @@ pytest_plugins = [
     'testsuite.databases.redis.pytest_plugin',
     'testsuite.databases.mysql.pytest_plugin',
     'testsuite.databases.clickhouse.pytest_plugin',
+    # RabbitMQ
+    'testsuite.databases.rabbitmq.pytest_plugin',
 ]
 
 

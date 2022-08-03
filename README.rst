@@ -36,6 +36,9 @@ Installation using pip_::
    # testsuite with clickhouse support
    pip3 install yandex-taxi-testsuite[clickhouse]
 
+   # testsuite with rabbitmq support
+   pip3 install yandex-taxi-testsuite[rabbitmq]
+
 You can also include testsuite into your project as submodule, e.g.::
 
   mkdir -p submodules
@@ -52,6 +55,7 @@ Out-of-the-box testsuite supports the following databases:
 * Redis
 * MySQL
 * ClickHouse
+* RabbitMQ
 
 Supported operating systems
 ---------------------------

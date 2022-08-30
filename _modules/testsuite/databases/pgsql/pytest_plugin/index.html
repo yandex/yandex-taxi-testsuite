@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.databases.pgsql.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.databases.pgsql.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -265,13 +265,13 @@
         <span class="n">queries</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">load_pg_query</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pg_</span><span class="si">{dbname}</span><span class="s1">.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;pgsql.default_queries&#39;</span><span class="p">),</span>
+                <span class="n">load_pg_query</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pg_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;pgsql.default_queries&#39;</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">queries</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                <span class="n">load_pg_queries</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pg_</span><span class="si">{dbname}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;pgsql.default_queries&#39;</span><span class="p">),</span>
+                <span class="n">load_pg_queries</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pg_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;pgsql.default_queries&#39;</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -294,7 +294,7 @@
                 <span class="n">queries_str</span> <span class="o">=</span> <span class="n">query</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;sql queries of type {type(query)} are not supported&#39;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s1">&#39;sql queries of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="si">}</span><span class="s1"> are not supported&#39;</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">for</span> <span class="n">query_str</span> <span class="ow">in</span> <span class="n">queries_str</span><span class="p">:</span>
                 <span class="n">result_queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>

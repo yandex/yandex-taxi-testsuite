@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Chat backend example &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Chat backend example &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments_pytest.css" />
@@ -33,18 +34,18 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="chat-backend-example">
+  <section id="chat-backend-example">
 <h1>Chat backend example<a class="headerlink" href="#chat-backend-example" title="Permalink to this headline">¶</a></h1>
-<div class="contents local topic" id="contents">
+<nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#chat-backend-service" id="id1">Chat backend service</a></p></li>
-<li><p><a class="reference internal" href="#conftest" id="id2">Conftest</a></p></li>
-<li><p><a class="reference internal" href="#test" id="id3">Test</a></p></li>
+<li><p><a class="reference internal" href="#chat-backend-service" id="toc-entry-1">Chat backend service</a></p></li>
+<li><p><a class="reference internal" href="#conftest" id="toc-entry-2">Conftest</a></p></li>
+<li><p><a class="reference internal" href="#test" id="toc-entry-3">Test</a></p></li>
 </ul>
-</div>
+</nav>
 <p>Task of storing messages is delegated to an external service</p>
-<div class="section" id="chat-backend-service">
-<h2><a class="toc-backref" href="#id1">Chat backend service</a><a class="headerlink" href="#chat-backend-service" title="Permalink to this headline">¶</a></h2>
+<section id="chat-backend-service">
+<h2><a class="toc-backref" href="#toc-entry-1" role="doc-backlink">Chat backend service</a><a class="headerlink" href="#chat-backend-service" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 
@@ -112,9 +113,9 @@
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="conftest">
-<h2><a class="toc-backref" href="#id2">Conftest</a><a class="headerlink" href="#conftest" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="conftest">
+<h2><a class="toc-backref" href="#toc-entry-2" role="doc-backlink">Conftest</a><a class="headerlink" href="#conftest" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
@@ -155,7 +156,7 @@
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">example_service_baseurl</span><span class="p">(</span><span class="n">pytestconfig</span><span class="p">):</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;http://localhost:</span><span class="si">{pytestconfig.option.example_service_port}</span><span class="s1">/&#39;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;http://localhost:</span><span class="si">{</span><span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">example_service_port</span><span class="si">}</span><span class="s1">/&#39;</span>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
@@ -186,9 +187,9 @@
         <span class="k">yield</span> <span class="n">scope</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="test">
-<h2><a class="toc-backref" href="#id3">Test</a><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="test">
+<h2><a class="toc-backref" href="#toc-entry-3" role="doc-backlink">Test</a><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">test_messages_send</span><span class="p">(</span><span class="n">example_client</span><span class="p">,</span> <span class="n">mockserver</span><span class="p">):</span>
     <span class="nd">@mockserver</span><span class="o">.</span><span class="n">handler</span><span class="p">(</span><span class="s1">&#39;/storage/messages/send&#39;</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">handle_send</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
@@ -231,8 +232,8 @@
     <span class="k">assert</span> <span class="n">handle_retrieve</span><span class="o">.</span><span class="n">times_called</span> <span class="o">==</span> <span class="mi">1</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -262,7 +263,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../README/">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples">Running examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples-in-docker">Running examples in docker</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../../README/#id1">Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../README/#examples-1">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license/">License</a></li>

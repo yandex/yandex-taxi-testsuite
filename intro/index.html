@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Overview &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Overview &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -33,9 +34,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="overview">
+  <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="what-is-testsuite">
+<section id="what-is-testsuite">
 <h2>What is testsuite<a class="headerlink" href="#what-is-testsuite" title="Permalink to this headline">¶</a></h2>
 <p>Testsuite is a microservice-oriented test framework written in Python based on
 <a class="reference external" href="https://pytest.org/">pytest</a>.</p>
@@ -45,8 +46,8 @@ Yandex.Taxi microservices written in C++ and Python.</p>
 black box, when the service is tested through http calls.</p>
 <p>Direct read and write access from test to database is supported to enable
 precondition setup and result assertions.</p>
-</div>
-<div class="section" id="installation">
+</section>
+<section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>Installation using <a class="reference external" href="https://pypi.org/project/yandex-taxi-testsuite/">pip</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span>
@@ -73,8 +74,8 @@ precondition setup and result assertions.</p>
 <span class="n">git</span> <span class="n">submodule</span> <span class="n">add</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">yandex</span><span class="o">/</span><span class="n">yandex</span><span class="o">-</span><span class="n">taxi</span><span class="o">-</span><span class="n">testsuite</span><span class="o">.</span><span class="n">git</span> <span class="n">submodules</span><span class="o">/</span><span class="n">testsuite</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="supported-databases">
+</section>
+<section id="supported-databases">
 <h2>Supported databases<a class="headerlink" href="#supported-databases" title="Permalink to this headline">¶</a></h2>
 <p>Out-of-the-box testsuite supports the following databases:</p>
 <ul class="simple">
@@ -84,12 +85,12 @@ precondition setup and result assertions.</p>
 <li><p>MySQL</p></li>
 <li><p>ClickHouse</p></li>
 </ul>
-</div>
-<div class="section" id="supported-operating-systems">
+</section>
+<section id="supported-operating-systems">
 <h2>Supported operating systems<a class="headerlink" href="#supported-operating-systems" title="Permalink to this headline">¶</a></h2>
 <p>Testsuite runs on GNU/Linux and macOS operating systems.</p>
-</div>
-<div class="section" id="principle-of-operation">
+</section>
+<section id="principle-of-operation">
 <h2>Principle of operation<a class="headerlink" href="#principle-of-operation" title="Permalink to this headline">¶</a></h2>
 <p>Testsuite sets up the environment for the service being tested:</p>
 <ul class="simple">
@@ -108,18 +109,18 @@ service’s database.</p>
 as well as the order of calls and the data that was sent and received.</p>
 <p>A test may check the internal state of the service as represented by the data
 the service sent to the test with the testpoint mechanism.</p>
-</div>
-<div class="section" id="source-code">
+</section>
+<section id="source-code">
 <h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
 <p>Testsuite open-source edition code is available
 <a class="reference external" href="https://github.com/yandex/yandex-taxi-testsuite">here</a>.</p>
-</div>
-<div class="section" id="documentation">
+</section>
+<section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <p>For full documentation, including installation, tutorials,
 please see <a class="reference external" href="https://yandex.github.io/yandex-taxi-testsuite/">https://yandex.github.io/yandex-taxi-testsuite/</a>.</p>
-</div>
-<div class="section" id="running-testsuite">
+</section>
+<section id="running-testsuite">
 <h2>Running testsuite<a class="headerlink" href="#running-testsuite" title="Permalink to this headline">¶</a></h2>
 <p>self-tests:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest3</span> <span class="o">./</span><span class="n">tests</span>
@@ -129,8 +130,8 @@ please see <a class="reference external" href="https://yandex.github.io/yandex-t
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span><span class="o">/</span><span class="n">examples</span> <span class="o">&amp;&amp;</span> <span class="n">make</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>

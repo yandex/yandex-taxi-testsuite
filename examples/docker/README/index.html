@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Docker integration example &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Docker integration example &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments_pytest.css" />
@@ -33,9 +34,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="docker-integration-example">
+  <section id="docker-integration-example">
 <h1>Docker integration example<a class="headerlink" href="#docker-integration-example" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="dockerfile">
+<section id="dockerfile">
 <h2>Dockerfile<a class="headerlink" href="#dockerfile" title="Permalink to this headline">¶</a></h2>
 <p>First of all you need to build an image with testsuite, here is example
 Dockerfile:</p>
@@ -43,7 +44,7 @@ Dockerfile:</p>
 
 <span class="n">RUN</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span> <span class="o">&amp;&amp;</span> \
     <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> \
-            <span class="n">python3</span><span class="o">.</span><span class="mi">8</span> <span class="n">python3</span><span class="o">-</span><span class="n">virtualenv</span> \
+            <span class="n">python3</span><span class="mf">.8</span> <span class="n">python3</span><span class="o">-</span><span class="n">virtualenv</span> \
             <span class="n">postgresql</span><span class="o">-</span><span class="n">client</span> \
             <span class="n">mysql</span><span class="o">-</span><span class="n">client</span><span class="o">-</span><span class="mf">8.0</span> <span class="o">&amp;&amp;</span> \
     <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">clean</span>
@@ -64,8 +65,8 @@ Dockerfile:</p>
 <span class="n">RUN</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">yandex</span><span class="o">/</span><span class="n">testsuite</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="docker-compose-yaml">
+</section>
+<section id="docker-compose-yaml">
 <h2>docker-compose.yaml<a class="headerlink" href="#docker-compose-yaml" title="Permalink to this headline">¶</a></h2>
 <p>Then you need to configure docker-compose to start required enironment and run
 testsuite:</p>
@@ -205,8 +206,8 @@ testsuite:</p>
             <span class="n">python3</span> <span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">mysql</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8080</span> <span class="o">--</span><span class="n">mysql</span><span class="o">-</span><span class="n">host</span><span class="o">=</span><span class="n">db</span><span class="o">-</span><span class="n">mysql</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -236,7 +237,7 @@ testsuite:</p>
 <li class="toctree-l1 current"><a class="reference internal" href="../../README/">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples">Running examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../README/#running-examples-in-docker">Running examples in docker</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../../README/#id1">Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../README/#examples-1">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license/">License</a></li>

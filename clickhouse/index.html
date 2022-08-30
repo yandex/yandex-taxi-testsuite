@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>ClickHouse &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>ClickHouse &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -31,7 +32,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="clickhouse">
+  <section id="clickhouse">
 <h1>ClickHouse<a class="headerlink" href="#clickhouse" title="Permalink to this headline">¶</a></h1>
 <p>In order to enable clickhouse support you have to add
 <code class="docutils literal notranslate"><span class="pre">testsuite.databases.clickhouse.pytest_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
@@ -46,7 +47,7 @@ following names:</p>
 <li><p>file <code class="docutils literal notranslate"><span class="pre">ch_DBNAME.sql</span></code></p></li>
 <li><p>directory <code class="docutils literal notranslate"><span class="pre">ch_DBNAME/</span></code></p></li>
 </ul>
-<div class="section" id="clickhouse-installation">
+<section id="clickhouse-installation">
 <h2>ClickHouse installation<a class="headerlink" href="#clickhouse-installation" title="Permalink to this headline">¶</a></h2>
 <p>For debian please run these commands:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt update <span class="o">&amp;&amp;</span> apt install clickhouse-common-static
@@ -55,18 +56,18 @@ following names:</p>
 <p>(<a class="reference external" href="https://clickhouse.com/docs/en/getting-started/install/#packages">https://clickhouse.com/docs/en/getting-started/install/#packages</a>),</p>
 <p>For macos follow instructions at <a class="reference external" href="https://clickhouse.com/docs/en/getting-started/install/#from-binaries-non-linux">https://clickhouse.com/docs/en/getting-started/install/#from-binaries-non-linux</a></p>
 <p>If you already have clickhouse installed, please symlink it to <code class="docutils literal notranslate"><span class="pre">/usr/bin/clickhouse</span></code></p>
-</div>
-<div class="section" id="customize-ports">
+</section>
+<section id="customize-ports">
 <h2>Customize ports<a class="headerlink" href="#customize-ports" title="Permalink to this headline">¶</a></h2>
 <p>Testsuite may start ClickHouse with custom ports, if
 <code class="docutils literal notranslate"><span class="pre">TESTSUITE_CLICKHOUSE_SERVER_TCP_PORT</span></code> or <code class="docutils literal notranslate"><span class="pre">TESTSUITE_CLICKHOUSE_SERVER_HTTP_PORT</span></code>
 environment variables are specified.</p>
-</div>
-<div class="section" id="use-external-instance">
+</section>
+<section id="use-external-instance">
 <h2>Use external instance<a class="headerlink" href="#use-external-instance" title="Permalink to this headline">¶</a></h2>
 <p>Usage of external installation is not supported for now.</p>
-</div>
-<div class="section" id="example-integration">
+</section>
+<section id="example-integration">
 <h2>Example integration<a class="headerlink" href="#example-integration" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.databases.clickhouse</span> <span class="kn">import</span> <span class="n">discover</span>
 
@@ -75,8 +76,8 @@ environment variables are specified.</p>
     <span class="k">return</span> <span class="n">discover</span><span class="o">.</span><span class="n">find_schemas</span><span class="p">([</span><span class="n">SCHEMAS_DIR</span><span class="p">])</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="database-access-example">
+</section>
+<section id="database-access-example">
 <h2>Database access example<a class="headerlink" href="#database-access-example" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_read_from_database</span><span class="p">(</span><span class="n">clickhouse</span><span class="p">):</span>
     <span class="n">connection</span> <span class="o">=</span> <span class="n">clickhouse</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span>
@@ -84,29 +85,29 @@ environment variables are specified.</p>
     <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,)]</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="functions">
+</section>
+<section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="find-schemas">
+<section id="find-schemas">
 <h3>find_schemas<a class="headerlink" href="#find-schemas" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.databases.clickhouse.discover.find_schemas">
 <code class="descclassname">testsuite.databases.clickhouse.discover.</code><code class="descname">find_schemas</code><span class="sig-paren">(</span><em>schema_dirs: List[pathlib.Path], dbprefix: str = 'testsuite-'</em><span class="sig-paren">)</span> &#x2192; Dict[str, testsuite.databases.clickhouse.classes.DatabaseConfig]<a class="reference internal" href="../_modules/testsuite/databases/clickhouse/discover/#find_schemas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.clickhouse.discover.find_schemas" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
-</div>
-<div class="section" id="fixtures">
+</section>
+</section>
+<section id="fixtures">
 <h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id2">
-<h3>clickhouse<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<section id="clickhouse-2">
+<h3>clickhouse<a class="headerlink" href="#clickhouse-2" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
 <code class="descclassname">testsuite.databases.clickhouse.pytest_plugin.</code><code class="descname">clickhouse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/clickhouse/pytest_plugin/#clickhouse"><span class="viewcode-link">[source]</span></a></dt>
 <dd></dd></dl>
 
-</div>
-<div class="section" id="clickhouse-local">
+</section>
+<section id="clickhouse-local">
 <h3>clickhouse_local<a class="headerlink" href="#clickhouse-local" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
@@ -114,26 +115,26 @@ environment variables are specified.</p>
 <dd><p>Use to override databases configuration.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="clickhouse-conn-info">
+</section>
+<section id="clickhouse-conn-info">
 <h3>clickhouse_conn_info<a class="headerlink" href="#clickhouse-conn-info" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
 <code class="descclassname">testsuite.databases.clickhouse.pytest_plugin.</code><code class="descname">clickhouse_conn_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/clickhouse/pytest_plugin/#clickhouse_conn_info"><span class="viewcode-link">[source]</span></a></dt>
 <dd></dd></dl>
 
-</div>
-</div>
-<div class="section" id="marks">
+</section>
+</section>
+<section id="marks">
 <h2>Marks<a class="headerlink" href="#marks" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="pytest-mark-clickhouse">
+<section id="pytest-mark-clickhouse">
 <h3>pytest.mark.clickhouse<a class="headerlink" href="#pytest-mark-clickhouse" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
 <code class="descname">pytest.mark.clickhouse(dbname, *, files=(), directories=(), queries=()):</code></dt>
 <dd><p>Use this mark to specify extra data fixtures in a per-test manner.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dbname</strong> – Database name.</p></li>
 <li><p><strong>files</strong> – List of filenames to apply to the database.</p></li>
@@ -144,9 +145,9 @@ environment variables are specified.</p>
 </dl>
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="classes">
+</section>
+</section>
+<section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt>
@@ -154,8 +155,8 @@ environment variables are specified.</p>
 <dd><p>Clickhouse connection parameters</p>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
           </div>

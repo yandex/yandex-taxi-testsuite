@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.databases.mongo.connection &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.databases.mongo.connection &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -59,19 +59,19 @@
             <span class="n">dbname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span>
         <span class="k">if</span> <span class="n">retry_writes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">retry_writes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_writes</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;mongodb://</span><span class="si">{self.host}</span><span class="s1">:</span><span class="si">{self.port}</span><span class="s1">/&#39;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;mongodb://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s1">/&#39;</span>
         <span class="k">if</span> <span class="n">dbname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">+=</span> <span class="n">dbname</span>
         <span class="k">if</span> <span class="n">retry_writes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">retry_writes_str</span> <span class="o">=</span> <span class="n">_BOOL_TO_STR</span><span class="p">[</span><span class="n">retry_writes</span><span class="p">]</span>
-            <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;?retryWrites=</span><span class="si">{retry_writes_str}</span><span class="s1">&#39;</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;?retryWrites=</span><span class="si">{</span><span class="n">retry_writes_str</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">return</span> <span class="n">result</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">parse_connection_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConnectionInfo</span><span class="p">:</span>
     <span class="n">url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="o">!=</span> <span class="s1">&#39;mongodb&#39;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid scheme in mongodb uri </span><span class="si">{uri}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid scheme in mongodb uri </span><span class="si">{</span><span class="n">uri</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">parsed_query</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qs</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ConnectionInfo</span><span class="p">(</span>
@@ -89,10 +89,10 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Multiple values of </span><span class="si">{key!r}</span><span class="s1">: </span><span class="si">{values}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Multiple values of </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_STR_TO_BOOL</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{key!r}</span><span class="s1"> value: </span><span class="si">{values[0]}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s1"> value: </span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_STR_TO_BOOL</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
 </pre></div>
 

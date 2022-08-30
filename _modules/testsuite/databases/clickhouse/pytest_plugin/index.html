@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.databases.clickhouse.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.databases.clickhouse.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -94,7 +94,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">load_clickhouse_query</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;ch_</span><span class="si">{dbname}</span><span class="s1">.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;clickhouse.default_queries&#39;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s1">&#39;ch_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;clickhouse.default_queries&#39;</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
@@ -102,7 +102,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">queries</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="n">load_clickhouse_queries</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;ch_</span><span class="si">{dbname}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;clickhouse.default_queries&#39;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s1">&#39;ch_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;clickhouse.default_queries&#39;</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
@@ -143,7 +143,7 @@
     <span class="k">for</span> <span class="n">mark</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">iter_markers</span><span class="p">(</span><span class="s1">&#39;clickhouse&#39;</span><span class="p">):</span>
         <span class="n">dbname</span><span class="p">,</span> <span class="n">queries</span> <span class="o">=</span> <span class="n">clickhouse_mark</span><span class="p">(</span><span class="o">*</span><span class="n">mark</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">mark</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dbname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">clickhouse_local</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown clickhouse database </span><span class="si">{dbname}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown clickhouse database </span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">overrides</span><span class="p">[</span><span class="n">dbname</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">alias</span><span class="p">,</span> <span class="n">dbconfig</span> <span class="ow">in</span> <span class="n">clickhouse_local</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

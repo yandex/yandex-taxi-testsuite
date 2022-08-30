@@ -8,14 +8,26 @@ Working with static files
 Testsuite provides functions to work with static files associated with
 testscase. It searches for files in static directoy relative to the current
 file.
-If your tests is located in ``tests/test_service.py`` testsuite will search for
-the static file ``foo.txt`` in the following directories:
+If your tests is located in ``tests/test_foo.py`` testsuite will search for
+the static file ``filename.txt`` in the following order:
 
-* test case local: ``tests/static/test_services/test_case_name/foo.txt``
-* test file local: ``tests/static/test_services/foo.txt``
-* test package local: ``tests/static/default/foo.txt``
+.. list-table:: Static file lookup order
+   :header-rows: 1
 
-``FileNotFoundError`` would be raised if no file is found.
+   * - Name
+     - Example path
+   * - Per case
+     - ``tests/static/test_foo/test_case_name/filename.txt``
+   * - Per file
+     - ``tests/static/test_foo/filename.txt``
+   * - Per package `default/`
+     - ``tests/static/default/filename.txt``
+   * - Static directory
+     - ``tests/static/filename.txt``
+   * - Initial data dirs
+     - see :func:`initial_data_path()`
+   * - Not found
+     - ``FileNotFoundError`` would be raised
 
 Fixtures
 --------
@@ -60,3 +72,58 @@ load_yaml
 
 .. autoclass:: LoadYamlFixture()
     :members: __call__
+
+
+open_file
+~~~~~~~~~
+
+.. py:function:: open_file
+
+   Returns :py:class:`OpenFileFixture` instance.
+
+.. autoclass:: OpenFileFixture()
+    :members: __call__
+
+
+get_file_path
+~~~~~~~~~~~~~
+
+.. py:function:: get_file_path
+
+   Returns :py:class:`GetFilePathFixture` instance.
+
+.. autoclass:: GetFilePathFixture()
+    :members: __call__
+
+
+get_directory_path
+~~~~~~~~~~~~~~~~~~
+
+.. py:function:: get_directory_path
+
+   Returns :py:class:`GetDirectoryPathFixture` instance.
+
+.. autoclass:: GetDirectoryPathFixture()
+    :members: __call__
+
+
+get_search_pathes
+~~~~~~~~~~~~~~~~~
+
+.. py:function:: get_search_pathes
+
+   Returns :py:class:`GetSearchPathesFixture` instance.
+
+.. autoclass:: GetSearchPathesFixture()
+    :members: __call__
+
+static_dir
+~~~~~~~~~~
+
+.. autofunction:: static_dir
+
+
+initial_data_path
+~~~~~~~~~~~~~~~~~
+
+.. autofunction:: initial_data_path

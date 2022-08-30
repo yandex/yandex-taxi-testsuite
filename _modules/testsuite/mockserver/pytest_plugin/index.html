@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.mockserver.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.mockserver.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -168,8 +168,8 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">annotations</span><span class="o">.</span><span class="n">AsyncYieldFixture</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">MockserverSslFixture</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">_mockserver_ssl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">MockServerError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;mockserver_ssl is not configured. </span><span class="si">{_SSL_KEY_FILE_INI_KEY}</span><span class="s1"> and &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{_SSL_CERT_FILE_INI_KEY}</span><span class="s1"> must be specified in pytest.ini&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;mockserver_ssl is not configured. </span><span class="si">{</span><span class="n">_SSL_KEY_FILE_INI_KEY</span><span class="si">}</span><span class="s1"> and &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_SSL_CERT_FILE_INI_KEY</span><span class="si">}</span><span class="s1"> must be specified in pytest.ini&#39;</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">with</span> <span class="n">_mockserver_ssl</span><span class="o">.</span><span class="n">new_session</span><span class="p">(</span><span class="n">_mockserver_trace_id</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">server</span><span class="o">.</span><span class="n">MockserverFixture</span><span class="p">(</span><span class="n">_mockserver_ssl</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
@@ -198,7 +198,7 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">MockServerError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{name}</span><span class="s1"> ini setting has multiple values&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> ini setting has multiple values&#39;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
@@ -313,7 +313,7 @@
 
 <span class="k">def</span> <span class="nf">_mockserver_info_hook</span><span class="p">(</span><span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mockserver_info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">mockserver_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Missing </span><span class="si">{key}</span><span class="s1"> argument&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Missing </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> argument&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;$schema&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">elif</span> <span class="n">mockserver_info</span><span class="o">.</span><span class="n">ssl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

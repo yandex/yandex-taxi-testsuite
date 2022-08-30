@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.databases.mongo.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.databases.mongo.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -104,7 +104,7 @@
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">collection_names</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mongodb_settings</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">UnknownCollectionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Missing collection </span><span class="si">{name}</span><span class="s1"> in mongodb_settings fixture&#39;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s1">&#39;Missing collection </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> in mongodb_settings fixture&#39;</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="c1"># pylint: disable=unsubscriptable-object</span>
             <span class="n">settings</span> <span class="o">=</span> <span class="n">mongodb_settings</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;settings&#39;</span><span class="p">]</span>

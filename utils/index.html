@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Utils &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Utils &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -33,10 +34,10 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="utils">
+  <section id="utils">
 <h1>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="asynccallqueue">
-<span id="id1"></span><h2>AsyncCallQueue<a class="headerlink" href="#asynccallqueue" title="Permalink to this headline">¶</a></h2>
+<section id="asynccallqueue-1">
+<span id="asynccallqueue"></span><h2>AsyncCallQueue<a class="headerlink" href="#asynccallqueue-1" title="Permalink to this headline">¶</a></h2>
 <p>Async callqueue wrapper. Stores information about each function call to
 synchronized queue.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@callinfo</span><span class="o">.</span><span class="n">acallqueue</span>
@@ -55,7 +56,7 @@ synchronized queue.</p>
 </div>
 <dl class="class">
 <dt id="testsuite.utils.callinfo.AsyncCallQueue">
-<em class="property">class </em><code class="descclassname">testsuite.utils.callinfo.</code><code class="descname">AsyncCallQueue</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">testsuite.utils.callinfo.</code><code class="descname">AsyncCallQueue</code><span class="sig-paren">(</span><em>func: Callable, *, checker: Optional[Callable[[str], None], None] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function wrapper that puts information about function call into async
 queue.</p>
 <p>This class provides methods to wait/check function underlying function
@@ -91,7 +92,7 @@ calls.</p>
 <dd><p>Wait for fucntion to be called. Pops call from queue. Blocks if
 it’s empty.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>timeout</strong> – timeout in seconds</p>
 </dd>
 </dl>
@@ -103,13 +104,17 @@ seconds.</p>
 
 <dl class="function">
 <dt id="testsuite.utils.callinfo.acallqueue">
-<code class="descclassname">testsuite.utils.callinfo.</code><code class="descname">acallqueue</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; testsuite.utils.callinfo.AsyncCallQueue<a class="reference internal" href="../_modules/testsuite/utils/callinfo/#acallqueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.acallqueue" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.utils.callinfo.</code><code class="descname">acallqueue</code><span class="sig-paren">(</span><em>func: Callable, *, checker: Optional[Callable[[str], None], None] = None</em><span class="sig-paren">)</span> &#x2192; testsuite.utils.callinfo.AsyncCallQueue<a class="reference internal" href="../_modules/testsuite/utils/callinfo/#acallqueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.utils.callinfo.acallqueue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turn function into async call queue.
-:param func: async or sync callable, can be decorated with &#64;staticmethod</p>
+:param func: async or sync callable, can be decorated with &#64;staticmethod
+:param checker: optional function to check whether or not operation on</p>
+<blockquote>
+<div><p>callqueue is possible</p>
+</div></blockquote>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
           </div>

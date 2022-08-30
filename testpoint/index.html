@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Testpoint &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Testpoint &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -33,7 +34,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="testpoint">
+  <section id="testpoint">
 <h1>Testpoint<a class="headerlink" href="#testpoint" title="Permalink to this headline">¶</a></h1>
 <p>Testpoint is a way to call testcase code from service being teststed.</p>
 <p>It has many uses:</p>
@@ -54,17 +55,17 @@ interface:</p>
 </pre></div>
 </div>
 <p>Service code example:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Response</span> <span class="n">View</span><span class="o">::</span><span class="n">Handle</span><span class="p">(</span><span class="n">Request</span><span class="o">&amp;&amp;</span> <span class="n">request</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// Testpoint must be enabled for test run</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">testpoint</span><span class="o">::</span><span class="n">IsEnabled</span><span class="p">())</span> <span class="p">{</span>
-    <span class="n">json</span><span class="o">::</span><span class="n">Value</span> <span class="n">data</span><span class="p">;</span>
-    <span class="n">data</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;bar&quot;</span><span class="p">;</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">response</span> <span class="o">=</span> <span class="n">testpoint</span><span class="o">::</span><span class="n">Call</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">respone</span><span class="p">)</span> <span class="p">{</span>
-       <span class="c1">// process response if required</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Response</span><span class="w"> </span><span class="nf">View::Handle</span><span class="p">(</span><span class="n">Request</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// Testpoint must be enabled for test run</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">testpoint</span><span class="o">::</span><span class="n">IsEnabled</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="o">::</span><span class="n">Value</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;bar&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testpoint</span><span class="o">::</span><span class="n">Call</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">respone</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">       </span><span class="c1">// process response if required</span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Testcase:</p>
@@ -78,7 +79,7 @@ interface:</p>
     <span class="k">assert</span> <span class="n">foo_handler</span><span class="o">.</span><span class="n">times_called</span>
 </pre></div>
 </div>
-<div class="section" id="fixtures">
+<section id="fixtures">
 <h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="testsuite.plugins.testpoint.testpoint">
@@ -87,10 +88,10 @@ interface:</p>
 as decorator that registers testpoint handler. Original function is
 wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> – testpoint name</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>decorator</p>
 </dd>
 </dl>
@@ -108,8 +109,8 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 </div>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
           </div>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.plugins.mocked_time &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.plugins.mocked_time &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -104,6 +104,10 @@
         <span class="s1">&#39;$dateDiff&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$fixture&#39;</span><span class="p">:</span> <span class="s1">&#39;_date_diff_hook&#39;</span><span class="p">},</span>
         <span class="s1">&#39;$timeDelta&#39;</span><span class="p">:</span> <span class="n">_time_delta_hook</span><span class="p">,</span>
     <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_servicetest_modifyitem</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">add_marker</span><span class="p">(</span><span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="mocked_time"><a class="viewcode-back" href="../../../../other_plugins/#testsuite.plugins.mocked_time.mocked_time">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>

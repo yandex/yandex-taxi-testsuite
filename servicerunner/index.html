@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Spawning and accessing service &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Spawning and accessing service &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -33,7 +34,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="spawning-and-accessing-service">
+  <section id="spawning-and-accessing-service">
 <h1>Spawning and accessing service<a class="headerlink" href="#spawning-and-accessing-service" title="Permalink to this headline">¶</a></h1>
 <p>Testsuite starts process with a service being testsed.
 Service must implement <code class="docutils literal notranslate"><span class="pre">ping-url</span></code> that returns <code class="docutils literal notranslate"><span class="pre">200</span> <span class="pre">OK</span></code> when service is up.</p>
@@ -67,17 +68,17 @@ Service must implement <code class="docutils literal notranslate"><span class="p
         <span class="k">yield</span> <span class="n">scope</span>
 </pre></div>
 </div>
-<div class="section" id="fixtures">
+<section id="fixtures">
 <h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="service-client-options">
+<section id="service-client-options">
 <h3>service_client_options<a class="headerlink" href="#service-client-options" title="Permalink to this headline">¶</a></h3>
 <p>Fixture that contains service client options.</p>
-</div>
-<div class="section" id="service-client-default-headers">
+</section>
+<section id="service-client-default-headers">
 <h3>service_client_default_headers<a class="headerlink" href="#service-client-default-headers" title="Permalink to this headline">¶</a></h3>
 <p>Defines default http headers to be used by service client.</p>
-</div>
-<div class="section" id="register-daemon-scope">
+</section>
+<section id="register-daemon-scope">
 <h3>register_daemon_scope<a class="headerlink" href="#register-daemon-scope" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.daemons.pytest_plugin.register_daemon_scope">
@@ -85,17 +86,17 @@ Service must implement <code class="docutils literal notranslate"><span class="p
 <dd><p>Context manager that registers service process session.</p>
 <p>Yields daemon scope instance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> – service name</p>
 </dd>
-<dt class="field-even">Spawn spawn</dt>
+<dt class="field-even">Spawn spawn<span class="colon">:</span></dt>
 <dd class="field-even"><p>spawner function</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="ensure-daemon-started">
+</section>
+<section id="ensure-daemon-started">
 <h3>ensure_daemon_started<a class="headerlink" href="#ensure-daemon-started" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.daemons.pytest_plugin.ensure_daemon_started">
@@ -103,8 +104,8 @@ Service must implement <code class="docutils literal notranslate"><span class="p
 <dd><p>Fixture that starts requested service.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="create-service-client">
+</section>
+<section id="create-service-client">
 <h3>create_service_client<a class="headerlink" href="#create-service-client" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.daemons.pytest_plugin.create_service_client">
@@ -125,13 +126,13 @@ Service must implement <code class="docutils literal notranslate"><span class="p
 <dt id="testsuite.daemons.pytest_plugin.CreateServiceClientFixture.__call__">
 <code class="descname">__call__</code><span class="sig-paren">(</span><em>base_url: str</em>, <em>*</em>, <em>client_class=&lt;class 'testsuite.daemons.service_client.Client'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#CreateServiceClientFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.CreateServiceClientFixture.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>base_url</strong> – base url for http client</p></li>
 <li><p><strong>client_class</strong> – client class to use</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">client_class</span></code> instance</p>
 </dd>
 </dl>
@@ -139,8 +140,8 @@ Service must implement <code class="docutils literal notranslate"><span class="p
 
 </dd></dl>
 
-</div>
-<div class="section" id="create-daemon-scope">
+</section>
+<section id="create-daemon-scope">
 <h3>create_daemon_scope<a class="headerlink" href="#create-daemon-scope" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.daemons.pytest_plugin.create_daemon_scope">
@@ -154,9 +155,9 @@ Service must implement <code class="docutils literal notranslate"><span class="p
 <dd><p>Create daemon scope for daemon with command to start.</p>
 <dl class="method">
 <dt id="testsuite.daemons.pytest_plugin.CreateDaemonScope.__call__">
-<code class="descname">__call__</code><span class="sig-paren">(</span><em>*, args: Sequence[str], check_url: str = None, ping_url: str = None, name: Optional[str] = None, base_command: Optional[Sequence[T_co]] = None, env: Optional[Dict[str, str]] = None, poll_retries: int = 2000, ping_request_timeout: float = 1.0, ping_response_codes: Tuple[int] = (200,), health_check: Optional[Callable[[...], Awaitable[bool]]] = None, subprocess_options: Optional[Dict[str, Any]] = None, setup_service: Optional[Callable[[subprocess.Popen], None]] = None, shutdown_signal: Optional[int] = None</em><span class="sig-paren">)</span> &#x2192; AbstractAsyncContextManager[testsuite.daemons.pytest_plugin._DaemonScope]<a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#CreateDaemonScope.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.CreateDaemonScope.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>*, args: Sequence[str], check_url: str = None, ping_url: str = None, name: Optional[str, None] = None, base_command: Optional[Sequence, None] = None, env: Optional[Dict[str, str], None] = None, poll_retries: int = 2000, ping_request_timeout: float = 1.0, ping_response_codes: Tuple[int] = (200,), health_check: Optional[Callable[[...], Awaitable[bool]], None] = None, subprocess_options: Optional[Dict[str, Any], None] = None, setup_service: Optional[Callable[[subprocess.Popen], None], None] = None, shutdown_signal: Optional[int, None] = None</em><span class="sig-paren">)</span> &#x2192; AsyncContextManager[testsuite.daemons.pytest_plugin._DaemonScope]<a class="reference internal" href="../_modules/testsuite/daemons/pytest_plugin/#CreateDaemonScope.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.pytest_plugin.CreateDaemonScope.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>args</strong> – command arguments</p></li>
 <li><p><strong>base_command</strong> – Arguments to be prepended to <code class="docutils literal notranslate"><span class="pre">args</span></code>.</p></li>
@@ -174,7 +175,7 @@ is started.</p></li>
 <li><p><strong>shutdown_signal</strong> – Signal used to stop running services.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Returns internal daemon scope instance to be used with
 <code class="docutils literal notranslate"><span class="pre">ensure_daemon_started</span></code> fixture.</p>
 </dd>
@@ -183,8 +184,8 @@ is started.</p></li>
 
 </dd></dl>
 
-</div>
-<div class="section" id="service-spawner">
+</section>
+<section id="service-spawner">
 <h3>service_spawner<a class="headerlink" href="#service-spawner" title="Permalink to this headline">¶</a></h3>
 <p>Fixture that creates service spawner.</p>
 <dl class="function">
@@ -192,18 +193,18 @@ is started.</p></li>
 <code class="descclassname">testsuite.daemons.pytest_plugin.</code><code class="descname">service_spawner</code><span class="sig-paren">(</span><em>args</em>, <em>*</em>, <em>...</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.daemons.pytest_plugin.service_spawner" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
-</div>
-<div class="section" id="classes">
+</section>
+</section>
+<section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="testsuite.daemons.service_client.Client">
 <em class="property">class </em><code class="descclassname">testsuite.daemons.service_client.</code><code class="descname">Client</code><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.Client" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="testsuite.daemons.service_client.Client.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>base_url: str</em>, <em>*</em>, <em>session: aiohttp.client.ClientSession</em>, <em>ssl_context: Optional[ssl.SSLContext] = None</em>, <em>span_id_header: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>timeout: float = 120.0</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.daemons.service_client.Client.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>base_url: str, *, session: aiohttp.client.ClientSession, ssl_context: Optional[ssl.SSLContext, None] = None, span_id_header: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, timeout: float = 120.0</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.daemons.service_client.Client.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>base_url</strong> – Base client url</p></li>
 <li><p><strong>session</strong> – <code class="docutils literal notranslate"><span class="pre">aiohttp.ClientSession</span></code> instance</p></li>
@@ -216,43 +217,43 @@ is started.</p></li>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.Client.delete">
-<code class="descname">delete</code><span class="sig-paren">(</span><em>path: str</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.delete" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">delete</code><span class="sig-paren">(</span><em>path: str, headers: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP DELETE request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.Client.get">
-<code class="descname">get</code><span class="sig-paren">(</span><em>path: str</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.get" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">get</code><span class="sig-paren">(</span><em>path: str, headers: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP GET request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.Client.options">
-<code class="descname">options</code><span class="sig-paren">(</span><em>path: str</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.options" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">options</code><span class="sig-paren">(</span><em>path: str, headers: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP OPTIONS request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.Client.patch">
-<code class="descname">patch</code><span class="sig-paren">(</span><em>path</em>, <em>json: Union[int</em>, <em>float</em>, <em>str</em>, <em>list</em>, <em>dict</em>, <em>None] = None</em>, <em>data: Any = None</em>, <em>params: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.patch" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">patch</code><span class="sig-paren">(</span><em>path, json: Union[int, float, str, list, dict, None] = None, data: Any = None, params: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.patch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP PATCH request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.Client.post">
-<code class="descname">post</code><span class="sig-paren">(</span><em>path: str</em>, <em>json: Union[int</em>, <em>float</em>, <em>str</em>, <em>list</em>, <em>dict</em>, <em>None] = None</em>, <em>data: Any = None</em>, <em>params: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.post" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">post</code><span class="sig-paren">(</span><em>path: str, json: Union[int, float, str, list, dict, None] = None, data: Any = None, params: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.post" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP POST request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.Client.put">
-<code class="descname">put</code><span class="sig-paren">(</span><em>path</em>, <em>json: Union[int</em>, <em>float</em>, <em>str</em>, <em>list</em>, <em>dict</em>, <em>None] = None</em>, <em>data: Any = None</em>, <em>params: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.put" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">put</code><span class="sig-paren">(</span><em>path, json: Union[int, float, str, list, dict, None] = None, data: Any = None, params: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.put" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP PUT request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.Client.request">
-<code class="descname">request</code><span class="sig-paren">(</span><em>http_method: str</em>, <em>path: str</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.request" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">request</code><span class="sig-paren">(</span><em>http_method: str</em>, <em>path: str</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.Client.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP <code class="docutils literal notranslate"><span class="pre">http_method</span></code> request.</p>
 </dd></dl>
 
@@ -263,9 +264,9 @@ is started.</p></li>
 <em class="property">class </em><code class="descclassname">testsuite.daemons.service_client.</code><code class="descname">AiohttpClient</code><a class="reference internal" href="../_modules/testsuite/daemons/service_client/#AiohttpClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>base_url: str</em>, <em>*</em>, <em>session: aiohttp.client.ClientSession</em>, <em>ssl_context: Optional[ssl.SSLContext] = None</em>, <em>span_id_header: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>timeout: float = 120.0</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>base_url: str, *, session: aiohttp.client.ClientSession, ssl_context: Optional[ssl.SSLContext, None] = None, span_id_header: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, timeout: float = 120.0</em><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>base_url</strong> – Base client url</p></li>
 <li><p><strong>session</strong> – <code class="docutils literal notranslate"><span class="pre">aiohttp.ClientSession</span></code> instance</p></li>
@@ -278,50 +279,50 @@ is started.</p></li>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.delete">
-<code class="descname">delete</code><span class="sig-paren">(</span><em>path: str</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.delete" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">delete</code><span class="sig-paren">(</span><em>path: str, headers: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP DELETE request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.get">
-<code class="descname">get</code><span class="sig-paren">(</span><em>path: str</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.get" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">get</code><span class="sig-paren">(</span><em>path: str, headers: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP GET request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.options">
-<code class="descname">options</code><span class="sig-paren">(</span><em>path: str</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.options" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">options</code><span class="sig-paren">(</span><em>path: str, headers: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP OPTIONS request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.patch">
-<code class="descname">patch</code><span class="sig-paren">(</span><em>path</em>, <em>json: Union[int</em>, <em>float</em>, <em>str</em>, <em>list</em>, <em>dict</em>, <em>None] = None</em>, <em>data: Any = None</em>, <em>params: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.patch" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">patch</code><span class="sig-paren">(</span><em>path, json: Union[int, float, str, list, dict, None] = None, data: Any = None, params: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.patch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP PATCH request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.post">
-<code class="descname">post</code><span class="sig-paren">(</span><em>path: str</em>, <em>json: Union[int</em>, <em>float</em>, <em>str</em>, <em>list</em>, <em>dict</em>, <em>None] = None</em>, <em>data: Any = None</em>, <em>params: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.post" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">post</code><span class="sig-paren">(</span><em>path: str, json: Union[int, float, str, list, dict, None] = None, data: Any = None, params: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.post" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP POST request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.put">
-<code class="descname">put</code><span class="sig-paren">(</span><em>path</em>, <em>json: Union[int</em>, <em>float</em>, <em>str</em>, <em>list</em>, <em>dict</em>, <em>None] = None</em>, <em>data: Any = None</em>, <em>params: Optional[Dict[str</em>, <em>str]] = None</em>, <em>bearer: Optional[str] = None</em>, <em>x_real_ip: Optional[str] = None</em>, <em>headers: Optional[Dict[str</em>, <em>str]] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.put" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">put</code><span class="sig-paren">(</span><em>path, json: Union[int, float, str, list, dict, None] = None, data: Any = None, params: Optional[Dict[str, str], None] = None, bearer: Optional[str, None] = None, x_real_ip: Optional[str, None] = None, headers: Optional[Dict[str, str], None] = None, **kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.put" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP PUT request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="testsuite.daemons.service_client.AiohttpClient.request">
-<code class="descname">request</code><span class="sig-paren">(</span><em>http_method: str</em>, <em>path: str</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.request" title="Permalink to this definition">¶</a></dt>
+<em class="property">await </em><code class="descname">request</code><span class="sig-paren">(</span><em>http_method: str</em>, <em>path: str</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; TResponse<a class="headerlink" href="#testsuite.daemons.service_client.AiohttpClient.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform HTTP <code class="docutils literal notranslate"><span class="pre">http_method</span></code> request.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
           </div>

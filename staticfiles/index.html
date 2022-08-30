@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Working with static files &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Working with static files &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -33,22 +34,44 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="working-with-static-files">
+  <section id="working-with-static-files">
 <span id="staticfiles"></span><h1>Working with static files<a class="headerlink" href="#working-with-static-files" title="Permalink to this headline">¶</a></h1>
 <p>Testsuite provides functions to work with static files associated with
 testscase. It searches for files in static directoy relative to the current
 file.
-If your tests is located in <code class="docutils literal notranslate"><span class="pre">tests/test_service.py</span></code> testsuite will search for
-the static file <code class="docutils literal notranslate"><span class="pre">foo.txt</span></code> in the following directories:</p>
-<ul class="simple">
-<li><p>test case local: <code class="docutils literal notranslate"><span class="pre">tests/static/test_services/test_case_name/foo.txt</span></code></p></li>
-<li><p>test file local: <code class="docutils literal notranslate"><span class="pre">tests/static/test_services/foo.txt</span></code></p></li>
-<li><p>test package local: <code class="docutils literal notranslate"><span class="pre">tests/static/default/foo.txt</span></code></p></li>
-</ul>
-<p><code class="docutils literal notranslate"><span class="pre">FileNotFoundError</span></code> would be raised if no file is found.</p>
-<div class="section" id="fixtures">
+If your tests is located in <code class="docutils literal notranslate"><span class="pre">tests/test_foo.py</span></code> testsuite will search for
+the static file <code class="docutils literal notranslate"><span class="pre">filename.txt</span></code> in the following order:</p>
+<table class="docutils align-center" id="table-1">
+<caption><span class="caption-text">Static file lookup order</span><a class="headerlink" href="#table-1" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Example path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Per case</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/static/test_foo/test_case_name/filename.txt</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Per file</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/static/test_foo/filename.txt</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Per package <cite>default/</cite></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/static/default/filename.txt</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Static directory</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/static/filename.txt</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Initial data dirs</p></td>
+<td><p>see <a class="reference internal" href="#testsuite.plugins.common.initial_data_path" title="testsuite.plugins.common.initial_data_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">initial_data_path()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Not found</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FileNotFoundError</span></code> would be raised</p></td>
+</tr>
+</tbody>
+</table>
+<section id="fixtures">
 <h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="load">
+<section id="load">
 <h3>load<a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load">
@@ -66,7 +89,7 @@ the static file <code class="docutils literal notranslate"><span class="pre">foo
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#testsuite.plugins.common.LoadFixture" title="testsuite.plugins.common.LoadFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadFixture</span></code></a> callable instance.</p>
 </dd>
 </dl>
@@ -75,7 +98,7 @@ the static file <code class="docutils literal notranslate"><span class="pre">foo
 <code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path], mode='r', encoding='utf-8', errors=None</em><span class="sig-paren">)</span> &#x2192; Union[bytes, str]<a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadFixture.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load static text file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – static file name part.</p></li>
 <li><p><strong>mode</strong> – file open mode, see <code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code>, read-only modes are
@@ -84,7 +107,7 @@ supported.</p></li>
 <li><p><strong>errors</strong> – error handling mode see <code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">str</span></code> instance. Binary mode is obsolte, use
 <a class="reference internal" href="#testsuite.plugins.common.load_binary" title="testsuite.plugins.common.load_binary"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_binary()</span></code></a> fixture instead.</p>
 </dd>
@@ -93,8 +116,8 @@ supported.</p></li>
 
 </dd></dl>
 
-</div>
-<div class="section" id="load-binary">
+</section>
+<section id="load-binary">
 <h3>load_binary<a class="headerlink" href="#load-binary" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load_binary">
@@ -116,10 +139,10 @@ supported.</p></li>
 <code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="../_modules/testsuite/plugins/common/#LoadBinaryFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.LoadBinaryFixture.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load static binary file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename&quot;</strong> – static file name part</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">bytes</span></code> file content.</p>
 </dd>
 </dl>
@@ -127,8 +150,8 @@ supported.</p></li>
 
 </dd></dl>
 
-</div>
-<div class="section" id="load-json">
+</section>
+<section id="load-json">
 <h3>load_json<a class="headerlink" href="#load-json" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load_json">
@@ -157,8 +180,8 @@ It does:
 
 </dd></dl>
 
-</div>
-<div class="section" id="load-yaml">
+</section>
+<section id="load-yaml">
 <h3>load_yaml<a class="headerlink" href="#load-yaml" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.load_yaml">
@@ -182,9 +205,132 @@ It does:
 
 </dd></dl>
 
+</section>
+<section id="open-file">
+<h3>open_file<a class="headerlink" href="#open-file" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.open_file">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">open_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.open_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.OpenFileFixture" title="testsuite.plugins.common.OpenFileFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenFileFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.OpenFileFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">OpenFileFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#OpenFileFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.OpenFileFixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open static file by name.</p>
+<p>Only read-only open modes are supported.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_foo</span><span class="p">(</span><span class="n">open_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">open_file</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="o">...</span>
+</pre></div>
 </div>
+<dl class="method">
+<dt id="testsuite.plugins.common.OpenFileFixture.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path], mode='r', buffering=-1, encoding='utf-8', errors=None</em><span class="sig-paren">)</span> &#x2192; IO<a class="reference internal" href="../_modules/testsuite/plugins/common/#OpenFileFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.OpenFileFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="get-file-path">
+<h3>get_file_path<a class="headerlink" href="#get-file-path" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.get_file_path">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">get_file_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.get_file_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.GetFilePathFixture" title="testsuite.plugins.common.GetFilePathFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GetFilePathFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.GetFilePathFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">GetFilePathFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#GetFilePathFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.GetFilePathFixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns path to static regular file.</p>
+<dl class="method">
+<dt id="testsuite.plugins.common.GetFilePathFixture.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="reference internal" href="../_modules/testsuite/plugins/common/#GetFilePathFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.GetFilePathFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="get-directory-path">
+<h3>get_directory_path<a class="headerlink" href="#get-directory-path" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.get_directory_path">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">get_directory_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.get_directory_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.GetDirectoryPathFixture" title="testsuite.plugins.common.GetDirectoryPathFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GetDirectoryPathFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.GetDirectoryPathFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">GetDirectoryPathFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#GetDirectoryPathFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.GetDirectoryPathFixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns path to static directory.</p>
+<dl class="method">
+<dt id="testsuite.plugins.common.GetDirectoryPathFixture.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="reference internal" href="../_modules/testsuite/plugins/common/#GetDirectoryPathFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.GetDirectoryPathFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="get-search-pathes">
+<h3>get_search_pathes<a class="headerlink" href="#get-search-pathes" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.get_search_pathes">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">get_search_pathes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#testsuite.plugins.common.get_search_pathes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference internal" href="#testsuite.plugins.common.GetSearchPathesFixture" title="testsuite.plugins.common.GetSearchPathesFixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GetSearchPathesFixture</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testsuite.plugins.common.GetSearchPathesFixture">
+<em class="property">class </em><code class="descclassname">testsuite.plugins.common.</code><code class="descname">GetSearchPathesFixture</code><a class="reference internal" href="../_modules/testsuite/plugins/common/#GetSearchPathesFixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.GetSearchPathesFixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates sequence of pathes for static files.</p>
+<dl class="method">
+<dt id="testsuite.plugins.common.GetSearchPathesFixture.__call__">
+<em class="property">for ... in </em><code class="descname">__call__</code><span class="sig-paren">(</span><em>filename: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; Iterator[pathlib.Path]<a class="reference internal" href="../_modules/testsuite/plugins/common/#GetSearchPathesFixture.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.GetSearchPathesFixture.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="static-dir">
+<h3>static_dir<a class="headerlink" href="#static-dir" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.static_dir">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">static_dir</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="reference internal" href="../_modules/testsuite/plugins/common/#static_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.static_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static directory related to test path.</p>
+<p>Returns static directory relative to test file, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|-</span> <span class="n">tests</span><span class="o">/</span>
+   <span class="o">|-</span> <span class="n">static</span><span class="o">/</span> <span class="o">&lt;--</span> <span class="n">base</span> <span class="n">static</span> <span class="n">directory</span> <span class="k">for</span> <span class="n">test_foo</span><span class="o">.</span><span class="n">py</span>
+   <span class="o">|-</span> <span class="n">test_foo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
 </div>
+</dd></dl>
+
+</section>
+<section id="initial-data-path">
+<h3>initial_data_path<a class="headerlink" href="#initial-data-path" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.initial_data_path">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">initial_data_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[pathlib.Path, ...]<a class="reference internal" href="../_modules/testsuite/plugins/common/#initial_data_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.initial_data_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this fixture to override base static search path.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">initial_data_path</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">PROJECT_ROOT</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;tests/static&#39;</span><span class="p">,</span>
+        <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">PROJECT_ROOT</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;static&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
 </div>
+</dd></dl>
+
+</section>
+</section>
+</section>
 
 
           </div>

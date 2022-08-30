@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.databases.mysql.control &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.databases.mysql.control &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -148,7 +148,7 @@
             <span class="s1">&#39;Running mysql script </span><span class="si">%s</span><span class="s1"> against database </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">conninfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="o">.</span><span class="n">get_conninfo</span><span class="p">(</span><span class="n">dbname</span><span class="p">)</span>
-        <span class="n">_run_script</span><span class="p">(</span><span class="n">conninfo</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;source </span><span class="si">{path}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
+        <span class="n">_run_script</span><span class="p">(</span><span class="n">conninfo</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;source </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_migrations_run</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
     <span class="nd">@cached_property</span>
@@ -162,8 +162,8 @@
         <span class="n">connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="o">.</span><span class="n">get_master_connection</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dbname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">known_databases</span><span class="p">:</span>
-                <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DROP DATABASE IF EXISTS `</span><span class="si">{dbname}</span><span class="s1">`&#39;</span><span class="p">)</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CREATE DATABASE `</span><span class="si">{dbname}</span><span class="s1">`&#39;</span><span class="p">)</span>
+                <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DROP DATABASE IF EXISTS `</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CREATE DATABASE `</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dbname</span><span class="p">)</span>
 
@@ -194,15 +194,15 @@
 <span class="k">def</span> <span class="nf">_build_mysql_args</span><span class="p">(</span><span class="n">conninfo</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">ConnectionInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;--protocol=tcp&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">conninfo</span><span class="o">.</span><span class="n">hostname</span><span class="p">:</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--host=</span><span class="si">{conninfo.hostname}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--host=</span><span class="si">{</span><span class="n">conninfo</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conninfo</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--port=</span><span class="si">{conninfo.port}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--port=</span><span class="si">{</span><span class="n">conninfo</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conninfo</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--user=</span><span class="si">{conninfo.user}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--user=</span><span class="si">{</span><span class="n">conninfo</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conninfo</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--password=</span><span class="si">{conninfo.password}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--password=</span><span class="si">{</span><span class="n">conninfo</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conninfo</span><span class="o">.</span><span class="n">dbname</span><span class="p">:</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--database=</span><span class="si">{conninfo.dbname}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--database=</span><span class="si">{</span><span class="n">conninfo</span><span class="o">.</span><span class="n">dbname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 
 
@@ -233,7 +233,7 @@
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="s1">&#39;select `table_name` from information_schema.tables &#39;</span>
                 <span class="s1">&#39;where table_rows &gt;= 1 and &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;table_schema = </span><span class="se">\&#39;</span><span class="si">{db_name}</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;table_schema = </span><span class="se">\&#39;</span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">tables</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">tables</span>
@@ -257,7 +257,7 @@
                 <span class="k">if</span> <span class="n">table</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep_tables</span><span class="p">:</span>
                     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                         <span class="s1">&#39;set foreign_key_checks=0;&#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;truncate table </span><span class="si">{table}</span><span class="s1">;&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;truncate table </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">;&#39;</span>
                         <span class="s1">&#39;set foreign_key_checks=1;&#39;</span><span class="p">,</span>
                     <span class="p">)</span>
         <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
@@ -266,10 +266,10 @@
             <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">error_message</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="sa">f</span><span class="s1">&#39;MySQL apply query error</span><span class="se">\n</span><span class="s1">&#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;Query from: </span><span class="si">{query.source}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Query from: </span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-                    <span class="n">error_message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{query.path}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="n">error_message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
                 <span class="n">error_message</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">MysqlError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
     <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>

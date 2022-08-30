@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.plugins.common &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.plugins.common &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -61,14 +61,16 @@
     <span class="sd">&quot;&quot;&quot;Yaml file load or parse failure error.&quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">GetSearchPathesFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<div class="viewcode-block" id="GetSearchPathesFixture"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetSearchPathesFixture">[docs]</a><span class="k">class</span> <span class="nc">GetSearchPathesFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates sequence of pathes for static files.&quot;&quot;&quot;</span>
+
     <span class="n">_fixture__search_directories</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+<div class="viewcode-block" id="GetSearchPathesFixture.__call__"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetSearchPathesFixture.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture__search_directories</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span>
+            <span class="k">yield</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">SearchPathFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
@@ -86,16 +88,18 @@
                     <span class="k">yield</span> <span class="n">abs_filename</span>
 
 
-<span class="k">class</span> <span class="nc">GetFilePathFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<div class="viewcode-block" id="GetFilePathFixture"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetFilePathFixture">[docs]</a><span class="k">class</span> <span class="nc">GetFilePathFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns path to static regular file.&quot;&quot;&quot;</span>
+
     <span class="n">_fixture_search_path</span><span class="p">:</span> <span class="n">SearchPathFixture</span>
     <span class="n">_fixture_get_search_pathes</span><span class="p">:</span> <span class="n">GetSearchPathesFixture</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+<div class="viewcode-block" id="GetFilePathFixture.__call__"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetFilePathFixture.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">path</span>
         <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_not_found_error</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{filename}</span><span class="s1"> was not found&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> was not found&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_file_not_found_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="n">pathes</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -105,24 +109,39 @@
         <span class="k">return</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
             <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n\n</span><span class="s1">The following pathes were examined:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span>
             <span class="o">%</span> <span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">pathes</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">GetDirectoryPathFixture</span><span class="p">(</span><span class="n">GetFilePathFixture</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+<div class="viewcode-block" id="GetDirectoryPathFixture"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetDirectoryPathFixture">[docs]</a><span class="k">class</span> <span class="nc">GetDirectoryPathFixture</span><span class="p">(</span><span class="n">GetFilePathFixture</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns path to static directory.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GetDirectoryPathFixture.__call__"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetDirectoryPathFixture.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">path</span>
         <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_not_found_error</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Directory </span><span class="si">{filename}</span><span class="s1"> was not found&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;Directory </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> was not found&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">OpenFileFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenFileFixture"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.OpenFileFixture">[docs]</a><span class="k">class</span> <span class="nc">OpenFileFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Open static file by name.</span>
+
+<span class="sd">    Only read-only open modes are supported.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        def test_foo(open_file):</span>
+<span class="sd">            with open_file(&#39;foo&#39;) as fp:</span>
+<span class="sd">                ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_modes_whitelist</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">])</span>
 
     <span class="n">_fixture_get_file_path</span><span class="p">:</span> <span class="n">GetFilePathFixture</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+<div class="viewcode-block" id="OpenFileFixture.__call__"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.OpenFileFixture.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">filename</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
@@ -132,7 +151,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modes_whitelist</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">UnsupportedFileModeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Incorrect file open mode </span><span class="si">{mode!r}</span><span class="s1"> passed. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Incorrect file open mode </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s1"> passed. &#39;</span>
                 <span class="sa">f</span><span class="s1">&#39;Only read-only modes are supported.&#39;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">open</span><span class="p">(</span>
@@ -141,7 +160,7 @@
             <span class="n">buffering</span><span class="o">=</span><span class="n">buffering</span><span class="p">,</span>
             <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
             <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="LoadFixture"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadFixture">[docs]</a><span class="k">class</span> <span class="nc">LoadFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
@@ -266,7 +285,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_json_loads</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">LoadJsonError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Failed to load JSON file </span><span class="si">{filename}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;Failed to load JSON file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span></div></div>
 
 
@@ -289,7 +308,7 @@
             <span class="k">return</span> <span class="n">yaml_util</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">yaml_util</span><span class="o">.</span><span class="n">ParserError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">LoadYamlError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Failed to load YAML file </span><span class="si">{filename}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;Failed to load YAML file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span></div></div>
 
 
@@ -317,14 +336,35 @@
     <span class="p">)</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="static_dir"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.static_dir">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span> <span class="nf">static_dir</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">fspath</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;static&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Static directory related to test path.</span>
+
+<span class="sd">    Returns static directory relative to test file, e.g.::</span>
+
+<span class="sd">       |- tests/</span>
+<span class="sd">          |- static/ &lt;-- base static directory for test_foo.py</span>
+<span class="sd">          |- test_foo.py</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">fspath</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;static&#39;</span></div>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="initial_data_path"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.initial_data_path">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span> <span class="nf">initial_data_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-    <span class="k">return</span> <span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;Use this fixture to override base static search path.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">     @pytest.fixture</span>
+<span class="sd">     def initial_data_path():</span>
+<span class="sd">         return (</span>
+<span class="sd">             pathlib.Path(PROJECT_ROOT) / &#39;tests/static&#39;,</span>
+<span class="sd">             pathlib.Path(PROJECT_ROOT) / &#39;static&#39;,</span>
+<span class="sd">         )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">()</span></div>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
@@ -379,6 +419,7 @@
     <span class="n">local_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">test_module_name</span> <span class="o">/</span> <span class="n">node_name</span><span class="p">]</span>
     <span class="n">local_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_module_name</span><span class="p">)</span>
     <span class="n">local_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+    <span class="n">local_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">search_directories</span> <span class="o">=</span> <span class="p">[</span><span class="n">static_dir</span> <span class="o">/</span> <span class="n">subdir</span> <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">local_path</span><span class="p">]</span>
     <span class="n">search_directories</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">initial_data_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">search_directories</span><span class="p">)</span>

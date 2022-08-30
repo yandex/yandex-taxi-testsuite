@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.databases.pgsql.control &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.databases.pgsql.control &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -177,10 +177,10 @@
         <span class="k">except</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">DatabaseError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">error_message</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;PostgreSQL apply query error</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;Query from: </span><span class="si">{query.source}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Query from: </span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-                <span class="n">error_message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{query.path}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="n">error_message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="n">error_message</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
 
@@ -346,8 +346,8 @@
         <span class="k">except</span> <span class="n">shell</span><span class="o">.</span><span class="n">SubprocessFailed</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;PostgreSQL run script failed:</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{path}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{exc}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run_migrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -371,8 +371,8 @@
         <span class="k">except</span> <span class="n">shell</span><span class="o">.</span><span class="n">SubprocessFailed</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;PostgreSQL run migration failed:</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{path}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{exc}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="nd">@testsuite_utils</span><span class="o">.</span><span class="n">cached_property</span>

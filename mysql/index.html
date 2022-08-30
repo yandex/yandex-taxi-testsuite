@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>MySQL &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>MySQL &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -31,7 +32,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="mysql">
+  <section id="mysql">
 <h1>MySQL<a class="headerlink" href="#mysql" title="Permalink to this headline">¶</a></h1>
 <p>In order to enable mysql support you have to add
 <code class="docutils literal notranslate"><span class="pre">testsuite.databases.mysql.pytest_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
@@ -46,17 +47,17 @@ following names:</p>
 <li><p>file <code class="docutils literal notranslate"><span class="pre">my_DBNAME.sql</span></code></p></li>
 <li><p>directory <code class="docutils literal notranslate"><span class="pre">my_DBNAME/</span></code></p></li>
 </ul>
-<div class="section" id="customize-port">
+<section id="customize-port">
 <h2>Customize port<a class="headerlink" href="#customize-port" title="Permalink to this headline">¶</a></h2>
 <p>Testsuite may start MySQL with custom port, if <code class="docutils literal notranslate"><span class="pre">TESTSUITE_MYSQL_PORT</span></code>
 environment variable is specified</p>
-</div>
-<div class="section" id="use-external-instance">
+</section>
+<section id="use-external-instance">
 <h2>Use external instance<a class="headerlink" href="#use-external-instance" title="Permalink to this headline">¶</a></h2>
 <p>You can force it to use your own mysql installation with command-line option
 <code class="docutils literal notranslate"><span class="pre">--mysql=mysql://user:password&#64;hostname/</span></code>.</p>
-</div>
-<div class="section" id="example-integration">
+</section>
+<section id="example-integration">
 <h2>Example integration<a class="headerlink" href="#example-integration" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.databases.mysql</span> <span class="kn">import</span> <span class="n">discover</span>
 
@@ -65,8 +66,8 @@ environment variable is specified</p>
     <span class="k">return</span> <span class="n">discover</span><span class="o">.</span><span class="n">find_schemas</span><span class="p">([</span><span class="n">SCHEMAS_DIR</span><span class="p">])</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="database-access-example">
+</section>
+<section id="database-access-example">
 <h2>Database access example<a class="headerlink" href="#database-access-example" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_read_from_database</span><span class="p">(</span><span class="n">mysql</span><span class="p">):</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="n">mysql</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -77,17 +78,17 @@ environment variable is specified</p>
     <span class="k">assert</span> <span class="n">record</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="functions">
+</section>
+<section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="find-schemas">
+<section id="find-schemas">
 <h3>find_schemas<a class="headerlink" href="#find-schemas" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.databases.mysql.discover.find_schemas">
-<code class="descclassname">testsuite.databases.mysql.discover.</code><code class="descname">find_schemas</code><span class="sig-paren">(</span><em>schema_dirs: List[pathlib.Path], dbprefix: str = 'testsuite-', extra_schema_args: Optional[Dict[str, Any]] = None</em><span class="sig-paren">)</span> &#x2192; Dict[str, testsuite.databases.mysql.classes.DatabaseConfig]<a class="reference internal" href="../_modules/testsuite/databases/mysql/discover/#find_schemas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.mysql.discover.find_schemas" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.databases.mysql.discover.</code><code class="descname">find_schemas</code><span class="sig-paren">(</span><em>schema_dirs: List[pathlib.Path], dbprefix: str = 'testsuite-', extra_schema_args: Optional[Dict[str, Any], None] = None</em><span class="sig-paren">)</span> &#x2192; Dict[str, testsuite.databases.mysql.classes.DatabaseConfig]<a class="reference internal" href="../_modules/testsuite/databases/mysql/discover/#find_schemas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.mysql.discover.find_schemas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve database schemas from filesystem.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>schema_dirs</strong> – list of schema pathes</p></li>
 <li><p><strong>dbprefix</strong> – database name internal prefix</p></li>
@@ -115,19 +116,19 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dictionary where key is dbname and value is
 <code class="docutils literal notranslate"><span class="pre">classes.DatabaseConfig</span></code> instance.</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="fixtures">
+</section>
+</section>
+<section id="fixtures">
 <h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id2">
-<h3>mysql<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<section id="mysql-2">
+<h3>mysql<a class="headerlink" href="#mysql-2" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
 <code class="descclassname">testsuite.databases.mysql.pytest_plugin.</code><code class="descname">mysql</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql"><span class="viewcode-link">[source]</span></a></dt>
@@ -136,8 +137,8 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">control.ConnectionWrapper</span></code></p>
 </dd></dl>
 
-</div>
-<div class="section" id="mysql-local">
+</section>
+<section id="mysql-local">
 <h3>mysql_local<a class="headerlink" href="#mysql-local" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
@@ -145,26 +146,26 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 <dd><p>Use to override databases configuration.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="mysql-conninfo">
+</section>
+<section id="mysql-conninfo">
 <h3>mysql_conninfo<a class="headerlink" href="#mysql-conninfo" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
 <code class="descclassname">testsuite.databases.mysql.pytest_plugin.</code><code class="descname">mysql_conninfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql_conninfo"><span class="viewcode-link">[source]</span></a></dt>
 <dd></dd></dl>
 
-</div>
-</div>
-<div class="section" id="marks">
+</section>
+</section>
+<section id="marks">
 <h2>Marks<a class="headerlink" href="#marks" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="pytest-mark-mysql">
+<section id="pytest-mark-mysql">
 <h3>pytest.mark.mysql<a class="headerlink" href="#pytest-mark-mysql" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt>
 <code class="descname">pytest.mark.mysql(dbname, *, files=(), directories=(), queries=()):</code></dt>
 <dd><p>Use this mark to specify extra data fixtures in a per-test manner.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dbname</strong> – Database name.</p></li>
 <li><p><strong>files</strong> – List of filenames to apply to the database.</p></li>
@@ -175,9 +176,9 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </dl>
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="classes">
+</section>
+</section>
+<section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt>
@@ -202,7 +203,7 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 <em class="property">class </em><code class="descclassname">testsuite.databases.mysql.classes.</code><code class="descname">ConnectionInfo</code><a class="reference internal" href="../_modules/testsuite/databases/mysql/classes/#ConnectionInfo"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Mysql connection info class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>port</strong> – database port</p></li>
 <li><p><strong>hostname</strong> – database hostname</p></li>
@@ -220,8 +221,8 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
           </div>

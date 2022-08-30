@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Mockserver &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Mockserver &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -33,7 +34,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="mockserver">
+  <section id="mockserver">
 <h1>Mockserver<a class="headerlink" href="#mockserver" title="Permalink to this headline">¶</a></h1>
 <p>Mockserver is a simple http server running inside pytest instance.
 Using <code class="docutils literal notranslate"><span class="pre">mockserver</span></code> fixture you can install per-test handler.</p>
@@ -60,10 +61,10 @@ with <code class="docutils literal notranslate"><span class="pre">--mockserver-n
     <span class="k">assert</span> <span class="n">handler</span><span class="o">.</span><span class="n">times_called</span> <span class="o">==</span> <span class="mi">1</span>
 </pre></div>
 </div>
-<div class="section" id="fixtures">
+<section id="fixtures">
 <h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id1">
-<h3>mockserver<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<section id="mockserver-1">
+<h3>mockserver<a class="headerlink" href="#mockserver-1" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.mockserver.pytest_plugin.mockserver">
 <code class="descclassname">testsuite.mockserver.pytest_plugin.</code><code class="descname">mockserver</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/mockserver/pytest_plugin/#mockserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.pytest_plugin.mockserver" title="Permalink to this definition">¶</a></dt>
@@ -106,7 +107,7 @@ or by full name <code class="docutils literal notranslate"><span class="pre">tes
 <p>Returns decorator that registers handler <code class="docutils literal notranslate"><span class="pre">path</span></code>. Original function is
 wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> – match url by prefix if <code class="docutils literal notranslate"><span class="pre">True</span></code> exact match otherwise</p></li>
 <li><p><strong>raw_request</strong> – pass <code class="docutils literal notranslate"><span class="pre">aiohttp.web.Response</span></code> to handler instead of
@@ -138,7 +139,7 @@ instead of full response object</p></li>
 <p>Returns decorator that registers handler <code class="docutils literal notranslate"><span class="pre">path</span></code>. Original function is
 wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> – match url by prefix if <code class="docutils literal notranslate"><span class="pre">True</span></code> exact match otherwise</p></li>
 <li><p><strong>raw_request</strong> – pass <code class="docutils literal notranslate"><span class="pre">aiohttp.web.Response</span></code> to handler instead of
@@ -160,10 +161,10 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 
 <dl class="method">
 <dt id="testsuite.mockserver.server.MockserverFixture.make_response">
-<em class="property">staticmethod </em><code class="descname">make_response</code><span class="sig-paren">(</span><em>response: Union[str</em>, <em>bytes</em>, <em>bytearray] = None</em>, <em>status: int = 200</em>, <em>headers: Mapping[str</em>, <em>str] = None</em>, <em>content_type: Optional[str] = None</em>, <em>charset: Optional[str] = None</em>, <em>*</em>, <em>json=&lt;class 'testsuite.utils.http._NoValue'&gt;</em>, <em>form=&lt;class 'testsuite.utils.http._NoValue'&gt;</em><span class="sig-paren">)</span> &#x2192; aiohttp.web_response.Response<a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.make_response" title="Permalink to this definition">¶</a></dt>
+<em class="property">staticmethod </em><code class="descname">make_response</code><span class="sig-paren">(</span><em>response: Union[str</em>, <em>bytes</em>, <em>bytearray] = None</em>, <em>status: int = 200</em>, <em>headers: Mapping[str</em>, <em>str] = None</em>, <em>content_type: Optional[str</em>, <em>None] = None</em>, <em>charset: Optional[str</em>, <em>None] = None</em>, <em>*</em>, <em>json=&lt;class 'testsuite.utils.http._NoValue'&gt;</em>, <em>form=&lt;class 'testsuite.utils.http._NoValue'&gt;</em><span class="sig-paren">)</span> &#x2192; aiohttp.web_response.Response<a class="headerlink" href="#testsuite.mockserver.server.MockserverFixture.make_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create HTTP response object. Returns <code class="docutils literal notranslate"><span class="pre">aiohttp.web.Response</span></code> instance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>response</strong> – response content</p></li>
 <li><p><strong>status</strong> – HTTP status code</p></li>
@@ -197,8 +198,8 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 
 </dd></dl>
 
-</div>
-<div class="section" id="mockserver-info">
+</section>
+<section id="mockserver-info">
 <h3>mockserver_info<a class="headerlink" href="#mockserver-info" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.mockserver.pytest_plugin.mockserver_info">
@@ -212,7 +213,7 @@ mockserver.</p>
 <dl class="class">
 <dt id="testsuite.mockserver.classes.MockserverInfo">
 <em class="property">class </em><code class="descclassname">testsuite.mockserver.classes.</code><code class="descname">MockserverInfo</code><a class="reference internal" href="../_modules/testsuite/mockserver/classes/#MockserverInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.classes.MockserverInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>MockserverInfo(host: str, port: int, base_url: str, ssl: Union[testsuite.mockserver.classes.SslCertInfo, NoneType])</p>
+<dd><p>MockserverInfo(host: str, port: int, base_url: str, ssl: Optional[testsuite.mockserver.classes.SslCertInfo])</p>
 <dl class="method">
 <dt id="testsuite.mockserver.classes.MockserverInfo.url">
 <code class="descname">url</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/testsuite/mockserver/classes/#MockserverInfo.url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.mockserver.classes.MockserverInfo.url" title="Permalink to this definition">¶</a></dt>
@@ -221,9 +222,9 @@ mockserver.</p>
 
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="magic-args">
+</section>
+</section>
+<section id="magic-args">
 <h2>Magic args<a class="headerlink" href="#magic-args" title="Permalink to this headline">¶</a></h2>
 <p>By default mockserver handler receives <code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.utils.http.Request</span></code>
 or <code class="xref py py-class docutils literal notranslate"><span class="pre">aiohttp.web.BaseRequest</span></code> object. Mockserver also supports special
@@ -238,10 +239,6 @@ arguments that are filled with values from request, e.g.:</p>
 </div>
 <p>Currently supported arguments are:</p>
 <table class="docutils align-center">
-<colgroup>
-<col style="width: 30%" />
-<col style="width: 70%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -277,8 +274,8 @@ arguments that are filled with values from request, e.g.:</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="timeouts-and-network-errors">
+</section>
+<section id="timeouts-and-network-errors">
 <h2>Timeouts and network errors<a class="headerlink" href="#timeouts-and-network-errors" title="Permalink to this headline">¶</a></h2>
 <p>Mockserver supports timeouts and network errors emulation this requires
 service’s HTTP client support. It should specify supported error codes
@@ -298,20 +295,20 @@ X-Testsuite-Error: network|timeout
 </pre></div>
 </div>
 <p>And on the service side:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Response</span> <span class="n">HttpClient</span><span class="o">::</span><span class="n">request</span><span class="p">(</span><span class="k">const</span> <span class="n">Request</span><span class="o">&amp;</span> <span class="n">request</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">auto</span> <span class="n">response</span> <span class="o">=</span> <span class="n">PerformRequest</span><span class="p">(</span><span class="n">request</span><span class="p">);</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">599</span> <span class="o">&amp;&amp;</span>
-     <span class="n">request</span><span class="p">.</span><span class="n">hasHeader</span><span class="p">(</span><span class="s">&quot;X-Testsuite-Error&quot;</span><span class="p">))</span> <span class="p">{</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="n">testsuite_error</span> <span class="o">=</span>
-        <span class="n">respones</span><span class="p">.</span><span class="n">getHeader</span><span class="p">(</span><span class="s">&quot;X-Testsuite-Error&quot;</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">testsuite_error</span> <span class="o">==</span> <span class="s">&quot;network&quot;</span><span class="p">)</span>
-      <span class="k">throw</span> <span class="n">NetworkError</span><span class="p">();</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">testsuite_error</span> <span class="o">==</span> <span class="s">&quot;timeout&quot;</span><span class="p">)</span>
-      <span class="k">throw</span> <span class="n">TimeoutError</span><span class="p">()</span>
-    <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Unhandled error code&quot;</span><span class="p">);</span>
-   <span class="p">}</span>
-   <span class="k">return</span> <span class="n">response</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Response</span><span class="w"> </span><span class="nf">HttpClient::request</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PerformRequest</span><span class="p">(</span><span class="n">request</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">599</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span>
+<span class="w">     </span><span class="n">request</span><span class="p">.</span><span class="n">hasHeader</span><span class="p">(</span><span class="s">&quot;X-Testsuite-Error&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">testsuite_error</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">        </span><span class="n">respones</span><span class="p">.</span><span class="n">getHeader</span><span class="p">(</span><span class="s">&quot;X-Testsuite-Error&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">testsuite_error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;network&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="n">NetworkError</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">testsuite_error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;timeout&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="n">TimeoutError</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Unhandled error code&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Then you can raise mockserver error in the testcase, e.g.:</p>
@@ -328,8 +325,8 @@ X-Testsuite-Error: network|timeout
 <li><p><a class="reference internal" href="#testsuite.mockserver.server.MockserverFixture.TimeoutError" title="testsuite.mockserver.server.MockserverFixture.TimeoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.server.MockserverFixture.TimeoutError</span></code></a></p></li>
 <li><p><a class="reference internal" href="#testsuite.mockserver.server.MockserverFixture.NetworkError" title="testsuite.mockserver.server.MockserverFixture.NetworkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.server.MockserverFixture.NetworkError</span></code></a></p></li>
 </ul>
-</div>
-<div class="section" id="opentracing">
+</section>
+<section id="opentracing">
 <h2>OpenTracing<a class="headerlink" href="#opentracing" title="Permalink to this headline">¶</a></h2>
 <p>To make tests fast, testsuite starts the service only once, at the beginning of
 test session.</p>
@@ -367,8 +364,8 @@ and test case proceeds normally.</p>
 <span class="n">mockserver</span><span class="o">-</span><span class="n">span</span><span class="o">-</span><span class="nb">id</span><span class="o">-</span><span class="n">header</span> <span class="o">=</span> <span class="n">X</span><span class="o">-</span><span class="n">SpanId</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>

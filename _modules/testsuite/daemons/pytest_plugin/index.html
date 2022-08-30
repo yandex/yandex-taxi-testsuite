@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.daemons.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <title>testsuite.daemons.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -33,6 +33,7 @@
             
   <h1>Source code for testsuite.daemons.pytest_plugin</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">signal</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
@@ -157,12 +158,8 @@
 
 <span class="k">class</span> <span class="nc">ServiceSpawnerFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
     <span class="n">_fixture_pytestconfig</span><span class="p">:</span> <span class="n">Any</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_reporter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_pytestconfig</span><span class="o">.</span><span class="n">pluginmanager</span><span class="o">.</span><span class="n">getplugin</span><span class="p">(</span>
-            <span class="s1">&#39;terminalreporter&#39;</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="n">_fixture_service_client_session_factory</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">_fixture_wait_service_started</span><span class="p">:</span> <span class="n">Any</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -207,31 +204,31 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_shutdown_signal</span>
             <span class="p">]</span>
 
+        <span class="n">health_check</span> <span class="o">=</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">make_health_check</span><span class="p">(</span>
+            <span class="n">ping_url</span><span class="o">=</span><span class="n">ping_url</span> <span class="ow">or</span> <span class="n">check_url</span><span class="p">,</span>
+            <span class="n">ping_request_timeout</span><span class="o">=</span><span class="n">ping_request_timeout</span><span class="p">,</span>
+            <span class="n">ping_response_codes</span><span class="o">=</span><span class="n">ping_response_codes</span><span class="p">,</span>
+            <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">command_args</span> <span class="o">=</span> <span class="n">_build_command_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">base_command</span><span class="p">)</span>
+
         <span class="k">async</span> <span class="k">def</span> <span class="nf">spawn</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_wait</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">service_wait</span><span class="p">(</span>
-                    <span class="n">args</span><span class="p">,</span>
-                    <span class="n">ping_url</span><span class="o">=</span><span class="n">ping_url</span> <span class="ow">or</span> <span class="n">check_url</span><span class="p">,</span>
-                    <span class="n">reporter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_reporter</span><span class="p">,</span>
-                    <span class="n">base_command</span><span class="o">=</span><span class="n">base_command</span><span class="p">,</span>
-                    <span class="n">ping_request_timeout</span><span class="o">=</span><span class="n">ping_request_timeout</span><span class="p">,</span>
-                    <span class="n">ping_response_codes</span><span class="o">=</span><span class="n">ping_response_codes</span><span class="p">,</span>
-                    <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_wait_service_started</span><span class="p">(</span>
+                    <span class="n">args</span><span class="o">=</span><span class="n">command_args</span><span class="p">,</span> <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_disable</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">start_dummy_process</span><span class="p">()</span>
 
             <span class="k">return</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">start</span><span class="p">(</span>
-                <span class="n">args</span><span class="p">,</span>
-                <span class="n">ping_url</span><span class="o">=</span><span class="n">ping_url</span> <span class="ow">or</span> <span class="n">check_url</span><span class="p">,</span>
-                <span class="n">base_command</span><span class="o">=</span><span class="n">base_command</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">command_args</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
                 <span class="n">shutdown_signal</span><span class="o">=</span><span class="n">shutdown_signal</span><span class="p">,</span>
                 <span class="n">shutdown_timeout</span><span class="o">=</span><span class="n">shutdown_timeout</span><span class="p">,</span>
                 <span class="n">poll_retries</span><span class="o">=</span><span class="n">poll_retries</span><span class="p">,</span>
-                <span class="n">ping_request_timeout</span><span class="o">=</span><span class="n">ping_request_timeout</span><span class="p">,</span>
-                <span class="n">ping_response_codes</span><span class="o">=</span><span class="n">ping_response_codes</span><span class="p">,</span>
                 <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
+                <span class="n">session_factory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fixture_service_client_session_factory</span><span class="p">,</span>
                 <span class="n">subprocess_options</span><span class="o">=</span><span class="n">subprocess_options</span><span class="p">,</span>
                 <span class="n">setup_service</span><span class="o">=</span><span class="n">setup_service</span><span class="p">,</span>
                 <span class="n">logger_plugin</span><span class="o">=</span><span class="n">logger_plugin</span><span class="p">,</span>
@@ -354,6 +351,23 @@
 <span class="p">)</span>
 
 
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">wait_service_started</span><span class="p">(</span><span class="n">pytestconfig</span><span class="p">,</span> <span class="n">service_client_session_factory</span><span class="p">):</span>
+    <span class="n">reporter</span> <span class="o">=</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">pluginmanager</span><span class="o">.</span><span class="n">getplugin</span><span class="p">(</span><span class="s1">&#39;terminalreporter&#39;</span><span class="p">)</span>
+
+    <span class="nd">@compat</span><span class="o">.</span><span class="n">asynccontextmanager</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">waiter</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">health_check</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">service_wait</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">reporter</span><span class="o">=</span><span class="n">reporter</span><span class="p">,</span>
+            <span class="n">health_check</span><span class="o">=</span><span class="n">health_check</span><span class="p">,</span>
+            <span class="n">session_factory</span><span class="o">=</span><span class="n">service_client_session_factory</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">yield</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">waiter</span>
+
+
 <span class="k">def</span> <span class="nf">pytest_addoption</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">getgroup</span><span class="p">(</span><span class="s1">&#39;services&#39;</span><span class="p">)</span>
     <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
@@ -402,11 +416,22 @@
     <span class="k">return</span> <span class="n">_global_daemon_store</span><span class="o">.</span><span class="n">scope</span></div>
 
 
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">service_client_session_factory</span><span class="p">(</span>
+        <span class="n">event_loop</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">ClientSessionFactory</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">make_session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;loop&#39;</span><span class="p">,</span> <span class="n">event_loop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">make_session</span>
+
+
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">service_client_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">annotations</span><span class="o">.</span><span class="n">AsyncYieldFixture</span><span class="p">[</span>
-        <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">,</span>
-<span class="p">]:</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">service_client_session</span><span class="p">(</span>
+        <span class="n">service_client_session_factory</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">annotations</span><span class="o">.</span><span class="n">AsyncYieldFixture</span><span class="p">[</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">service_client_session_factory</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">session</span>
 
 
@@ -456,6 +481,12 @@
             <span class="n">capmanager</span><span class="o">.</span><span class="n">resume_global_capture</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">suspend</span>
+
+
+<span class="k">def</span> <span class="nf">_build_command_args</span><span class="p">(</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">base_command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">base_command</span> <span class="ow">or</span> <span class="p">(),</span> <span class="n">args</span><span class="p">))</span>
 </pre></div>
 
           </div>

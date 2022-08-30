@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Other plugins &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Other plugins &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
@@ -33,9 +34,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="other-plugins">
+  <section id="other-plugins">
 <h1>Other plugins<a class="headerlink" href="#other-plugins" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="envinfo">
+<section id="envinfo">
 <span id="otherplugins"></span><h2>Envinfo<a class="headerlink" href="#envinfo" title="Permalink to this headline">¶</a></h2>
 <p>Envinfo plugin adds some details to test report header</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">args</span><span class="p">:</span> <span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="o">-</span><span class="n">vv</span> <span class="o">-</span><span class="n">x</span>
@@ -58,24 +59,24 @@ current branch diverges</p></li>
 </div>
 <p>Retrieving git status can be slow in docker due to network-related issues.
 If it affects you, turn git status off by <code class="docutils literal notranslate"><span class="pre">--envinfo-no-git</span></code> flag.</p>
-</div>
-<div class="section" id="mocked-time">
+</section>
+<section id="mocked-time">
 <h2>Mocked_time<a class="headerlink" href="#mocked-time" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="fixtures">
+<section id="fixtures">
 <h3>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.mocked_time.mocked_time">
 <code class="descclassname">testsuite.plugins.mocked_time.</code><code class="descname">mocked_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#mocked_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.mocked_time" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#testsuite.plugins.mocked_time.MockedTime" title="testsuite.plugins.mocked_time.MockedTime"><code class="xref py py-class docutils literal notranslate"><span class="pre">MockedTime</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <p><code class="docutils literal notranslate"><span class="pre">mocked_time</span></code> fixture provides control over mock time in a centralized way.</p>
-</div>
-<div class="section" id="disabling-mocked-time">
+</section>
+<section id="disabling-mocked-time">
 <h3>Disabling mocked_time<a class="headerlink" href="#disabling-mocked-time" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">mocked-time-enabled</span> <span class="pre">=</span> <span class="pre">false</span></code> flag in <code class="docutils literal notranslate"><span class="pre">pytest.ini</span></code> disables mocked time
@@ -89,8 +90,8 @@ used in a particular test: <code class="docutils literal notranslate"><span clas
 <code class="docutils literal notranslate"><span class="pre">datetime.datetime.utcnow()</span></code> value at the start of test is used as time value
 until it is modified by calling <code class="docutils literal notranslate"><span class="pre">mocked_time.set(...)</span></code> or
 <code class="docutils literal notranslate"><span class="pre">mocked_time.sleep(...)</span></code></p>
-</div>
-<div class="section" id="classes">
+</section>
+<section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="testsuite.plugins.mocked_time.MockedTime">
@@ -99,7 +100,7 @@ until it is modified by calling <code class="docutils literal notranslate"><span
 <dt id="testsuite.plugins.mocked_time.MockedTime.now">
 <code class="descname">now</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; datetime.datetime<a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#MockedTime.now"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.MockedTime.now" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>current value of mock time</p>
 </dd>
 </dl>
@@ -116,7 +117,7 @@ until it is modified by calling <code class="docutils literal notranslate"><span
 <code class="descname">sleep</code><span class="sig-paren">(</span><em>delta: float</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/testsuite/plugins/mocked_time/#MockedTime.sleep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.mocked_time.MockedTime.sleep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Increase mock time value</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>delta</strong> – increase value in seconds</p>
 </dd>
 </dl>
@@ -124,9 +125,9 @@ until it is modified by calling <code class="docutils literal notranslate"><span
 
 </dd></dl>
 
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>

@@ -3,8 +3,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Examples &#8212; yandex-taxi-testsuite 0.1.4.1 documentation</title>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Examples &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments_pytest.css" />
@@ -33,7 +34,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="examples">
+  <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
 <p>Here we demonstrate how to use testsuite based on a simple chat application.</p>
 <p>The frontend (<code class="docutils literal notranslate"><span class="pre">chat-backend/chat.html</span></code>) interacts with <code class="docutils literal notranslate"><span class="pre">chat-backend</span></code>, a
@@ -50,7 +51,7 @@ external storage service to actually store chat messages.</p>
 <span class="n">chat</span><span class="o">-</span><span class="n">xxx</span><span class="o">/</span><span class="n">tests</span>     <span class="o">-</span> <span class="n">testsuite</span> <span class="n">tests</span>
 </pre></div>
 </div>
-<div class="section" id="running-examples">
+<section id="running-examples">
 <h2>Running examples<a class="headerlink" href="#running-examples" title="Permalink to this headline">¶</a></h2>
 <p>You can run tests using system pytest.</p>
 <p>Run tests for all examples</p>
@@ -64,12 +65,12 @@ external storage service to actually store chat messages.</p>
 <span class="n">make</span> <span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-examples-in-docker">
+</section>
+<section id="running-examples-in-docker">
 <h2>Running examples in docker<a class="headerlink" href="#running-examples-in-docker" title="Permalink to this headline">¶</a></h2>
 <p>For convenience we provide examples of integration with <a class="reference external" href="https://www.docker.com/">Docker</a>. To run
 examples in docker, you need to have docker and docker-compose installed.</p>
-<div class="section" id="run-application">
+<section id="run-application">
 <h3>Run application<a class="headerlink" href="#run-application" title="Permalink to this headline">¶</a></h3>
 <p>Run chat backend with PostgreSQL storage</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">run</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
@@ -84,13 +85,13 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 </pre></div>
 </div>
 <p>On startup completion you will see output similar to</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chat</span><span class="o">-</span><span class="n">postgres_1</span> <span class="o">|</span> <span class="o">========</span> <span class="n">Running</span> <span class="n">on</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="p">:</span><span class="mi">8081</span> <span class="o">========</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chat</span><span class="o">-</span><span class="n">postgres_1</span> <span class="o">|</span> <span class="o">========</span> <span class="n">Running</span> <span class="n">on</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">0.0.0.0</span><span class="p">:</span><span class="mi">8081</span> <span class="o">========</span>
 <span class="n">chat</span><span class="o">-</span><span class="n">postgres_1</span> <span class="o">|</span> <span class="p">(</span><span class="n">Press</span> <span class="n">CTRL</span><span class="o">+</span><span class="n">C</span> <span class="n">to</span> <span class="n">quit</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Open above URL in browser to interact with chat.</p>
-</div>
-<div class="section" id="run-tests">
+</section>
+<section id="run-tests">
 <h3>Run tests<a class="headerlink" href="#run-tests" title="Permalink to this headline">¶</a></h3>
 <p>Run tests for all examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span>
@@ -103,10 +104,10 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 <span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="id1">
-<h2>Examples<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="examples-1">
+<h2>Examples<a class="headerlink" href="#examples-1" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../docker/README/">Docker integration example</a><ul>
@@ -140,8 +141,8 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 </li>
 </ul>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -171,7 +172,7 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#running-examples">Running examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-examples-in-docker">Running examples in docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples-1">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../license/">License</a></li>

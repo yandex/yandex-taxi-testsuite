@@ -28,6 +28,8 @@ class LoadYamlError(BaseError):
 
 
 class GetSearchPathesFixture(fixture_class.Fixture):
+    """Generates sequence of pathes for static files."""
+
     _fixture__search_directories: typing.Tuple[str, ...]
 
     def __call__(
@@ -53,6 +55,8 @@ class SearchPathFixture(fixture_class.Fixture):
 
 
 class GetFilePathFixture(fixture_class.Fixture):
+    """Returns path to static regular file."""
+
     _fixture_search_path: SearchPathFixture
     _fixture_get_search_pathes: GetSearchPathesFixture
 
@@ -75,6 +79,8 @@ class GetFilePathFixture(fixture_class.Fixture):
 
 
 class GetDirectoryPathFixture(GetFilePathFixture):
+    """Returns path to static directory."""
+
     def __call__(self, filename: annotations.PathOrStr) -> pathlib.Path:
         for path in self._fixture_search_path(filename, directory=True):
             return path
@@ -84,6 +90,19 @@ class GetDirectoryPathFixture(GetFilePathFixture):
 
 
 class OpenFileFixture(fixture_class.Fixture):
+    """Open static file by name.
+
+    Only read-only open modes are supported.
+
+    Example:
+
+    .. code-block:: python
+
+        def test_foo(open_file):
+            with open_file('foo') as fp:
+                ...
+    """
+
     _modes_whitelist = frozenset(['r', 'rt', 'rb'])
 
     _fixture_get_file_path: GetFilePathFixture
@@ -285,11 +304,32 @@ def pytest_configure(config):
 
 @pytest.fixture
 def static_dir(request) -> pathlib.Path:
+    """Static directory related to test path.
+
+    Returns static directory relative to test file, e.g.::
+
+       |- tests/
+          |- static/ <-- base static directory for test_foo.py
+          |- test_foo.py
+
+    """
     return pathlib.Path(request.fspath).parent / 'static'
 
 
 @pytest.fixture
 def initial_data_path() -> typing.Tuple[pathlib.Path, ...]:
+    """Use this fixture to override base static search path.
+
+    .. code-block:: python
+
+     @pytest.fixture
+     def initial_data_path():
+         return (
+             pathlib.Path(PROJECT_ROOT) / 'tests/static',
+             pathlib.Path(PROJECT_ROOT) / 'static',
+         )
+    """
+
     return ()
 
 
@@ -345,6 +385,7 @@ def _search_directories(
     local_path = [test_module_name / node_name]
     local_path.append(test_module_name)
     local_path.append('default')
+    local_path.append('')
     search_directories = [static_dir / subdir for subdir in local_path]
     search_directories.extend(initial_data_path)
     return tuple(search_directories)

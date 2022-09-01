@@ -22,7 +22,6 @@ else
 fi
 
 POSTGRESQL_LOGSDIR=$POSTGRESQL_TMPDIR/logs
-POSTGRESQL_SOCKETDIR=/tmp/testsuite-postgresql${WORKER_SUFFIX_PATH}
 
 mkdir -p $POSTGRESQL_DATADIR
 
@@ -32,7 +31,6 @@ start() {
 
     mkdir -p $POSTGRESQL_TMPDIR
     mkdir -p $POSTGRESQL_LOGSDIR
-    mkdir -p $POSTGRESQL_SOCKETDIR
 
     set -e
     $POSTGRESQL_BINPATH/initdb \
@@ -53,14 +51,14 @@ start() {
         -s -D $POSTGRESQL_DATADIR -w start \
         -o "-c listen_addresses=*" \
         -o "-c port=$POSTGRESQL_PORT" \
-        -o "-c unix_socket_directories=$POSTGRESQL_SOCKETDIR" \
+        -o "-c unix_socket_directories=" \
         -o "-c log_directory=$POSTGRESQL_LOGSDIR"
 }
 
 stop() {
     $POSTGRESQL_BINPATH/pg_ctl -s -D $POSTGRESQL_DATADIR \
                                -m immediate stop
-    rm -rf $POSTGRESQL_DATADIR $POSTGRESQL_SOCKETDIR
+    rm -rf $POSTGRESQL_DATADIR
 }
 
 script_main "$@"

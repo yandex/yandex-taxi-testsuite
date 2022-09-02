@@ -6,8 +6,8 @@ from testsuite.environment import utils
 
 from . import classes
 
-DEFAULT_RABBITMQ_TCP_PORT = 19002
-DEFAULT_RABBITMQ_EPMD_PORT = 19003
+DEFAULT_RABBITMQ_TCP_PORT = 8672
+DEFAULT_RABBITMQ_EPMD_PORT = 8673
 
 SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
     'scripts/service-rabbitmq'

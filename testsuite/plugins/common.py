@@ -303,7 +303,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture
-def static_dir(request) -> pathlib.Path:
+def static_dir(testsuite_request_directory) -> pathlib.Path:
     """Static directory related to test path.
 
     Returns static directory relative to test file, e.g.::
@@ -313,7 +313,7 @@ def static_dir(request) -> pathlib.Path:
           |- test_foo.py
 
     """
-    return pathlib.Path(request.fspath).parent / 'static'
+    return testsuite_request_directory / 'static'
 
 
 @pytest.fixture
@@ -360,6 +360,32 @@ def object_substitute(object_hook):
 
 
 @pytest.fixture(scope='session')
+def testsuite_get_source_path():
+    def get_source_path(path) -> pathlib.Path:
+        return pathlib.Path(path)
+
+    return get_source_path
+
+
+@pytest.fixture(scope='session')
+def testsuite_get_source_directory(testsuite_get_source_path):
+    def get_source_directory(path) -> pathlib.Path:
+        return testsuite_get_source_path(path).parent
+
+    return get_source_directory
+
+
+@pytest.fixture
+def testsuite_request_path(request, testsuite_get_source_path) -> pathlib.Path:
+    return testsuite_get_source_path(request.module.__file__)
+
+
+@pytest.fixture
+def testsuite_request_directory(testsuite_request_path) -> pathlib.Path:
+    return testsuite_request_path.parent
+
+
+@pytest.fixture(scope='session')
 def worker_id(request) -> str:
     if hasattr(request.config, 'workerinput'):
         return request.config.workerinput['workerid']
@@ -376,9 +402,9 @@ def _search_directories(
         request,
         static_dir: pathlib.Path,
         initial_data_path: typing.Tuple[pathlib.Path, ...],
+        testsuite_request_path,
 ) -> typing.Tuple[pathlib.Path, ...]:
-    fullname = pathlib.Path(request.fspath)
-    test_module_name = pathlib.Path(fullname.stem)
+    test_module_name = pathlib.Path(testsuite_request_path.stem)
     node_name = request.node.name
     if '[' in node_name:
         node_name = node_name[: node_name.index('[')]

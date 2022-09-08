@@ -117,7 +117,7 @@ def apply_queries(
     tables = _get_db_tables_list(connection)
     if tables:
         for (table,) in tables:
-            connection.execute(f'TRUNCATE TABLE {table}')
+            connection.execute(f'TRUNCATE TABLE `{table}`')
 
     for query in queries:
         try:

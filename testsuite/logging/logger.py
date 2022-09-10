@@ -136,5 +136,10 @@ class Handler(logging.Handler):
         self._writer = writer
 
     def emit(self, record):
-        message = self.format(record)
-        self._writer.writeline(message)
+        if hasattr(record, 'tskv'):
+            self._writer.log_entry(
+                {**record.tskv, 'text': record.msg, 'level': record.levelname},
+            )
+        else:
+            message = self.format(record)
+            self._writer.writeline(message)

@@ -198,7 +198,6 @@ class Server:
             self,
             mockserver_info: classes.MockserverInfo,
             *,
-            logger=None,
             nofail=False,
             reporter: typing.Optional[
                 reporter_plugin.MockserverReporterPlugin
@@ -209,7 +208,6 @@ class Server:
             http_proxy_enabled=False,
     ):
         self._info = mockserver_info
-        self._logger = logger
         self._nofail = nofail
         self._reporter = reporter
         self._tracing_enabled = tracing_enabled
@@ -254,14 +252,11 @@ class Server:
             self.session = None
 
     async def handle_request(self, request):
-        if not self._logger:
-            return await self._handle_request(request)
-
         started = time.perf_counter()
+        log_level = logging.INFO
         fields = {
             '_type': 'mockserver_request',
             'timestamp': datetime.datetime.utcnow(),
-            'level': 'INFO',
             'method': request.method,
             'url': request.url,
         }
@@ -274,14 +269,14 @@ class Server:
             fields['status'] = 'DONE'
             return response
         except BaseException as exc:
-            fields['level'] = 'ERROR'
+            log_level = logging.ERROR
             fields['status'] = 'FAIL'
             fields['exc_info'] = str(exc)
             raise
         finally:
             delay_ms = 1000 * (time.perf_counter() - started)
             fields['delay'] = f'{delay_ms:.3f}ms'
-            self._logger.log_entry(fields)
+            logger.log(log_level, 'Mockserver request', extra={'tskv': fields})
 
     async def _handle_request(self, request: aiohttp.web.BaseRequest):
         trace_id = request.headers.get(self.trace_id_header)
@@ -584,7 +579,6 @@ async def create_server(
     with contextlib.closing(sock):
         server = Server(
             mockserver_info,
-            logger=testsuite_logger,
             nofail=pytestconfig.option.mockserver_nofail,
             reporter=mockserver_reporter,
             tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),

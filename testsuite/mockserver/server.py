@@ -253,7 +253,7 @@ class Server:
 
     async def handle_request(self, request):
         started = time.perf_counter()
-        log_level = logging.INFO
+        log_level = logging.DEBUG
         fields = {
             '_type': 'mockserver_request',
             'timestamp': datetime.datetime.utcnow(),
@@ -592,7 +592,9 @@ async def create_server(
             ssl_context = _create_ssl_context(ssl_info)
         else:
             ssl_context = None
-        web_server = aiohttp.web.Server(server.handle_request, loop=loop)
+        web_server = aiohttp.web.Server(
+            server.handle_request, loop=loop, access_log=None,
+        )
         loop_server = await loop.create_server(
             web_server, sock=sock, ssl=ssl_context,
         )

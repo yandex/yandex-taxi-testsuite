@@ -32,7 +32,7 @@ start() {
         config=$REDIS_CONFIGS_DIR/redis_${role}.conf
         pidfile="$(get_pidfile $role)"
         logfile=$REDIS_LOGSDIR/$role.log
-        $REDIS_SERVER $config -- \
+        $REDIS_SERVER $config \
                       --pidfile $pidfile \
                       --dir $REDIS_DATADIR \
                       --dbfilename $role.db \
@@ -48,7 +48,7 @@ start() {
     pidfile="$(get_pidfile sentinel)"
     logfile=$REDIS_LOGSDIR/sentinel.log
     echo "Starting redis sentinel..."
-    $REDIS_SERVER $config -- \
+    $REDIS_SERVER $config  \
                   --pidfile $pidfile --logfile $logfile --sentinel || {
         dump_log "$logfile" >&2
         die "Failed to start redis sentinel server"

@@ -1,0 +1,12 @@
+daemonize yes
+cluster-enabled yes
+cluster-config-file nodes_${port}.conf
+cluster-node-timeout 5000
+protected-mode no
+port ${port}
+bind ${host}
+timeout 0
+tcp-keepalive 0
+loglevel notice
+databases 16
+save ""

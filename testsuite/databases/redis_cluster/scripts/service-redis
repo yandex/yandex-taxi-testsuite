@@ -1,0 +1,56 @@
+#!/bin/bash -e
+
+. $TESTSUITE_LIB_UTILS
+
+[ -z "$REDIS_TMPDIR" ] && die "REDIS_TMPDIR must be set"
+[ -z "$REDIS_CONFIGS_DIR" ] && die "REDIS_CONFIGS_DIR must be set"
+
+REDIS_HOST=${REDIS_HOST:-127.0.0.1}
+REDIS_PORTS=$(seq -s ' ' ${REDIS_PORT_MIN:-7000} ${REDIS_PORT_MAX:-7005})
+REDIS_DATADIR=$REDIS_TMPDIR/data
+REDIS_LOGSDIR=$REDIS_TMPDIR/logs
+
+REDIS_SERVER=$(which redis-server)
+[ -z "$REDIS_SERVER" ] && die "No redis-server binary found"
+
+REDIS_CLI=$(which redis-cli)
+[ -z "$REDIS_CLI" ] && die "No redis-cli binary found"
+
+start() {
+    rm -rf $REDIS_DATADIR
+
+    mkdir -p $REDIS_TMPDIR
+    mkdir -p $REDIS_DATADIR
+    mkdir -p $REDIS_LOGSDIR
+
+    for port in $REDIS_PORTS; do
+        config=$REDIS_CONFIGS_DIR/redis_${port}.conf
+        pidfile="$(get_pidfile $port)"
+        logfile=$REDIS_LOGSDIR/redis_$port.log
+        echo "Starting redis $config..."
+        $REDIS_SERVER $config \
+                      --pidfile $pidfile \
+                      --dir $REDIS_DATADIR \
+                      --dbfilename redis_$role.db \
+                      --logfile "$logfile" || {
+            dump_log_stderr "$logfile"
+            die "Failed to start redis ($port) server"
+        }
+
+        REDIS_INSTS="$REDIS_INSTS $REDIS_HOST:$port"
+    done
+
+    $REDIS_CLI --cluster create $REDIS_INSTS \
+        --cluster-replicas 1 \
+        --cluster-yes || \
+        die "Failed to create a redis cluster"
+}
+
+stop() {
+    for port in $REDIS_PORTS; do
+        pidfile="$(get_pidfile $port)"
+        stop_daemon $REDIS_SERVER $pidfile
+    done
+}
+
+script_main "$@"

@@ -1,4 +1,5 @@
 import argparse
+import itertools
 import pathlib
 import string
 import subprocess
@@ -10,6 +11,7 @@ from testsuite.utils import subprocess_helper
 MASTER_TPL_FILENAME = 'redis_master.conf.tpl'
 SENTINEL_TPL_FILENAME = 'redis_sentinel.conf.tpl'
 SLAVE_TPL_FILENAME = 'redis_slave.conf.tpl'
+CLUSTER_NODE_TPL_FILENAME = 'redis.conf.tpl'
 
 SENTINEL_PARAMS = [
     {
@@ -28,31 +30,26 @@ SENTINEL_PARAMS = [
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--output', help='Path to output directory', type=pathlib.Path,
+        '--output', type=pathlib.Path,
+        help='Path to output directory',
     )
     parser.add_argument(
-        '--host',
-        type=int,
-        default='localhost',
-        help='Redis host for sentinel config',
+        '--host', type=int, default='localhost',
+        help='An address to bind redis instances to',
     )
     parser.add_argument(
-        '--master0-port', type=int, default=16379, help='Redis masters0 port',
+        '--master-port', type=int, nargs='+', default=[16379, 16389],
+        help='Redis master port',
     )
     parser.add_argument(
-        '--master1-port', type=int, default=16389, help='Redis masters0 port',
-    )
-    parser.add_argument(
-        '--slave0-ports', type=int, default=16380, help='Redis slave0 port',
-    )
-    parser.add_argument(
-        '--slave1-ports', type=int, default=16390, help='Redis slave1 port',
-    )
-    parser.add_argument(
-        '--slave2-ports', type=int, default=16381, help='Redis slave2 port',
+        '--slave-port', type=int, nargs='+', default=[16380, 16381, 16390],
+        help='Redis slave port',
     )
     parser.add_argument(
         '--sentinel-port', type=int, default=26379, help='Redis sentinel port',
+    )
+    parser.add_argument(
+        '--cluster-mode', action='store_true', help='Run redis in cluster mode',
     )
     return parser.parse_args()
 
@@ -133,6 +130,21 @@ def _generate_sentinel(
     output_path.joinpath('redis_sentinel.conf').write_text('\n'.join(lines))
 
 
+def _generate_cluster_node(
+        protected_mode_no: str,
+        host: str,
+        port: int,
+        output_path: pathlib.Path,
+) -> None:
+    input_file = _redis_config_directory() / CLUSTER_NODE_TPL_FILENAME
+    output_file = _construct_output_filename(
+        output_path, CLUSTER_NODE_TPL_FILENAME, port,
+    )
+    _generate_redis_config(
+        input_file, output_file, protected_mode_no, host, port,
+    )
+
+
 def _construct_output_filename(
         output_path: pathlib.Path, tpl_filename: str, number: int,
 ) -> pathlib.Path:
@@ -169,37 +181,32 @@ def redis_version() -> typing.List[int]:
 def generate_redis_configs(
         output_path: pathlib.Path,
         host: str,
-        master0_port: int,
-        master1_port: int,
-        slave0_port: int,
-        slave1_port: int,
-        slave2_port: int,
+        master_ports: typing.List[int],
+        slave_ports: typing.List[int],
         sentinel_port: int,
+        cluster_mode: bool,
 ) -> None:
     protected_mode_no = ''
     if redis_version() >= [3, 2, 0]:
         protected_mode_no = 'protected-mode no'
-    _generate_master(protected_mode_no, host, master0_port, output_path, 0)
-    _generate_master(protected_mode_no, host, master1_port, output_path, 1)
 
-    _generate_slave(
-        protected_mode_no, host, slave0_port, master0_port, output_path, 0,
-    )
-    _generate_slave(
-        protected_mode_no, host, slave1_port, master1_port, output_path, 1,
-    )
-    _generate_slave(
-        protected_mode_no, host, slave2_port, master0_port, output_path, 2,
-    )
+    if cluster_mode:
+        for port in itertools.chain(master_ports, slave_ports):
+            _generate_cluster_node(protected_mode_no, host, port, output_path)
 
-    _generate_sentinel(
-        protected_mode_no,
-        host,
-        sentinel_port,
-        [master0_port, master1_port],
-        output_path,
-        SENTINEL_PARAMS,
-    )
+    else:
+        for index, port in enumerate(master_ports):
+            _generate_master(protected_mode_no, host, port, output_path, index)
+
+        for index, port in enumerate(slave_ports):
+            # every master gets two slaves
+            _generate_slave(
+                protected_mode_no, host, port, master_ports[index // 2], output_path, index,
+            )
+
+        _generate_sentinel(
+            protected_mode_no, host, sentinel_port, master_ports, output_path, SENTINEL_PARAMS,
+        )
 
 
 def main():
@@ -207,12 +214,10 @@ def main():
     generate_redis_configs(
         output_path=args.output,
         host=args.host,
-        master0_port=args.master0_port,
-        master1_port=args.master1_port,
-        slave0_port=args.slave0_port,
-        slave1_port=args.slave1_port,
-        slave2_port=args.slave2_port,
+        master_ports=args.master_port,
+        slave_ports=args.slave_port,
         sentinel_port=args.sentinel_port,
+        cluster_mode=args.cluster_mode,
     )
 
 

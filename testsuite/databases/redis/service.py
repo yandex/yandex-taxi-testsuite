@@ -11,11 +11,7 @@ from . import genredis
 
 DEFAULT_MASTER_PORTS = (16379, 16389)
 DEFAULT_SENTINEL_PORT = 26379
-DEFAULT_SLAVE_PORTS = (16380, 16390, 16381)
-
-SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
-    'scripts/service-redis',
-)
+DEFAULT_SLAVE_PORTS = (16380, 16381, 16390)
 
 
 class BaseError(Exception):
@@ -29,18 +25,27 @@ class NotEnoughPorts(BaseError):
 class ServiceSettings(typing.NamedTuple):
     host: str
     master_ports: typing.Tuple[int, ...]
-    sentinel_port: int
     slave_ports: typing.Tuple[int, ...]
+    sentinel_port: int
+    cluster_mode: bool
 
     def validate(self):
-        if len(self.master_ports) != len(DEFAULT_MASTER_PORTS):
-            raise NotEnoughPorts(
-                f'Need exactly {len(DEFAULT_MASTER_PORTS)} masters!',
-            )
-        if len(self.slave_ports) != len(DEFAULT_SLAVE_PORTS):
-            raise NotEnoughPorts(
-                f'Need exactly {len(DEFAULT_SLAVE_PORTS)} slaves!',
-            )
+        if self.cluster_mode:
+            if len(self.master_ports) == 0:
+                raise NotEnoughPorts('Need at least one master port')
+            if len(self.master_ports) != len(self.slave_ports):
+                raise NotEnoughPorts(
+                    'Number of slave ports does not match the number of master ports'
+                )
+        else:
+            if len(self.master_ports) != len(DEFAULT_MASTER_PORTS):
+                raise NotEnoughPorts(
+                    f'Need exactly {len(DEFAULT_MASTER_PORTS)} masters!',
+                )
+            if len(self.slave_ports) != len(DEFAULT_SLAVE_PORTS):
+                raise NotEnoughPorts(
+                    f'Need exactly {len(DEFAULT_SLAVE_PORTS)} slaves!',
+                )
 
 
 def get_service_settings():
@@ -55,6 +60,9 @@ def get_service_settings():
         slave_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_SLAVE_PORTS', default=DEFAULT_SLAVE_PORTS,
         ),
+        cluster_mode=bool(
+            utils.getenv_int(key='TESTSUITE_REDIS_CLUSTER_MODE', default=0)
+        ),
     )
 
 
@@ -68,10 +76,11 @@ def create_redis_service(
         settings = get_service_settings()
     configs_dir = pathlib.Path(working_dir).joinpath('configs')
     check_ports = [
-        settings.sentinel_port,
         *settings.master_ports,
         *settings.slave_ports,
     ]
+    if not settings.cluster_mode:
+        check_ports.append(settings.sentinel_port)
 
     def prestart_hook():
         configs_dir.mkdir(parents=True, exist_ok=True)
@@ -79,21 +88,22 @@ def create_redis_service(
         genredis.generate_redis_configs(
             output_path=configs_dir,
             host=settings.host,
-            master0_port=settings.master_ports[0],
-            master1_port=settings.master_ports[1],
-            slave0_port=settings.slave_ports[0],
-            slave1_port=settings.slave_ports[1],
-            slave2_port=settings.slave_ports[2],
+            master_ports=settings.master_ports,
+            slave_ports=settings.slave_ports,
             sentinel_port=settings.sentinel_port,
+            cluster_mode=settings.cluster_mode,
         )
 
     return service.ScriptService(
         service_name=service_name,
-        script_path=str(SERVICE_SCRIPT_PATH),
+        script_path=str(_get_service_script_path(settings.cluster_mode)),
         working_dir=working_dir,
         environment={
             'REDIS_TMPDIR': working_dir,
             'REDIS_CONFIGS_DIR': str(configs_dir),
+            'REDIS_HOST': settings.host,
+            'REDIS_MASTER_PORTS': ','.join(str(p) for p in settings.master_ports),
+            'REDIS_SLAVE_PORTS': ','.join(str(p) for p in settings.slave_ports),
             **(env or {}),
         },
         check_host=settings.host,
@@ -123,3 +133,8 @@ def _resolve_hostname(hostname: str) -> str:
             return result[0][4][0]
     warnings.warn(f'Failed to resolve hostname {hostname}')
     return hostname
+
+def _get_service_script_path(cluster_mode: bool) -> pathlib.Path:
+    return pathlib.Path(__file__).parent.joinpath('scripts').joinpath(
+        'service-redis-cluster' if cluster_mode else 'service-redis'
+    )

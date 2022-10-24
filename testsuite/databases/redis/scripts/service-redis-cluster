@@ -4,17 +4,22 @@
 
 [ -z "$REDIS_TMPDIR" ] && die "REDIS_TMPDIR must be set"
 [ -z "$REDIS_CONFIGS_DIR" ] && die "REDIS_CONFIGS_DIR must be set"
+[ -z "$REDIS_HOST" ] && die "REDIS_HOST must be set"
+[ -z "$REDIS_MASTER_PORTS" ] && die "REDIS_MASTER_PORTS must be set"
+[ -z "$REDIS_SLAVE_PORTS" ] && die "REDIS_SLAVE_PORTS must be set"
 
-REDIS_HOST=${REDIS_HOST:-127.0.0.1}
-REDIS_PORTS=$(seq -s ' ' ${REDIS_PORT_MIN:-7000} ${REDIS_PORT_MAX:-7005})
 REDIS_DATADIR=$REDIS_TMPDIR/data
 REDIS_LOGSDIR=$REDIS_TMPDIR/logs
+IFS=',' read -ra REDIS_MASTER_PORTS <<< "$REDIS_MASTER_PORTS"
+IFS=',' read -ra REDIS_SLAVE_PORTS <<< "$REDIS_SLAVE_PORTS"
 
 REDIS_SERVER=$(which redis-server)
 [ -z "$REDIS_SERVER" ] && die "No redis-server binary found"
 
 REDIS_CLI=$(which redis-cli)
 [ -z "$REDIS_CLI" ] && die "No redis-cli binary found"
+
+REDIS_INSTS=
 
 start() {
     rm -rf $REDIS_DATADIR
@@ -23,15 +28,15 @@ start() {
     mkdir -p $REDIS_DATADIR
     mkdir -p $REDIS_LOGSDIR
 
-    for port in $REDIS_PORTS; do
-        config=$REDIS_CONFIGS_DIR/redis_${port}.conf
+    for port in ${REDIS_MASTER_PORTS[@]} ${REDIS_SLAVE_PORTS[@]}; do
+        echo "Starting redis cluster node on port $port $config..."
+        config=$REDIS_CONFIGS_DIR/redis${port}.conf
         pidfile="$(get_pidfile $port)"
-        logfile=$REDIS_LOGSDIR/redis_$port.log
-        echo "Starting redis $config..."
+        logfile=$REDIS_LOGSDIR/redis$port.log
         $REDIS_SERVER $config \
                       --pidfile $pidfile \
                       --dir $REDIS_DATADIR \
-                      --dbfilename redis_$role.db \
+                      --dbfilename redis$port.db \
                       --logfile "$logfile" || {
             dump_log_stderr "$logfile"
             die "Failed to start redis ($port) server"
@@ -47,7 +52,7 @@ start() {
 }
 
 stop() {
-    for port in $REDIS_PORTS; do
+    for port in ${REDIS_MASTER_PORTS[@]} ${REDIS_SLAVE_PORTS[@]}; do
         pidfile="$(get_pidfile $port)"
         stop_daemon $REDIS_SERVER $pidfile
     done

@@ -10,8 +10,6 @@
 
 REDIS_DATADIR=$REDIS_TMPDIR/data
 REDIS_LOGSDIR=$REDIS_TMPDIR/logs
-IFS=',' read -ra REDIS_MASTER_PORTS <<< "$REDIS_MASTER_PORTS"
-IFS=',' read -ra REDIS_SLAVE_PORTS <<< "$REDIS_SLAVE_PORTS"
 
 REDIS_SERVER=$(which redis-server)
 [ -z "$REDIS_SERVER" ] && die "No redis-server binary found"
@@ -28,15 +26,15 @@ start() {
     mkdir -p $REDIS_DATADIR
     mkdir -p $REDIS_LOGSDIR
 
-    for port in ${REDIS_MASTER_PORTS[@]} ${REDIS_SLAVE_PORTS[@]}; do
+    for port in ${REDIS_MASTER_PORTS} ${REDIS_SLAVE_PORTS}; do
         echo "Starting redis cluster node on port $port $config..."
-        config=$REDIS_CONFIGS_DIR/redis${port}.conf
+        config=$REDIS_CONFIGS_DIR/redis_cluster${port}.conf
         pidfile="$(get_pidfile $port)"
-        logfile=$REDIS_LOGSDIR/redis$port.log
+        logfile=$REDIS_LOGSDIR/redis_cluster$port.log
         $REDIS_SERVER $config \
                       --pidfile $pidfile \
                       --dir $REDIS_DATADIR \
-                      --dbfilename redis$port.db \
+                      --dbfilename redis_cluster$port.db \
                       --logfile "$logfile" || {
             dump_log_stderr "$logfile"
             die "Failed to start redis ($port) server"
@@ -52,7 +50,7 @@ start() {
 }
 
 stop() {
-    for port in ${REDIS_MASTER_PORTS[@]} ${REDIS_SLAVE_PORTS[@]}; do
+    for port in ${REDIS_MASTER_PORTS} ${REDIS_SLAVE_PORTS}; do
         pidfile="$(get_pidfile $port)"
         stop_daemon $REDIS_SERVER $pidfile
     done

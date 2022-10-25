@@ -16,6 +16,9 @@ def pytest_addoption(parser):
     group.addoption(
         '--no-redis', help='Do not fill redis storage', action='store_true',
     )
+    parser.addini(
+        'redis-cluster-mode', type='bool', default=False, help='Redis cluster mode',
+    )
 
 
 def pytest_configure(config):
@@ -30,7 +33,7 @@ def pytest_service_register(register_service):
 
 @pytest.fixture(scope='session')
 def redis_service(
-        pytestconfig, ensure_service_started, _redis_service_settings,
+        pytestconfig, ensure_service_started, _redis_service_settings
 ):
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started('redis', settings=_redis_service_settings)
@@ -111,8 +114,11 @@ def redis_sentinels(pytestconfig, _redis_service_settings):
 
 
 @pytest.fixture(scope='session')
-def _redis_service_settings():
-    return service.get_service_settings()
+def _redis_service_settings(pytestconfig):
+    if pytestconfig.getini('redis-cluster-mode'):
+        return service.get_cluster_settings()
+    else:
+        return service.get_service_settings()
 
 
 def _json_object_hook(dct):

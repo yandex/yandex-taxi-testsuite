@@ -13,6 +13,9 @@ DEFAULT_MASTER_PORTS = (16379, 16389)
 DEFAULT_SENTINEL_PORT = 26379
 DEFAULT_SLAVE_PORTS = (16380, 16381, 16390)
 
+CLUSTER_MASTER_PORTS = (7000, 7001, 7002)
+CLUSTER_SLAVE_PORTS = (7003, 7004, 7005)
+
 
 class BaseError(Exception):
     pass
@@ -31,8 +34,8 @@ class ServiceSettings(typing.NamedTuple):
 
     def validate(self):
         if self.cluster_mode:
-            if len(self.master_ports) == 0:
-                raise NotEnoughPorts('Need at least one master port')
+            if len(self.master_ports) < 3:
+                raise NotEnoughPorts('Need at least three master ports')
             if len(self.master_ports) != len(self.slave_ports):
                 raise NotEnoughPorts(
                     'Number of slave ports does not match the number of master ports'
@@ -48,7 +51,7 @@ class ServiceSettings(typing.NamedTuple):
                 )
 
 
-def get_service_settings():
+def get_service_settings(cluster_mode: bool = False) -> ServiceSettings:
     return ServiceSettings(
         host=_get_hostname(),
         master_ports=utils.getenv_ints(
@@ -60,9 +63,17 @@ def get_service_settings():
         slave_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_SLAVE_PORTS', default=DEFAULT_SLAVE_PORTS,
         ),
-        cluster_mode=bool(
-            utils.getenv_int(key='TESTSUITE_REDIS_CLUSTER_MODE', default=0)
-        ),
+        cluster_mode=False,
+    )
+
+
+def get_cluster_settings():
+    return ServiceSettings(
+        host=_get_hostname(),
+        master_ports=CLUSTER_MASTER_PORTS,
+        slave_ports=CLUSTER_SLAVE_PORTS,
+        sentinel_port=0,
+        cluster_mode=True,
     )
 
 
@@ -102,8 +113,8 @@ def create_redis_service(
             'REDIS_TMPDIR': working_dir,
             'REDIS_CONFIGS_DIR': str(configs_dir),
             'REDIS_HOST': settings.host,
-            'REDIS_MASTER_PORTS': ','.join(str(p) for p in settings.master_ports),
-            'REDIS_SLAVE_PORTS': ','.join(str(p) for p in settings.slave_ports),
+            'REDIS_MASTER_PORTS': ' '.join(str(p) for p in settings.master_ports),
+            'REDIS_SLAVE_PORTS': ' '.join(str(p) for p in settings.slave_ports),
             **(env or {}),
         },
         check_host=settings.host,

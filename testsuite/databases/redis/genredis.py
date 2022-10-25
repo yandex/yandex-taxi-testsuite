@@ -11,7 +11,7 @@ from testsuite.utils import subprocess_helper
 MASTER_TPL_FILENAME = 'redis_master.conf.tpl'
 SENTINEL_TPL_FILENAME = 'redis_sentinel.conf.tpl'
 SLAVE_TPL_FILENAME = 'redis_slave.conf.tpl'
-CLUSTER_NODE_TPL_FILENAME = 'redis.conf.tpl'
+CLUSTER_TPL_FILENAME = 'redis_cluster.conf.tpl'
 
 SENTINEL_PARAMS = [
     {
@@ -136,9 +136,9 @@ def _generate_cluster_node(
         port: int,
         output_path: pathlib.Path,
 ) -> None:
-    input_file = _redis_config_directory() / CLUSTER_NODE_TPL_FILENAME
+    input_file = _redis_config_directory() / CLUSTER_TPL_FILENAME
     output_file = _construct_output_filename(
-        output_path, CLUSTER_NODE_TPL_FILENAME, port,
+        output_path, CLUSTER_TPL_FILENAME, port,
     )
     _generate_redis_config(
         input_file, output_file, protected_mode_no, host, port,

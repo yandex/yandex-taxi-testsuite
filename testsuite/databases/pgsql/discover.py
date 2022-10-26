@@ -67,7 +67,7 @@ class PgShardedDatabase:
 
 
 def find_schemas(
-        service_name: str, schema_dirs: List[pathlib.Path],
+        service_name: Optional[str], schema_dirs: List[pathlib.Path],
 ) -> Dict[str, PgShardedDatabase]:
     """Read database schemas from directories ``schema_dirs``. ::
      |- schema_path/

@@ -25,6 +25,10 @@ class NotEnoughPorts(BaseError):
     pass
 
 
+class InvalidServiceMode(BaseError):
+    pass
+
+
 class ServiceSettings(typing.NamedTuple):
     host: str
     master_ports: typing.Tuple[int, ...]
@@ -51,7 +55,7 @@ class ServiceSettings(typing.NamedTuple):
                 )
 
 
-def get_service_settings(cluster_mode: bool = False) -> ServiceSettings:
+def get_sentinel_service_settings() -> ServiceSettings:
     return ServiceSettings(
         host=_get_hostname(),
         master_ports=utils.getenv_ints(
@@ -67,24 +71,26 @@ def get_service_settings(cluster_mode: bool = False) -> ServiceSettings:
     )
 
 
-def get_cluster_settings():
+def get_cluster_service_settings() -> ServiceSettings:
     return ServiceSettings(
         host=_get_hostname(),
-        master_ports=CLUSTER_MASTER_PORTS,
-        slave_ports=CLUSTER_SLAVE_PORTS,
+        master_ports=utils.getenv_ints(
+            key='TESTSUITE_REDIS_MASTER_PORTS', default=CLUSTER_MASTER_PORTS,
+        ),
+        slave_ports=utils.getenv_ints(
+            key='TESTSUITE_REDIS_SLAVE_PORTS', default=CLUSTER_SLAVE_PORTS,
+        ),
         sentinel_port=0,
         cluster_mode=True,
     )
 
 
-def create_redis_service(
+def _create_redis_service(
         service_name,
         working_dir,
-        settings: typing.Optional[ServiceSettings] = None,
+        settings: ServiceSettings,
         env=None,
 ):
-    if settings is None:
-        settings = get_service_settings()
     configs_dir = pathlib.Path(working_dir).joinpath('configs')
     check_ports = [
         *settings.master_ports,
@@ -96,14 +102,21 @@ def create_redis_service(
     def prestart_hook():
         configs_dir.mkdir(parents=True, exist_ok=True)
         settings.validate()
-        genredis.generate_redis_configs(
-            output_path=configs_dir,
-            host=settings.host,
-            master_ports=settings.master_ports,
-            slave_ports=settings.slave_ports,
-            sentinel_port=settings.sentinel_port,
-            cluster_mode=settings.cluster_mode,
-        )
+        if settings.cluster_mode:
+            genredis.generate_redis_cluster_configs(
+                output_path=configs_dir,
+                host=settings.host,
+                master_ports=settings.master_ports,
+                slave_ports=settings.slave_ports,
+            )
+        else:
+            genredis.generate_redis_sentinel_configs(
+                output_path=configs_dir,
+                host=settings.host,
+                master_ports=settings.master_ports,
+                slave_ports=settings.slave_ports,
+                sentinel_port=settings.sentinel_port,
+            )
 
     return service.ScriptService(
         service_name=service_name,
@@ -121,6 +134,32 @@ def create_redis_service(
         check_ports=check_ports,
         prestart_hook=prestart_hook,
     )
+
+
+def create_redis_sentinel_service(
+        service_name,
+        working_dir,
+        settings: typing.Optional[ServiceSettings] = None,
+        env=None,
+):
+    if settings is None:
+        settings = get_sentinel_service_settings()
+    if settings.cluster_mode:
+        raise InvalidServiceMode('Expected redis sentinel mode')
+    return _create_redis_service(service_name, working_dir, settings, env)
+
+
+def create_redis_cluster_service(
+        service_name,
+        working_dir,
+        settings: typing.Optional[ServiceSettings] = None,
+        env=None,
+):
+    if settings is None:
+        settings = get_cluster_service_settings()
+    if not settings.cluster_mode:
+        raise InvalidServiceMode('Expected redis cluster mode')
+    return _create_redis_service(service_name, working_dir, settings, env)
 
 
 def _get_hostname():

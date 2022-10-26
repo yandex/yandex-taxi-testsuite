@@ -178,47 +178,60 @@ def redis_version() -> typing.List[int]:
     )
 
 
-def generate_redis_configs(
+def _redis_protected_mode() -> str:
+    if redis_version() >= [3, 2, 0]:
+        return 'protected-mode no'
+    else:
+        return ''
+
+
+def generate_redis_cluster_configs(
+        output_path: pathlib.Path,
+        host: str,
+        master_ports: typing.List[int],
+        slave_ports: typing.List[int],
+) -> None:
+    for port in itertools.chain(master_ports, slave_ports):
+        _generate_cluster_node(_redis_protected_mode(), host, port, output_path)
+
+
+def generate_redis_sentinel_configs(
         output_path: pathlib.Path,
         host: str,
         master_ports: typing.List[int],
         slave_ports: typing.List[int],
         sentinel_port: int,
-        cluster_mode: bool,
 ) -> None:
-    protected_mode_no = ''
-    if redis_version() >= [3, 2, 0]:
-        protected_mode_no = 'protected-mode no'
-
-    if cluster_mode:
-        for port in itertools.chain(master_ports, slave_ports):
-            _generate_cluster_node(protected_mode_no, host, port, output_path)
-
-    else:
-        for index, port in enumerate(master_ports):
-            _generate_master(protected_mode_no, host, port, output_path, index)
-
-        for index, port in enumerate(slave_ports):
-            # every master gets two slaves
-            _generate_slave(
-                protected_mode_no, host, port, master_ports[index // 2], output_path, index,
-            )
-
-        _generate_sentinel(
-            protected_mode_no, host, sentinel_port, master_ports, output_path, SENTINEL_PARAMS,
+    protected_mode_no = _redis_protected_mode()
+    for index, port in enumerate(master_ports):
+        _generate_master(protected_mode_no, host, port, output_path, index)
+    for index, port in enumerate(slave_ports):
+        # every master gets two slaves
+        _generate_slave(
+            protected_mode_no, host, port, master_ports[index // 2], output_path, index,
         )
+    _generate_sentinel(
+        protected_mode_no, host, sentinel_port, master_ports, output_path, SENTINEL_PARAMS,
+    )
 
 
 def main():
     args = _parse_args()
-    generate_redis_configs(
-        output_path=args.output,
-        host=args.host,
-        master_ports=args.master_port,
-        slave_ports=args.slave_port,
-        sentinel_port=args.sentinel_port,
-        cluster_mode=args.cluster_mode,
-    )
+    if args.cluster_mode:
+        generate_redis_cluster_configs(
+            output_path=args.output,
+            host=args.host,
+            master_ports=args.master_port,
+            slave_ports=args.slave_port,
+        )
+    else:
+        generate_redis_sentinel_configs(
+            output_path=args.output,
+            host=args.host,
+            master_ports=args.master_port,
+            slave_ports=args.slave_port,
+            sentinel_port=args.sentinel_port,
+        )
 
 
 if __name__ == '__main__':

@@ -6,12 +6,19 @@ import redis as redisdb
 from . import service
 
 
+REDIS_SENTINEL_SERVICE_NAME = 'redis'
+REDIS_CLUSTER_SERVICE_NAME = 'redis-cluster'
+
+
 def pytest_addoption(parser):
     group = parser.getgroup('redis')
     group.addoption('--redis-host', help='Redis host')
     group.addoption('--redis-master-port', type=int, help='Redis master port')
     group.addoption(
         '--redis-sentinel-port', type=int, help='Redis sentinel port',
+    )
+    group.addoption(
+        '--redis-cluster-mode', action='store_true', help='Redis cluster mode',
     )
     group.addoption(
         '--no-redis', help='Do not fill redis storage', action='store_true',
@@ -28,7 +35,12 @@ def pytest_configure(config):
 
 
 def pytest_service_register(register_service):
-    register_service('redis', service.create_redis_service)
+    register_service(
+        REDIS_SENTINEL_SERVICE_NAME, service.create_redis_sentinel_service,
+    )
+    register_service(
+        REDIS_CLUSTER_SERVICE_NAME, service.create_redis_cluster_service,
+    )
 
 
 @pytest.fixture(scope='session')
@@ -36,7 +48,11 @@ def redis_service(
         pytestconfig, ensure_service_started, _redis_service_settings
 ):
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
-        ensure_service_started('redis', settings=_redis_service_settings)
+        if _redis_service_settings.cluster_mode:
+            service_name = REDIS_CLUSTER_SERVICE_NAME
+        else:
+            service_name = REDIS_SENTINEL_SERVICE_NAME
+        ensure_service_started(service_name, settings=_redis_service_settings)
 
 
 @pytest.fixture
@@ -115,10 +131,11 @@ def redis_sentinels(pytestconfig, _redis_service_settings):
 
 @pytest.fixture(scope='session')
 def _redis_service_settings(pytestconfig):
-    if pytestconfig.getini('redis-cluster-mode'):
-        return service.get_cluster_settings()
+    if (pytestconfig.option.redis_cluster_mode or
+            pytestconfig.getini('redis-cluster-mode')):
+        return service.get_cluster_service_settings()
     else:
-        return service.get_service_settings()
+        return service.get_sentinel_service_settings()
 
 
 def _json_object_hook(dct):

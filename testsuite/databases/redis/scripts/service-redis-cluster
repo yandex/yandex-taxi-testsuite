@@ -27,7 +27,7 @@ start() {
     mkdir -p $REDIS_LOGSDIR
 
     for port in ${REDIS_MASTER_PORTS} ${REDIS_SLAVE_PORTS}; do
-        echo "Starting redis cluster node on port $port $config..."
+        echo "Starting redis cluster node on $port..."
         config=$REDIS_CONFIGS_DIR/redis_cluster${port}.conf
         pidfile="$(get_pidfile $port)"
         logfile=$REDIS_LOGSDIR/redis_cluster$port.log

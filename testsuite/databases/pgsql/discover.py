@@ -93,7 +93,7 @@ def find_schemas(
 
 
 def _find_databases_schemas(
-        service_name: str, schema_path: pathlib.Path,
+        service_name: Optional[str], schema_path: pathlib.Path,
 ) -> Dict[str, PgShardedDatabase]:
     logger.debug('Looking up for PostgreSQL schemas at %s', schema_path)
     shard_files_map = _build_shard_files_map(schema_path)

@@ -10,6 +10,7 @@
 
 REDIS_DATADIR=$REDIS_TMPDIR/data
 REDIS_LOGSDIR=$REDIS_TMPDIR/logs
+REDIS_SLEEP_WORKAROUND_SECONDS=${REDIS_SLEEP_WORKAROUND_SECONDS:=1}
 
 REDIS_SERVER=$(which redis-server)
 [ -z "$REDIS_SERVER" ] && die "No redis-server binary found"
@@ -47,6 +48,8 @@ start() {
         --cluster-replicas 1 \
         --cluster-yes || \
         die "Failed to create a redis cluster"
+
+    sleep $REDIS_SLEEP_WORKAROUND_SECONDS
 }
 
 stop() {

@@ -18,9 +18,6 @@ def pytest_addoption(parser):
         '--redis-sentinel-port', type=int, help='Redis sentinel port',
     )
     group.addoption(
-        '--redis-cluster-mode', action='store_true', help='Redis cluster mode',
-    )
-    group.addoption(
         '--no-redis', help='Do not fill redis storage', action='store_true',
     )
     parser.addini(
@@ -131,8 +128,7 @@ def redis_sentinels(pytestconfig, _redis_service_settings):
 
 @pytest.fixture(scope='session')
 def _redis_service_settings(pytestconfig):
-    if (pytestconfig.option.redis_cluster_mode or
-            pytestconfig.getini('redis-cluster-mode')):
+    if pytestconfig.getini('redis-cluster-mode'):
         return service.get_cluster_service_settings()
     else:
         return service.get_sentinel_service_settings()

@@ -1,5 +1,4 @@
 import pytest
-import redis as redisdb
 
 from testsuite.databases.redis import service
 
@@ -9,12 +8,16 @@ def _redis_service_settings(pytestconfig):
     return service.get_cluster_service_settings()
 
 
-def test_cluster_basic(redis_service, _redis_service_settings: service.ServiceSettings):
-    redis_db = redisdb.StrictRedis(
-        host=_redis_service_settings.host,
-        port=_redis_service_settings.master_ports[0],
-    )
-    cluster_nodes = redis_db.cluster('NODES')
+def test_cluster_basic(
+    redis_db: service.ServiceInstances, 
+    _redis_service_settings: service.ServiceSettings
+):
+    assert len(redis_db.masters) > 0
+    assert len(redis_db.slaves) > 0
+    assert redis_db.sentinel is None
+
+    redis_master = redis_db.masters[0]
+    cluster_nodes = redis_master.cluster('NODES')
 
     for node, info in cluster_nodes.items():
         port = int(node.rsplit(':', maxsplit=1)[-1])

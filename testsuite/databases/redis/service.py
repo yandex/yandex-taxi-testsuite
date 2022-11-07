@@ -1,5 +1,6 @@
 import os
 import pathlib
+import redis
 import socket
 import typing
 import warnings
@@ -53,6 +54,12 @@ class ServiceSettings(typing.NamedTuple):
                 raise NotEnoughPorts(
                     f'Need exactly {len(DEFAULT_SLAVE_PORTS)} slaves!',
                 )
+
+
+class ServiceInstances(typing.NamedTuple):
+    masters: typing.Tuple[redis.Redis, ...]
+    slaves: typing.Tuple[redis.Redis, ...]
+    sentinel: typing.Optional[redis.Redis]
 
 
 def get_sentinel_service_settings() -> ServiceSettings:

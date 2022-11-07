@@ -56,12 +56,6 @@ class ServiceSettings(typing.NamedTuple):
                 )
 
 
-class ServiceInstances(typing.NamedTuple):
-    masters: typing.Tuple[redis.Redis, ...]
-    slaves: typing.Tuple[redis.Redis, ...]
-    sentinel: typing.Optional[redis.Redis]
-
-
 def get_sentinel_service_settings() -> ServiceSettings:
     return ServiceSettings(
         host=_get_hostname(),

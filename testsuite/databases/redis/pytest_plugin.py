@@ -53,21 +53,22 @@ def redis_service(
 
 
 @pytest.fixture(scope='session')
-def redis_db(redis_service, _redis_service_settings) -> service.ServiceInstances:
-    def connect_ports(ports):
-        return tuple(
-            redisdb.StrictRedis(host=_redis_service_settings.host, port=port)
-            for port in ports
-        )
-    def connect_sentinel():
-        return redisdb.StrictRedis(
-            host=_redis_service_settings.host,
-            port=_redis_service_settings.sentinel_port,
-        )
-    return service.ServiceInstances(
-        masters=connect_ports(_redis_service_settings.master_ports),
-        slaves=connect_ports(_redis_service_settings.slave_ports),
-        sentinel=None if _redis_service_settings.cluster_mode else connect_sentinel(),
+def redis_db(redis_service, _redis_service_settings):
+    params = {
+        'host': _redis_service_settings.host,
+        'port': _redis_service_settings.master_ports[0]
+    }
+    if _redis_service_settings.cluster_mode:
+        return redisdb.RedisCluster(**params)
+    else:
+        return redisdb.StrictRedis(**params)
+
+
+@pytest.fixture(scope='session')
+def redis_sentinel(redis_service, _redis_service_settings):
+    return redisdb.StrictRedis(
+        host=_redis_service_settings.host,
+        port=_redis_service_settings.sentinel_port,
     )
 
 
@@ -90,15 +91,13 @@ def redis_store(pytestconfig, request, load_json, redis_db):
         if mark.args:
             redis_commands.extend(mark.args)
 
-    redis_master = redis_db.masters[0]
-
     for redis_command in redis_commands:
-        func = getattr(redis_master, redis_command[0])
+        func = getattr(redis_db, redis_command[0])
         func(*redis_command[1:])
     try:
-        yield redis_master
+        yield redis_db
     finally:
-        redis_master.flushall()
+        redis_db.flushall()
 
 
 @pytest.fixture(scope='session')

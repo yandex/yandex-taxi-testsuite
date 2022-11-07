@@ -319,14 +319,19 @@ Redis
 
 Testsuite provides basic support for redis.
 
+Configuration file settings:
+- ``redis-cluster-mode`` - run a sharded redis cluster, boolean, default false
+
 Testsuite may start redis with custom ports, if following environment variables
 are specified:
 
 - ``TESTSUITE_REDIS_MASTER_PORTS`` - if set, must be two comma separated
-  integers
-- ``TESTSUITE_REDIS_SENTINEL_PORT`` - if set, must be integer
+  integers for sentinel mode and at least three for cluster mode
 - ``TESTSUITE_REDIS_SLAVE_PORTS`` - if set must be three comma separated
-  integers
+  integers for sentinel mode and double the number of master ports for 
+  cluster mode
+- ``TESTSUITE_REDIS_SENTINEL_PORT`` - if set, must be integer, used only
+  in sentinel mode
 
 .. include:: clickhouse.rst
 

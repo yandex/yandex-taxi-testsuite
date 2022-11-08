@@ -10,10 +10,10 @@ def _redis_service_settings(pytestconfig):
 
 
 def test_sentinel_config(
-    redis_sentinel: redis.StrictRedis,
+    redisdb_sentinel: redis.StrictRedis,
     _redis_service_settings: service.ServiceSettings
 ):
-    masters = redis_sentinel.sentinel_masters()
+    masters = redisdb_sentinel.sentinel_masters()
     assert len(masters) == len(_redis_service_settings.master_ports)
     total_slaves = 0
     for shard, master in masters.items():
@@ -23,7 +23,7 @@ def test_sentinel_config(
         assert not master['is_sentinel']
         assert not master['is_disconnected']
 
-        for slave in redis_sentinel.sentinel_slaves(shard):
+        for slave in redisdb_sentinel.sentinel_slaves(shard):
             assert slave['port'] in _redis_service_settings.slave_ports
             assert slave['is_slave']
             assert not slave['is_master']
@@ -34,6 +34,6 @@ def test_sentinel_config(
     assert total_slaves == len(_redis_service_settings.slave_ports)
 
 
-def test_sentinel_rw(redis_db: redis.StrictRedis):
-    assert redis_db.set('foo', b'bar')
-    assert redis_db.get('foo') == b'bar'
+def test_sentinel_rw(redisdb: redis.StrictRedis):
+    assert redisdb.set('foo', b'bar')
+    assert redisdb.get('foo') == b'bar'

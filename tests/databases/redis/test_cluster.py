@@ -10,10 +10,10 @@ def _redis_service_settings(pytestconfig):
 
 
 def test_cluster_config(
-    redis_db: redis.RedisCluster, 
+    redisdb: redis.RedisCluster, 
     _redis_service_settings: service.ServiceSettings
 ):
-    cluster_nodes = redis_db.cluster_nodes()
+    cluster_nodes = redisdb.cluster_nodes()
 
     for node, info in cluster_nodes.items():
         port = int(node.rsplit(':', maxsplit=1)[-1])
@@ -25,6 +25,6 @@ def test_cluster_config(
             assert False, 'invalid node state'
 
 
-def test_cluster_rw(redis_db: redis.RedisCluster):
-    assert redis_db.set('foo', b'bar')
-    assert redis_db.get('foo') == b'bar'
+def test_cluster_rw(redisdb: redis.RedisCluster):
+    assert redisdb.set('foo', b'bar')
+    assert redisdb.get('foo') == b'bar'

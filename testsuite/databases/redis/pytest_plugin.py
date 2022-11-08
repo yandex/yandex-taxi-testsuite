@@ -1,7 +1,7 @@
 import json
 
 import pytest
-import redis as redisdb
+import redis
 
 from . import service
 
@@ -39,7 +39,6 @@ def pytest_service_register(register_service):
         REDIS_CLUSTER_SERVICE_NAME, service.create_redis_cluster_service,
     )
 
-
 @pytest.fixture(scope='session')
 def redis_service(
         pytestconfig, ensure_service_started, _redis_service_settings
@@ -52,28 +51,39 @@ def redis_service(
         ensure_service_started(service_name, settings=_redis_service_settings)
 
 
-@pytest.fixture(scope='session')
-def redis_db(redis_service, _redis_service_settings):
+@pytest.fixture
+def redisdb(redis_service, _redis_service_settings):
     params = {
         'host': _redis_service_settings.host,
         'port': _redis_service_settings.master_ports[0]
     }
     if _redis_service_settings.cluster_mode:
-        return redisdb.RedisCluster(**params)
+        conn = redis.RedisCluster(
+            host=_redis_service_settings.host,
+            port=_redis_service_settings.master_ports[0],
+        )
     else:
-        return redisdb.StrictRedis(**params)
-
-
-@pytest.fixture(scope='session')
-def redis_sentinel(redis_service, _redis_service_settings):
-    return redisdb.StrictRedis(
-        host=_redis_service_settings.host,
-        port=_redis_service_settings.sentinel_port,
-    )
+        conn = redis.StrictRedis(
+            host=_redis_service_settings.host,
+            port=_redis_service_settings.master_ports[0],
+        )
+    assert conn.ping()
+    return conn
 
 
 @pytest.fixture
-def redis_store(pytestconfig, request, load_json, redis_db):
+def redisdb_sentinel(redis_service, _redis_service_settings):
+    assert not _redis_service_settings.cluster_mode
+    conn = redis.StrictRedis(
+        host=_redis_service_settings.host,
+        port=_redis_service_settings.sentinel_port,
+    )
+    assert conn.ping()
+    return conn
+
+
+@pytest.fixture
+def redis_store(pytestconfig, request, load_json, redisdb):
     if pytestconfig.option.no_redis:
         yield
         return
@@ -92,12 +102,12 @@ def redis_store(pytestconfig, request, load_json, redis_db):
             redis_commands.extend(mark.args)
 
     for redis_command in redis_commands:
-        func = getattr(redis_db, redis_command[0])
+        func = getattr(redisdb, redis_command[0])
         func(*redis_command[1:])
     try:
-        yield redis_db
+        yield redisdb
     finally:
-        redis_db.flushall()
+        redisdb.flushall()
 
 
 @pytest.fixture(scope='session')

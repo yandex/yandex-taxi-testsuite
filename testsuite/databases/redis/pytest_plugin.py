@@ -59,19 +59,13 @@ def _redis_connection_cache(redis_service):
     def get_connection(settings: service.ServiceSettings):
         nonlocal redis_cluster
         nonlocal redis_db
-
+        endpoint = {'host': settings.host, 'port': settings.master_ports[0]}
         if settings.cluster_mode:
             if redis_cluster is None:
-                redis_cluster = redis.RedisCluster(
-                    host=settings.host,
-                    port=settings.master_ports[0],
-                )
+                redis_cluster = redis.RedisCluster(**endpoint)
             return redis_cluster
         if redis_db is None:
-            redis_db = redis.StrictRedis(
-                host=settings.host,
-                port=settings.master_ports[0],
-            )
+            redis_db = redis.StrictRedis(**endpoint)
         return redis_db
 
     return get_connection

@@ -10,7 +10,7 @@ MONGO_ARGS="--nounixsocket"
 MONGOS_ARGS=""
 
 if [ "x$MONGO" = "x" ]; then
-    die "No mongo binary found"
+    die "No mongo or mongosh binary found"
 fi
 if [ "x$MONGOD" = "x" ]; then
     die "No mongod binary found"

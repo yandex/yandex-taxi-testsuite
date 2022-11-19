@@ -2,7 +2,7 @@
 
 . $TESTSUITE_LIB_UTILS
 
-MONGO=$(which mongo)
+MONGO=$(which mongo || which mongosh)
 MONGOD=$(which mongod)
 MONGOS=$(which mongos)
 

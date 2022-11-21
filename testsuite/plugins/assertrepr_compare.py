@@ -4,7 +4,7 @@ import operator
 import pprint
 import typing
 
-import py
+import py.io
 
 from testsuite.utils import matching
 

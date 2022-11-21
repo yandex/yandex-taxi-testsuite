@@ -1,3 +1,4 @@
+import email
 import json
 import typing
 import urllib.parse
@@ -11,6 +12,10 @@ CHUNKED_CONTENT_IN_GET_REQUEST_ERROR = (
     'GET requests cannot have content, but \'Transfer-Encoding: chunked\' '
     'header was sent.'
 )
+MULTIPART_MIME_PATTERN = """MIME-Version: 1.0
+Content-Type: %s
+
+%s"""
 
 
 class BaseError(Exception):
@@ -119,6 +124,25 @@ class Request:
                     encoding=charset,
                 )
                 self._form = {key: value for key, value in items}
+            elif self._request.content_type.startswith('multipart/form-data'):
+                charset = self._request.charset or 'utf-8'
+                epost_data = MULTIPART_MIME_PATTERN % (
+                    self._request.headers['content-type'],
+                    self._data.rstrip().decode(charset),
+                )
+                data = email.message_from_string(epost_data)
+                assert data.is_multipart()
+
+                self._form = {}
+                for part in data.get_payload():
+                    name = part.get_param('name', header='content-disposition')
+                    payload = part.get_payload(decode=True).decode(charset)
+                    try:
+                        payload = int(payload)
+                    except ValueError:
+                        pass
+                    self._form[name] = payload
+
             else:
                 self._form = {}
 

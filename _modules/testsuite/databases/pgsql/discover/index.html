@@ -101,7 +101,7 @@
 
 
 <div class="viewcode-block" id="find_schemas"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.pgsql.discover.find_schemas">[docs]</a><span class="k">def</span> <span class="nf">find_schemas</span><span class="p">(</span>
-        <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">schema_dirs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span>
+        <span class="n">service_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">schema_dirs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PgShardedDatabase</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Read database schemas from directories ``schema_dirs``. ::</span>
 <span class="sd">     |- schema_path/</span>
@@ -127,7 +127,7 @@
 
 
 <span class="k">def</span> <span class="nf">_find_databases_schemas</span><span class="p">(</span>
-        <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">service_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PgShardedDatabase</span><span class="p">]:</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Looking up for PostgreSQL schemas at </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">)</span>
     <span class="n">shard_files_map</span> <span class="o">=</span> <span class="n">_build_shard_files_map</span><span class="p">(</span><span class="n">schema_path</span><span class="p">)</span>

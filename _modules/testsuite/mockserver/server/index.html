@@ -232,7 +232,6 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">mockserver_info</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">MockserverInfo</span><span class="p">,</span>
             <span class="o">*</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">nofail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">reporter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
                 <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span>
@@ -243,7 +242,6 @@
             <span class="n">http_proxy_enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">mockserver_info</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nofail</span> <span class="o">=</span> <span class="n">nofail</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reporter</span> <span class="o">=</span> <span class="n">reporter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracing_enabled</span> <span class="o">=</span> <span class="n">tracing_enabled</span>
@@ -288,14 +286,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">handle_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-
         <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;_type&#39;</span><span class="p">:</span> <span class="s1">&#39;mockserver_request&#39;</span><span class="p">,</span>
             <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span>
-            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;INFO&#39;</span><span class="p">,</span>
             <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
             <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
         <span class="p">}</span>
@@ -308,14 +303,14 @@
             <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;DONE&#39;</span>
             <span class="k">return</span> <span class="n">response</span>
         <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ERROR&#39;</span>
+            <span class="n">log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span>
             <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;FAIL&#39;</span>
             <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;exc_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
             <span class="k">raise</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">delay_ms</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span><span class="p">)</span>
             <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;delay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delay_ms</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">ms&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">log_entry</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">log_level</span><span class="p">,</span> <span class="s1">&#39;Mockserver request&#39;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tskv&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">})</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_handle_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">BaseRequest</span><span class="p">):</span>
         <span class="n">trace_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trace_id_header</span><span class="p">)</span>
@@ -618,7 +613,6 @@
     <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">sock</span><span class="p">):</span>
         <span class="n">server</span> <span class="o">=</span> <span class="n">Server</span><span class="p">(</span>
             <span class="n">mockserver_info</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">testsuite_logger</span><span class="p">,</span>
             <span class="n">nofail</span><span class="o">=</span><span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mockserver_nofail</span><span class="p">,</span>
             <span class="n">reporter</span><span class="o">=</span><span class="n">mockserver_reporter</span><span class="p">,</span>
             <span class="n">tracing_enabled</span><span class="o">=</span><span class="n">pytestconfig</span><span class="o">.</span><span class="n">getini</span><span class="p">(</span><span class="s1">&#39;mockserver-tracing-enabled&#39;</span><span class="p">),</span>
@@ -632,7 +626,9 @@
             <span class="n">ssl_context</span> <span class="o">=</span> <span class="n">_create_ssl_context</span><span class="p">(</span><span class="n">ssl_info</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ssl_context</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">web_server</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">handle_request</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">)</span>
+        <span class="n">web_server</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">handle_request</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span> <span class="n">access_log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">loop_server</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span>
             <span class="n">web_server</span><span class="p">,</span> <span class="n">sock</span><span class="o">=</span><span class="n">sock</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">ssl_context</span><span class="p">,</span>
         <span class="p">)</span>

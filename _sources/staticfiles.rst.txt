@@ -127,3 +127,42 @@ initial_data_path
 ~~~~~~~~~~~~~~~~~
 
 .. autofunction:: initial_data_path
+
+
+testsuite_get_source_path
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:function:: testsuite_get_source_path(path) -> pathlib.Path
+
+   Returns source path related to given `path`.
+
+   .. code-block:: python
+
+       def test_foo(testsuite_get_source_path):
+           path = testsuite_get_source_path(__file__)
+           ...
+
+
+testsuite_get_source_directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:function:: testsuite_get_source_directory(path) -> pathlib.Path
+
+   Session scope fixture. Returns source directory related to given `path`.
+
+   This fixture can be used to access data files in session fixtures, e.g::
+
+       |- tests/
+          |- test_foo.py
+          |- foo.txt
+
+
+   .. code-block:: python
+
+       @pytest.fixture(scope='session')
+       def my_data(get_source_directory):
+           return (
+               testsuite_get_source_directory(__file__)
+               .joinpath('foo.txt')
+               .read_text()
+           )

@@ -337,7 +337,7 @@
 
 
 <div class="viewcode-block" id="static_dir"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.static_dir">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
-<span class="k">def</span> <span class="nf">static_dir</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">static_dir</span><span class="p">(</span><span class="n">testsuite_request_directory</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Static directory related to test path.</span>
 
 <span class="sd">    Returns static directory relative to test file, e.g.::</span>
@@ -347,7 +347,7 @@
 <span class="sd">          |- test_foo.py</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">fspath</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;static&#39;</span></div>
+    <span class="k">return</span> <span class="n">testsuite_request_directory</span> <span class="o">/</span> <span class="s1">&#39;static&#39;</span></div>
 
 
 <div class="viewcode-block" id="initial_data_path"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.initial_data_path">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
@@ -393,6 +393,32 @@
     <span class="k">return</span> <span class="n">_substitute</span>
 
 
+<div class="viewcode-block" id="testsuite_get_source_path"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.testsuite_get_source_path">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">testsuite_get_source_path</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">get_source_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">get_source_path</span></div>
+
+
+<div class="viewcode-block" id="testsuite_get_source_directory"><a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.testsuite_get_source_directory">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">testsuite_get_source_directory</span><span class="p">(</span><span class="n">testsuite_get_source_path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_source_directory</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">testsuite_get_source_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+
+    <span class="k">return</span> <span class="n">get_source_directory</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">testsuite_request_path</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">testsuite_get_source_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">testsuite_get_source_path</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">testsuite_request_directory</span><span class="p">(</span><span class="n">testsuite_request_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">testsuite_request_path</span><span class="o">.</span><span class="n">parent</span>
+
+
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">worker_id</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;workerinput&#39;</span><span class="p">):</span>
@@ -410,9 +436,9 @@
         <span class="n">request</span><span class="p">,</span>
         <span class="n">static_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">initial_data_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">testsuite_request_path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-    <span class="n">fullname</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">fspath</span><span class="p">)</span>
-    <span class="n">test_module_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">fullname</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+    <span class="n">test_module_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">testsuite_request_path</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
     <span class="n">node_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span>
     <span class="k">if</span> <span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">node_name</span><span class="p">:</span>
         <span class="n">node_name</span> <span class="o">=</span> <span class="n">node_name</span><span class="p">[:</span> <span class="n">node_name</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">)]</span>

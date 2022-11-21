@@ -32,7 +32,8 @@
           <div class="body" role="main">
             
   <h1>Source code for testsuite.utils.http</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span></span><span class="kn">import</span> <span class="nn">email</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">import</span> <span class="nn">urllib.parse</span>
 
@@ -45,6 +46,10 @@
     <span class="s1">&#39;GET requests cannot have content, but </span><span class="se">\&#39;</span><span class="s1">Transfer-Encoding: chunked</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
     <span class="s1">&#39;header was sent.&#39;</span>
 <span class="p">)</span>
+<span class="n">MULTIPART_MIME_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;MIME-Version: 1.0</span>
+<span class="s2">Content-Type: </span><span class="si">%s</span><span class="s2"></span>
+
+<span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -153,6 +158,25 @@
                     <span class="n">encoding</span><span class="o">=</span><span class="n">charset</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">items</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;multipart/form-data&#39;</span><span class="p">):</span>
+                <span class="n">charset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">charset</span> <span class="ow">or</span> <span class="s1">&#39;utf-8&#39;</span>
+                <span class="n">epost_data</span> <span class="o">=</span> <span class="n">MULTIPART_MIME_PATTERN</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;content-type&#39;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">charset</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">email</span><span class="o">.</span><span class="n">message_from_string</span><span class="p">(</span><span class="n">epost_data</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">data</span><span class="o">.</span><span class="n">is_multipart</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get_payload</span><span class="p">():</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;content-disposition&#39;</span><span class="p">)</span>
+                    <span class="n">payload</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">get_payload</span><span class="p">(</span><span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">charset</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">payload</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span>
+
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{}</span>
 

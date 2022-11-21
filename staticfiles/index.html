@@ -301,7 +301,7 @@ It does:
 <h3>static_dir<a class="headerlink" href="#static-dir" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="testsuite.plugins.common.static_dir">
-<code class="descclassname">testsuite.plugins.common.</code><code class="descname">static_dir</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="reference internal" href="../_modules/testsuite/plugins/common/#static_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.static_dir" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">static_dir</code><span class="sig-paren">(</span><em>testsuite_request_directory</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="reference internal" href="../_modules/testsuite/plugins/common/#static_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.static_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static directory related to test path.</p>
 <p>Returns static directory relative to test file, e.g.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|-</span> <span class="n">tests</span><span class="o">/</span>
@@ -323,6 +323,44 @@ It does:
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">PROJECT_ROOT</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;tests/static&#39;</span><span class="p">,</span>
         <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">PROJECT_ROOT</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;static&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="testsuite-get-source-path">
+<h3>testsuite_get_source_path<a class="headerlink" href="#testsuite-get-source-path" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.testsuite_get_source_path">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">testsuite_get_source_path</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="reference internal" href="../_modules/testsuite/plugins/common/#testsuite_get_source_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.testsuite_get_source_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns source path related to given <cite>path</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_foo</span><span class="p">(</span><span class="n">testsuite_get_source_path</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">testsuite_get_source_path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="testsuite-get-source-directory">
+<h3>testsuite_get_source_directory<a class="headerlink" href="#testsuite-get-source-directory" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="testsuite.plugins.common.testsuite_get_source_directory">
+<code class="descclassname">testsuite.plugins.common.</code><code class="descname">testsuite_get_source_directory</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="reference internal" href="../_modules/testsuite/plugins/common/#testsuite_get_source_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.common.testsuite_get_source_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Session scope fixture. Returns source directory related to given <cite>path</cite>.</p>
+<p>This fixture can be used to access data files in session fixtures, e.g:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|-</span> <span class="n">tests</span><span class="o">/</span>
+   <span class="o">|-</span> <span class="n">test_foo</span><span class="o">.</span><span class="n">py</span>
+   <span class="o">|-</span> <span class="n">foo</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_data</span><span class="p">(</span><span class="n">get_source_directory</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">testsuite_get_source_directory</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;foo.txt&#39;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
     <span class="p">)</span>
 </pre></div>
 </div>

@@ -19,3 +19,4 @@ pytest plugins:
    databases
    other_plugins
    utils
+   tcp_mockserver

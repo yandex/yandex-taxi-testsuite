@@ -8,16 +8,13 @@ def pytest_addoption(parser):
     group = parser.getgroup('rabbitmq')
     group.addoption('--rabbitmq')
     group.addoption(
-        '--no-rabbitmq',
-        help='Disable use of RabbitMQ',
-        action='store_true',
+        '--no-rabbitmq', help='Disable use of RabbitMQ', action='store_true',
     )
 
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers',
-        'rabbitmq: per-test RabbitMQ initialization',
+        'markers', 'rabbitmq: per-test RabbitMQ initialization',
     )
 
 
@@ -26,17 +23,13 @@ def pytest_service_register(register_service):
 
 
 @pytest.fixture
-def rabbitmq(
-    _rabbitmq_connection,
-) -> classes.Control:
+def rabbitmq(_rabbitmq_connection) -> classes.Control:
     return _rabbitmq_connection
 
 
 @pytest.fixture(scope='session')
 def _rabbitmq_connection(
-    _rabbitmq_service,
-    _rabbitmq_service_settings,
-    event_loop,
+        _rabbitmq_service, _rabbitmq_service_settings, event_loop,
 ) -> classes.Control:
     control = classes.Control(
         enabled=_rabbitmq_service,
@@ -58,16 +51,13 @@ def _rabbitmq_service_settings() -> service.ServiceSettings:
 
 @pytest.fixture(scope='session')
 def _rabbitmq_service(
-    ensure_service_started,
-    rabbitmq_disabled,
-    pytestconfig,
-    _rabbitmq_service_settings,
+        ensure_service_started,
+        rabbitmq_disabled,
+        pytestconfig,
+        _rabbitmq_service_settings,
 ):
     if rabbitmq_disabled:
         return False
     if not pytestconfig.option.rabbitmq:
-        ensure_service_started(
-            'rabbitmq',
-            settings=_rabbitmq_service_settings,
-        )
+        ensure_service_started('rabbitmq', settings=_rabbitmq_service_settings)
     return True

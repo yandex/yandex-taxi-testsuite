@@ -10,7 +10,7 @@ DEFAULT_RABBITMQ_TCP_PORT = 8672
 DEFAULT_RABBITMQ_EPMD_PORT = 8673
 
 SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
-    'scripts/service-rabbitmq'
+    'scripts/service-rabbitmq',
 )
 
 
@@ -23,10 +23,10 @@ class ServiceSettings(typing.NamedTuple):
 
 
 def create_rabbitmq_service(
-    service_name,
-    working_dir,
-    settings: typing.Optional[ServiceSettings] = None,
-    env: typing.Optional[typing.Dict[str, str]] = None,
+        service_name,
+        working_dir,
+        settings: typing.Optional[ServiceSettings] = None,
+        env: typing.Optional[typing.Dict[str, str]] = None,
 ):
     if settings is None:
         settings = get_service_settings()
@@ -45,7 +45,7 @@ def create_rabbitmq_service(
         },
         check_ports=[settings.tcp_port, settings.epmd_port],
         start_timeout=utils.getenv_float(
-            key='TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT', default=10.0
+            key='TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT', default=10.0,
         ),
     )
 

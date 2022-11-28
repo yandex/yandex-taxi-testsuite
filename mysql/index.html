@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>MySQL &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <title>MySQL &#8212; yandex-taxi-testsuite 0.1.6.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex/" />
     <link rel="search" title="Search" href="../search/" />
    
@@ -33,7 +35,7 @@
           <div class="body" role="main">
             
   <section id="mysql">
-<h1>MySQL<a class="headerlink" href="#mysql" title="Permalink to this headline">¶</a></h1>
+<h1>MySQL<a class="headerlink" href="#mysql" title="Permalink to this heading">¶</a></h1>
 <p>In order to enable mysql support you have to add
 <code class="docutils literal notranslate"><span class="pre">testsuite.databases.mysql.pytest_plugin</span></code> to <code class="docutils literal notranslate"><span class="pre">pytest_plugins</span></code> list in your
 <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> file and configure MySQL schemas location.</p>
@@ -48,17 +50,17 @@ following names:</p>
 <li><p>directory <code class="docutils literal notranslate"><span class="pre">my_DBNAME/</span></code></p></li>
 </ul>
 <section id="customize-port">
-<h2>Customize port<a class="headerlink" href="#customize-port" title="Permalink to this headline">¶</a></h2>
+<h2>Customize port<a class="headerlink" href="#customize-port" title="Permalink to this heading">¶</a></h2>
 <p>Testsuite may start MySQL with custom port, if <code class="docutils literal notranslate"><span class="pre">TESTSUITE_MYSQL_PORT</span></code>
 environment variable is specified</p>
 </section>
 <section id="use-external-instance">
-<h2>Use external instance<a class="headerlink" href="#use-external-instance" title="Permalink to this headline">¶</a></h2>
+<h2>Use external instance<a class="headerlink" href="#use-external-instance" title="Permalink to this heading">¶</a></h2>
 <p>You can force it to use your own mysql installation with command-line option
 <code class="docutils literal notranslate"><span class="pre">--mysql=mysql://user:password&#64;hostname/</span></code>.</p>
 </section>
 <section id="example-integration">
-<h2>Example integration<a class="headerlink" href="#example-integration" title="Permalink to this headline">¶</a></h2>
+<h2>Example integration<a class="headerlink" href="#example-integration" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.databases.mysql</span> <span class="kn">import</span> <span class="n">discover</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
@@ -68,7 +70,7 @@ environment variable is specified</p>
 </div>
 </section>
 <section id="database-access-example">
-<h2>Database access example<a class="headerlink" href="#database-access-example" title="Permalink to this headline">¶</a></h2>
+<h2>Database access example<a class="headerlink" href="#database-access-example" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_read_from_database</span><span class="p">(</span><span class="n">mysql</span><span class="p">):</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="n">mysql</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -80,12 +82,12 @@ environment variable is specified</p>
 </div>
 </section>
 <section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h2>
 <section id="find-schemas">
-<h3>find_schemas<a class="headerlink" href="#find-schemas" title="Permalink to this headline">¶</a></h3>
-<dl class="function">
-<dt id="testsuite.databases.mysql.discover.find_schemas">
-<code class="descclassname">testsuite.databases.mysql.discover.</code><code class="descname">find_schemas</code><span class="sig-paren">(</span><em>schema_dirs: List[pathlib.Path], dbprefix: str = 'testsuite-', extra_schema_args: Optional[Dict[str, Any], None] = None</em><span class="sig-paren">)</span> &#x2192; Dict[str, testsuite.databases.mysql.classes.DatabaseConfig]<a class="reference internal" href="../_modules/testsuite/databases/mysql/discover/#find_schemas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.databases.mysql.discover.find_schemas" title="Permalink to this definition">¶</a></dt>
+<h3>find_schemas<a class="headerlink" href="#find-schemas" title="Permalink to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="testsuite.databases.mysql.discover.find_schemas">
+<span class="sig-prename descclassname"><span class="pre">testsuite.databases.mysql.discover.</span></span><span class="sig-name descname"><span class="pre">find_schemas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbprefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'testsuite-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_schema_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DatabaseConfig</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/testsuite/databases/mysql/discover/#find_schemas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.databases.mysql.discover.find_schemas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve database schemas from filesystem.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -126,12 +128,12 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </section>
 </section>
 <section id="fixtures">
-<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
-<section id="mysql-2">
-<h3>mysql<a class="headerlink" href="#mysql-2" title="Permalink to this headline">¶</a></h3>
-<dl class="function">
-<dt>
-<code class="descclassname">testsuite.databases.mysql.pytest_plugin.</code><code class="descname">mysql</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql"><span class="viewcode-link">[source]</span></a></dt>
+<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this heading">¶</a></h2>
+<section id="id2">
+<h3>mysql<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">testsuite.databases.mysql.pytest_plugin.</span></span><span class="sig-name descname"><span class="pre">mysql</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>MySQL fixture.</p>
 <p>Returns dictionary where key is database alias and value is
 <code class="xref py py-class docutils literal notranslate"><span class="pre">control.ConnectionWrapper</span></code></p>
@@ -139,30 +141,30 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 
 </section>
 <section id="mysql-local">
-<h3>mysql_local<a class="headerlink" href="#mysql-local" title="Permalink to this headline">¶</a></h3>
-<dl class="function">
-<dt>
-<code class="descclassname">testsuite.databases.mysql.pytest_plugin.</code><code class="descname">mysql_local</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql_local"><span class="viewcode-link">[source]</span></a></dt>
+<h3>mysql_local<a class="headerlink" href="#mysql-local" title="Permalink to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">testsuite.databases.mysql.pytest_plugin.</span></span><span class="sig-name descname"><span class="pre">mysql_local</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql_local"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Use to override databases configuration.</p>
 </dd></dl>
 
 </section>
 <section id="mysql-conninfo">
-<h3>mysql_conninfo<a class="headerlink" href="#mysql-conninfo" title="Permalink to this headline">¶</a></h3>
-<dl class="function">
-<dt>
-<code class="descclassname">testsuite.databases.mysql.pytest_plugin.</code><code class="descname">mysql_conninfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql_conninfo"><span class="viewcode-link">[source]</span></a></dt>
+<h3>mysql_conninfo<a class="headerlink" href="#mysql-conninfo" title="Permalink to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">testsuite.databases.mysql.pytest_plugin.</span></span><span class="sig-name descname"><span class="pre">mysql_conninfo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/databases/mysql/pytest_plugin/#mysql_conninfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd></dd></dl>
 
 </section>
 </section>
 <section id="marks">
-<h2>Marks<a class="headerlink" href="#marks" title="Permalink to this headline">¶</a></h2>
+<h2>Marks<a class="headerlink" href="#marks" title="Permalink to this heading">¶</a></h2>
 <section id="pytest-mark-mysql">
-<h3>pytest.mark.mysql<a class="headerlink" href="#pytest-mark-mysql" title="Permalink to this headline">¶</a></h3>
-<dl class="function">
-<dt>
-<code class="descname">pytest.mark.mysql(dbname, *, files=(), directories=(), queries=()):</code></dt>
+<h3>pytest.mark.mysql<a class="headerlink" href="#pytest-mark-mysql" title="Permalink to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">pytest.mark.mysql(dbname,</span> <span class="pre">*,</span> <span class="pre">files=(),</span> <span class="pre">directories=(),</span> <span class="pre">queries=()):</span></span></dt>
 <dd><p>Use this mark to specify extra data fixtures in a per-test manner.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -179,28 +181,28 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </section>
 </section>
 <section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt>
-<em class="property">class </em><code class="descclassname">testsuite.databases.mysql.control.</code><code class="descname">ConnectionWrapper</code><a class="reference internal" href="../_modules/testsuite/databases/mysql/control/#ConnectionWrapper"><span class="viewcode-link">[source]</span></a></dt>
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.databases.mysql.control.</span></span><span class="sig-name descname"><span class="pre">ConnectionWrapper</span></span><a class="reference internal" href="../_modules/testsuite/databases/mysql/control/#ConnectionWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>MySQL database connection wrapper.</p>
-<dl class="attribute">
-<dt>
-<code class="descname">conninfo</code></dt>
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conninfo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConnectionInfo</span></em></dt>
 <dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">classes.ConnectionInfo</span></code> instance.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<code class="descname">cursor</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; pymysql.cursors.Cursor<a class="reference internal" href="../_modules/testsuite/databases/mysql/control/#ConnectionWrapper.cursor"><span class="viewcode-link">[source]</span></a></dt>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">cursor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Cursor</span></span></span><a class="reference internal" href="../_modules/testsuite/databases/mysql/control/#ConnectionWrapper.cursor"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Returns cursor instance.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt>
-<em class="property">class </em><code class="descclassname">testsuite.databases.mysql.classes.</code><code class="descname">ConnectionInfo</code><a class="reference internal" href="../_modules/testsuite/databases/mysql/classes/#ConnectionInfo"><span class="viewcode-link">[source]</span></a></dt>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.databases.mysql.classes.</span></span><span class="sig-name descname"><span class="pre">ConnectionInfo</span></span><a class="reference internal" href="../_modules/testsuite/databases/mysql/classes/#ConnectionInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Mysql connection info class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -213,9 +215,9 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt>
-<code class="descname">replace</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; testsuite.databases.mysql.classes.ConnectionInfo<a class="reference internal" href="../_modules/testsuite/databases/mysql/classes/#ConnectionInfo.replace"><span class="viewcode-link">[source]</span></a></dt>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConnectionInfo</span></span></span><a class="reference internal" href="../_modules/testsuite/databases/mysql/classes/#ConnectionInfo.replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Returns new instance with attributes updated.</p>
 </dd></dl>
 
@@ -261,15 +263,15 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -286,7 +288,7 @@ of tables we don’t have to truncate and flag for explicit creation</p></li>
       &copy;2020-2022, Yandex LLC.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

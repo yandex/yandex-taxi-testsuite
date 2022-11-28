@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>API reference &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <title>API reference &#8212; yandex-taxi-testsuite 0.1.6.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex/" />
     <link rel="search" title="Search" href="../search/" />
     <link rel="next" title="Working with static files" href="../staticfiles/" />
@@ -35,7 +37,7 @@
           <div class="body" role="main">
             
   <section id="api-reference">
-<h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">¶</a></h1>
 <p>This enables base testsuite plugins, add <code class="docutils literal notranslate"><span class="pre">testsuite.pytest_plugin</span></code> to list of
 pytest plugins:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;testsuite.pytest_plugin&#39;</span><span class="p">]</span>
@@ -47,7 +49,7 @@ pytest plugins:</p>
 <li class="toctree-l2"><a class="reference internal" href="../staticfiles/#fixtures">Fixtures</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../mockserver/">Mockserver</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../mockserver/">Http mockserver</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../mockserver/#fixtures">Fixtures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mockserver/#magic-args">Magic args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mockserver/#timeouts-and-network-errors">Timeouts and network errors</a></li>
@@ -70,6 +72,7 @@ pytest plugins:</p>
 <li class="toctree-l2"><a class="reference internal" href="../databases/#mysql">MySQL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../databases/#redis">Redis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../databases/#clickhouse">ClickHouse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../databases/#rabbitmq">RabbitMQ</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../other_plugins/">Other plugins</a><ul>
@@ -78,7 +81,13 @@ pytest plugins:</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../utils/">Utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../utils/#asynccallqueue-1">AsyncCallQueue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/#asynccallqueue">AsyncCallQueue</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tcp_mockserver/">Tcp mockserver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tcp_mockserver/#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tcp_mockserver/#fixtures">Fixtures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tcp_mockserver/#classes">Classes</a></li>
 </ul>
 </li>
 </ul>
@@ -111,12 +120,13 @@ pytest plugins:</p>
 <li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Http mockserver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../other_plugins/">Other plugins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tcp_mockserver/">Tcp mockserver</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
@@ -133,15 +143,15 @@ pytest plugins:</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -158,7 +168,7 @@ pytest plugins:</p>
       &copy;2020-2022, Yandex LLC.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

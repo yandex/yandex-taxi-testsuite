@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Testpoint &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <title>Testpoint &#8212; yandex-taxi-testsuite 0.1.6.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex/" />
     <link rel="search" title="Search" href="../search/" />
     <link rel="next" title="Database support" href="../databases/" />
@@ -35,7 +37,7 @@
           <div class="body" role="main">
             
   <section id="testpoint">
-<h1>Testpoint<a class="headerlink" href="#testpoint" title="Permalink to this headline">¶</a></h1>
+<h1>Testpoint<a class="headerlink" href="#testpoint" title="Permalink to this heading">¶</a></h1>
 <p>Testpoint is a way to call testcase code from service being teststed.</p>
 <p>It has many uses:</p>
 <ul class="simple">
@@ -80,10 +82,10 @@ interface:</p>
 </pre></div>
 </div>
 <section id="fixtures">
-<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="testsuite.plugins.testpoint.testpoint">
-<code class="descclassname">testsuite.plugins.testpoint.</code><code class="descname">testpoint</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/testpoint/#testpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testsuite.plugins.testpoint.testpoint" title="Permalink to this definition">¶</a></dt>
+<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="testsuite.plugins.testpoint.testpoint">
+<span class="sig-prename descclassname"><span class="pre">testsuite.plugins.testpoint.</span></span><span class="sig-name descname"><span class="pre">testpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/testpoint/#testpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.plugins.testpoint.testpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Testpoint fixture returns testpoint session instance that works
 as decorator that registers testpoint handler. Original function is
 wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a></p>
@@ -138,12 +140,13 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 <li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Http mockserver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Testpoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../databases/">Database support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../other_plugins/">Other plugins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tcp_mockserver/">Tcp mockserver</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
@@ -162,15 +165,15 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -187,7 +190,7 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
       &copy;2020-2022, Yandex LLC.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

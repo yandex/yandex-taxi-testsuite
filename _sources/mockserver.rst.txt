@@ -1,5 +1,5 @@
-Mockserver
-==========
+Http mockserver
+===============
 
 Mockserver is a simple http server running inside pytest instance.
 Using ``mockserver`` fixture you can install per-test handler.

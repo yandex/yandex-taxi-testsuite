@@ -1,23 +1,25 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Examples &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <title>Examples &#8212; yandex-taxi-testsuite 0.1.6.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments_pytest.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
     <link rel="next" title="Docker integration example" href="../docker/README/" />
-    <link rel="prev" title="Utils" href="../../utils/" />
+    <link rel="prev" title="Tcp mockserver" href="../../tcp_mockserver/" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
@@ -35,7 +37,7 @@
           <div class="body" role="main">
             
   <section id="examples">
-<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h1>
 <p>Here we demonstrate how to use testsuite based on a simple chat application.</p>
 <p>The frontend (<code class="docutils literal notranslate"><span class="pre">chat-backend/chat.html</span></code>) interacts with <code class="docutils literal notranslate"><span class="pre">chat-backend</span></code>, a
 simple HTTP service written in Python. <code class="docutils literal notranslate"><span class="pre">chat-backend</span></code> then communicates to an
@@ -52,7 +54,7 @@ external storage service to actually store chat messages.</p>
 </pre></div>
 </div>
 <section id="running-examples">
-<h2>Running examples<a class="headerlink" href="#running-examples" title="Permalink to this headline">¶</a></h2>
+<h2>Running examples<a class="headerlink" href="#running-examples" title="Permalink to this heading">¶</a></h2>
 <p>You can run tests using system pytest.</p>
 <p>Run tests for all examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">runtests</span>
@@ -67,11 +69,11 @@ external storage service to actually store chat messages.</p>
 </div>
 </section>
 <section id="running-examples-in-docker">
-<h2>Running examples in docker<a class="headerlink" href="#running-examples-in-docker" title="Permalink to this headline">¶</a></h2>
+<h2>Running examples in docker<a class="headerlink" href="#running-examples-in-docker" title="Permalink to this heading">¶</a></h2>
 <p>For convenience we provide examples of integration with <a class="reference external" href="https://www.docker.com/">Docker</a>. To run
 examples in docker, you need to have docker and docker-compose installed.</p>
 <section id="run-application">
-<h3>Run application<a class="headerlink" href="#run-application" title="Permalink to this headline">¶</a></h3>
+<h3>Run application<a class="headerlink" href="#run-application" title="Permalink to this heading">¶</a></h3>
 <p>Run chat backend with PostgreSQL storage</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">run</span><span class="o">-</span><span class="n">chat</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">postgres</span>
 </pre></div>
@@ -92,7 +94,7 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 <p>Open above URL in browser to interact with chat.</p>
 </section>
 <section id="run-tests">
-<h3>Run tests<a class="headerlink" href="#run-tests" title="Permalink to this headline">¶</a></h3>
+<h3>Run tests<a class="headerlink" href="#run-tests" title="Permalink to this heading">¶</a></h3>
 <p>Run tests for all examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">docker</span><span class="o">-</span><span class="n">runtests</span>
 </pre></div>
@@ -106,8 +108,8 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 </div>
 </section>
 </section>
-<section id="examples-1">
-<h2>Examples<a class="headerlink" href="#examples-1" title="Permalink to this headline">¶</a></h2>
+<section id="id1">
+<h2>Examples<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../docker/README/">Docker integration example</a><ul>
@@ -172,7 +174,7 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#running-examples">Running examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-examples-in-docker">Running examples in docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#examples-1">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../license/">License</a></li>
@@ -182,21 +184,21 @@ examples in docker, you need to have docker and docker-compose installed.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../../">Documentation overview</a><ul>
-      <li>Previous: <a href="../../utils/" title="previous chapter">Utils</a></li>
+      <li>Previous: <a href="../../tcp_mockserver/" title="previous chapter">Tcp mockserver</a></li>
       <li>Next: <a href="../docker/README/" title="next chapter">Docker integration example</a></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -213,7 +215,7 @@ examples in docker, you need to have docker and docker-compose installed.</p>
       &copy;2020-2022, Yandex LLC.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -329,3 +329,5 @@ are specified:
   integers
 
 .. include:: clickhouse.rst
+
+.. include:: rabbitmq.rst

@@ -50,14 +50,9 @@ jobs:
       run: |
           make venv-tests
 
-    - name: Install examples dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install -r docs/examples/requirements.txt
-
     - name: Run examples tests
       env:
           TESTSUITE_ALLOW_ROOT: 1
           PYTEST: pytest
       run: |
-          make -C docs/examples runtests
+          make venv-test-examples

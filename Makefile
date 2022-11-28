@@ -3,11 +3,15 @@ VENV_DEV_PATH   = $(CURDIR)/.venv-dev
 VENV_PYTHON     = $(firstword $(shell which python3.9 python3.8 python3.7 python3))
 
 PY_DIRS = testsuite
+PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
 
 .PHONY: tests
 
 tests:
 	python3 -m pytest -v tests/ $(PYTEST_ARGS)
+
+test-examples:
+	make -C docs/examples runtests
 
 linters:
 # stop the build if there are Python syntax errors or undefined names
@@ -23,10 +27,11 @@ venv-%: setup-dev-venv
 
 setup-dev-venv: $(VENV_DEV_PATH)/.timestamp
 
-$(VENV_DEV_PATH)/.timestamp: setup.py setup.cfg requirements.txt
+$(VENV_DEV_PATH)/.timestamp: setup.py setup.cfg requirements.txt docs/examples/requirements.txt
 	test -x $(VENV_DEV_PATH)/bin/python || \
 		virtualenv --python=$(VENV_PYTHON) $(VENV_DEV_PATH)
 	$(VENV_DEV_PATH)/bin/pip install -r requirements.txt
+	$(VENV_DEV_PATH)/bin/pip install -r docs/examples/requirements.txt
 	touch $@
 
 setup-docs-venv: $(VENV_DOCS_PATH)/.timestamp

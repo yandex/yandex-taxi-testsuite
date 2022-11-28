@@ -47,3 +47,26 @@ $(VENV_DOCS_PATH)/.timestamp: setup.py setup.cfg docs/requirements.txt
 		virtualenv --python=$(VENV_PYTHON) $(VENV_DOCS_PATH)
 	$(VENV_DOCS_PATH)/bin/pip install -r docs/requirements.txt
 	touch $@
+
+start-release:
+	./tools/release.sh
+
+release-upload-testpypi:
+	$(MAKE) release-upload-testpypi-$(PACKAGE_VERSION)
+
+release-upload-pypi:
+	$(MAKE) release-upload-testpypi-$(PACKAGE_VERSION)
+
+release-upload-pypi-%: dist/%/.timestamp
+	python3 -m twine upload --repository pypi dist/$*/*
+
+release-upload-testpypi-%: dist/%/.timestamp
+	python3 -m twine upload --repository testpypi dist/$*/*
+
+build-package-%: dist/%/.timestamp
+	@echo "Package version $*"
+
+dist/%/.timestamp:
+	rm -rf $@
+	python3 -m build -o dist/$*
+	touch $@

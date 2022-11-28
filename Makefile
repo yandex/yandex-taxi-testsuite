@@ -5,6 +5,8 @@ VENV_PYTHON     = $(firstword $(shell which python3.9 python3.8 python3.7 python
 PY_DIRS = testsuite
 PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
 
+TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
+
 .PHONY: tests
 
 tests:
@@ -70,3 +72,9 @@ dist/%/.timestamp:
 	rm -rf $@
 	python3 -m build -o dist/$*
 	touch $@
+
+publish-gh-pages: build-docs-dirhtml
+	./tools/publish-gh-repo.sh $(TESTSUITE_GH_PAGES_REPO) $(PACKAGE_VERSION)
+
+clean:
+	rm -rf dist $(VENV_DEV_PATH) $(VENV_DOCS_PATH) docs/_build

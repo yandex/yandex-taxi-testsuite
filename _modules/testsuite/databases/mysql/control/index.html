@@ -61,7 +61,7 @@
     <span class="n">path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="ConnectionWrapper"><a class="viewcode-back" href="../../../../../mysql/#testsuite.databases.mysql.control.ConnectionWrapper">[docs]</a><span class="k">class</span> <span class="nc">ConnectionWrapper</span><span class="p">:</span>
+<div class="viewcode-block" id="ConnectionWrapper"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.mysql.control.ConnectionWrapper">[docs]</a><span class="k">class</span> <span class="nc">ConnectionWrapper</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;MySQL database connection wrapper.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">conninfo</span><span class="p">):</span>
@@ -73,7 +73,7 @@
         <span class="sd">&quot;&quot;&quot;:py:class:`classes.ConnectionInfo` instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conninfo</span>
 
-<div class="viewcode-block" id="ConnectionWrapper.cursor"><a class="viewcode-back" href="../../../../../mysql/#testsuite.databases.mysql.control.ConnectionWrapper.cursor">[docs]</a>    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
+<div class="viewcode-block" id="ConnectionWrapper.cursor"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.mysql.control.ConnectionWrapper.cursor">[docs]</a>    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Returns cursor instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 

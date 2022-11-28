@@ -19,8 +19,10 @@ if [ "$OLD_PACKAGE_VERSION" = "$PACKAGE_VERSION" ]; then
     die "Version did not changed"
 fi
 
-git commit -am "Version bump $PACKAGE_VERSION"
+git commit -am "Version bump $PACKAGE_VERSION" setup.cfg
+git push upstream develop || die "Failed to push upstream develop"
 
 make build-package-$PACKAGE_VERSION || die "Build package failed"
+
 git tag v$PACKAGE_VERSION || die "Failed to create git tag"
-git push vitek-oss v$PACKAGE_VERSION
+git push upstream v$PACKAGE_VERSION || die "Failed to push upstream tag"

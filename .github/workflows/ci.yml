@@ -80,7 +80,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install python dependencies
       run: |
-          python -m pip install --upgrade pip wheel virtualenv
+          python -m pip install --upgrade pip wheel virtualenv pytest
           make setup-dev-venv
     - name: Lint with flake8
       run: |
@@ -93,6 +93,7 @@ jobs:
 
     - name: Install examples dependencies
       run: |
+        pip install -r requirements.txt
         pip install -r docs/examples/requirements.txt
 
     - name: Run examples tests

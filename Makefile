@@ -57,7 +57,7 @@ release-upload-testpypi:
 	$(MAKE) release-upload-testpypi-$(PACKAGE_VERSION)
 
 release-upload-pypi:
-	$(MAKE) release-upload-testpypi-$(PACKAGE_VERSION)
+	$(MAKE) release-upload-pypi-$(PACKAGE_VERSION)
 
 release-upload-pypi-%: dist/%/.timestamp
 	python3 -m twine upload --repository pypi dist/$*/*
@@ -68,6 +68,7 @@ release-upload-testpypi-%: dist/%/.timestamp
 build-package-%: dist/%/.timestamp
 	@echo "Package version $*"
 
+.PRECIOUS: dist/%/.timestamp
 dist/%/.timestamp:
 	rm -rf $@
 	python3 -m build -o dist/$*

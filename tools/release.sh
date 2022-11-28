@@ -19,7 +19,7 @@ if [ "$OLD_PACKAGE_VERSION" = "$PACKAGE_VERSION" ]; then
     die "Version did not changed"
 fi
 
-git commit -am "Version bump $PACKAGE_VERSION" setup.cfg
+git commit -m "Version bump $PACKAGE_VERSION" setup.cfg
 git push upstream develop || die "Failed to push upstream develop"
 
 make build-package-$PACKAGE_VERSION || die "Build package failed"

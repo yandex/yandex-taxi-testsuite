@@ -80,6 +80,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install python dependencies
       run: |
+          python -m pip install --upgrade pip wheel
           make setup-dev-venv
     - name: Lint with flake8
       run: |

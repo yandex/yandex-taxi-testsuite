@@ -574,9 +574,17 @@ async def create_server(
         ssl_info: typing.Optional[classes.SslCertInfo],
 ) -> typing.AsyncGenerator[Server, None]:
     ssl_context: typing.Optional[ssl.SSLContext]
-    sock = net_utils.bind_socket(host, port)
-    mockserver_info = _create_mockserver_info(sock, host, ssl_info)
-    with contextlib.closing(sock):
+    if ssl_info:
+        ssl_context = _create_ssl_context(ssl_info)
+    else:
+        ssl_context = None
+
+    async with net_utils.create_tcp_server(
+            lambda: web_server(), host=host, port=port, ssl=ssl_context,
+    ) as aio_server:
+        mockserver_info = _create_mockserver_info(
+            aio_server.sockets[0], host, ssl_info,
+        )
         server = Server(
             mockserver_info,
             nofail=pytestconfig.option.mockserver_nofail,
@@ -588,21 +596,10 @@ async def create_server(
                 'mockserver-http-proxy-enabled',
             ),
         )
-        if ssl_info:
-            ssl_context = _create_ssl_context(ssl_info)
-        else:
-            ssl_context = None
         web_server = aiohttp.web.Server(
             server.handle_request, loop=loop, access_log=None,
         )
-        loop_server = await loop.create_server(
-            web_server, sock=sock, ssl=ssl_context,
-        )
-        try:
-            yield server
-        finally:
-            loop_server.close()
-            await loop_server.wait_closed()
+        yield server
 
 
 def _create_mockserver_info(

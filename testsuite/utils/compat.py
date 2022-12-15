@@ -6,3 +6,14 @@ if not hasattr(contextlib, 'asynccontextmanager'):
     asynccontextmanager = contextlib2.asynccontextmanager
 else:
     asynccontextmanager = contextlib.asynccontextmanager
+
+
+if not hasattr(contextlib, 'aclosing'):
+    @asynccontextmanager
+    async def aclosing(obj):
+        try:
+            yield obj
+        finally:
+            await obj.aclose()
+else:
+    aclosing = contextlib.aclosing

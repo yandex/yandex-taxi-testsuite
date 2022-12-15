@@ -50,7 +50,7 @@ class DaemonInstance:
         self._daemon = daemon
         self.process = process
 
-    async def close(self) -> None:
+    async def aclose(self) -> None:
         await self._daemon.__aexit__(None, None, None)
 
 
@@ -61,7 +61,7 @@ class _DaemonStore:
         self.cells = {}
         self.logger_plugin = logger_plugin
 
-    async def close(self) -> None:
+    async def aclose(self) -> None:
         for daemon in self.cells.values():
             await self._close_daemon(daemon)
         self.cells = {}
@@ -83,7 +83,7 @@ class _DaemonStore:
                 return daemon
             if daemon.process.poll() is None:
                 return daemon
-        await self.close()
+        await self.aclose()
         daemon = await scope.spawn()
         self.cells[scope.name] = daemon
         return daemon
@@ -96,7 +96,7 @@ class _DaemonStore:
 
     async def _close_daemon(self, daemon: DaemonInstance):
         with self.logger_plugin.temporary_suspend() as log_manager:
-            await daemon.close()
+            await daemon.aclose()
             log_manager.clear()
 
 
@@ -147,6 +147,8 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
             subprocess_spawner: Optional[
                 Callable[..., subprocess.Popen]
             ] = None,
+            stdout_handler=None,
+            stderr_handler=None,
     ):
         """Creates service spawner.
 
@@ -187,7 +189,7 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
             if pytestconfig.option.service_disable:
                 return service_daemon.start_dummy_process()
 
-            return service_daemon.start(
+            process = service_daemon.start(
                 args=command_args,
                 env=env,
                 shutdown_signal=shutdown_signal,
@@ -199,7 +201,11 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
                 setup_service=setup_service,
                 logger_plugin=logger_plugin,
                 subprocess_spawner=subprocess_spawner,
+                stdout_handler=stdout_handler,
+                stderr_handler=stderr_handler,
             )
+
+            return process
 
         return spawn
 
@@ -228,6 +234,8 @@ class CreateDaemonScope(fixture_class.Fixture):
             subprocess_options: Optional[Dict[str, Any]] = None,
             setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
             shutdown_signal: Optional[int] = None,
+            stdout_handler=None,
+            stderr_handler=None,
     ) -> AsyncContextManager[_DaemonScope]:
         """
         :param args: command arguments
@@ -265,6 +273,8 @@ class CreateDaemonScope(fixture_class.Fixture):
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
                 shutdown_signal=shutdown_signal,
+                stdout_handler=stdout_handler,
+                stderr_handler=stderr_handler,
             ),
         )
 
@@ -428,10 +438,8 @@ def service_client_options(
 async def _global_daemon_store(loop, pytestconfig):
     logger_plugin = pytestconfig.pluginmanager.getplugin('testsuite_logger')
     store = _DaemonStore(logger_plugin)
-    try:
+    async with compat.aclosing(store):
         yield store
-    finally:
-        await store.close()
 
 
 @pytest.fixture(scope='session')

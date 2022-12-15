@@ -41,6 +41,8 @@ async def start(
         subprocess_options=None,
         setup_service=None,
         subprocess_spawner=None,
+        stdout_handler=None,
+        stderr_handler=None,
 ) -> AsyncGenerator[Optional[subprocess.Popen], None]:
     with logger_plugin.temporary_suspend() as log_manager:
         async with session_factory() as session:
@@ -55,6 +57,8 @@ async def start(
                     subprocess_spawner=subprocess_spawner,
                     health_check=health_check,
                     session=session,
+                    stdout_handler=stdout_handler,
+                    stderr_handler=stderr_handler,
             ) as process:
                 log_manager.clear()
                 log_manager.resume()
@@ -205,6 +209,8 @@ async def _service_daemon(
         subprocess_spawner=None,
         health_check,
         session: aiohttp.ClientSession,
+        stdout_handler=None,
+        stderr_handler=None,
 ) -> AsyncGenerator[subprocess.Popen, None]:
     options = subprocess_options.copy() if subprocess_options else {}
     options['env'] = _prepare_env(env, options.get('env'))
@@ -213,6 +219,8 @@ async def _service_daemon(
             shutdown_signal=shutdown_signal,
             shutdown_timeout=shutdown_timeout,
             subprocess_spawner=subprocess_spawner,
+            stdout_handler=stdout_handler,
+            stderr_handler=stderr_handler,
             **options,
     ) as process:
         if setup_service is not None:

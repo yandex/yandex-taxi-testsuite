@@ -1,5 +1,6 @@
 import asyncio
 import ctypes
+import inspect
 import logging
 import signal
 import subprocess
@@ -41,6 +42,33 @@ class ExitCodeError(RuntimeError):
         self.exit_code = exit_code
 
 
+# TODO: drop py3.6 support and use asyncio.Process instead
+class AioReaders:
+    def __init__(self, loop=None):
+        self._tasks = []
+        self._loop = loop
+
+    async def aclose(self):
+        if self._tasks:
+            await asyncio.wait(self._tasks)
+
+    async def add(self, pipe, handler):
+        if not pipe or not handler:
+            return
+        is_coro = inspect.iscoroutinefunction(handler)
+        reader = await _create_pipe_reader(pipe, loop=self._loop)
+
+        async def data_handler():
+            async for line in reader:
+                if is_coro:
+                    await handler(line)
+                else:
+                    handler(line)
+
+        coro = data_handler()
+        self._tasks.append(asyncio.create_task(coro))
+
+
 @compat.asynccontextmanager
 async def spawned(
         args: Sequence[str],
@@ -48,21 +76,35 @@ async def spawned(
         shutdown_signal: int = signal.SIGINT,
         shutdown_timeout: float = 120,
         subprocess_spawner=None,
+        stdout_handler=None,
+        stderr_handler=None,
         **kwargs,
 ) -> AsyncGenerator[subprocess.Popen, None]:
+    if stdout_handler:
+        kwargs['stdout'] = subprocess.PIPE
+    if stderr_handler:
+        kwargs['stderr'] = subprocess.PIPE
+
     kwargs['preexec_fn'] = kwargs.get('preexec_fn', _setup_process)
+
+    logger.debug('Starting process with args %r', args)
     if subprocess_spawner:
         process = subprocess_spawner(args, **kwargs)
     else:
         process = subprocess.Popen(args, **kwargs)
-    try:
-        yield process
-    finally:
-        await _service_shutdown(
-            process,
-            shutdown_signal=shutdown_signal,
-            shutdown_timeout=shutdown_timeout,
-        )
+    logging.debug('[%d] Process started', process.pid)
+
+    readers = AioReaders()
+    await readers.add(process.stdout, stdout_handler)
+    await readers.add(process.stderr, stderr_handler)
+
+    async with compat.aclosing(readers):
+        async with _shutdown_service(
+                process,
+                shutdown_signal=shutdown_signal,
+                shutdown_timeout=shutdown_timeout,
+        ):
+            yield process
 
 
 def exit_code_error(retcode: int) -> ExitCodeError:
@@ -77,12 +119,21 @@ def exit_code_error(retcode: int) -> ExitCodeError:
     )
 
 
-async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
+@compat.asynccontextmanager
+async def _shutdown_service(*args, **kwargs):
+    try:
+        yield
+    finally:
+        await _do_service_shutdown(*args, **kwargs)
+
+
+async def _do_service_shutdown(process, *, shutdown_signal, shutdown_timeout):
     allowed_exit_codes = (-shutdown_signal, 0)
 
     retcode = process.poll()
     if retcode is not None:
-        logger.info('Process already finished with code %d', retcode)
+        logger.info(
+            '[%d] Process already finished with code %d', process.pid, retcode)
         if retcode not in allowed_exit_codes:
             raise exit_code_error(retcode)
         return retcode
@@ -93,7 +144,8 @@ async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
         pass
     else:
         logger.info(
-            'Trying to stop process with signal %s',
+            '[%d] Trying to stop process with signal %s',
+            process.pid,
             _pretty_signal(shutdown_signal),
         )
         poll_start = time.monotonic()
@@ -109,11 +161,12 @@ async def _service_shutdown(process, *, shutdown_signal, shutdown_timeout):
             await asyncio.sleep(_POLL_TIMEOUT)
 
         logger.warning(
-            'Process did not finished within shutdown timeout %d seconds',
+            '[%d] Process did not finished within shutdown timeout %d seconds',
+            process.pid,
             shutdown_timeout,
         )
 
-    logger.warning('Now killing process with signal SIGKILL')
+    logger.warning('[%d] Now killing process with signal SIGKILL', process.pid)
     while True:
         retcode = process.poll()
         if retcode is not None:
@@ -129,6 +182,15 @@ def _pretty_signal(signum: int) -> str:
     if signum in _KNOWN_SIGNALS:
         return _KNOWN_SIGNALS[signum]
     return str(signum)
+
+
+async def _create_pipe_reader(pipe, loop=None):
+    if loop is None:
+        loop = asyncio.get_running_loop()
+    reader = asyncio.StreamReader(loop=loop)
+    reader_protocol = asyncio.StreamReaderProtocol(reader)
+    await loop.connect_read_pipe(lambda: reader_protocol, pipe)
+    return reader
 
 
 # Send SIGKILL to child process on unexpected parent termination

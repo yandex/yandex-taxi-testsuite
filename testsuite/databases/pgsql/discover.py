@@ -1,5 +1,6 @@
 import collections
 import dataclasses
+import hashlib
 import itertools
 import logging
 import pathlib
@@ -15,6 +16,7 @@ from . import utils
 logger = logging.getLogger(__name__)
 
 SINGLE_SHARD = -1
+DB_NAME_MAX = 31
 
 
 @dataclasses.dataclass(frozen=True)
@@ -175,26 +177,57 @@ def _create_pgshard(
     if migrations is None:
         migrations = []
     if shard_id == SINGLE_SHARD:
-        shard_id = 0
+        actual_shard_id = 0
         pretty_name = dbname
-        sharded_dbname = dbname
     else:
-        shard_id = shard_id
+        actual_shard_id = shard_id
         pretty_name = '%s@%d' % (dbname, shard_id)
-        sharded_dbname = '%s_%d' % (dbname, shard_id)
 
-    if service_name is not None:
-        sharded_dbname = '%s_%s' % (
-            _normalize_name(service_name),
-            sharded_dbname,
-        )
+    sharded_dbname = _database_name(service_name, dbname, shard_id)
     return PgShard(
-        shard_id=shard_id,
+        shard_id=actual_shard_id,
         pretty_name=pretty_name,
         dbname=sharded_dbname,
         files=files,
         migrations=migrations,
     )
+
+
+_names_used = {}
+
+
+def _database_name(service_name: Optional[str], dbname: str, shard_id: int):
+    dbkey = (service_name, dbname)
+    suffix = ''
+    if shard_id != SINGLE_SHARD:
+        suffix = f'_{shard_id}'
+    prefix = ''
+    if service_name is not None:
+        prefix = f'{service_name}_'
+    name = _normalize_name(prefix + dbname)
+    dbname = _normalize_name(name + suffix)
+    if len(dbname) > DB_NAME_MAX:
+        dbname = _shortened(name, suffix)
+    if dbname not in _names_used:
+        _names_used[dbname] = dbkey
+    elif _names_used[dbname] != dbkey:
+        raise exceptions.NameCannotBeShortend(
+            f'Database name conflict for {dbkey} and {_names_used[dbname]}'
+        )
+    return dbname
+
+
+def _shortened(name: str, suffix: str):
+    short_name = ''.join([part[:1] for part in name.split('_')])
+    name_hash = hashlib.sha1(name.encode('utf-8')).hexdigest()
+    hash_len = DB_NAME_MAX - len(short_name) - len(suffix) - 1
+    name_hash = name_hash[:hash_len]
+    dbname = f'{short_name}_{name_hash}{suffix}'
+    if len(dbname) > DB_NAME_MAX:
+        raise exceptions.NameCannotBeShortend(
+            f'Dbname cannot be shortened {name}{suffix}'
+        )
+    return dbname
 
 
 def _parse_shard_name(name) -> ShardName:

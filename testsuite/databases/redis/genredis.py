@@ -157,7 +157,7 @@ def redis_version() -> typing.List[int]:
             f'Can not parse redis server version from "{reply}"',
         )
     version_key = 'v'
-    for token in reply[len(start) :].split(' '):
+    for token in reply[len(start):].split(' '):
         key, value = token.split('=', 1)
         if key == version_key:
             return list(map(int, value.split('.')))

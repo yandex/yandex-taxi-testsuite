@@ -5,17 +5,20 @@ from testsuite.databases.pgsql import exceptions
 
 
 def test_database_name():
-    assert discover._database_name(None, 'foo', discover.SINGLE_SHARD) == 'foo'
+    assert discover._database_name(
+        None, 'foo', discover.SINGLE_SHARD) == 'foo'
     assert discover._database_name(None, 'foo', 0) == 'foo_0'
     assert discover._database_name(None, 'foo', 1) == 'foo_1'
-    assert discover._database_name('foo', 'bar', discover.SINGLE_SHARD) == 'foo_bar'
+    assert discover._database_name(
+        'foo', 'bar', discover.SINGLE_SHARD) == 'foo_bar'
     assert discover._database_name('foo', 'bar', 1) == 'foo_bar_1'
     assert discover._database_name(
         'yandex_taxi_eats_nomenclature_viewer', 'shards', 1) == (
             'ytenvs_c11de63930a0e27ca46d08_1'
     )
     assert discover._database_name(
-        'yandex_taxi_eats_nomenclature_viewer', 'shards', discover.SINGLE_SHARD) == (
+        'yandex_taxi_eats_nomenclature_viewer',
+        'shards', discover.SINGLE_SHARD) == (
             'ytenvs_c11de63930a0e27ca46d081b'
     )
 

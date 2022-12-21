@@ -22,7 +22,6 @@ def test_database_name():
             'ytenvs_c11de63930a0e27ca46d081b'
     )
 
-
     assert discover._database_name(
         None, 'ytenvc_cc21dd21265d91098dc39238', discover.SINGLE_SHARD) == (
             'ytenvc_cc21dd21265d91098dc39238'

@@ -4,3 +4,7 @@ class BaseError(Exception):
 
 class PostgresqlError(BaseError):
     pass
+
+
+class NameCannotBeShortend(BaseError):
+    pass

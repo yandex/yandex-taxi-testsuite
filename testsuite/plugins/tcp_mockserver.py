@@ -28,7 +28,6 @@ class Mockserver:
             writer.close()
             pytest.fail('Mockserver handler failure')
 
-
     @cached_property
     def sockets(self) -> typing.Tuple[socket.socket]:
         """Returns list of server sockets."""

@@ -120,17 +120,17 @@ def callinfo(func):
     func_args = func_spec.args
     func_varargs = func_spec.varargs
     defaults = func_spec.defaults or ()
-    func_defaults = dict(zip(func_args[-len(defaults) :], defaults))
+    func_defaults = dict(zip(func_args[-len(defaults):], defaults))
 
     def callinfo_getter(args, kwargs):
         dct = dict(zip(func_args, args))
-        for argname in func_args[len(args) :]:
+        for argname in func_args[len(args):]:
             if argname in kwargs:
                 dct[argname] = kwargs[argname]
             else:
                 dct[argname] = func_defaults.get(argname)
         if func_varargs is not None:
-            dct[func_varargs] = args[len(dct) :]
+            dct[func_varargs] = args[len(dct):]
         for argname in func_kwonlyargs:
             if argname in kwargs:
                 dct[argname] = kwargs[argname]

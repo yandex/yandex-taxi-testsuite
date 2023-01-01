@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 find_pg() {
     POSTGRESQL_BINPATH=

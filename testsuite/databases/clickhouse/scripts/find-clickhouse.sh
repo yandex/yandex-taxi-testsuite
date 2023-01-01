@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 find_clickhouse() {
     CLICKHOUSE_BINPATH=$(which clickhouse)

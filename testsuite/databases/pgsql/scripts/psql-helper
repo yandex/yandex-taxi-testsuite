@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 PSQL=$(which psql)
 if [ "x$PSQL" == "x" ]; then

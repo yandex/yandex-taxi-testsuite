@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 find_rabbitmq() {
     if [ ! -x "$RABBITMQ_BINDIR/rabbitmq-server" ]; then

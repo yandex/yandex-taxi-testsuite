@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 PGMIGRATE=$(which pgmigrate)
 if [ "x$PGMIGRATE" == "x" ]; then

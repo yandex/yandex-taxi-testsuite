@@ -251,7 +251,7 @@ def _mongo_service(
 
 @pytest.fixture
 def _mongo_create_collections(
-     _mongodb_local,
+        _mongodb_local,
         mongodb_settings,
         pytestconfig,
         _mongo_collections_created,

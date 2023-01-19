@@ -32,7 +32,6 @@ def _shard_collection(collection, sharding):
         db_admin.command('shardcollection', collection.full_name, **kwargs)
 
 
-
 def _get_kwargs_for_shard_func(sharding):
     kwargs = {}
 

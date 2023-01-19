@@ -263,11 +263,10 @@ def _mongo_create_collections(
     for alias in aliases:
         if alias not in _mongo_collections_created and alias in mongodb_settings:
             _create_collections.append(alias)
-        
+
         if _create_collections:
             create_db_collections.create_collections(_mongodb_local, _create_collections)
             _mongo_collections_created.updated(_create_collections)
-
 
 
 @pytest.fixture
@@ -316,8 +315,6 @@ def _mongo_shard_collections(
                 _shard_collections[alias] = mongodb_settings[alias]
         if _shard_collections:
             create_db_collections.shard_collections(_mongodb_local, _shard_collections)
-
-
 
 
 @pytest.fixture(scope='session')

@@ -266,7 +266,7 @@ def _mongo_create_collections(
 
         if _create_collections:
             create_db_collections.create_collections(_mongodb_local, _create_collections)
-            _mongo_collections_created.updated(_create_collections)
+            _mongo_collections_created.update(_create_collections)
 
 
 @pytest.fixture
@@ -288,11 +288,9 @@ def _mongo_create_indexes(
             ):
                 _ensure_indexes[alias] = mongodb_settings[alias]
         if _ensure_indexes:
-            sharding_enabled = not pytestconfig.option.no_sharding
             ensure_db_indexes.ensure_db_indexes(
                 _mongodb_local,
                 _ensure_indexes,
-                sharding_enabled=sharding_enabled,
             )
             _mongo_indexes_ensured.update(_ensure_indexes)
 
@@ -315,6 +313,7 @@ def _mongo_shard_collections(
                 _shard_collections[alias] = mongodb_settings[alias]
         if _shard_collections:
             create_db_collections.shard_collections(_mongodb_local, _shard_collections)
+            _mongo_collections_sharded.update(_shard_collections)
 
 
 @pytest.fixture(scope='session')

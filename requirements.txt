@@ -2,7 +2,6 @@
 
 # Development requirements
 flake8
-pytest-depends
 
 # For releases
 build

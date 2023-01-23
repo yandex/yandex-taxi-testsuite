@@ -18,7 +18,8 @@ async def test_example(mockserver, mockserver_client):
         raise mockserver.TimeoutError()
 
     response = await mockserver_client.get(
-        'foo', headers={'X-Testsuite-Supported-Errors': 'network,timeout'},
+        'foo',
+        headers={'X-Testsuite-Supported-Errors': 'network,timeout'},
     )
     assert response.status == 599
     assert response.headers['X-Testsuite-Error'] == 'timeout'
@@ -29,14 +30,18 @@ async def test_example(mockserver, mockserver_client):
     [(http.TimeoutError, 'timeout'), (http.NetworkError, 'network')],
 )
 async def test_mockserver_error(
-        mockserver, mockserver_client, exc_class, error_code,
+    mockserver,
+    mockserver_client,
+    exc_class,
+    error_code,
 ):
     @mockserver.handler('/foo')
     def _handler(request):
         raise exc_class
 
     response = await mockserver_client.get(
-        'foo', headers={'X-Testsuite-Supported-Errors': 'network,timeout'},
+        'foo',
+        headers={'X-Testsuite-Supported-Errors': 'network,timeout'},
     )
     assert response.status == 599
     assert response.headers['X-Testsuite-Error'] == error_code

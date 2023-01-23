@@ -47,7 +47,8 @@ class Handler:
     def __init__(self, func, *, raw_request=False, json_response=False):
         self.callqueue = callinfo.acallqueue(func)
         self.handler_args = magicargs.MagicArgsHandler(
-            func, raw_request=raw_request,
+            func,
+            raw_request=raw_request,
         )
         self.json_response = json_response
         self.orig_func = func
@@ -75,15 +76,15 @@ class Session:
     regex_handlers: typing.List[typing.Tuple[typing.Pattern, Handler]]
 
     def __init__(
-            self,
-            reporter: typing.Optional[
-                reporter_plugin.MockserverReporterPlugin
-            ] = None,
-            *,
-            tracing_enabled=True,
-            trace_id=None,
-            http_proxy_enabled=False,
-            mockserver_host=None,
+        self,
+        reporter: typing.Optional[
+            reporter_plugin.MockserverReporterPlugin
+        ] = None,
+        *,
+        tracing_enabled=True,
+        trace_id=None,
+        http_proxy_enabled=False,
+        mockserver_host=None,
     ):
         if trace_id is None:
             trace_id = generate_trace_id()
@@ -154,16 +155,17 @@ class Session:
     def _report_handler_failure(self, path: str, exc: Exception):
         if self.reporter:
             self.reporter.report_error(
-                exc, f'Exception in mockserver handler for {path!r}: {exc !r}',
+                exc,
+                f'Exception in mockserver handler for {path!r}: {exc !r}',
             )
 
     def register_handler(
-            self,
-            path: str,
-            func,
-            *,
-            prefix: bool = False,
-            regex: bool = False,
+        self,
+        path: str,
+        func,
+        *,
+        prefix: bool = False,
+        regex: bool = False,
     ):
         if regex:
             if prefix:
@@ -181,7 +183,8 @@ class Session:
         return func
 
     def _get_handler_for_request(
-            self, request: aiohttp.web.BaseRequest,
+        self,
+        request: aiohttp.web.BaseRequest,
     ) -> typing.Tuple[Handler, RouteParams]:
         if self.http_proxy_enabled:
             host = request.headers.get('host')
@@ -195,17 +198,17 @@ class Server:
     session = None
 
     def __init__(
-            self,
-            mockserver_info: classes.MockserverInfo,
-            *,
-            nofail=False,
-            reporter: typing.Optional[
-                reporter_plugin.MockserverReporterPlugin
-            ] = None,
-            tracing_enabled=True,
-            trace_id_header=DEFAULT_TRACE_ID_HEADER,
-            span_id_header=DEFAULT_SPAN_ID_HEADER,
-            http_proxy_enabled=False,
+        self,
+        mockserver_info: classes.MockserverInfo,
+        *,
+        nofail=False,
+        reporter: typing.Optional[
+            reporter_plugin.MockserverReporterPlugin
+        ] = None,
+        tracing_enabled=True,
+        trace_id_header=DEFAULT_TRACE_ID_HEADER,
+        span_id_header=DEFAULT_SPAN_ID_HEADER,
+        http_proxy_enabled=False,
     ):
         self._info = mockserver_info
         self._nofail = nofail
@@ -292,7 +295,8 @@ class Server:
             raise exceptions.MockServerError(error_message)
 
         if self.tracing_enabled and _is_other_test(
-                trace_id, self.session.trace_id,
+            trace_id,
+            self.session.trace_id,
         ):
             self._report_other_test_request(request, trace_id)
             return _internal_error(REQUEST_FROM_ANOTHER_TEST_ERROR)
@@ -305,7 +309,10 @@ class Server:
             )
 
     def _report_handler_not_found(
-            self, exc: exceptions.HandlerNotFoundError, *, nofail: bool,
+        self,
+        exc: exceptions.HandlerNotFoundError,
+        *,
+        nofail: bool,
     ):
         level = logging.WARNING if nofail else logging.ERROR
         logger.log(level, '%s', exc)
@@ -324,7 +331,10 @@ class MockserverFixture:
     """Mockserver handler installer fixture."""
 
     def __init__(
-            self, mockserver: Server, session: Session, base_prefix: str = '',
+        self,
+        mockserver: Server,
+        session: Session,
+        base_prefix: str = '',
     ) -> None:
         self._server = mockserver
         self._session = session
@@ -334,7 +344,9 @@ class MockserverFixture:
     def new(self, prefix: str) -> 'MockserverFixture':
         """Create mockserver installer with given base prefix."""
         return MockserverFixture(
-            self._server, self._session, self._build_fullpath(prefix),
+            self._server,
+            self._session,
+            self._build_fullpath(prefix),
         )
 
     @property
@@ -365,13 +377,13 @@ class MockserverFixture:
         return self._session.trace_id
 
     def handler(
-            self,
-            path: str,
-            *,
-            prefix: bool = False,
-            raw_request: bool = False,
-            json_response: bool = False,
-            regex: bool = False,
+        self,
+        path: str,
+        *,
+        prefix: bool = False,
+        raw_request: bool = False,
+        json_response: bool = False,
+        regex: bool = False,
     ) -> classes.GenericRequestDecorator:
         """Register basic http handler for ``path``.
 
@@ -415,12 +427,12 @@ class MockserverFixture:
         )
 
     def json_handler(
-            self,
-            path: str,
-            *,
-            prefix: bool = False,
-            raw_request: bool = False,
-            regex: bool = False,
+        self,
+        path: str,
+        *,
+        prefix: bool = False,
+        raw_request: bool = False,
+        regex: bool = False,
     ) -> classes.JsonRequestDecorator:
         """Register json http handler for ``path``.
 
@@ -457,7 +469,11 @@ class MockserverFixture:
         )
 
     def aiohttp_handler(
-            self, path: str, *, prefix: bool = False, regex: bool = False,
+        self,
+        path: str,
+        *,
+        prefix: bool = False,
+        regex: bool = False,
     ) -> classes.GenericRequestDecorator:
         return self._handler_installer(
             path,
@@ -468,7 +484,11 @@ class MockserverFixture:
         )
 
     def aiohttp_json_handler(
-            self, path: str, *, prefix: bool = False, regex: bool = False,
+        self,
+        path: str,
+        *,
+        prefix: bool = False,
+        regex: bool = False,
     ) -> classes.JsonRequestDecorator:
         return self._handler_installer(
             path,
@@ -504,22 +524,27 @@ class MockserverFixture:
     NetworkError = http.NetworkError
 
     def _handler_installer(
-            self,
-            path: str,
-            *,
-            prefix: bool = False,
-            raw_request: bool = False,
-            json_response: bool = False,
-            regex: bool = False,
+        self,
+        path: str,
+        *,
+        prefix: bool = False,
+        raw_request: bool = False,
+        json_response: bool = False,
+        regex: bool = False,
     ) -> typing.Callable:
         path = self._build_fullpath(path, regex)
 
         def decorator(func):
             handler = Handler(
-                func, raw_request=raw_request, json_response=json_response,
+                func,
+                raw_request=raw_request,
+                json_response=json_response,
             )
             self._session.register_handler(
-                path, handler, prefix=prefix, regex=regex,
+                path,
+                handler,
+                prefix=prefix,
+                regex=regex,
             )
             return handler.callqueue
 
@@ -559,19 +584,21 @@ def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
             f'Service does not support mockserver error of type {error_code}',
         )
     return http.make_response(
-        response='', status=599, headers={_ERROR_HEADER: error_code},
+        response='',
+        status=599,
+        headers={_ERROR_HEADER: error_code},
     )
 
 
 @compat.asynccontextmanager
 async def create_server(
-        host: str,
-        port: int,
-        loop,
-        testsuite_logger,
-        mockserver_reporter: reporter_plugin.MockserverReporterPlugin,
-        pytestconfig,
-        ssl_info: typing.Optional[classes.SslCertInfo],
+    host: str,
+    port: int,
+    loop,
+    testsuite_logger,
+    mockserver_reporter: reporter_plugin.MockserverReporterPlugin,
+    pytestconfig,
+    ssl_info: typing.Optional[classes.SslCertInfo],
 ) -> typing.AsyncGenerator[Server, None]:
     ssl_context: typing.Optional[ssl.SSLContext]
     if ssl_info:
@@ -580,10 +607,15 @@ async def create_server(
         ssl_context = None
 
     async with net_utils.create_tcp_server(
-            lambda: web_server(), host=host, port=port, ssl=ssl_context,
+        lambda: web_server(),
+        host=host,
+        port=port,
+        ssl=ssl_context,
     ) as aio_server:
         mockserver_info = _create_mockserver_info(
-            aio_server.sockets[0], host, ssl_info,
+            aio_server.sockets[0],
+            host,
+            ssl_info,
         )
         server = Server(
             mockserver_info,
@@ -597,20 +629,27 @@ async def create_server(
             ),
         )
         web_server = aiohttp.web.Server(
-            server.handle_request, loop=loop, access_log=None,
+            server.handle_request,
+            loop=loop,
+            access_log=None,
         )
         yield server
 
 
 def _create_mockserver_info(
-        sock, host: str, ssl_info: typing.Optional[classes.SslCertInfo],
+    sock,
+    host: str,
+    ssl_info: typing.Optional[classes.SslCertInfo],
 ) -> classes.MockserverInfo:
     sock_address = sock.getsockname()
     schema = 'https' if ssl_info else 'http'
     port = sock_address[1]
     base_url = '%s://%s:%d/' % (schema, host, port)
     return classes.MockserverInfo(
-        host=host, port=port, base_url=base_url, ssl=ssl_info,
+        host=host,
+        port=port,
+        base_url=base_url,
+        ssl=ssl_info,
     )
 
 

@@ -9,10 +9,12 @@ from testsuite.utils import http
 from testsuite.utils import url_util
 
 GenericRequestHandler = typing.Callable[
-    ..., annotations.MaybeAsyncResult[aiohttp.web.Response],
+    ...,
+    annotations.MaybeAsyncResult[aiohttp.web.Response],
 ]
 GenericRequestDecorator = typing.Callable[
-    [GenericRequestHandler], callinfo.AsyncCallQueue,
+    [GenericRequestHandler],
+    callinfo.AsyncCallQueue,
 ]
 JsonRequestHandler = typing.Callable[
     ...,
@@ -21,7 +23,8 @@ JsonRequestHandler = typing.Callable[
     ],
 ]
 JsonRequestDecorator = typing.Callable[
-    [JsonRequestHandler], callinfo.AsyncCallQueue,
+    [JsonRequestHandler],
+    callinfo.AsyncCallQueue,
 ]
 MockserverRequest = http.Request
 

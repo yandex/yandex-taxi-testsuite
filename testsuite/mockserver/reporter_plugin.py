@@ -29,7 +29,9 @@ class MockserverReporterPlugin:
             ) from first_error
 
     def report_error(
-            self, error: Exception, message: typing.Optional[str] = None,
+        self,
+        error: Exception,
+        message: typing.Optional[str] = None,
     ) -> None:
         if message is None:
             message = str(error)

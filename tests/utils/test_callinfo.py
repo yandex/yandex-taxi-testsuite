@@ -8,7 +8,8 @@ import pytest
 from testsuite.utils import callinfo
 
 python37_or_higher = pytest.mark.skipif(
-    sys.version_info < (3, 7), reason='requires Python3.7 or higher',
+    sys.version_info < (3, 7),
+    reason='requires Python3.7 or higher',
 )
 
 

@@ -42,10 +42,12 @@ def ensure_db_indexes(dbase, db_settings, sharding_enabled=True):
                 for index in indexes:
                     _ensure_index(index, collection)
                 index_info = collection.index_information()
-                assert len(index_info) == len(indexes) + 1, (
-                    'Collection {} have {} indexes, but must have {} '.format(
-                        alias, len(index_info), len(indexes) + 1,
-                    )
+                assert (
+                    len(index_info) == len(indexes) + 1
+                ), 'Collection {} have {} indexes, but must have {} '.format(
+                    alias,
+                    len(index_info),
+                    len(indexes) + 1,
                 )
 
             if sharding_enabled:
@@ -94,9 +96,7 @@ def _get_kwargs_for_shard_func(sharding):
             elif isinstance(value, list):
                 sharding_key = {}
                 for obj in value:
-                    sharding_key[obj['name']] = SORT_STR_TO_PYMONGO[
-                        obj['type']
-                    ]
+                    sharding_key[obj['name']] = SORT_STR_TO_PYMONGO[obj['type']]
             else:
                 raise ValueError('Cannot handle key: %r' % (value,))
             kwargs['key'] = sharding_key

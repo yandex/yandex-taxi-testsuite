@@ -45,7 +45,7 @@ jobs:
     - name: Lint with flake8
       run: |
           make venv-linters
-    - name: Check PEP8 with blck
+    - name: Check PEP8 with black
       run: |
           make venv-check-black
     - name: Test with pytest

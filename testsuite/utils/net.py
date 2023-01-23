@@ -19,7 +19,13 @@ async def create_server(factory, *, loop=None, **kwargs):
 
 
 def create_tcp_server(
-        factory, *, loop=None, host='localhost', port=0, sock=None, **kwargs,
+    factory,
+    *,
+    loop=None,
+    host='localhost',
+    port=0,
+    sock=None,
+    **kwargs,
 ):
     if sock is None:
         sock = bind_socket(host, port)
@@ -27,10 +33,10 @@ def create_tcp_server(
 
 
 def bind_socket(
-        hostname='localhost',
-        port=0,
-        family=socket.AF_INET,
-        backlog=DEFAULT_BACKLOG,
+    hostname='localhost',
+    port=0,
+    family=socket.AF_INET,
+    backlog=DEFAULT_BACKLOG,
 ):
     sock = socket.socket(family)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

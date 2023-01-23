@@ -32,7 +32,10 @@ def get_vcs_info() -> typing.List[str]:
     try:
         commit = subprocess_helper.sh('git', 'rev-parse', 'HEAD')
         branch = subprocess_helper.sh(
-            'git', 'rev-parse', '--abbrev-ref', 'HEAD',
+            'git',
+            'rev-parse',
+            '--abbrev-ref',
+            'HEAD',
         )
     except (subprocess.CalledProcessError, FileNotFoundError):
         return []
@@ -50,7 +53,10 @@ def get_vcs_info() -> typing.List[str]:
 def git_is_clean() -> bool:
     try:
         subprocess_helper.sh(
-            'git', 'diff', '--ignore-submodules=dirty', '--quiet',
+            'git',
+            'diff',
+            '--ignore-submodules=dirty',
+            '--quiet',
         )
     except subprocess.CalledProcessError:
         return False
@@ -64,7 +70,10 @@ def git_merge_base() -> typing.Optional[str]:
         for remote in UPSTREAM_REMOTES:
             if remote in remotes:
                 return subprocess_helper.sh(
-                    'git', 'merge-base', f'{remote}/{BASE_BRANCH}', 'HEAD',
+                    'git',
+                    'merge-base',
+                    f'{remote}/{BASE_BRANCH}',
+                    'HEAD',
                 )
     except subprocess.CalledProcessError:
         pass

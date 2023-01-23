@@ -116,6 +116,7 @@ def test_ordered_object(test_obj1, test_obj2, expected_obj, paths):
 def test_non_list_value_is_silently_skipped():
     # foo.bar points to numeric values 2 which cannot be sorted
     result = ordered_object.order(
-        {'foo': [{'bar': 2}, {'bar': [3, 1, 2]}]}, ['foo.bar'],
+        {'foo': [{'bar': 2}, {'bar': [3, 1, 2]}]},
+        ['foo.bar'],
     )
     assert result == {'foo': [{'bar': 2}, {'bar': [1, 2, 3]}]}

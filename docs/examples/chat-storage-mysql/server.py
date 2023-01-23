@@ -12,14 +12,21 @@ def main():
     )
     parser.add_argument('--port', type=int, default=8080)
     parser.add_argument(
-        '--mysql-host', help='MySQL hostname', default='localhost',
+        '--mysql-host',
+        help='MySQL hostname',
+        default='localhost',
     )
     parser.add_argument(
-        '--mysql-port', help='MySQL port', type=int, default=3306,
+        '--mysql-port',
+        help='MySQL port',
+        type=int,
+        default=3306,
     )
     parser.add_argument('--mysql-user', help='MySQL user', default='root')
     parser.add_argument(
-        '--mysql-dbname', help='MySQL database', default='chat_messages',
+        '--mysql-dbname',
+        help='MySQL database',
+        default='chat_messages',
     )
     args = parser.parse_args()
 

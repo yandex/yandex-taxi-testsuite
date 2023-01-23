@@ -15,9 +15,7 @@ class ObjectHooksPlugin:
         return self._object_hooks
 
     def pytest_sessionstart(self, session):
-        hooks = (
-            session.config.pluginmanager.hook.pytest_register_object_hooks()
-        )
+        hooks = session.config.pluginmanager.hook.pytest_register_object_hooks()
         for hook in hooks:
             self._object_hooks.update(hook)
 

@@ -47,22 +47,25 @@ def get_service_settings():
     return ServiceSettings(
         host=_get_hostname(),
         master_ports=utils.getenv_ints(
-            key='TESTSUITE_REDIS_MASTER_PORTS', default=DEFAULT_MASTER_PORTS,
+            key='TESTSUITE_REDIS_MASTER_PORTS',
+            default=DEFAULT_MASTER_PORTS,
         ),
         sentinel_port=utils.getenv_int(
-            key='TESTSUITE_REDIS_SENTINEL_PORT', default=DEFAULT_SENTINEL_PORT,
+            key='TESTSUITE_REDIS_SENTINEL_PORT',
+            default=DEFAULT_SENTINEL_PORT,
         ),
         slave_ports=utils.getenv_ints(
-            key='TESTSUITE_REDIS_SLAVE_PORTS', default=DEFAULT_SLAVE_PORTS,
+            key='TESTSUITE_REDIS_SLAVE_PORTS',
+            default=DEFAULT_SLAVE_PORTS,
         ),
     )
 
 
 def create_redis_service(
-        service_name,
-        working_dir,
-        settings: typing.Optional[ServiceSettings] = None,
-        env=None,
+    service_name,
+    working_dir,
+    settings: typing.Optional[ServiceSettings] = None,
+    env=None,
 ):
     if settings is None:
         settings = get_service_settings()
@@ -115,7 +118,10 @@ def _resolve_hostname(hostname: str) -> str:
     for family in socket.AF_INET6, socket.AF_INET:
         try:
             result = socket.getaddrinfo(
-                hostname, None, family=family, type=socket.SOCK_STREAM,
+                hostname,
+                None,
+                family=family,
+                type=socket.SOCK_STREAM,
             )
         except socket.error:
             continue

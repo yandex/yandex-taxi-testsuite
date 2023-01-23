@@ -111,7 +111,9 @@ class DatabasesState:
         if key in self._migrations_run:
             return
         logger.debug(
-            'Running mysql script %s against database %s', path, dbname,
+            'Running mysql script %s against database %s',
+            path,
+            dbname,
         )
         conninfo = self._connections.get_conninfo(dbname)
         _run_script(conninfo, ['-e', f'source {path}'], verbose=self._verbose)
@@ -136,7 +138,9 @@ class DatabasesState:
 
 class Control:
     def __init__(
-            self, databases: classes.DatabasesDict, state: DatabasesState,
+        self,
+        databases: classes.DatabasesDict,
+        state: DatabasesState,
     ):
         self._databases = databases
         self._state = state
@@ -173,18 +177,18 @@ def _build_mysql_args(conninfo: classes.ConnectionInfo) -> typing.List[str]:
 
 
 def _run_script(
-        conninfo: classes.ConnectionInfo,
-        args: typing.List[str],
-        verbose: bool,
+    conninfo: classes.ConnectionInfo,
+    args: typing.List[str],
+    verbose: bool,
 ):
     command = [str(MYSQL_HELPER), *_build_mysql_args(conninfo), *args]
     shell.execute(command, verbose=verbose, command_alias='mysql/script')
 
 
 def _get_db_tables_list(
-        cursor: pymysql.cursors.Cursor,
-        db_name: typing.Optional[str],
-        truncate_non_empty: bool,
+    cursor: pymysql.cursors.Cursor,
+    db_name: typing.Optional[str],
+    truncate_non_empty: bool,
 ) -> typing.Optional[typing.Tuple]:
     cursor.execute('show tables')
     tables = cursor.fetchall()
@@ -206,16 +210,18 @@ def _get_db_tables_list(
 
 
 def apply_queries(
-        connection: ConnectionWrapper,
-        queries: typing.List[MysqlQuery],
-        keep_tables: typing.List[str] = None,
-        truncate_non_empty: bool = False,
+    connection: ConnectionWrapper,
+    queries: typing.List[MysqlQuery],
+    keep_tables: typing.List[str] = None,
+    truncate_non_empty: bool = False,
 ):
     if not keep_tables:
         keep_tables = []
     with connection.cursor() as cursor:
         tables = _get_db_tables_list(
-            cursor, connection.conninfo.dbname, truncate_non_empty,
+            cursor,
+            connection.conninfo.dbname,
+            truncate_non_empty,
         )
 
         if tables:
@@ -231,8 +237,7 @@ def apply_queries(
                 cursor.execute(query.body, args=[])
             except pymysql.Error as exc:
                 error_message = (
-                    f'MySQL apply query error\n'
-                    f'Query from: {query.source}\n'
+                    f'MySQL apply query error\n' f'Query from: {query.source}\n'
                 )
                 if query.path:
                     error_message += f'File path: {query.path}\n'

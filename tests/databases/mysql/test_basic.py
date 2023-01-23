@@ -57,7 +57,8 @@ def test_file_data(mysql):
 
 
 @pytest.mark.mysql(
-    'testdb', queries=['INSERT INTO foo (id, value) VALUES (1, "foo")'],
+    'testdb',
+    queries=['INSERT INTO foo (id, value) VALUES (1, "foo")'],
 )
 def test_dict_cursor(mysql):
     cursor = mysql['testdb'].dict_cursor()

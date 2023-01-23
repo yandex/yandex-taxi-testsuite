@@ -46,13 +46,16 @@ def logger_plugin(pytestconfig):
 
 
 async def test_service_daemon(
-        mockserver, dummy_daemon, logger_plugin, health_check,
+    mockserver,
+    dummy_daemon,
+    logger_plugin,
+    health_check,
 ):
     async with service_daemon.start(
-            args=[sys.executable, dummy_daemon],
-            logger_plugin=logger_plugin,
-            health_check=health_check,
-            subprocess_options={'stdout': subprocess.PIPE, 'bufsize': 0},
+        args=[sys.executable, dummy_daemon],
+        logger_plugin=logger_plugin,
+        health_check=health_check,
+        subprocess_options={'stdout': subprocess.PIPE, 'bufsize': 0},
     ):
         pass
 
@@ -60,19 +63,19 @@ async def test_service_daemon(
 
 
 async def test_service_wait_custom_health(
-        mockserver,
-        dummy_daemon,
-        logger_plugin,
-        pytestconfig,
-        wait_service_started,
+    mockserver,
+    dummy_daemon,
+    logger_plugin,
+    pytestconfig,
+    wait_service_started,
 ):
     @callinfo.acallqueue
     async def health_check(*, process, session):
         return health_check.times_called > 0
 
     async with wait_service_started(
-            args=[sys.executable, str(dummy_daemon)],
-            health_check=health_check,
+        args=[sys.executable, str(dummy_daemon)],
+        health_check=health_check,
     ):
         pass
 
@@ -92,20 +95,20 @@ async def test_service_wait_custom_health(
     ],
 )
 async def test_service_daemon_failure(
-        mockserver,
-        dummy_daemon,
-        daemon_args,
-        expected_message,
-        logger_plugin,
-        health_check,
+    mockserver,
+    dummy_daemon,
+    daemon_args,
+    expected_message,
+    logger_plugin,
+    health_check,
 ):
     with pytest.raises(spawn.ExitCodeError) as exc:
         start_command = [dummy_daemon] + daemon_args
         async with service_daemon.start(
-                start_command,
-                health_check=health_check,
-                logger_plugin=logger_plugin,
-                subprocess_options={'stdout': subprocess.PIPE, 'bufsize': 0},
+            start_command,
+            health_check=health_check,
+            logger_plugin=logger_plugin,
+            subprocess_options={'stdout': subprocess.PIPE, 'bufsize': 0},
         ):
             pass
 
@@ -144,7 +147,9 @@ async def test_run_health_check(status, expected):
     async with aiohttp.ClientSession() as session:
         assert (
             await service_daemon._run_health_check(
-                health_check, session=session, process=Process(),
+                health_check,
+                session=session,
+                process=Process(),
             )
             is expected
         )
@@ -161,6 +166,8 @@ async def test_run_health_check_poll_failed():
     async with aiohttp.ClientSession() as session:
         with pytest.raises(spawn.ExitCodeError) as exc:
             await service_daemon._run_health_check(
-                health_check, session=session, process=Process(),
+                health_check,
+                session=session,
+                process=Process(),
             )
         assert exc.value.exit_code == 123

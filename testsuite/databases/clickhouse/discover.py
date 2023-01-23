@@ -7,7 +7,8 @@ from . import utils
 
 
 def find_schemas(
-        schema_dirs: typing.List[pathlib.Path], dbprefix: str = 'testsuite-',
+    schema_dirs: typing.List[pathlib.Path],
+    dbprefix: str = 'testsuite-',
 ) -> typing.Dict[str, classes.DatabaseConfig]:
     result = {}
     for path in schema_dirs:
@@ -16,14 +17,15 @@ def find_schemas(
         for dbname, migrations in _scan_path(path).items():
             full_db_name: str = dbprefix + dbname
             result[dbname] = classes.DatabaseConfig(
-                dbname=full_db_name, migrations=migrations,
+                dbname=full_db_name,
+                migrations=migrations,
             )
 
     return result
 
 
 def _scan_path(
-        schema_path: pathlib.Path,
+    schema_path: pathlib.Path,
 ) -> typing.DefaultDict[str, typing.List[pathlib.Path]]:
     result = collections.defaultdict(list)
     for entry in schema_path.iterdir():

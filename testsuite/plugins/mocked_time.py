@@ -61,7 +61,8 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'now: specify current time mocked value',
+        'markers',
+        'now: specify current time mocked value',
     )
 
 

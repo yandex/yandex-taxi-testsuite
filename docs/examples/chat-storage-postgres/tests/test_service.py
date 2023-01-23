@@ -1,6 +1,7 @@
 async def test_messages_send(example_client, pgsql):
     response = await example_client.post(
-        '/messages/send', json={'username': 'foo', 'text': 'bar'},
+        '/messages/send',
+        json={'username': 'foo', 'text': 'bar'},
     )
     assert response.status_code == 200
     data = response.json()
@@ -8,7 +9,8 @@ async def test_messages_send(example_client, pgsql):
 
     cursor = pgsql['chat_messages'].cursor()
     cursor.execute(
-        'SELECT username, text FROM messages WHERE id = %s', (data['id'],),
+        'SELECT username, text FROM messages WHERE id = %s',
+        (data['id'],),
     )
     record = cursor.fetchone()
     assert record == ('foo', 'bar')

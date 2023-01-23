@@ -84,7 +84,9 @@ def pytest_addoption(parser):
         help='Path environment data directry.',
     )
     group.addoption(
-        '--start-environment', choices=['yes', 'no', 'auto'], default='yes',
+        '--start-environment',
+        choices=['yes', 'no', 'auto'],
+        default='yes',
     )
     group.addoption(
         '--no-env',
@@ -112,7 +114,8 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     utils.ensure_non_root_user()
     config.pluginmanager.register(
-        TestsuiteEnvironmentPlugin(), 'testsuite_environment',
+        TestsuiteEnvironmentPlugin(),
+        'testsuite_environment',
     )
 
 

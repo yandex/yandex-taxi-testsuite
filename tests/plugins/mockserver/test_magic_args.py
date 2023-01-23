@@ -5,11 +5,19 @@ from testsuite.utils import http
 
 
 async def test_basic(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def handler(
-            *, body_json, content_type, cookies, headers, method, path, query,
+        *,
+        body_json,
+        content_type,
+        cookies,
+        headers,
+        method,
+        path,
+        query,
     ):
         assert body_json == {'k': 'v'}
         assert content_type == 'application/json'
@@ -33,7 +41,8 @@ async def test_basic(
 
 
 async def test_body_binary(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def handler(*, body_binary):
@@ -46,7 +55,8 @@ async def test_body_binary(
 
 
 async def test_form(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def handler(*, form):
@@ -63,7 +73,8 @@ async def test_form(
 
 
 async def test_request_type(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def handler(request: aiohttp.web.BaseRequest):
@@ -76,7 +87,8 @@ async def test_request_type(
 
 
 async def test_naorgs(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def handler():
@@ -89,7 +101,8 @@ async def test_naorgs(
 
 
 async def test_star_args(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def handler(*args, **kwargs):

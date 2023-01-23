@@ -32,12 +32,12 @@ def pytest_addoption(parser):
 
 @pytest.fixture
 async def example_service(
-        ensure_daemon_started,
-        # Service process holder
-        example_service_scope,
-        # Service dependencies
-        mongodb,
-        mockserver,
+    ensure_daemon_started,
+    # Service process holder
+    example_service_scope,
+    # Service dependencies
+    mongodb,
+    mockserver,
 ):
     # Start service if not started yet
     await ensure_daemon_started(example_service_scope)
@@ -45,7 +45,9 @@ async def example_service(
 
 @pytest.fixture
 async def example_client(
-        create_service_client, example_service_baseurl, example_service,
+    create_service_client,
+    example_service_baseurl,
+    example_service,
 ):
     # Create service client instance
     return create_service_client(example_service_baseurl)
@@ -64,22 +66,22 @@ def example_root():
 
 @pytest.fixture(scope='session')
 async def example_service_scope(
-        pytestconfig,
-        create_daemon_scope,
-        example_service_baseurl,
-        example_root,
-        mongo_connection_info,
+    pytestconfig,
+    create_daemon_scope,
+    example_service_baseurl,
+    example_root,
+    mongo_connection_info,
 ):
     async with create_daemon_scope(
-            args=[
-                sys.executable,
-                str(example_root.joinpath('server.py')),
-                '--port',
-                str(pytestconfig.option.example_service_port),
-                '--mongo-uri',
-                mongo_connection_info.get_uri(),
-            ],
-            ping_url=example_service_baseurl + 'ping',
+        args=[
+            sys.executable,
+            str(example_root.joinpath('server.py')),
+            '--port',
+            str(pytestconfig.option.example_service_port),
+            '--mongo-uri',
+            mongo_connection_info.get_uri(),
+        ],
+        ping_url=example_service_baseurl + 'ping',
     ) as scope:
         yield scope
 

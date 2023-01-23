@@ -47,9 +47,9 @@ class MongoSchemaCache:
 
 class MongoSchemas(collections.abc.Mapping):
     def __init__(
-            self,
-            cache: MongoSchemaCache,
-            directories: typing.Iterable[annotations.PathOrStr],
+        self,
+        cache: MongoSchemaCache,
+        directories: typing.Iterable[annotations.PathOrStr],
     ):
         self._cache = cache
         self._directories = [

@@ -20,16 +20,16 @@ COMMAND_STOP = 'stop'
 
 class ScriptService:
     def __init__(
-            self,
-            *,
-            service_name: str,
-            script_path: str,
-            working_dir: str,
-            check_host: str = 'localhost',
-            check_ports: typing.List[int],
-            environment: typing.Optional[typing.Dict[str, str]] = None,
-            prestart_hook: typing.Optional[typing.Callable] = None,
-            start_timeout: float = 2.0,
+        self,
+        *,
+        service_name: str,
+        script_path: str,
+        working_dir: str,
+        check_host: str = 'localhost',
+        check_ports: typing.List[int],
+        environment: typing.Optional[typing.Dict[str, str]] = None,
+        prestart_hook: typing.Optional[typing.Callable] = None,
+        start_timeout: float = 2.0,
     ) -> None:
         self._service_name = service_name
         self._script_path = script_path
@@ -94,9 +94,9 @@ class ScriptService:
                 return False
 
             if not utils.wait_tcp_connection(
-                    host=self._check_host,
-                    port=port,
-                    timeout=self._start_timeout - time_passed,
+                host=self._check_host,
+                port=port,
+                timeout=self._start_timeout - time_passed,
             ):
                 return False
 

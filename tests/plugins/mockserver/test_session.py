@@ -69,7 +69,9 @@ def test_mockserver_new(base_prefix, prefix, http_proxy_enabled, expected):
     session = server.Session()
     dummy_server = _create_server(http_proxy_enabled=http_proxy_enabled)
     installer = server.MockserverFixture(
-        dummy_server, session, base_prefix=base_prefix,
+        dummy_server,
+        session,
+        base_prefix=base_prefix,
     )
     installer = installer.new(prefix)
     assert installer._base_prefix == expected
@@ -77,6 +79,9 @@ def test_mockserver_new(base_prefix, prefix, http_proxy_enabled, expected):
 
 def _create_server(**kwargs):
     mockserver_info = classes.MockserverInfo(
-        host='', port=0, base_url='http://mockserver/', ssl=None,
+        host='',
+        port=0,
+        base_url='http://mockserver/',
+        ssl=None,
     )
     return server.Server(mockserver_info, **kwargs)

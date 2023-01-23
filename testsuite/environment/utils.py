@@ -34,7 +34,9 @@ def wait_tcp_connection(host: str, port: int, timeout: float = 1.0) -> bool:
             return False
 
         if test_tcp_connection(
-                host=host, port=port, timeout=timeout - time_passed,
+            host=host,
+            port=port,
+            timeout=timeout - time_passed,
         ):
             return True
 
@@ -84,7 +86,8 @@ def getenv_float(key: str, default: float) -> float:
 
 
 def getenv_ints(
-        key: str, default: typing.Tuple[int, ...],
+    key: str,
+    default: typing.Tuple[int, ...],
 ) -> typing.Tuple[int, ...]:
     env_value = os.getenv(key, None)
     if env_value is None:

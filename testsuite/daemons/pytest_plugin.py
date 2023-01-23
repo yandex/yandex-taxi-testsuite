@@ -128,27 +128,23 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
     _fixture_wait_service_started: Any
 
     def __call__(
-            self,
-            args: Sequence[str],
-            check_url: Optional[str] = None,
-            *,
-            base_command: Optional[Sequence[str]] = None,
-            env: Optional[Dict[str, str]] = None,
-            poll_retries: int = service_daemon.POLL_RETRIES,
-            ping_url: Optional[str] = None,
-            ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
-            ping_response_codes: Tuple[
-                int
-            ] = service_daemon.PING_RESPONSE_CODES,
-            health_check: Optional[service_daemon.HealthCheckType] = None,
-            subprocess_options: Optional[Dict[str, Any]] = None,
-            setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
-            shutdown_signal: Optional[int] = None,
-            subprocess_spawner: Optional[
-                Callable[..., subprocess.Popen]
-            ] = None,
-            stdout_handler=None,
-            stderr_handler=None,
+        self,
+        args: Sequence[str],
+        check_url: Optional[str] = None,
+        *,
+        base_command: Optional[Sequence[str]] = None,
+        env: Optional[Dict[str, str]] = None,
+        poll_retries: int = service_daemon.POLL_RETRIES,
+        ping_url: Optional[str] = None,
+        ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
+        ping_response_codes: Tuple[int] = service_daemon.PING_RESPONSE_CODES,
+        health_check: Optional[service_daemon.HealthCheckType] = None,
+        subprocess_options: Optional[Dict[str, Any]] = None,
+        setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
+        shutdown_signal: Optional[int] = None,
+        subprocess_spawner: Optional[Callable[..., subprocess.Popen]] = None,
+        stdout_handler=None,
+        stderr_handler=None,
     ):
         """Creates service spawner.
 
@@ -184,7 +180,8 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
         async def spawn():
             if pytestconfig.option.service_wait:
                 return self._fixture_wait_service_started(
-                    args=command_args, health_check=health_check,
+                    args=command_args,
+                    health_check=health_check,
                 )
             if pytestconfig.option.service_disable:
                 return service_daemon.start_dummy_process()
@@ -217,25 +214,23 @@ class CreateDaemonScope(fixture_class.Fixture):
     _fixture_service_spawner: ServiceSpawnerFixture
 
     def __call__(
-            self,
-            *,
-            args: Sequence[str],
-            check_url: str = None,
-            ping_url: str = None,
-            name: Optional[str] = None,
-            base_command: Optional[Sequence] = None,
-            env: Optional[Dict[str, str]] = None,
-            poll_retries: int = service_daemon.POLL_RETRIES,
-            ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
-            ping_response_codes: Tuple[
-                int
-            ] = service_daemon.PING_RESPONSE_CODES,
-            health_check: Optional[service_daemon.HealthCheckType] = None,
-            subprocess_options: Optional[Dict[str, Any]] = None,
-            setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
-            shutdown_signal: Optional[int] = None,
-            stdout_handler=None,
-            stderr_handler=None,
+        self,
+        *,
+        args: Sequence[str],
+        check_url: str = None,
+        ping_url: str = None,
+        name: Optional[str] = None,
+        base_command: Optional[Sequence] = None,
+        env: Optional[Dict[str, str]] = None,
+        poll_retries: int = service_daemon.POLL_RETRIES,
+        ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
+        ping_response_codes: Tuple[int] = service_daemon.PING_RESPONSE_CODES,
+        health_check: Optional[service_daemon.HealthCheckType] = None,
+        subprocess_options: Optional[Dict[str, Any]] = None,
+        setup_service: Optional[Callable[[subprocess.Popen], None]] = None,
+        shutdown_signal: Optional[int] = None,
+        stdout_handler=None,
+        stderr_handler=None,
     ) -> AsyncContextManager[_DaemonScope]:
         """
         :param args: command arguments
@@ -294,11 +289,11 @@ class CreateServiceClientFixture(fixture_class.Fixture):
     _fixture_service_client_options: Dict[str, Any]
 
     def __call__(
-            self,
-            base_url: str,
-            *,
-            client_class=service_client.Client,
-            **kwargs,
+        self,
+        base_url: str,
+        *,
+        client_class=service_client.Client,
+        **kwargs,
     ):
         """
         :param base_url: base url for http client
@@ -317,10 +312,12 @@ ensure_daemon_started = fixture_class.create_fixture_factory(
     EnsureDaemonStartedFixture,
 )
 service_spawner = fixture_class.create_fixture_factory(
-    ServiceSpawnerFixture, scope='session',
+    ServiceSpawnerFixture,
+    scope='session',
 )
 create_daemon_scope = fixture_class.create_fixture_factory(
-    CreateDaemonScope, scope='session',
+    CreateDaemonScope,
+    scope='session',
 )
 create_service_client = fixture_class.create_fixture_factory(
     CreateServiceClientFixture,
@@ -394,7 +391,7 @@ def register_daemon_scope(_global_daemon_store: _DaemonStore):
 
 @pytest.fixture(scope='session')
 def service_client_session_factory(
-        event_loop,
+    event_loop,
 ) -> service_daemon.ClientSessionFactory:
     def make_session(**kwargs):
         kwargs.setdefault('loop', event_loop)
@@ -405,7 +402,7 @@ def service_client_session_factory(
 
 @pytest.fixture
 async def service_client_session(
-        service_client_session_factory,
+    service_client_session_factory,
 ) -> annotations.AsyncYieldFixture[aiohttp.ClientSession]:
     async with service_client_session_factory() as session:
         yield session
@@ -422,9 +419,9 @@ def service_client_default_headers() -> Dict[str, str]:
 
 @pytest.fixture
 def service_client_options(
-        pytestconfig,
-        service_client_session: aiohttp.ClientSession,
-        mockserver: fixture_types.MockserverFixture,
+    pytestconfig,
+    service_client_session: aiohttp.ClientSession,
+    mockserver: fixture_types.MockserverFixture,
 ) -> annotations.YieldFixture[Dict[str, Any]]:
     """Returns service client options dictionary."""
     yield {
@@ -458,6 +455,7 @@ def _testsuite_suspend_capture(pytestconfig):
 
 
 def _build_command_args(
-        args: Sequence, base_command: Optional[Sequence],
+    args: Sequence,
+    base_command: Optional[Sequence],
 ) -> Tuple[str, ...]:
     return tuple(str(arg) for arg in itertools.chain(base_command or (), args))

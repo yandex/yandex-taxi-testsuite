@@ -4,7 +4,8 @@ async def test_proxy(mockserver, mockserver_client):
         return {}
 
     response = await mockserver_client.get(
-        '/foo/bar', headers={'Host': 'example.org'},
+        '/foo/bar',
+        headers={'Host': 'example.org'},
     )
     assert response.status_code == 200
     assert example_handler.times_called == 1
@@ -18,7 +19,8 @@ async def test_prefixed(mockserver, mockserver_client):
         return {}
 
     response = await mockserver_client.get(
-        '/foo/bar', headers={'Host': 'example.org'},
+        '/foo/bar',
+        headers={'Host': 'example.org'},
     )
     assert response.status_code == 200
     assert example_handler.times_called == 1

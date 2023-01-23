@@ -42,14 +42,16 @@ class ServiceTestRunner:
 
         for item in service_items:
             self.config.hook.pytest_servicetest_modifyitem(
-                session=session, item=item,
+                session=session,
+                item=item,
             )
         items[:] = service_items
 
     def pytest_sessionstart(self, session):
         reporter = self.config.pluginmanager.get_plugin('terminalreporter')
         reporter.write_line(
-            OUTPUT_PREFIX + 'Running in servicetest mode', yellow=True,
+            OUTPUT_PREFIX + 'Running in servicetest mode',
+            yellow=True,
         )
 
     def pytest_runtestloop(self, session):
@@ -68,7 +70,8 @@ class ServiceTestRunner:
             result.get_result()
         except Exception:
             self.reporter.write_line(
-                OUTPUT_PREFIX + 'Failed to start service', red=True,
+                OUTPUT_PREFIX + 'Failed to start service',
+                red=True,
             )
             exc_info = traceback.format_exc()
             self.reporter.write_line(OUTPUT_PREFIX + exc_info, red=True)
@@ -88,7 +91,8 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'servicetest: mark test as service entrypoint',
+        'markers',
+        'servicetest: mark test as service entrypoint',
     )
     if config.option.service_runner_mode:
         runner = ServiceTestRunner(config)
@@ -112,7 +116,8 @@ async def _servicetest_endless_sleep(pytestconfig, _global_daemon_store):
     if not servicetest_runner.service_started:
         return
     servicetest_runner.reporter.write_line(
-        OUTPUT_PREFIX + 'Service started, use C-c to terminate', yellow=True,
+        OUTPUT_PREFIX + 'Service started, use C-c to terminate',
+        yellow=True,
     )
     while _global_daemon_store.has_running_daemons():
         await asyncio.sleep(1)

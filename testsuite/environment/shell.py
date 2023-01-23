@@ -25,7 +25,8 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
                 decoded = line.decode('utf-8')
             except UnicodeDecodeError:
                 logger.error(
-                    'Failed to decode subprocess output', with_exc=True,
+                    'Failed to decode subprocess output',
+                    with_exc=True,
                 )
                 continue
             decoded = decoded.rstrip('\r\n')
@@ -42,7 +43,10 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
                         buffer.append(decoded)
 
     process = subprocess.Popen(
-        args, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        args,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
     )
     thread = threading.Thread(target=_capture_output)
     thread.daemon = True

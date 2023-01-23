@@ -11,10 +11,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--timeout', help='Time before action', type=float)
     parser.add_argument(
-        '--exit-code', help='Exit with specified code', type=int,
+        '--exit-code',
+        help='Exit with specified code',
+        type=int,
     )
     parser.add_argument(
-        '--raise-signal', help='Raise specified signal', type=int,
+        '--raise-signal',
+        help='Raise specified signal',
+        type=int,
     )
     args = parser.parse_args()
 

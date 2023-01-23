@@ -9,13 +9,19 @@ from testsuite.databases.mongo import connection
         (
             'mongodb://localhost:27017/',
             connection.ConnectionInfo(
-                host='localhost', port=27017, dbname=None, retry_writes=None,
+                host='localhost',
+                port=27017,
+                dbname=None,
+                retry_writes=None,
             ),
         ),
         (
             'mongodb://some.host:1234/?retryWrites=false',
             connection.ConnectionInfo(
-                host='some.host', port=1234, dbname=None, retry_writes=False,
+                host='some.host',
+                port=1234,
+                dbname=None,
+                retry_writes=False,
             ),
         ),
         (

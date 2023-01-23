@@ -33,7 +33,8 @@ class GetSearchPathesFixture(fixture_class.Fixture):
     _fixture__search_directories: typing.Tuple[str, ...]
 
     def __call__(
-            self, filename: annotations.PathOrStr,
+        self,
+        filename: annotations.PathOrStr,
     ) -> typing.Iterator[pathlib.Path]:
         for directory in self._fixture__search_directories:
             yield pathlib.Path(directory) / filename
@@ -43,7 +44,9 @@ class SearchPathFixture(fixture_class.Fixture):
     _fixture_get_search_pathes: GetSearchPathesFixture
 
     def __call__(
-            self, filename: annotations.PathOrStr, directory: bool = False,
+        self,
+        filename: annotations.PathOrStr,
+        directory: bool = False,
     ) -> typing.Iterator[pathlib.Path]:
         for abs_filename in self._fixture_get_search_pathes(filename):
             if directory:
@@ -64,17 +67,16 @@ class GetFilePathFixture(fixture_class.Fixture):
         for path in self._fixture_search_path(filename):
             return path
         raise self._file_not_found_error(
-            f'File {filename} was not found', filename,
+            f'File {filename} was not found',
+            filename,
         )
 
     def _file_not_found_error(self, message, filename):
         pathes = '\n'.join(
-            ' - %s' % path
-            for path in self._fixture_get_search_pathes(filename)
+            ' - %s' % path for path in self._fixture_get_search_pathes(filename)
         )
         return FileNotFoundError(
-            '%s\n\nThe following pathes were examined:\n%s'
-            % (message, pathes),
+            '%s\n\nThe following pathes were examined:\n%s' % (message, pathes),
         )
 
 
@@ -85,7 +87,8 @@ class GetDirectoryPathFixture(GetFilePathFixture):
         for path in self._fixture_search_path(filename, directory=True):
             return path
         raise self._file_not_found_error(
-            f'Directory {filename} was not found', filename,
+            f'Directory {filename} was not found',
+            filename,
         )
 
 
@@ -108,12 +111,12 @@ class OpenFileFixture(fixture_class.Fixture):
     _fixture_get_file_path: GetFilePathFixture
 
     def __call__(
-            self,
-            filename: annotations.PathOrStr,
-            mode='r',
-            buffering=-1,
-            encoding='utf-8',
-            errors=None,
+        self,
+        filename: annotations.PathOrStr,
+        mode='r',
+        buffering=-1,
+        encoding='utf-8',
+        errors=None,
     ) -> typing.IO:
         if mode not in self._modes_whitelist:
             raise UnsupportedFileModeError(
@@ -145,11 +148,11 @@ class LoadFixture(fixture_class.Fixture):
     _fixture_open_file: OpenFileFixture
 
     def __call__(
-            self,
-            filename: annotations.PathOrStr,
-            mode='r',
-            encoding='utf-8',
-            errors=None,
+        self,
+        filename: annotations.PathOrStr,
+        mode='r',
+        encoding='utf-8',
+        errors=None,
     ) -> typing.Union[bytes, str]:
         """Load static text file.
 
@@ -167,7 +170,10 @@ class LoadFixture(fixture_class.Fixture):
                 PendingDeprecationWarning,
             )
         with self._fixture_open_file(
-                filename, mode=mode, encoding=encoding, errors=errors,
+            filename,
+            mode=mode,
+            encoding=encoding,
+            errors=errors,
         ) as file:
             return file.read()
 
@@ -192,7 +198,9 @@ class LoadBinaryFixture(fixture_class.Fixture):
         :returns: ``bytes`` file content.
         """
         with self._fixture_open_file(
-                filename, mode='rb', encoding=None,
+            filename,
+            mode='rb',
+            encoding=None,
         ) as file:
             return file.read()
 
@@ -220,7 +228,10 @@ class JsonLoadsFixture(fixture_class.Fixture):
         if 'object_hook' not in kwargs:
             kwargs['object_hook'] = self._fixture_object_hook
         return json_util.loads(
-            content, *args, **self._fixture_load_json_defaults, **kwargs,
+            content,
+            *args,
+            **self._fixture_load_json_defaults,
+            **kwargs,
         )
 
 
@@ -244,7 +255,10 @@ class LoadJsonFixture(fixture_class.Fixture):
     _fixture_json_loads: JsonLoadsFixture
 
     def __call__(
-            self, filename: annotations.PathOrStr, *args, **kwargs,
+        self,
+        filename: annotations.PathOrStr,
+        *args,
+        **kwargs,
     ) -> typing.Any:
         content = self._fixture_load(filename)
         try:
@@ -267,7 +281,10 @@ class LoadYamlFixture(fixture_class.Fixture):
     _fixture_load: LoadFixture
 
     def __call__(
-            self, filename: annotations.PathOrStr, *args, **kwargs,
+        self,
+        filename: annotations.PathOrStr,
+        *args,
+        **kwargs,
     ) -> typing.Any:
         content = self._fixture_load(filename)
         try:
@@ -298,7 +315,8 @@ load_yaml = fixture_class.create_fixture_factory(LoadYamlFixture)
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'nofilldb: test does not need db initialization',
+        'markers',
+        'nofilldb: test does not need db initialization',
     )
 
 
@@ -335,7 +353,8 @@ def initial_data_path() -> typing.Tuple[pathlib.Path, ...]:
 
 @pytest.fixture
 def get_all_static_file_paths(
-        static_dir: pathlib.Path, _file_paths_cache: FilePathsCache,
+    static_dir: pathlib.Path,
+    _file_paths_cache: FilePathsCache,
 ):
     def _get_file_paths() -> typing.List[pathlib.Path]:
         if static_dir not in _file_paths_cache:
@@ -353,7 +372,10 @@ def object_substitute(object_hook):
 
     def _substitute(content, *args, **kwargs):
         return json_util.substitute(
-            content, object_hook=object_hook, *args, **kwargs,
+            content,
+            object_hook=object_hook,
+            *args,
+            **kwargs,
         )
 
     return _substitute
@@ -399,10 +421,10 @@ def _file_paths_cache() -> FilePathsCache:
 
 @pytest.fixture
 def _search_directories(
-        request,
-        static_dir: pathlib.Path,
-        initial_data_path: typing.Tuple[pathlib.Path, ...],
-        testsuite_request_path,
+    request,
+    static_dir: pathlib.Path,
+    initial_data_path: typing.Tuple[pathlib.Path, ...],
+    testsuite_request_path,
 ) -> typing.Tuple[pathlib.Path, ...]:
     test_module_name = pathlib.Path(testsuite_request_path.stem)
     node_name = request.node.name

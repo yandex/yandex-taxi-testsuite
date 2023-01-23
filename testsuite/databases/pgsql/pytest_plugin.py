@@ -17,10 +17,10 @@ DB_FILE_RE_PATTERN = re.compile(r'/pg_(?P<pg_db_alias>\w+)(/?\w*)\.sql$')
 
 class ServiceLocalConfig(collections.abc.Mapping):
     def __init__(
-            self,
-            databases: typing.List[discover.PgShardedDatabase],
-            pgsql_control: control.PgControl,
-            cleanup_exclude_tables: typing.FrozenSet[str],
+        self,
+        databases: typing.List[discover.PgShardedDatabase],
+        pgsql_control: control.PgControl,
+        cleanup_exclude_tables: typing.FrozenSet[str],
     ):
         self._initialized = False
         self._pgsql_control = pgsql_control
@@ -41,7 +41,7 @@ class ServiceLocalConfig(collections.abc.Mapping):
         return iter(self._shard_connections)
 
     def __getitem__(self, dbname: str) -> connection.PgConnectionInfo:
-        """ Get
+        """Get
         :py:class:`testsuite.databases.pgsql.connection.PgConnectionInfo`
         instance by database name
         """
@@ -86,7 +86,8 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'pgsql: per-test PostgreSQL initialization',
+        'markers',
+        'pgsql: per-test PostgreSQL initialization',
     )
 
 
@@ -122,9 +123,11 @@ def pgsql(_pgsql, pgsql_apply) -> typing.Dict[str, control.PgDatabaseWrapper]:
 
 @pytest.fixture(scope='session')
 def pgsql_local_create(
-        pgsql_control, pgsql_cleanup_exclude_tables,
+    pgsql_control,
+    pgsql_cleanup_exclude_tables,
 ) -> typing.Callable[
-    [typing.List[discover.PgShardedDatabase]], ServiceLocalConfig,
+    [typing.List[discover.PgShardedDatabase]],
+    ServiceLocalConfig,
 ]:
     """Creates pgsql configuration.
 
@@ -134,7 +137,9 @@ def pgsql_local_create(
 
     def _pgsql_local_create(databases):
         return ServiceLocalConfig(
-            databases, pgsql_control, pgsql_cleanup_exclude_tables,
+            databases,
+            pgsql_control,
+            pgsql_cleanup_exclude_tables,
         )
 
     return _pgsql_local_create
@@ -188,23 +193,28 @@ def pgsql_local(pgsql_local_create) -> ServiceLocalConfig:
 
 @pytest.fixture
 def _pgsql(
-        _pgsql_service, pgsql_local, pgsql_control, pgsql_disabled: bool,
+    _pgsql_service,
+    pgsql_local,
+    pgsql_control,
+    pgsql_disabled: bool,
 ) -> typing.Dict[str, control.ConnectionWrapper]:
     if pgsql_disabled:
         pgsql_local = ServiceLocalConfig(
-            [], pgsql_control, pgsql_cleanup_exclude_tables,
+            [],
+            pgsql_control,
+            pgsql_cleanup_exclude_tables,
         )
     return pgsql_local.initialize()
 
 
 @pytest.fixture
 def pgsql_apply(
-        request,
-        _pgsql: ServiceLocalConfig,
-        load,
-        get_file_path,
-        get_directory_path,
-        mockserver_info,
+    request,
+    _pgsql: ServiceLocalConfig,
+    load,
+    get_file_path,
+    get_directory_path,
+    mockserver_info,
 ) -> None:
     """Initialize PostgreSQL database with data.
 
@@ -265,7 +275,9 @@ def pgsql_apply(
             for query_str in queries_str:
                 result_queries.append(
                     control.PgQuery(
-                        body=query_str, source='mark.pgsql.queries', path=None,
+                        body=query_str,
+                        source='mark.pgsql.queries',
+                        path=None,
                     ),
                 )
         return dbname, result_queries
@@ -273,7 +285,9 @@ def pgsql_apply(
     def load_pg_query(path, source):
         query = substitute_mockserver(load(path))
         return control.PgQuery(
-            body=query, source=source, path=str(get_file_path(path)),
+            body=query,
+            source=source,
+            path=str(get_file_path(path)),
         )
 
     def load_pg_queries(directory, source):
@@ -289,7 +303,8 @@ def pgsql_apply(
         )
 
     overrides: typing.DefaultDict[
-        str, typing.List[control.PgQuery],
+        str,
+        typing.List[control.PgQuery],
     ] = collections.defaultdict(list)
     for mark in request.node.iter_markers('pgsql'):
         dbname, queries = pgsql_mark(*mark.args, **mark.kwargs)
@@ -307,16 +322,16 @@ def pgsql_apply(
 
 @pytest.fixture
 def _pgsql_service(
-        pytestconfig,
-        pgsql_disabled: bool,
-        ensure_service_started,
-        pgsql_local: ServiceLocalConfig,
-        _pgsql_service_settings,
+    pytestconfig,
+    pgsql_disabled: bool,
+    ensure_service_started,
+    pgsql_local: ServiceLocalConfig,
+    _pgsql_service_settings,
 ) -> None:
     if (
-            not pgsql_disabled
-            and pgsql_local
-            and not pytestconfig.option.postgresql
+        not pgsql_disabled
+        and pgsql_local
+        and not pytestconfig.option.postgresql
     ):
         ensure_service_started('postgresql', settings=_pgsql_service_settings)
 
@@ -359,7 +374,8 @@ def _pgsql_service_settings() -> service.ServiceSettings:
 
 @pytest.fixture(scope='session')
 def _pgsql_conninfo(
-        request, _pgsql_service_settings,
+    request,
+    _pgsql_service_settings,
 ) -> connection.PgConnectionInfo:
     connstr = request.config.option.postgresql
     if connstr:

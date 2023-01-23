@@ -13,7 +13,10 @@ import pytest
     ],
 )
 async def test_query_params(
-        mockserver, create_service_client, params, expected_query,
+    mockserver,
+    create_service_client,
+    params,
+    expected_query,
 ):
     @mockserver.json_handler('/arbitrary/path')
     async def _handler(request):
@@ -33,6 +36,7 @@ async def test_empty_http_header(mockserver, create_service_client):
 
     client = create_service_client(mockserver.base_url)
     response = await client.post(
-        'arbitrary/path', headers={'key-only-header': None},
+        'arbitrary/path',
+        headers={'key-only-header': None},
     )
     assert response.status_code == 200

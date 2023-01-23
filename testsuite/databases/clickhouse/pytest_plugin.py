@@ -22,7 +22,8 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'clickhouse: per-test ClickHouse initialization',
+        'markers',
+        'clickhouse: per-test ClickHouse initialization',
     )
 
 
@@ -32,7 +33,8 @@ def pytest_service_register(register_service):
 
 @pytest.fixture
 def clickhouse(
-        _clickhouse, _clickhouse_apply,
+    _clickhouse,
+    _clickhouse_apply,
 ) -> typing.Dict[str, clickhouse_driver.Client]:
     return _clickhouse.get_connections()
 
@@ -48,19 +50,20 @@ def _clickhouse(clickhouse_local, _clickhouse_service, _clickhouse_state):
 
 @pytest.fixture
 def _clickhouse_apply(
-        clickhouse_local,
-        _clickhouse_state,
-        load,
-        get_file_path,
-        get_directory_path,
-        request,
+    clickhouse_local,
+    _clickhouse_state,
+    load,
+    get_file_path,
+    get_directory_path,
+    request,
 ):
     def load_default_queries(dbname):
         queries = []
         try:
             queries.append(
                 load_clickhouse_query(
-                    f'ch_{dbname}.sql', 'clickhouse.default_queries',
+                    f'ch_{dbname}.sql',
+                    'clickhouse.default_queries',
                 ),
             )
         except FileNotFoundError:
@@ -68,7 +71,8 @@ def _clickhouse_apply(
         try:
             queries.extend(
                 load_clickhouse_queries(
-                    f'ch_{dbname}', 'clickhouse.default_queries',
+                    f'ch_{dbname}',
+                    'clickhouse.default_queries',
                 ),
             )
         except FileNotFoundError:
@@ -88,7 +92,9 @@ def _clickhouse_apply(
         for query in queries:
             result_queries.append(
                 control.ClickhouseQuery(
-                    body=query, source='mark.clickhouse.queries', path=None,
+                    body=query,
+                    source='mark.clickhouse.queries',
+                    path=None,
                 ),
             )
 
@@ -96,7 +102,9 @@ def _clickhouse_apply(
 
     def load_clickhouse_query(path, source):
         return control.ClickhouseQuery(
-            body=load(path), source=source, path=str(get_file_path(path)),
+            body=load(path),
+            source=source,
+            path=str(get_file_path(path)),
         )
 
     def load_clickhouse_queries(directory, source):
@@ -118,7 +126,8 @@ def _clickhouse_apply(
         else:
             queries = load_default_queries(alias)
         control.apply_queries(
-            _clickhouse_state.get_connection(dbconfig.dbname), queries,
+            _clickhouse_state.get_connection(dbconfig.dbname),
+            queries,
         )
 
 
@@ -145,17 +154,18 @@ def clickhouse_conn_info(_clickhouse_service_settings):
 
 @pytest.fixture
 def _clickhouse_service(
-        ensure_service_started,
-        clickhouse_local,
-        clickhouse_disabled,
-        pytestconfig,
-        _clickhouse_service_settings,
+    ensure_service_started,
+    clickhouse_local,
+    clickhouse_disabled,
+    pytestconfig,
+    _clickhouse_service_settings,
 ):
     if not clickhouse_local or clickhouse_disabled:
         return False
     if not pytestconfig.option.clickhouse:
         ensure_service_started(
-            'clickhouse', settings=_clickhouse_service_settings,
+            'clickhouse',
+            settings=_clickhouse_service_settings,
         )
     return True
 

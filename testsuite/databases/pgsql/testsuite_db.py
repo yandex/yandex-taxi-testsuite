@@ -35,9 +35,9 @@ TESTSUITE_DB_NAME = 'testsuite'
 
 class AppliedSchemaHashes:
     def __init__(
-            self,
-            postgres_db_connection: psycopg2.extensions.connection,
-            base_conninfo: connection.PgConnectionInfo,
+        self,
+        postgres_db_connection: psycopg2.extensions.connection,
+        base_conninfo: connection.PgConnectionInfo,
     ):
         self._postgres_db_connection = postgres_db_connection
         self._conninfo = base_conninfo.replace(dbname=TESTSUITE_DB_NAME)

@@ -25,7 +25,8 @@ GROUP_DESC_FMT = {
 NOT_A_KEY = object()
 
 CmpInfo = collections.namedtuple(
-    'CmpInfo', ['cmp_type', 'left_value', 'right_value', 'parent_type'],
+    'CmpInfo',
+    ['cmp_type', 'left_value', 'right_value', 'parent_type'],
 )
 
 SEQUENCE_TYPES: tuple = (list, tuple)
@@ -35,11 +36,11 @@ TYPES = (dict,) + SET_TYPES + SEQUENCE_TYPES
 
 class ReprKeyMaker:
     def __init__(
-            self,
-            dict_key_format='[%r]',
-            dict_keys_connector='',
-            sequence_key_format='[%s]',
-            sequence_keys_connector='',
+        self,
+        dict_key_format='[%r]',
+        dict_keys_connector='',
+        sequence_key_format='[%s]',
+        sequence_keys_connector='',
     ):
         self.dict_key_format = dict_key_format
         self.dict_keys_connector = dict_keys_connector
@@ -80,7 +81,7 @@ class Comparator:
             and len(left) != len(right)
         )
         if (not same_types or different_sequence_lengths) and (
-                left is not None and right is not None
+            left is not None and right is not None
         ):
             left_type_info = type_left
             right_type_info = type_right
@@ -88,12 +89,15 @@ class Comparator:
                 left_type_info = _make_length_info(left)
                 right_type_info = _make_length_info(right)
             yield (), CmpInfo(
-                CMP_INCONSISTENCY_TYPES, left_type_info, right_type_info, None,
+                CMP_INCONSISTENCY_TYPES,
+                left_type_info,
+                right_type_info,
+                None,
             )
         if (
-                not same_types
-                or type_left not in TYPES
-                or (self.depth is not None and level >= self.depth)
+            not same_types
+            or type_left not in TYPES
+            or (self.depth is not None and level >= self.depth)
         ):
             if left != right:
                 yield (), CmpInfo(CMP_SIMPLE_DIFF, left, right, None)
@@ -125,7 +129,9 @@ class Comparator:
                 )
             elif left[key] != right[key]:
                 for path, cmp_info in self._compare(
-                        left[key], right[key], level=level + 1,
+                    left[key],
+                    right[key],
+                    level=level + 1,
                 ):
                     yield (*path_sub_key, *path), cmp_info
 
@@ -153,11 +159,11 @@ def pytest_addoption(parser):
 def pytest_assertrepr_compare(config, op, left, right):
     assertion_mode = config.option.assert_mode
     if (
-            # pylint: disable=unidiomatic-typecheck
-            assertion_mode == 'default'
-            or op != '=='
-            or type(left) is not type(right)
-            or type(left) not in TYPES
+        # pylint: disable=unidiomatic-typecheck
+        assertion_mode == 'default'
+        or op != '=='
+        or type(left) is not type(right)
+        or type(left) not in TYPES
     ):
         return None
     add_full_diff = assertion_mode == 'combine'
@@ -172,14 +178,14 @@ def pytest_assertrepr_compare(config, op, left, right):
 
 
 def _compare_pair(
-        left,
-        right,
-        add_empty_lines=True,
-        add_full_diff=False,
-        depth=None,
-        records_limit=None,
-        key_maker_kwargs=None,
-        repr_func=None,
+    left,
+    right,
+    add_empty_lines=True,
+    add_full_diff=False,
+    depth=None,
+    records_limit=None,
+    key_maker_kwargs=None,
+    repr_func=None,
 ) -> typing.List[str]:
     def _group_by_type(cmp_result):
         total_records = 0
@@ -202,7 +208,8 @@ def _compare_pair(
         key_maker = ReprKeyMaker(**(key_maker_kwargs or {}))
         groups = []
         for cmp_type, to_repr in sorted(
-                cmp_results_by_type.items(), key=operator.itemgetter(0),
+            cmp_results_by_type.items(),
+            key=operator.itemgetter(0),
         ):
             parts = to_repr['parts']
             extra_count = to_repr['extra_count']
@@ -243,8 +250,8 @@ def _compare_pair(
     )
 
     cmp_result_by_type = _group_by_type(repr_cmp_result)
-    type_explanations_list: typing.List[typing.List[str]] = (
-        _to_explanations(cmp_result_by_type)
+    type_explanations_list: typing.List[typing.List[str]] = _to_explanations(
+        cmp_result_by_type
     )
 
     explanation: typing.List[str] = [

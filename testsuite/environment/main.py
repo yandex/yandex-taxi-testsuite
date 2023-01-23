@@ -87,7 +87,8 @@ def main(args=None, service_plugins=None):
     command_parser.set_defaults(handler=_command_stop)
 
     command_parser = subparsers.add_parser(
-        'run', help='Run command with services started',
+        'run',
+        help='Run command with services started',
     )
     command_parser.add_argument('command', nargs='+', help='Command to run')
     command_parser.set_defaults(handler=_command_run)
@@ -99,7 +100,9 @@ def main(args=None, service_plugins=None):
     _setup_logging(args.log_level.upper())
 
     config = control.load_environment_config(
-        env_dir=args.env_dir, reuse_services=args.reuse_services, verbose=2,
+        env_dir=args.env_dir,
+        reuse_services=args.reuse_services,
+        verbose=2,
     )
     env = control.TestsuiteEnvironment(config)
     for service_name, service_class in testsuite_services.items():
@@ -126,7 +129,9 @@ def _command_start(env, args):
             env.ensure_started(service_name)
         except shell.SubprocessFailed as exc:
             logger.error(
-                'Failed to start service %s: %s', service_name, str(exc),
+                'Failed to start service %s: %s',
+                service_name,
+                str(exc),
             )
             status = False
             if not args.force:
@@ -142,7 +147,9 @@ def _command_stop(env, args):
             env.stop_service(service_name)
         except shell.SubprocessFailed as exc:
             logger.error(
-                'Failed to stop service %s: %s', service_name, str(exc),
+                'Failed to stop service %s: %s',
+                service_name,
+                str(exc),
             )
             status = False
             if not args.force:

@@ -13,7 +13,8 @@ def clickhouse_local():
 
 
 @pytest.mark.clickhouse(
-    'testdb', queries=['INSERT INTO foo(id, value) VALUES(1, \'one\')'],
+    'testdb',
+    queries=['INSERT INTO foo(id, value) VALUES(1, \'one\')'],
 )
 def test_apply(clickhouse):
     clickhouse['testdb'].execute(

@@ -64,7 +64,9 @@ class CollectionWrapperFactory:
         return pymongo.MongoClient(self.connection_string)
 
     def create_collection_wrapper(
-            self, collection_names, mongodb_settings,
+        self,
+        collection_names,
+        mongodb_settings,
     ) -> CollectionWrapper:
         collections = {}
         for name in collection_names:
@@ -81,13 +83,16 @@ class CollectionWrapperFactory:
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'noshuffledb: disable data set shuffle for marked test',
+        'markers',
+        'noshuffledb: disable data set shuffle for marked test',
     )
     config.addinivalue_line(
-        'markers', 'filldb: specify mongo static file suffix',
+        'markers',
+        'filldb: specify mongo static file suffix',
     )
     config.addinivalue_line(
-        'markers', 'mongodb_collections: override mongo collections list',
+        'markers',
+        'mongodb_collections: override mongo collections list',
     )
 
 
@@ -98,7 +103,9 @@ def pytest_addoption(parser):
     group = parser.getgroup('mongo')
     group.addoption('--mongo', help='Mongo connection string.')
     group.addoption(
-        '--no-indexes', action='store_true', help='Disable index creation.',
+        '--no-indexes',
+        action='store_true',
+        help='Disable index creation.',
     )
     group.addoption(
         '--no-shuffle-db',
@@ -111,7 +118,9 @@ def pytest_addoption(parser):
         help='Disable collections sharding.',
     )
     group.addoption(
-        '--no-mongo', help='Disable mongo startup', action='store_true',
+        '--no-mongo',
+        help='Disable mongo startup',
+        action='store_true',
     )
     parser.addini(
         'mongo-retry-writes',
@@ -130,17 +139,18 @@ def pytest_service_register(register_service):
 
 @pytest.fixture
 def mongodb(
-        mongodb_init, _mongodb_local: CollectionWrapper,
+    mongodb_init,
+    _mongodb_local: CollectionWrapper,
 ) -> CollectionWrapper:
     return _mongodb_local
 
 
 @pytest.fixture
 def mongo_connections(
-        mongodb_settings,
-        mongo_connection_info,
-        mongo_extra_connections,
-        _mongo_local_collections,
+    mongodb_settings,
+    mongo_connection_info,
+    mongo_extra_connections,
+    _mongo_local_collections,
 ) -> typing.Dict[str, str]:
     mongo_connection_uri = mongo_connection_info.get_uri()
     return {
@@ -176,7 +186,8 @@ def mongo_host(mongo_connection_info) -> str:
 
 @pytest.fixture(scope='session')
 def mongo_connection_info(
-        pytestconfig, _mongo_service_settings,
+    pytestconfig,
+    _mongo_service_settings,
 ) -> connection.ConnectionInfo:
     # External mongo instance
     if pytestconfig.option.mongo:
@@ -188,9 +199,9 @@ def mongo_connection_info(
 
 @pytest.fixture
 def mongodb_settings(
-        mongo_schema_directory,
-        mongo_schema_extra_directories,
-        _mongo_schema_cache,
+    mongo_schema_directory,
+    mongo_schema_extra_directories,
+    _mongo_schema_cache,
 ) -> mongo_schema.MongoSchemas:
     return mongo_schema.MongoSchemas(
         _mongo_schema_cache,
@@ -224,35 +235,35 @@ def _mongo_indexes_ensured() -> typing.Set[str]:
 
 @pytest.fixture
 def _mongo_service(
-        pytestconfig,
-        ensure_service_started,
-        _mongodb_local,
-        _mongo_service_settings,
+    pytestconfig,
+    ensure_service_started,
+    _mongodb_local,
+    _mongo_service_settings,
 ) -> None:
     aliases = _mongodb_local.get_aliases()
     if (
-            aliases
-            and not pytestconfig.option.mongo
-            and not pytestconfig.option.no_mongo
+        aliases
+        and not pytestconfig.option.mongo
+        and not pytestconfig.option.no_mongo
     ):
         ensure_service_started('mongo', settings=_mongo_service_settings)
 
 
 @pytest.fixture
 def _mongo_create_indexes(
-        _mongodb_local,
-        mongodb_settings,
-        pytestconfig,
-        _mongo_indexes_ensured,
-        _mongo_service,
+    _mongodb_local,
+    mongodb_settings,
+    pytestconfig,
+    _mongo_indexes_ensured,
+    _mongo_service,
 ) -> None:
     aliases = _mongodb_local.get_aliases()
     if not pytestconfig.option.no_indexes:
         _ensure_indexes = {}
         for alias in aliases:
             if (
-                    alias not in _mongo_indexes_ensured
-                    and alias in mongodb_settings
+                alias not in _mongo_indexes_ensured
+                and alias in mongodb_settings
             ):
                 _ensure_indexes[alias] = mongodb_settings[alias]
         if _ensure_indexes:
@@ -267,7 +278,7 @@ def _mongo_create_indexes(
 
 @pytest.fixture(scope='session')
 def _mongo_thread_pool() -> annotations.YieldFixture[
-        multiprocessing.pool.ThreadPool,
+    multiprocessing.pool.ThreadPool,
 ]:
     pool = multiprocessing.pool.ThreadPool(processes=20)
     with contextlib.closing(pool):
@@ -276,13 +287,13 @@ def _mongo_thread_pool() -> annotations.YieldFixture[
 
 @pytest.fixture
 def mongodb_init(
-        request,
-        load_json,
-        verify_file_paths,
-        static_dir: pathlib.Path,
-        _mongodb_local,
-        _mongo_thread_pool,
-        _mongo_create_indexes,
+    request,
+    load_json,
+    verify_file_paths,
+    static_dir: pathlib.Path,
+    _mongodb_local,
+    _mongo_thread_pool,
+    _mongo_create_indexes,
 ) -> None:
     """Populate mongodb with fixture data."""
 
@@ -314,7 +325,7 @@ def mongodb_init(
         if match:
             db_alias = match.group('mongo_db_alias')
             if db_alias not in aliases and not any(
-                    db_alias.startswith(alias + '_') for alias in aliases
+                db_alias.startswith(alias + '_') for alias in aliases
             ):
                 return False
         return True
@@ -367,18 +378,19 @@ def mongodb_init(
 
 @pytest.fixture
 def _mongodb_local(
-        mongodb_settings,
-        _mongo_local_collections,
-        _mongo_collection_wrapper_factory: CollectionWrapperFactory,
+    mongodb_settings,
+    _mongo_local_collections,
+    _mongo_collection_wrapper_factory: CollectionWrapperFactory,
 ) -> CollectionWrapper:
     return _mongo_collection_wrapper_factory.create_collection_wrapper(
-        _mongo_local_collections, mongodb_settings,
+        _mongo_local_collections,
+        mongodb_settings,
     )
 
 
 @pytest.fixture(scope='session')
 def _mongo_collection_wrapper_factory(
-        mongo_connection_info: connection.ConnectionInfo,
+    mongo_connection_info: connection.ConnectionInfo,
 ) -> CollectionWrapperFactory:
     return CollectionWrapperFactory(mongo_connection_info)
 
@@ -398,7 +410,7 @@ def _mongo_schema_cache() -> mongo_schema.MongoSchemaCache:
 
 @pytest.fixture(scope='session')
 def _mongo_service_settings(
-        pytestconfig,
+    pytestconfig,
 ) -> typing.Optional[service.ServiceSettings]:
     if pytestconfig.option.mongo:
         return None
@@ -406,12 +418,15 @@ def _mongo_service_settings(
 
 
 def _is_relevant_file(
-        request, static_dir: pathlib.Path, file_path: pathlib.Path,
+    request,
+    static_dir: pathlib.Path,
+    file_path: pathlib.Path,
 ) -> bool:
     default_static_dir = static_dir / 'default'
     module_static_dir = static_dir / pathlib.Path(request.fspath).stem
     return _is_nested_path(file_path, default_static_dir) or _is_nested_path(
-        file_path, module_static_dir,
+        file_path,
+        module_static_dir,
     )
 
 

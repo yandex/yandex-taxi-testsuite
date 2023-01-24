@@ -12,7 +12,9 @@ def simple_daemon(mockserver):
 
 
 async def test_spawn(simple_daemon):
-    async with spawn.spawned([sys.executable, simple_daemon, 'pass']) as process:
+    async with spawn.spawned(
+        [sys.executable, simple_daemon, 'pass']
+    ) as process:
         process.wait()
 
     assert process.returncode == 0
@@ -29,9 +31,9 @@ async def test_spawn_outerr(simple_daemon):
         err.append(line)
 
     async with spawn.spawned(
-            [sys.executable, simple_daemon, 'stdout'],
-            stdout_handler=handle_stdout,
-            stderr_handler=handle_stderr,
+        [sys.executable, simple_daemon, 'stdout'],
+        stdout_handler=handle_stdout,
+        stderr_handler=handle_stderr,
     ) as process:
         process.wait()
 

@@ -27,19 +27,26 @@ from testsuite.databases.pgsql import connection
         (
             'postgres://usr:123@host:5433/',
             connection.PgConnectionInfo(
-                host='host', port=5433, user='usr', password='123',
+                host='host',
+                port=5433,
+                user='usr',
+                password='123',
             ),
         ),
         (
             'postgres:///?host=host&port=5433&password=123&user=usr',
             connection.PgConnectionInfo(
-                host='host', port=5433, user='usr', password='123',
+                host='host',
+                port=5433,
+                user='usr',
+                password='123',
             ),
         ),
         (
             'postgres:///?options=-c%20geqo%3Doff&sslmode=require',
             connection.PgConnectionInfo(
-                options='-c geqo=off', sslmode='require',
+                options='-c geqo=off',
+                sslmode='require',
             ),
         ),
     ],

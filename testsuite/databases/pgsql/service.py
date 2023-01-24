@@ -18,23 +18,26 @@ class ServiceSettings(typing.NamedTuple):
 
     def get_conninfo(self) -> connection.PgConnectionInfo:
         return connection.PgConnectionInfo(
-            host='localhost', port=self.port, user='testsuite',
+            host='localhost',
+            port=self.port,
+            user='testsuite',
         )
 
 
 def get_service_settings():
     return ServiceSettings(
         utils.getenv_int(
-            key='TESTSUITE_POSTGRESQL_PORT', default=DEFAULT_PORT,
+            key='TESTSUITE_POSTGRESQL_PORT',
+            default=DEFAULT_PORT,
         ),
     )
 
 
 def create_pgsql_service(
-        service_name,
-        working_dir,
-        settings: typing.Optional[ServiceSettings] = None,
-        env=None,
+    service_name,
+    working_dir,
+    settings: typing.Optional[ServiceSettings] = None,
+    env=None,
 ):
     if settings is None:
         settings = get_service_settings()

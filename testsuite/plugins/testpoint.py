@@ -14,7 +14,8 @@ TestpointHandler = typing.Callable[
     annotations.MaybeAsyncResult[annotations.JsonAnyOptional],
 ]
 TestpointDecorator = typing.Callable[
-    [TestpointHandler], callinfo.AsyncCallQueue,
+    [TestpointHandler],
+    callinfo.AsyncCallQueue,
 ]
 
 
@@ -79,7 +80,8 @@ def testpoint_checker_factory():
 
 @pytest.fixture
 async def testpoint(
-        mockserver: server.MockserverFixture, testpoint_checker_factory,
+    mockserver: server.MockserverFixture,
+    testpoint_checker_factory,
 ) -> TestpointFixture:
     """Testpoint fixture returns testpoint session instance that works
     as decorator that registers testpoint handler. Original function is

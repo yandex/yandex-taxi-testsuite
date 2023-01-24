@@ -20,15 +20,17 @@ class ServiceSettings(typing.NamedTuple):
 
     def get_connection_info(self) -> classes.ConnectionInfo:
         return classes.ConnectionInfo(
-            host='localhost', tcp_port=self.tcp_port, http_port=self.http_port,
+            host='localhost',
+            tcp_port=self.tcp_port,
+            http_port=self.http_port,
         )
 
 
 def create_clickhouse_service(
-        service_name,
-        working_dir,
-        settings: typing.Optional[ServiceSettings] = None,
-        env: typing.Optional[typing.Dict[str, str]] = None,
+    service_name,
+    working_dir,
+    settings: typing.Optional[ServiceSettings] = None,
+    env: typing.Optional[typing.Dict[str, str]] = None,
 ):
     if settings is None:
         settings = get_service_settings()
@@ -44,7 +46,8 @@ def create_clickhouse_service(
         },
         check_ports=[settings.tcp_port, settings.http_port],
         start_timeout=utils.getenv_float(
-            key='TESTSUITE_CLICKHOUSE_SERVER_START_TIMEOUT', default=20.0,
+            key='TESTSUITE_CLICKHOUSE_SERVER_START_TIMEOUT',
+            default=20.0,
         ),
     )
 

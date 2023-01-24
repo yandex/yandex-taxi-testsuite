@@ -20,11 +20,11 @@ class DummyLogManager:
 
 class Plugin:
     def __init__(
-            self,
-            line_logger: logger.LineLogger,
-            testsuite_logger: logger.Logger,
-            colors_enabled: bool,
-            ensure_newline: bool,
+        self,
+        line_logger: logger.LineLogger,
+        testsuite_logger: logger.Logger,
+        colors_enabled: bool,
+        ensure_newline: bool,
     ):
         self._line_logger = line_logger
         self._testsuite_logger = testsuite_logger
@@ -68,7 +68,10 @@ class Plugin:
 class Hookspec:
     # pylint: disable=invalid-name
     def pytest_override_testsuite_logger(
-            self, config, line_logger: logger.LineLogger, colors_enabled: bool,
+        self,
+        config,
+        line_logger: logger.LineLogger,
+        colors_enabled: bool,
     ) -> typing.Optional[logger.Logger]:
         """Return logger to be used instead of standard one"""
 
@@ -81,7 +84,9 @@ def pytest_configure(config):
     colors_enabled = colors.should_enable_color(config)
     line_logger = logger.LineLogger()
     overrides = config.pluginmanager.hook.pytest_override_testsuite_logger(
-        config=config, line_logger=line_logger, colors_enabled=colors_enabled,
+        config=config,
+        line_logger=line_logger,
+        colors_enabled=colors_enabled,
     )
     if overrides:
         testsuite_logger = overrides[-1]

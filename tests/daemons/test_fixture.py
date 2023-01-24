@@ -26,20 +26,23 @@ def httpd_baseurl(httpd_socket):
 
 @pytest.fixture(scope='session')
 async def httpd_scope(
-        register_daemon_scope, httpd_baseurl, httpd_socket, service_spawner,
+    register_daemon_scope,
+    httpd_baseurl,
+    httpd_socket,
+    service_spawner,
 ):
     async with register_daemon_scope(
-            name=HTTPD_NAME,
-            spawn=service_spawner(
-                [
-                    sys.executable,
-                    HTTPD_PATH,
-                    '--server-fd',
-                    str(httpd_socket.fileno()),
-                ],
-                ping_url=httpd_baseurl + '/ping',
-                subprocess_options={'pass_fds': [httpd_socket.fileno()]},
-            ),
+        name=HTTPD_NAME,
+        spawn=service_spawner(
+            [
+                sys.executable,
+                HTTPD_PATH,
+                '--server-fd',
+                str(httpd_socket.fileno()),
+            ],
+            ping_url=httpd_baseurl + '/ping',
+            subprocess_options={'pass_fds': [httpd_socket.fileno()]},
+        ),
     ) as scope:
         yield scope
 
@@ -51,10 +54,10 @@ async def httpd(ensure_daemon_started, mockserver, httpd_scope):
 
 @pytest.fixture
 def httpd_client(
-        httpd,
-        httpd_baseurl,
-        service_client_default_headers,
-        service_client_options,
+    httpd,
+    httpd_baseurl,
+    service_client_default_headers,
+    service_client_options,
 ):
     return service_client.Client(
         httpd_baseurl,
@@ -71,7 +74,9 @@ async def test_httpd_hello(httpd_client):
 
 @pytest.mark.parametrize('restart_id', [0, 1])
 async def test_httpd_restart(
-        httpd_client, restart_id, httpd: pytest_plugin.DaemonInstance,
+    httpd_client,
+    restart_id,
+    httpd: pytest_plugin.DaemonInstance,
 ):
     response = await httpd_client.get('/exit')
     assert response.status_code == 200
@@ -81,21 +86,25 @@ async def test_httpd_restart(
 
 
 async def test_daemon_disabled(
-        register_daemon_scope, ensure_daemon_started, mockserver,
+    register_daemon_scope,
+    ensure_daemon_started,
+    mockserver,
 ):
     @mockserver.handler('/my-daemon/ping')
     def _ping_handler(request):
         return mockserver.make_response()
 
     async with register_daemon_scope(
-            '%s.daemon-disabled' % __name__,
-            spawn=service_daemon.start_dummy_process,
+        '%s.daemon-disabled' % __name__,
+        spawn=service_daemon.start_dummy_process,
     ) as scope:
         await ensure_daemon_started(scope)
 
 
 async def test_ensure_daemon_started_repeatable(
-        ensure_daemon_started, mockserver, httpd_scope,
+    ensure_daemon_started,
+    mockserver,
+    httpd_scope,
 ):
     instance1 = await ensure_daemon_started(httpd_scope)
     instance2 = await ensure_daemon_started(httpd_scope)

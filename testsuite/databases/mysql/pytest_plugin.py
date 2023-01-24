@@ -16,7 +16,9 @@ def pytest_addoption(parser):
     group = parser.getgroup('mysql')
     group.addoption('--mysql')
     group.addoption(
-        '--no-mysql', help='Disable use of MySQL', action='store_true',
+        '--no-mysql',
+        help='Disable use of MySQL',
+        action='store_true',
     )
 
 
@@ -67,12 +69,12 @@ def _mysql(mysql_local, _mysql_service, _mysql_state):
 
 @pytest.fixture
 def _mysql_apply(
-        mysql_local,
-        _mysql_state,
-        load,
-        get_file_path,
-        get_directory_path,
-        request,
+    mysql_local,
+    _mysql_state,
+    load,
+    get_file_path,
+    get_directory_path,
+    request,
 ):
     def load_default_queries(dbname):
         queries = []
@@ -101,14 +103,18 @@ def _mysql_apply(
         for query in queries:
             result_queries.append(
                 control.MysqlQuery(
-                    body=query, source='mark.mysql.queries', path=None,
+                    body=query,
+                    source='mark.mysql.queries',
+                    path=None,
                 ),
             )
         return dbname, result_queries
 
     def load_mysql_query(path, source):
         return control.MysqlQuery(
-            body=load(path), source=source, path=str(get_file_path(path)),
+            body=load(path),
+            source=source,
+            path=str(get_file_path(path)),
         )
 
     def load_mysql_queries(directory, source):
@@ -145,11 +151,11 @@ def _mysql_service_settings():
 
 @pytest.fixture
 def _mysql_service(
-        ensure_service_started,
-        mysql_local,
-        mysql_disabled,
-        pytestconfig,
-        _mysql_service_settings,
+    ensure_service_started,
+    mysql_local,
+    mysql_disabled,
+    pytestconfig,
+    _mysql_service_settings,
 ):
     if not mysql_local or mysql_disabled:
         return False

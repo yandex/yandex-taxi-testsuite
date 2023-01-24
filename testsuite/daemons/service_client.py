@@ -13,20 +13,22 @@ DEFAULT_HOST = 'localhost'
 DEFAULT_TIMEOUT = 120.0
 
 TResponse = typing.TypeVar(
-    'TResponse', aiohttp.ClientResponse, http.ClientResponse,
+    'TResponse',
+    aiohttp.ClientResponse,
+    http.ClientResponse,
 )
 
 
 class BaseAiohttpClient:
     def __init__(
-            self,
-            base_url: str,
-            *,
-            session: aiohttp.ClientSession,
-            ssl_context: typing.Optional[ssl.SSLContext] = None,
-            span_id_header: typing.Optional[str] = None,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            timeout: float = DEFAULT_TIMEOUT,
+        self,
+        base_url: str,
+        *,
+        session: aiohttp.ClientSession,
+        ssl_context: typing.Optional[ssl.SSLContext] = None,
+        span_id_header: typing.Optional[str] = None,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        timeout: float = DEFAULT_TIMEOUT,
     ):
         """
         :param base_url: Base client url
@@ -42,17 +44,19 @@ class BaseAiohttpClient:
         self._span_id_header = span_id_header
 
     async def _aiohttp_request(
-            self,
-            http_method: str,
-            path: str,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            **kwargs,
+        self,
+        http_method: str,
+        path: str,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        **kwargs,
     ) -> aiohttp.ClientResponse:
         url = url_util.join(self._base_url, path)
         headers = self._build_headers(
-            headers, bearer=bearer, x_real_ip=x_real_ip,
+            headers,
+            bearer=bearer,
+            x_real_ip=x_real_ip,
         )
         kwargs['timeout'] = kwargs.get('timeout', self._timeout)
 
@@ -60,15 +64,19 @@ class BaseAiohttpClient:
         if params is not None:
             kwargs['params'] = _flatten(params)
         response = await self._session.request(
-            http_method, url, headers=headers, ssl=self._ssl_context, **kwargs,
+            http_method,
+            url,
+            headers=headers,
+            ssl=self._ssl_context,
+            **kwargs,
         )
         return response
 
     def _build_headers(
-            self,
-            user_headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
+        self,
+        user_headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
     ) -> typing.Dict[str, str]:
         headers = self._headers.copy()
         if user_headers:
@@ -91,15 +99,15 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
     """Basic asyncio HTTP service client."""
 
     async def post(
-            self,
-            path: str,
-            json: annotations.JsonAnyOptional = None,
-            data: typing.Any = None,
-            params: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            **kwargs,
+        self,
+        path: str,
+        json: annotations.JsonAnyOptional = None,
+        data: typing.Any = None,
+        params: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        **kwargs,
     ) -> TResponse:
         """Perform HTTP POST request."""
         return await self._request(
@@ -115,15 +123,15 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
         )
 
     async def put(
-            self,
-            path,
-            json: annotations.JsonAnyOptional = None,
-            data: typing.Any = None,
-            params: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            **kwargs,
+        self,
+        path,
+        json: annotations.JsonAnyOptional = None,
+        data: typing.Any = None,
+        params: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        **kwargs,
     ) -> TResponse:
         """Perform HTTP PUT request."""
         return await self._request(
@@ -139,15 +147,15 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
         )
 
     async def patch(
-            self,
-            path,
-            json: annotations.JsonAnyOptional = None,
-            data: typing.Any = None,
-            params: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            **kwargs,
+        self,
+        path,
+        json: annotations.JsonAnyOptional = None,
+        data: typing.Any = None,
+        params: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        **kwargs,
     ) -> TResponse:
         """Perform HTTP PATCH request."""
         return await self._request(
@@ -163,12 +171,12 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
         )
 
     async def get(
-            self,
-            path: str,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            **kwargs,
+        self,
+        path: str,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        **kwargs,
     ) -> TResponse:
         """Perform HTTP GET request."""
         return await self._request(
@@ -181,12 +189,12 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
         )
 
     async def delete(
-            self,
-            path: str,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            **kwargs,
+        self,
+        path: str,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        **kwargs,
     ) -> TResponse:
         """Perform HTTP DELETE request."""
         return await self._request(
@@ -199,12 +207,12 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
         )
 
     async def options(
-            self,
-            path: str,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            **kwargs,
+        self,
+        path: str,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        **kwargs,
     ) -> TResponse:
         """Perform HTTP OPTIONS request."""
         return await self._request(
@@ -217,55 +225,69 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
         )
 
     async def request(
-            self, http_method: str, path: str, **kwargs,
+        self,
+        http_method: str,
+        path: str,
+        **kwargs,
     ) -> TResponse:
         """Perform HTTP ``http_method`` request."""
         return await self._request(http_method, path, **kwargs)
 
     async def _request(
-            self,
-            http_method: str,
-            path: str,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            **kwargs,
+        self,
+        http_method: str,
+        path: str,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        **kwargs,
     ) -> TResponse:
         raise NotImplementedError
 
 
 class AiohttpClient(GenericClient[aiohttp.ClientResponse]):
     async def _request(
-            self,
-            http_method: str,
-            path: str,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            **kwargs,
+        self,
+        http_method: str,
+        path: str,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        **kwargs,
     ) -> aiohttp.ClientResponse:
         return await self._aiohttp_request(
-            http_method, path, headers, bearer, x_real_ip, **kwargs,
+            http_method,
+            path,
+            headers,
+            bearer,
+            x_real_ip,
+            **kwargs,
         )
 
 
 class Client(GenericClient[http.ClientResponse]):
     async def _request(
-            self,
-            http_method: str,
-            path: str,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            bearer: typing.Optional[str] = None,
-            x_real_ip: typing.Optional[str] = None,
-            **kwargs,
+        self,
+        http_method: str,
+        path: str,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        bearer: typing.Optional[str] = None,
+        x_real_ip: typing.Optional[str] = None,
+        **kwargs,
     ) -> http.ClientResponse:
         response = await self._aiohttp_request(
-            http_method, path, headers, bearer, x_real_ip, **kwargs,
+            http_method,
+            path,
+            headers,
+            bearer,
+            x_real_ip,
+            **kwargs,
         )
         return await self._wrap_client_response(response)
 
     def _wrap_client_response(
-            self, response,
+        self,
+        response,
     ) -> typing.Awaitable[http.ClientResponse]:
         return http.wrap_client_response(response, json_loads=json.loads)
 
@@ -273,9 +295,7 @@ class Client(GenericClient[http.ClientResponse]):
 def _flatten(query_params):
     result = []
     iterable = (
-        query_params.items()
-        if isinstance(query_params, dict)
-        else query_params
+        query_params.items() if isinstance(query_params, dict) else query_params
     )
     for key, value in iterable:
         if isinstance(value, (tuple, list)):

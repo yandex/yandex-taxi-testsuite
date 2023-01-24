@@ -64,7 +64,7 @@ class InvalidRequestError(BaseError):
 
 
 class Request:
-    """ Adapts aiohttp.web.BaseRequest to mimic a frequently used subset of
+    """Adapts aiohttp.web.BaseRequest to mimic a frequently used subset of
     werkzeug.Request interface. ``data`` property is not supported,
     use get_data() instead.
     """
@@ -114,8 +114,8 @@ class Request:
     def form(self):
         if self._form is None:
             if self._request.content_type in (
-                    '',
-                    'application/x-www-form-urlencoded',
+                '',
+                'application/x-www-form-urlencoded',
             ):
                 charset = self._request.charset or 'utf-8'
                 items = urllib.parse.parse_qsl(
@@ -190,11 +190,11 @@ async def wrap_request(request: aiohttp.web.BaseRequest) -> Request:
 
 class ClientResponse:
     def __init__(
-            self,
-            response: aiohttp.ClientResponse,
-            content: bytes,
-            *,
-            json_loads,
+        self,
+        response: aiohttp.ClientResponse,
+        content: bytes,
+        *,
+        json_loads,
     ):
         self._response = response
         self._content: bytes = content
@@ -234,7 +234,9 @@ class ClientResponse:
         if self._form is None:
             if self.content_type in ('', 'application/x-www-form-urlencoded'):
                 items = urllib.parse.parse_qsl(
-                    self.text, keep_blank_values=True, encoding=self.encoding,
+                    self.text,
+                    keep_blank_values=True,
+                    encoding=self.encoding,
                 )
                 self._form = {key: value for key, value in items}
             else:
@@ -263,12 +265,15 @@ class ClientResponse:
             return
         self._response.release()
         raise HttpResponseError(
-            url=self._response.request_info.url, status=self._response.status,
+            url=self._response.request_info.url,
+            status=self._response.status,
         )
 
 
 async def wrap_client_response(
-        response: aiohttp.ClientResponse, *, json_loads=json.loads,
+    response: aiohttp.ClientResponse,
+    *,
+    json_loads=json.loads,
 ):
     content = await response.read()
     wrapped = ClientResponse(response, content, json_loads=json_loads)
@@ -276,14 +281,14 @@ async def wrap_client_response(
 
 
 def make_response(
-        response: typing.Union[str, bytes, bytearray] = None,
-        status: int = 200,
-        headers: typing.Mapping[str, str] = None,
-        content_type: typing.Optional[str] = None,
-        charset: typing.Optional[str] = None,
-        *,
-        json=_NoValue,
-        form=_NoValue,
+    response: typing.Union[str, bytes, bytearray] = None,
+    status: int = 200,
+    headers: typing.Mapping[str, str] = None,
+    content_type: typing.Optional[str] = None,
+    charset: typing.Optional[str] = None,
+    *,
+    json=_NoValue,
+    form=_NoValue,
 ) -> aiohttp.web.Response:
     """
     Create HTTP response object. Returns ``aiohttp.web.Response`` instance.

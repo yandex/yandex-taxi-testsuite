@@ -39,7 +39,11 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         return _route
 
     def make_response(
-            self, data, *, content_type='text/plain', status_code=200,
+        self,
+        data,
+        *,
+        content_type='text/plain',
+        status_code=200,
     ):
         self.send_response(status_code)
         self.send_header('Content-Type', content_type)
@@ -73,6 +77,7 @@ def exit_(request):
         server.shutdown()
 
     import threading
+
     thread = threading.Thread(target=server_shutdown, args=(request.server,))
     thread.start()
 
@@ -99,11 +104,13 @@ def server_main():
 
     if args.server_fd is not None:
         httpd = ExternalSocketHTTPServer(
-            socket.socket(fileno=args.server_fd), RequestHandler,
+            socket.socket(fileno=args.server_fd),
+            RequestHandler,
         )
     else:
         httpd = http.server.HTTPServer(
-            (args.hostname, args.port), RequestHandler,
+            (args.hostname, args.port),
+            RequestHandler,
         )
     try:
         httpd.serve_forever()

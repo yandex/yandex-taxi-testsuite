@@ -69,7 +69,8 @@ class PgShardedDatabase:
 
 
 def find_schemas(
-        service_name: Optional[str], schema_dirs: List[pathlib.Path],
+    service_name: Optional[str],
+    schema_dirs: List[pathlib.Path],
 ) -> Dict[str, PgShardedDatabase]:
     """Read database schemas from directories ``schema_dirs``. ::
      |- schema_path/
@@ -95,7 +96,8 @@ def find_schemas(
 
 
 def _find_databases_schemas(
-        service_name: Optional[str], schema_path: pathlib.Path,
+    service_name: Optional[str],
+    schema_path: pathlib.Path,
 ) -> Dict[str, PgShardedDatabase]:
     logger.debug('Looking up for PostgreSQL schemas at %s', schema_path)
     shard_files_map = _build_shard_files_map(schema_path)
@@ -114,13 +116,15 @@ def _find_databases_schemas(
                 ),
             )
         result[dbname] = PgShardedDatabase(
-            service_name=service_name, dbname=dbname, shards=pg_shards,
+            service_name=service_name,
+            dbname=dbname,
+            shards=pg_shards,
         )
     return result
 
 
 def _build_shard_files_map(
-        root_path: pathlib.Path,
+    root_path: pathlib.Path,
 ) -> DefaultDict[str, ShardPathesDict]:
     result: DefaultDict[str, ShardPathesDict]
     result = collections.defaultdict(
@@ -166,11 +170,11 @@ def _raise_if_invalid_shards(dbname: str, shards: ShardPathesDict) -> None:
 
 
 def _create_pgshard(
-        dbname: str,
-        service_name: Optional[str] = None,
-        shard_id: int = SINGLE_SHARD,
-        files: Optional[List[pathlib.Path]] = None,
-        migrations: Optional[List[pathlib.Path]] = None,
+    dbname: str,
+    service_name: Optional[str] = None,
+    shard_id: int = SINGLE_SHARD,
+    files: Optional[List[pathlib.Path]] = None,
+    migrations: Optional[List[pathlib.Path]] = None,
 ) -> PgShard:
     if files is None:
         files = []

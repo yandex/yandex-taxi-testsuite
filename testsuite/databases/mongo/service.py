@@ -22,15 +22,16 @@ class ServiceSettings(typing.NamedTuple):
 
     def get_connection_info(self) -> connection.ConnectionInfo:
         return connection.ConnectionInfo(
-            host='localhost', port=self.mongos_port,
+            host='localhost',
+            port=self.mongos_port,
         )
 
 
 def create_mongo_service(
-        service_name,
-        working_dir,
-        settings: typing.Optional[ServiceSettings] = None,
-        env: typing.Optional[typing.Dict[str, str]] = None,
+    service_name,
+    working_dir,
+    settings: typing.Optional[ServiceSettings] = None,
+    env: typing.Optional[typing.Dict[str, str]] = None,
 ):
     if settings is None:
         settings = get_service_settings()
@@ -60,9 +61,11 @@ def get_service_settings():
             default=DEFAULT_CONFIG_SERVER_PORT,
         ),
         utils.getenv_int(
-            key='TESTSUITE_MONGOS_PORT', default=DEFAULT_MONGOS_PORT,
+            key='TESTSUITE_MONGOS_PORT',
+            default=DEFAULT_MONGOS_PORT,
         ),
         utils.getenv_int(
-            key='TESTSUITE_MONGO_SHARD_PORT', default=DEFAULT_SHARD_PORT,
+            key='TESTSUITE_MONGO_SHARD_PORT',
+            default=DEFAULT_SHARD_PORT,
         ),
     )

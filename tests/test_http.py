@@ -33,7 +33,8 @@ async def test_multipart_form_data(mockserver):
         data.append_payload(payload)
 
         payload = aiohttp.payload.BytesPayload(
-            b'image_data', headers={'Content-Type': 'image/jpeg'},
+            b'image_data',
+            headers={'Content-Type': 'image/jpeg'},
         )
         payload.set_content_disposition('form-data', name='passport_photo')
         data.append_payload(payload)
@@ -62,7 +63,9 @@ async def test_multipart_form_data(mockserver):
 
     async with aiohttp.ClientSession() as session:
         response = await session.post(
-            mockserver.url('multipart/form-data'), headers=headers, data=data,
+            mockserver.url('multipart/form-data'),
+            headers=headers,
+            data=data,
         )
 
     assert response.status == 200

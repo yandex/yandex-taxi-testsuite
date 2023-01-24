@@ -15,10 +15,10 @@ SCRIPTS_DIR = PLUGIN_DIR.joinpath('scripts')
 
 
 def create_service(
-        service_name: str,
-        working_dir: str,
-        settings: typing.Optional[classes.ServiceSettings] = None,
-        env: typing.Optional[typing.Dict[str, str]] = None,
+    service_name: str,
+    working_dir: str,
+    settings: typing.Optional[classes.ServiceSettings] = None,
+    env: typing.Optional[typing.Dict[str, str]] = None,
 ):
     if settings is None:
         settings = get_service_settings()
@@ -38,7 +38,8 @@ def create_service(
 def get_service_settings():
     return classes.ServiceSettings(
         port=utils.getenv_int(
-            key='TESTSUITE_MYSQL_PORT', default=DEFAULT_PORT,
+            key='TESTSUITE_MYSQL_PORT',
+            default=DEFAULT_PORT,
         ),
     )
 

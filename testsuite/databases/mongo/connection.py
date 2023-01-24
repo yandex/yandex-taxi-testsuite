@@ -16,9 +16,9 @@ class ConnectionInfo:
     retry_writes: typing.Optional[bool] = None
 
     def get_uri(
-            self,
-            dbname: typing.Optional[str] = None,
-            retry_writes: typing.Optional[bool] = None,
+        self,
+        dbname: typing.Optional[str] = None,
+        retry_writes: typing.Optional[bool] = None,
     ) -> str:
         """Get mongodb connection uri"""
         if dbname is None:
@@ -49,7 +49,8 @@ def parse_connection_uri(uri: str) -> ConnectionInfo:
 
 
 def _get_boolean_param(
-        parsed_query: typing.Dict[str, typing.List[str]], key: str,
+    parsed_query: typing.Dict[str, typing.List[str]],
+    key: str,
 ) -> typing.Optional[bool]:
     values = parsed_query.get(key, None)
     if not values or not values[0]:

@@ -23,9 +23,9 @@ pytest_plugins = [
 
 @pytest.fixture
 def mockserver_client(
-        mockserver: fixture_types.MockserverFixture,
-        service_client_default_headers,
-        service_client_options,
+    mockserver: fixture_types.MockserverFixture,
+    service_client_default_headers,
+    service_client_options,
 ) -> service_client.Client:
     return service_client.Client(
         mockserver.base_url,
@@ -39,16 +39,17 @@ def mockserver_client(
 
 @pytest.fixture
 def mockserver_ssl_client(
-        mockserver_ssl: fixture_types.MockserverSslFixture,
-        mockserver_ssl_info: fixture_types.MockserverSslInfoFixture,
-        service_client_default_headers,
-        service_client_options,
+    mockserver_ssl: fixture_types.MockserverSslFixture,
+    mockserver_ssl_info: fixture_types.MockserverSslInfoFixture,
+    service_client_default_headers,
+    service_client_options,
 ):
     if not mockserver_ssl_info:
         raise RuntimeError('No https mockserver configured')
     assert mockserver_ssl_info.ssl
     ssl_context = ssl.create_default_context(
-        ssl.Purpose.SERVER_AUTH, cafile=mockserver_ssl_info.ssl.cert_path,
+        ssl.Purpose.SERVER_AUTH,
+        cafile=mockserver_ssl_info.ssl.cert_path,
     )
     return service_client.Client(
         mockserver_ssl.base_url,
@@ -63,13 +64,14 @@ def mockserver_ssl_client(
 
 @pytest.fixture
 def create_service_client(
-        service_client_default_headers, service_client_options,
+    service_client_default_headers,
+    service_client_options,
 ):
     def _create_service_client(
-            base_url: str,
-            *,
-            headers: typing.Optional[typing.Dict[str, str]] = None,
-            **kwargs,
+        base_url: str,
+        *,
+        headers: typing.Optional[typing.Dict[str, str]] = None,
+        **kwargs,
     ):
         options = {**service_client_options, **kwargs}
         return service_client.Client(

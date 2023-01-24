@@ -7,7 +7,8 @@ from testsuite.utils import http
 
 
 async def test_request_wrapper_attributes(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.handler('/arbitrary/path', prefix=True)
     def _handler(request: http.Request):
@@ -23,14 +24,16 @@ async def test_request_wrapper_attributes(
         return mockserver.make_response()
 
     client = create_service_client(
-        mockserver.base_url, headers={'arbitrary-header': 'value'},
+        mockserver.base_url,
+        headers={'arbitrary-header': 'value'},
     )
     response = await client.post('arbitrary/path?k=v', data=b'some data')
     assert response.status_code == 200
 
 
 async def test_response_attributes(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.handler('/arbitrary/path')
     def _handler(request: http.Request):
@@ -48,7 +51,8 @@ async def test_response_attributes(
 
 
 async def test_request_json(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.handler('/arbitrary/path')
     def _handler(request):
@@ -61,7 +65,8 @@ async def test_request_json(
 
 
 async def test_response_json(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def _handler(request: http.Request):
@@ -75,7 +80,8 @@ async def test_response_json(
 
 
 async def test_raw_request_parameter(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.aiohttp_json_handler('/arbitrary/path')
     async def _handler(request: aiohttp.web.Request):
@@ -90,7 +96,8 @@ async def test_raw_request_parameter(
 
 
 async def test_request_form(
-        mockserver: fixture_types.MockserverFixture, create_service_client,
+    mockserver: fixture_types.MockserverFixture,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     async def _handler(request: http.Request):

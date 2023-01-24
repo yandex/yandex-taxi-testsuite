@@ -103,9 +103,9 @@ class MagicArgsHandler:
             self.magic_args.append((arg, self.magic_args_handlers[arg]))
 
     async def build_args(
-            self,
-            request: aiohttp.web.BaseRequest,
-            orig_kwargs: typing.Dict[str, object],
+        self,
+        request: aiohttp.web.BaseRequest,
+        orig_kwargs: typing.Dict[str, object],
     ) -> typing.Tuple:
         wrapped_request: typing.Optional[http.Request]
         if self.has_request and not self.raw_request:

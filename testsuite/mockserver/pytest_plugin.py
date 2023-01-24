@@ -42,7 +42,8 @@ def pytest_addoption(parser):
         type=int,
         default=0,
         help=MOCKSERVER_PORT_HELP.format(
-            proto='HTTP', default=MOCKSERVER_DEFAULT_PORT,
+            proto='HTTP',
+            default=MOCKSERVER_DEFAULT_PORT,
         ),
     )
     group.addoption(
@@ -55,7 +56,8 @@ def pytest_addoption(parser):
         type=int,
         default=0,
         help=MOCKSERVER_PORT_HELP.format(
-            proto='HTTPS', default=MOCKSERVER_SSL_DEFAULT_PORT,
+            proto='HTTPS',
+            default=MOCKSERVER_SSL_DEFAULT_PORT,
         ),
     )
     parser.addini(
@@ -121,7 +123,8 @@ def pytest_register_object_hooks():
 
 @pytest.fixture
 def mockserver(
-        _mockserver: server.Server, _mockserver_trace_id: str,
+    _mockserver: server.Server,
+    _mockserver_trace_id: str,
 ) -> annotations.YieldFixture[server.MockserverFixture]:
     with _mockserver.new_session(_mockserver_trace_id) as session:
         yield server.MockserverFixture(_mockserver, session)
@@ -129,8 +132,8 @@ def mockserver(
 
 @pytest.fixture
 async def mockserver_ssl(
-        _mockserver_ssl: typing.Optional[server.Server],
-        _mockserver_trace_id: str,
+    _mockserver_ssl: typing.Optional[server.Server],
+    _mockserver_trace_id: str,
 ) -> annotations.AsyncYieldFixture[server.MockserverSslFixture]:
     if _mockserver_ssl is None:
         raise exceptions.MockServerError(
@@ -149,7 +152,7 @@ def mockserver_info(_mockserver: server.Server) -> classes.MockserverInfo:
 
 @pytest.fixture(scope='session')
 def mockserver_ssl_info(
-        _mockserver_ssl: typing.Optional[server.Server],
+    _mockserver_ssl: typing.Optional[server.Server],
 ) -> typing.Optional[classes.MockserverInfo]:
     if _mockserver_ssl is None:
         return None
@@ -172,7 +175,8 @@ def mockserver_ssl_cert(pytestconfig) -> typing.Optional[classes.SslCertInfo]:
     key_path = _get_ini_path(_SSL_KEY_FILE_INI_KEY)
     if cert_path and key_path:
         return classes.SslCertInfo(
-            cert_path=cert_path, private_key_path=key_path,
+            cert_path=cert_path,
+            private_key_path=key_path,
         )
     return None
 
@@ -186,8 +190,8 @@ def _mockserver_getport(pytestconfig, worker_id):
         # If service is started outside of testsuite use constant
         # port by default.
         if (
-                pytestconfig.option.service_wait
-                or pytestconfig.option.service_disable
+            pytestconfig.option.service_wait
+            or pytestconfig.option.service_disable
         ):
             if option_port == 0:
                 return default_port
@@ -198,35 +202,36 @@ def _mockserver_getport(pytestconfig, worker_id):
 
 @pytest.fixture(scope='session')
 async def _mockserver(
-        pytestconfig,
-        testsuite_logger,
-        loop,
-        _mockserver_reporter,
-        _mockserver_getport,
+    pytestconfig,
+    testsuite_logger,
+    loop,
+    _mockserver_reporter,
+    _mockserver_getport,
 ) -> annotations.AsyncYieldFixture[server.Server]:
     port = _mockserver_getport(
-        pytestconfig.option.mockserver_port, MOCKSERVER_DEFAULT_PORT,
+        pytestconfig.option.mockserver_port,
+        MOCKSERVER_DEFAULT_PORT,
     )
     async with server.create_server(
-            pytestconfig.option.mockserver_host,
-            port,
-            loop,
-            testsuite_logger,
-            _mockserver_reporter,
-            pytestconfig,
-            ssl_info=None,
+        pytestconfig.option.mockserver_host,
+        port,
+        loop,
+        testsuite_logger,
+        _mockserver_reporter,
+        pytestconfig,
+        ssl_info=None,
     ) as result:
         yield result
 
 
 @pytest.fixture(scope='session')
 async def _mockserver_ssl(
-        pytestconfig,
-        testsuite_logger,
-        loop,
-        mockserver_ssl_cert,
-        _mockserver_reporter,
-        _mockserver_getport,
+    pytestconfig,
+    testsuite_logger,
+    loop,
+    mockserver_ssl_cert,
+    _mockserver_reporter,
+    _mockserver_getport,
 ) -> annotations.AsyncYieldFixture[typing.Optional[server.Server]]:
     if mockserver_ssl_cert:
         port = _mockserver_getport(
@@ -234,13 +239,13 @@ async def _mockserver_ssl(
             MOCKSERVER_SSL_DEFAULT_PORT,
         )
         async with server.create_server(
-                pytestconfig.option.mockserver_ssl_host,
-                port,
-                loop,
-                testsuite_logger,
-                _mockserver_reporter,
-                pytestconfig,
-                mockserver_ssl_cert,
+            pytestconfig.option.mockserver_ssl_host,
+            port,
+            loop,
+            testsuite_logger,
+            _mockserver_reporter,
+            pytestconfig,
+            mockserver_ssl_cert,
         ) as result:
             yield result
     else:
@@ -249,7 +254,7 @@ async def _mockserver_ssl(
 
 @pytest.fixture(scope='session')
 def _mockserver_reporter(
-        pytestconfig,
+    pytestconfig,
 ) -> reporter_plugin.MockserverReporterPlugin:
     return pytestconfig.pluginmanager.get_plugin('mockserver_reporter')
 
@@ -271,7 +276,9 @@ def _mockserver_hook(mockserver_info):
 def _mockserver_https_hook(mockserver_ssl_info):
     def wrapper(doc: dict):
         return _mockserver_info_hook(
-            doc, '$mockserver_https', mockserver_ssl_info,
+            doc,
+            '$mockserver_https',
+            mockserver_ssl_info,
         )
 
     return wrapper

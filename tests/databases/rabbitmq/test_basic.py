@@ -7,11 +7,14 @@ async def test_rabbitmq_basic(rabbitmq):
 
     async with channel:
         await channel.declare_exchange(
-            exchange=exchange, exchange_type='fanout',
+            exchange=exchange,
+            exchange_type='fanout',
         )
         await channel.declare_queue(queue=queue)
         await channel.bind_queue(
-            queue=queue, exchange=exchange, routing_key=routing_key,
+            queue=queue,
+            exchange=exchange,
+            routing_key=routing_key,
         )
         await channel.publish(
             exchange=exchange,

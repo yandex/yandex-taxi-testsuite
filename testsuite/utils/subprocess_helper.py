@@ -3,7 +3,8 @@ import typing
 
 
 def sh(
-        *args: str, nostderr: bool = True,
+    *args: str,
+    nostderr: bool = True,
 ) -> str:  # pylint: disable=invalid-name
     stderr: typing.Optional[int]
     if nostderr:

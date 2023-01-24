@@ -11,16 +11,21 @@ def pytest_addoption(parser):
     group.addoption('--redis-host', help='Redis host')
     group.addoption('--redis-master-port', type=int, help='Redis master port')
     group.addoption(
-        '--redis-sentinel-port', type=int, help='Redis sentinel port',
+        '--redis-sentinel-port',
+        type=int,
+        help='Redis sentinel port',
     )
     group.addoption(
-        '--no-redis', help='Do not fill redis storage', action='store_true',
+        '--no-redis',
+        help='Do not fill redis storage',
+        action='store_true',
     )
 
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'redis_store: per-test redis initialization',
+        'markers',
+        'redis_store: per-test redis initialization',
     )
 
 
@@ -30,7 +35,9 @@ def pytest_service_register(register_service):
 
 @pytest.fixture(scope='session')
 def redis_service(
-        pytestconfig, ensure_service_started, _redis_service_settings,
+    pytestconfig,
+    ensure_service_started,
+    _redis_service_settings,
 ):
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started('redis', settings=_redis_service_settings)
@@ -38,7 +45,11 @@ def redis_service(
 
 @pytest.fixture
 def redis_store(
-        pytestconfig, request, load_json, redis_service, _redis_masters,
+    pytestconfig,
+    request,
+    load_json,
+    redis_service,
+    _redis_masters,
 ):
     if pytestconfig.option.no_redis:
         yield
@@ -50,7 +61,8 @@ def redis_store(
         store_file = mark.kwargs.get('file')
         if store_file is not None:
             redis_commands_from_file = load_json(
-                '%s.json' % store_file, object_hook=_json_object_hook,
+                '%s.json' % store_file,
+                object_hook=_json_object_hook,
             )
             redis_commands.extend(redis_commands_from_file)
 
@@ -58,7 +70,8 @@ def redis_store(
             redis_commands.extend(mark.args)
 
     redis_db = redisdb.StrictRedis(
-        host=_redis_masters[0]['host'], port=_redis_masters[0]['port'],
+        host=_redis_masters[0]['host'],
+        port=_redis_masters[0]['port'],
     )
 
     for redis_command in redis_commands:

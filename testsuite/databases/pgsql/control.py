@@ -78,7 +78,7 @@ class ConnectionWrapper:
 
     @property
     def conninfo(self) -> connection.PgConnectionInfo:
-        """ returns
+        """returns
         :py:class:`testsuite.databases.pgsql.connection.PgConnectionInfo`
         """
         return self._conninfo
@@ -157,7 +157,7 @@ class PgDatabaseWrapper:
 
     @property
     def conninfo(self) -> connection.PgConnectionInfo:
-        """ returns
+        """returns
         :py:class:`testsuite.databases.pgsql.connection.PgConnectionInfo`
         """
         return self._connection.conninfo
@@ -201,11 +201,11 @@ class PgControl:
     _connections: typing.Dict[str, ConnectionWrapper]
 
     def __init__(
-            self,
-            pgsql_conninfo: connection.PgConnectionInfo,
-            *,
-            verbose: int,
-            skip_applied_schemas: bool,
+        self,
+        pgsql_conninfo: connection.PgConnectionInfo,
+        *,
+        verbose: int,
+        skip_applied_schemas: bool,
     ) -> None:
         self._conninfo = pgsql_conninfo
         self._connections = {}
@@ -217,11 +217,12 @@ class PgControl:
 
     @testsuite_utils.cached_property
     def _applied_schema_hashes(
-            self,
+        self,
     ) -> typing.Optional[testsuite_db.AppliedSchemaHashes]:
         if self._skip_applied_schemas:
             return testsuite_db.AppliedSchemaHashes(
-                self._connection, self._conninfo,
+                self._connection,
+                self._conninfo,
             )
         return None
 
@@ -233,7 +234,8 @@ class PgControl:
         return self._connections[dbname]
 
     def initialize_sharded_db(
-            self, database: discover.PgShardedDatabase,
+        self,
+        database: discover.PgShardedDatabase,
     ) -> None:
         logger.debug(
             'Initializing database %s for service %s...',
@@ -257,7 +259,8 @@ class PgControl:
                 self._create_database(shard.dbname)
                 self._apply_schema(shard)
                 self._applied_schema_hashes.set_hash(
-                    shard.dbname, current_hash,
+                    shard.dbname,
+                    current_hash,
                 )
 
     def _create_database(self, dbname: str) -> None:
@@ -307,7 +310,9 @@ class PgControl:
         ]
         try:
             shell.execute(
-                command, verbose=self._verbose, command_alias='pgsql/script',
+                command,
+                verbose=self._verbose,
+                command_alias='pgsql/script',
             )
         except shell.SubprocessFailed as exc:
             raise exceptions.PostgresqlError(

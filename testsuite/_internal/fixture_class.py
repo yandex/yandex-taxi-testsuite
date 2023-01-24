@@ -38,7 +38,10 @@ class Fixture(metaclass=FixtureMetaclass):
 
 
 def create_fixture_factory(
-        fixture_class, *, name: typing.Optional[str] = None, scope='function',
+    fixture_class,
+    *,
+    name: typing.Optional[str] = None,
+    scope='function',
 ) -> typing.Callable:
     def factory(**kwargs):
         return fixture_class(**kwargs)
@@ -59,7 +62,8 @@ def create_fixture_factory(
 
     signature = inspect.signature(factory)
     factory.__signature__ = signature.replace(  # type: ignore
-        parameters=parameters, return_annotation=fixture_class,
+        parameters=parameters,
+        return_annotation=fixture_class,
     )
     factory.__doc__ = fixture_class.__doc__
     factory.__name__ = name
@@ -72,5 +76,7 @@ def _classname_to_fixture(string: str) -> str:
     if not string:
         raise RuntimeError('Empty class name given')
     return string[0].lower() + re.sub(
-        r'[A-Z]', lambda matched: '_' + matched.group(0).lower(), string[1:],
+        r'[A-Z]',
+        lambda matched: '_' + matched.group(0).lower(),
+        string[1:],
     )

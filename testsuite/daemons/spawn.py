@@ -71,14 +71,14 @@ class AioReaders:
 
 @compat.asynccontextmanager
 async def spawned(
-        args: Sequence[str],
-        *,
-        shutdown_signal: int = signal.SIGINT,
-        shutdown_timeout: float = 120,
-        subprocess_spawner=None,
-        stdout_handler=None,
-        stderr_handler=None,
-        **kwargs,
+    args: Sequence[str],
+    *,
+    shutdown_signal: int = signal.SIGINT,
+    shutdown_timeout: float = 120,
+    subprocess_spawner=None,
+    stdout_handler=None,
+    stderr_handler=None,
+    **kwargs,
 ) -> AsyncGenerator[subprocess.Popen, None]:
     if stdout_handler:
         kwargs['stdout'] = subprocess.PIPE
@@ -100,9 +100,9 @@ async def spawned(
 
     async with compat.aclosing(readers):
         async with _shutdown_service(
-                process,
-                shutdown_signal=shutdown_signal,
-                shutdown_timeout=shutdown_timeout,
+            process,
+            shutdown_signal=shutdown_signal,
+            shutdown_timeout=shutdown_timeout,
         ):
             yield process
 
@@ -110,12 +110,14 @@ async def spawned(
 def exit_code_error(retcode: int) -> ExitCodeError:
     if retcode >= 0:
         return ExitCodeError(
-            f'Service exited with status code {retcode}', retcode,
+            f'Service exited with status code {retcode}',
+            retcode,
         )
     signal_name = _pretty_signal(-retcode)
     signal_error_fmt = SIGNAL_ERRORS.get(-retcode, DEFAULT_SIGNAL_ERROR)
     return ExitCodeError(
-        signal_error_fmt.format(signal_name=signal_name), retcode,
+        signal_error_fmt.format(signal_name=signal_name),
+        retcode,
     )
 
 
@@ -133,7 +135,8 @@ async def _do_service_shutdown(process, *, shutdown_signal, shutdown_timeout):
     retcode = process.poll()
     if retcode is not None:
         logger.info(
-            '[%d] Process already finished with code %d', process.pid, retcode)
+            '[%d] Process already finished with code %d', process.pid, retcode
+        )
         if retcode not in allowed_exit_codes:
             raise exit_code_error(retcode)
         return retcode

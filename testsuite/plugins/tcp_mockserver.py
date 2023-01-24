@@ -71,15 +71,15 @@ class Mockserver:
     def client_handler(self, handler):
         """Context manager to install per-test client handler.
 
-          .. code-block:: python
+        .. code-block:: python
 
-            async def handle_client(reader, writer):
-                writer.write(b'hello\\r\\n')
-                await writer.drain()
-                writer.close()
+          async def handle_client(reader, writer):
+              writer.write(b'hello\\r\\n')
+              await writer.drain()
+              writer.close()
 
-            with _tcp_mockserver.client_handler(handle_client):
-                ...
+          with _tcp_mockserver.client_handler(handle_client):
+              ...
         """
         old_handler = self._handler
         try:
@@ -99,7 +99,9 @@ class ProtocolFactory:
             pytest.fail('No client handler attached')
         reader = asyncio.StreamReader(loop=self.loop)
         protocol = asyncio.StreamReaderProtocol(
-            reader, self.client_handler, loop=self.loop,
+            reader,
+            self.client_handler,
+            loop=self.loop,
         )
         return protocol
 
@@ -116,15 +118,24 @@ class ProtocolFactory:
 async def create_tcp_mockserver(loop):
     @compat.asynccontextmanager
     async def create_mockserver(
-            *, host='localhost', port=0, sock=None, **kwargs,
+        *,
+        host='localhost',
+        port=0,
+        sock=None,
+        **kwargs,
     ):
         factory = ProtocolFactory(loop=loop)
         async with net.create_tcp_server(
-                factory, loop=loop, host=host, port=port, sock=sock, **kwargs,
+            factory,
+            loop=loop,
+            host=host,
+            port=port,
+            sock=sock,
+            **kwargs,
         ) as server:
             mockserver = Mockserver(server)
             with factory.attach_client_handler(
-                    mockserver._client_connected_cb,
+                mockserver._client_connected_cb,
             ):
                 yield mockserver
 

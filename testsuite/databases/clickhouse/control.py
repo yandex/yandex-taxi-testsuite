@@ -57,7 +57,9 @@ class DatabasesState:
         self._initialized = set()
 
     def get_connection(
-            self, dbname: str, create_db: bool = True,
+        self,
+        dbname: str,
+        create_db: bool = True,
     ) -> clickhouse_driver.Client:
         if dbname not in self._initialized:
             if create_db:
@@ -86,7 +88,9 @@ class DatabasesState:
 
 class Control:
     def __init__(
-            self, databases: classes.DatabasesDict, state: DatabasesState,
+        self,
+        databases: classes.DatabasesDict,
+        state: DatabasesState,
     ):
         self._databases = databases
         self._state = state
@@ -111,8 +115,8 @@ def _get_db_tables_list(connection: clickhouse_driver.Client):
 
 
 def apply_queries(
-        connection: clickhouse_driver.Client,
-        queries: typing.List[ClickhouseQuery],
+    connection: clickhouse_driver.Client,
+    queries: typing.List[ClickhouseQuery],
 ):
     tables = _get_db_tables_list(connection)
     if tables:

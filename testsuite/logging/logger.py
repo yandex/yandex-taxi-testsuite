@@ -9,10 +9,10 @@ from testsuite.utils import tskv
 
 class Manager:
     def __init__(
-            self,
-            line_logger: 'LineLogger',
-            output: typing.IO,
-            ensure_newline: bool,
+        self,
+        line_logger: 'LineLogger',
+        output: typing.IO,
+        ensure_newline: bool,
     ):
         self._line_logger = line_logger
         self._output = output
@@ -66,7 +66,9 @@ class LineLogger:
     def temporary_suspend(self):
         with self._lock:
             log_manager = Manager(
-                self, self._output, ensure_newline=self._ensure_newline,
+                self,
+                self._output,
+                ensure_newline=self._ensure_newline,
             )
             self._output = None
         try:

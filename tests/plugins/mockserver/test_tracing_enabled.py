@@ -6,7 +6,8 @@ from testsuite.mockserver import server  # pylint: disable=protected-access
 
 # pylint: disable=invalid-name
 async def test_mockserver_responds_with_handler_to_current_test(
-        mockserver, create_service_client,
+    mockserver,
+    create_service_client,
 ):
     @mockserver.handler('/arbitrary/path')
     def _handler(request):
@@ -24,7 +25,8 @@ async def test_mockserver_responds_with_handler_to_current_test(
 
 
 async def test_mockserver_responds_with_json_handler_to_current_test(
-        mockserver, create_service_client,
+    mockserver,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def _json_handler(request):
@@ -42,7 +44,8 @@ async def test_mockserver_responds_with_json_handler_to_current_test(
 
 
 async def test_mockserver_skips_handler_and_responds_500_to_other_test(
-        mockserver, create_service_client,
+    mockserver,
+    create_service_client,
 ):
     @mockserver.handler('/arbitrary/path')
     def _handler(request):
@@ -59,7 +62,8 @@ async def test_mockserver_skips_handler_and_responds_500_to_other_test(
 
 
 async def test_mockserver_skips_json_handler_and_responds_500_to_other_test(
-        mockserver, create_service_client,
+    mockserver,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def _json_handler(request):
@@ -84,7 +88,9 @@ async def test_mockserver_skips_json_handler_and_responds_500_to_other_test(
     ],
 )
 async def test_mockserver_responds_500_on_unhandled_request_from_other_sources(
-        mockserver, http_headers, create_service_client,
+    mockserver,
+    http_headers,
+    create_service_client,
 ):
     client = create_service_client(mockserver.base_url, headers=http_headers)
     response = await client.post('arbitrary/path')

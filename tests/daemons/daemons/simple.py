@@ -18,7 +18,7 @@ def main():
         for i in range(3):
             print(f'out{i}', file=sys.stdout)
             print(f'err{i}', file=sys.stderr)
-            time.sleep(.01)
+            time.sleep(0.01)
     else:
         raise RuntimeError(f'Unknown command {args.cmd}')
 

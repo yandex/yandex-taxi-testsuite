@@ -29,7 +29,8 @@ async def mockserver_client(mockserver: fixture_types.MockserverFixture):
 
 
 async def test_json_handler(
-        mockserver: fixture_types.MockserverFixture, mockserver_client: Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
 ):
     @mockserver.json_handler('/foo')
     def _foo_handler(request):
@@ -43,7 +44,8 @@ async def test_json_handler(
 
 
 async def test_async_json_handler(
-        mockserver: fixture_types.MockserverFixture, mockserver_client: Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
 ):
     @mockserver.json_handler('/foo')
     async def _foo_handler(request):
@@ -57,7 +59,8 @@ async def test_async_json_handler(
 
 
 async def test_handler(
-        mockserver: fixture_types.MockserverFixture, mockserver_client: Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
 ):
     @mockserver.json_handler('/foo')
     def _foo_handler(request):

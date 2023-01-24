@@ -3,8 +3,8 @@ from testsuite.daemons import service_client
 
 
 async def test_handler(
-        mockserver: fixture_types.MockserverFixture,
-        mockserver_client: service_client.Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: service_client.Client,
 ):
     @mockserver.handler('/test')
     def _test(request: fixture_types.MockserverRequest):
@@ -16,8 +16,8 @@ async def test_handler(
 
 
 async def test_json_handler(
-        mockserver: fixture_types.MockserverFixture,
-        mockserver_client: service_client.Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: service_client.Client,
 ):
     @mockserver.json_handler('/test')
     def _test(request: fixture_types.MockserverRequest):
@@ -30,8 +30,8 @@ async def test_json_handler(
 
 
 async def test_handler_callqueue(
-        mockserver: fixture_types.MockserverFixture,
-        mockserver_client: service_client.Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: service_client.Client,
 ):
     @mockserver.json_handler('/test')
     def test(request: fixture_types.MockserverRequest):
@@ -50,8 +50,8 @@ async def test_handler_callqueue(
 
 
 async def test_handler_callqueue_wait(
-        mockserver: fixture_types.MockserverFixture,
-        mockserver_client: service_client.Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: service_client.Client,
 ):
     @mockserver.json_handler('/test')
     def test(request: fixture_types.MockserverRequest):
@@ -67,8 +67,8 @@ async def test_handler_callqueue_wait(
 
 
 async def test_prefix_handler(
-        mockserver: fixture_types.MockserverFixture,
-        mockserver_client: service_client.Client,
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: service_client.Client,
 ):
     @mockserver.json_handler('/test', prefix=True)
     def test(request: fixture_types.MockserverRequest):

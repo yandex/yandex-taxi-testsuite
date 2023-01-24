@@ -41,9 +41,9 @@ class Environment:
     _service_factories: typing.Dict[str, typing.Callable]
 
     def __init__(
-            self,
-            config: Config,
-            env: typing.Optional[typing.Dict[str, str]] = None,
+        self,
+        config: Config,
+        env: typing.Optional[typing.Dict[str, str]] = None,
     ) -> None:
         self.config = config
         self._services = {}
@@ -80,7 +80,9 @@ class Environment:
             self._services.pop(service_name)
 
     def _create_service(
-            self, service_name: str, **kwargs,
+        self,
+        service_name: str,
+        **kwargs,
     ) -> service.ScriptService:
         if service_name not in self._service_factories:
             raise ServiceUnknown(f'Unknown service {service_name} requested')
@@ -94,7 +96,9 @@ class Environment:
 
     def _get_working_dir_for(self, service_name: str) -> pathlib.Path:
         working_dir = self.config.env_dir.joinpath(
-            'services', utils.DOCKERTEST_WORKER, service_name,
+            'services',
+            utils.DOCKERTEST_WORKER,
+            service_name,
         )
         if self.config.worker_id != 'master':
             return working_dir.joinpath('_' + self.config.worker_id)
@@ -108,16 +112,17 @@ class TestsuiteEnvironment(Environment):
         else:
             worker_suffix = ''
         super(TestsuiteEnvironment, self).__init__(
-            config=config, env={'WORKER_SUFFIX': worker_suffix},
+            config=config,
+            env={'WORKER_SUFFIX': worker_suffix},
         )
 
 
 def load_environment_config(
-        *,
-        env_dir: typing.Optional[pathlib.Path] = None,
-        worker_id: str = DEFAULT_WORKER_ID,
-        reuse_services: bool = False,
-        verbose: int = 0,
+    *,
+    env_dir: typing.Optional[pathlib.Path] = None,
+    worker_id: str = DEFAULT_WORKER_ID,
+    reuse_services: bool = False,
+    verbose: int = 0,
 ) -> Config:
     base_config = _load_config()
     if env_dir is None:

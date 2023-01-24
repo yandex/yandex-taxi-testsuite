@@ -14,7 +14,8 @@ def disable_mockserver_tracing(mockserver):
 
 
 async def test_mockserver_handles_request_from_other_test(
-        mockserver, create_service_client,
+    mockserver,
+    create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def _json_handler(request):
@@ -39,15 +40,20 @@ async def test_mockserver_handles_request_from_other_test(
     ],
 )
 async def test_mockserver_raises_on_unhandled_request_from_other_sources(
-        http_headers, mockserver_info,
+    http_headers,
+    mockserver_info,
 ):
     reporter = reporter_plugin.MockserverReporterPlugin(colors_enabled=False)
     mockserver = server.Server(
-        mockserver_info, tracing_enabled=False, reporter=reporter,
+        mockserver_info,
+        tracing_enabled=False,
+        reporter=reporter,
     )
     with mockserver.new_session():
         request = aiohttp.test_utils.make_mocked_request(
-            'POST', '/arbitrary/path', headers=http_headers,
+            'POST',
+            '/arbitrary/path',
+            headers=http_headers,
         )
         await mockserver._handle_request(request)
         assert len(reporter._errors) == 1

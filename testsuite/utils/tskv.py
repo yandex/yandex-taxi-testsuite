@@ -9,7 +9,9 @@ KV_SEP = '='
 def dict_to_tskv(dct, tskv_format='', add_header=True):
     """Convert dictionary to string in TSKV format."""
     return items_to_tskv(
-        dct.items(), tskv_format=tskv_format, add_header=add_header,
+        dct.items(),
+        tskv_format=tskv_format,
+        add_header=add_header,
     )
 
 

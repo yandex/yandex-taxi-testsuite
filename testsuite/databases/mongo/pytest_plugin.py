@@ -15,6 +15,7 @@ import pytest
 from testsuite import annotations
 from testsuite import utils
 
+from . import create_db_collections
 from . import connection
 from . import ensure_db_indexes
 from . import mongo_schema
@@ -229,6 +230,11 @@ def mongo_schema_extra_directories() -> typing.Tuple[str, ...]:
 
 
 @pytest.fixture(scope='session')
+def _mongo_collections_created() -> typing.Set[str]:
+    return set()
+
+
+@pytest.fixture(scope='session')
 def _mongo_indexes_ensured() -> typing.Set[str]:
     return set()
 
@@ -250,11 +256,32 @@ def _mongo_service(
 
 
 @pytest.fixture
+def _mongo_create_collections(
+    _mongodb_local, mongodb_settings, _mongo_collections_created, _mongo_service
+) -> None:
+    aliases = _mongodb_local.get_aliases()
+    _create_collections = []
+    for alias in aliases:
+        if (
+            alias not in _mongo_collections_created
+            and alias in mongodb_settings
+        ):
+            _create_collections.append(alias)
+
+    if _create_collections:
+        create_db_collections.create_db_collections(
+            _mongodb_local, _create_collections
+        )
+        _mongo_collections_created.update(_create_collections)
+
+
+@pytest.fixture
 def _mongo_create_indexes(
     _mongodb_local,
     mongodb_settings,
     pytestconfig,
     _mongo_indexes_ensured,
+    _mongo_create_collections,
     _mongo_service,
 ) -> None:
     aliases = _mongodb_local.get_aliases()

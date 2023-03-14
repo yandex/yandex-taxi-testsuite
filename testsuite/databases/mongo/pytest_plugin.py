@@ -277,9 +277,9 @@ def _mongo_create_indexes(
 
 
 @pytest.fixture(scope='session')
-def _mongo_thread_pool() -> annotations.YieldFixture[
-    multiprocessing.pool.ThreadPool,
-]:
+def _mongo_thread_pool() -> (
+    annotations.YieldFixture[multiprocessing.pool.ThreadPool,]
+):
     pool = multiprocessing.pool.ThreadPool(processes=20)
     with contextlib.closing(pool):
         yield pool

@@ -29,6 +29,11 @@ $ sudo apt-get install mysql-server-core-5.7 mysql-client
 "
 fi
 
+DBTYPE="MySQL"
+if mysql --version 2>/dev/null | grep -iq mariadb; then
+    dbname="MariaDB"
+fi
+
 mkdir -p $MYSQL_BASEDIR
 
 run_mysqld() {
@@ -39,7 +44,7 @@ run_mysqld() {
             --secure-file-priv="$MYSQL_BASEDIR"         \
             --port=$MYSQL_PORT                          \
             --default-storage-engine=INNODB             \
-            --character-set-server=UTF8                 \
+            --character-set-server=utf8mb4              \
             "$@"
 }
 
@@ -48,13 +53,9 @@ mysql_die() {
     die "$@"
 }
 
-start() {
-    $MYSQLD --version
-    echo "Testsuite Mysql directory: $MYSQL_BASEDIR"
-
-    rm -rf "$MYSQL_DATADIR"
-
-    run_mysqld --initialize-insecure || mysql_die "mysqld initialization failed:
+initialize_db() {
+    if [ "$DBTYPE" == "MySQL" ]; then
+        run_mysqld --initialize-insecure  || mysql_die "mysqld initialization failed:
 
 if you see permissions denied error for data directory that may be
 caused by AppArmoor rules. Try this:
@@ -62,8 +63,25 @@ caused by AppArmoor rules. Try this:
 $ sudo apt-get install apparmor-utils
 $ sudo aa-disable /usr/sbin/mysqld
 "
+    else
+        mysql_install_db --auth-root-authentication-method=normal --datadir="$MYSQL_DATADIR"
+    fi
+}
 
-    run_mysqld --daemonize || mysql_die "mysqld_safe start failed"
+start_db() {
+    if [ "$DBTYPE" == "MySQL" ]; then
+        run_mysqld --daemonize || mysql_die "mysqld_safe start failed"
+    fi
+}
+
+start() {
+    $MYSQLD --version
+    echo "Testsuite Mysql directory: $MYSQL_BASEDIR"
+
+    rm -rf "$MYSQL_DATADIR"
+
+    initialize_db
+    start_db
 }
 
 stop() {

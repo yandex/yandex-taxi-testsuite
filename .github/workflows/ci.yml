@@ -64,6 +64,7 @@ jobs:
     - name: Rerun mysql tests with MariaDB
       env:
           TESTSUITE_ALLOW_ROOT: 1
+          PYTEST_ARGS: "-k mysql"
       run: |
           curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash
           sudo apt install -y mariadb-server

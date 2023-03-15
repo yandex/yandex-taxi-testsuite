@@ -60,3 +60,11 @@ jobs:
           PYTEST: pytest
       run: |
           make venv-test-examples
+
+    - name: Rerun mysql tests with MariaDB
+      env:
+          TESTSUITE_ALLOW_ROOT: 1
+      run: |
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash
+          sudo apt install -y mariadb-server
+          make venv-tests

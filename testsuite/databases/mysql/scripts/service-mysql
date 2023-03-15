@@ -23,7 +23,7 @@ MYSQL_LOGFILE=$MYSQL_BASEDIR/mysql.log
 MYSQLD=$(which mysqld 2>/dev/null)
 
 if [ "x$MYSQLD" = "x" ]; then
-    die "No mysqld binary found, please install mysql-server-core package:
+    die "No mysqld binary found, please install mysql (or mariadb):
 
 $ sudo apt-get install mysql-server-core-5.7 mysql-client
 "

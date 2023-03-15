@@ -64,13 +64,15 @@ $ sudo apt-get install apparmor-utils
 $ sudo aa-disable /usr/sbin/mysqld
 "
     else
-        mysql_install_db --auth-root-authentication-method=normal --datadir="$MYSQL_DATADIR"
+        mysql_install_db --auth-root-authentication-method=normal --datadir="$MYSQL_DATADIR" || mysql_die "mysql_install_db failed"
     fi
 }
 
 start_db() {
     if [ "$DBTYPE" == "MySQL" ]; then
         run_mysqld --daemonize || mysql_die "mysqld_safe start failed"
+    else
+        run_mysqld -- &
     fi
 }
 

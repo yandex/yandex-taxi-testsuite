@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>testsuite.utils.http &#8212; yandex-taxi-testsuite 0.1.5.1 documentation</title>
+    <title>testsuite.utils.http &#8212; testsuite 0.1 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -32,24 +32,11 @@
           <div class="body" role="main">
             
   <h1>Source code for testsuite.utils.http</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">email</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">import</span> <span class="nn">urllib.parse</span>
 
 <span class="kn">import</span> <span class="nn">aiohttp.web</span>
-
-<span class="n">CONTENT_IN_GET_REQUEST_ERROR</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s1">&#39;GET requests cannot have content, but Content-Length header was sent.&#39;</span>
-<span class="p">)</span>
-<span class="n">CHUNKED_CONTENT_IN_GET_REQUEST_ERROR</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s1">&#39;GET requests cannot have content, but </span><span class="se">\&#39;</span><span class="s1">Transfer-Encoding: chunked</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
-    <span class="s1">&#39;header was sent.&#39;</span>
-<span class="p">)</span>
-<span class="n">MULTIPART_MIME_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;MIME-Version: 1.0</span>
-<span class="s2">Content-Type: </span><span class="si">%s</span><span class="s2"></span>
-
-<span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -75,7 +62,7 @@
 
 
 <span class="k">class</span> <span class="nc">NetworkError</span><span class="p">(</span><span class="n">MockedError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception used to mock HTTP client network errors.</span>
+    <span class="sd">&quot;&quot;&quot;Exception used to mock HTTP client netowork errors.</span>
 
 <span class="sd">    Requires service side support.</span>
 
@@ -90,20 +77,16 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;status=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s1">, url=</span><span class="se">\&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">InvalidRequestError</span><span class="p">(</span><span class="n">BaseError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Invalid request which cannot be wrapped&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;status=</span><span class="si">{self.status}</span><span class="s1">, url=</span><span class="se">\&#39;</span><span class="si">{self.url}</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; Adapts aiohttp.web.BaseRequest to mimic a frequently used subset of</span>
+    <span class="sd">&quot;&quot;&quot; Adapts aiohttp.web.Request to mimic a frequently used subset of</span>
 <span class="sd">    werkzeug.Request interface. ``data`` property is not supported,</span>
 <span class="sd">    use get_data() instead.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">BaseRequest</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Request</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_request</span> <span class="o">=</span> <span class="n">request</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span>
@@ -121,7 +104,7 @@
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">path</span>
 
-    <span class="c1"># For backward compatibility with code using aiohttp.web.BaseRequest</span>
+    <span class="c1"># For backward compatibility with code using aiohttp.web.Request</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path_qs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">raw_path</span>
@@ -158,25 +141,6 @@
                     <span class="n">encoding</span><span class="o">=</span><span class="n">charset</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">items</span><span class="p">}</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;multipart/form-data&#39;</span><span class="p">):</span>
-                <span class="n">charset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">charset</span> <span class="ow">or</span> <span class="s1">&#39;utf-8&#39;</span>
-                <span class="n">epost_data</span> <span class="o">=</span> <span class="n">MULTIPART_MIME_PATTERN</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;content-type&#39;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">charset</span><span class="p">),</span>
-                <span class="p">)</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">email</span><span class="o">.</span><span class="n">message_from_string</span><span class="p">(</span><span class="n">epost_data</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="n">data</span><span class="o">.</span><span class="n">is_multipart</span><span class="p">()</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get_payload</span><span class="p">():</span>
-                    <span class="n">name</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;content-disposition&#39;</span><span class="p">)</span>
-                    <span class="n">payload</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">get_payload</span><span class="p">(</span><span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">charset</span><span class="p">)</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">payload</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                        <span class="k">pass</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span>
-
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -187,8 +151,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bytes_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
             <span class="n">encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">charset</span> <span class="ow">or</span> <span class="s1">&#39;utf-8&#39;</span>
-            <span class="n">str_body</span> <span class="o">=</span> <span class="n">bytes_body</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">str_body</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">bytes_body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json</span>
 
     <span class="nd">@property</span>
@@ -199,7 +162,7 @@
     <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">query</span>
 
-    <span class="c1"># For backward compatibility with code using aiohttp.web.BaseRequest</span>
+    <span class="c1"># For backward compatibility with code using aiohttp.web.Request</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">query</span>
@@ -209,12 +172,7 @@
     <span class="k">pass</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">wrap_request</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">BaseRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Request</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">content_length</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidRequestError</span><span class="p">(</span><span class="n">CONTENT_IN_GET_REQUEST_ERROR</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Transfer-Encoding&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;chunked&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidRequestError</span><span class="p">(</span><span class="n">CHUNKED_CONTENT_IN_GET_REQUEST_ERROR</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">wrap_request</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Request</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;expect&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;100-continue&#39;</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;HTTP/1.1 100 Continue</span><span class="se">\r\n\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
@@ -223,18 +181,10 @@
 
 
 <span class="k">class</span> <span class="nc">ClientResponse</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">response</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">,</span>
-            <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">json_loads</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response</span> <span class="o">=</span> <span class="n">response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_content</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">content</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_json_loads</span> <span class="o">=</span> <span class="n">json_loads</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">status_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -261,20 +211,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span>
 
     <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json_loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">):</span>
-                <span class="n">items</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">keep_blank_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">items</span><span class="p">}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_content</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -301,11 +239,9 @@
         <span class="p">)</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">wrap_client_response</span><span class="p">(</span>
-        <span class="n">response</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">json_loads</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">wrap_client_response</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">):</span>
     <span class="n">content</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-    <span class="n">wrapped</span> <span class="o">=</span> <span class="n">ClientResponse</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">json_loads</span><span class="o">=</span><span class="n">json_loads</span><span class="p">)</span>
+    <span class="n">wrapped</span> <span class="o">=</span> <span class="n">ClientResponse</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">wrapped</span>
 
 
@@ -317,7 +253,6 @@
         <span class="n">charset</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">json</span><span class="o">=</span><span class="n">_NoValue</span><span class="p">,</span>
-        <span class="n">form</span><span class="o">=</span><span class="n">_NoValue</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create HTTP response object. Returns ``aiohttp.web.Response`` instance.</span>
@@ -328,22 +263,11 @@
 <span class="sd">    :param content_type: HTTP Content-Type header</span>
 <span class="sd">    :param charset: Response character set</span>
 <span class="sd">    :param json: JSON response shortcut</span>
-<span class="sd">    :param form: x-www-form-urlencoded response shortcut</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NoValue</span> <span class="ow">and</span> <span class="n">form</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NoValue</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="s1">&#39;Response params &quot;json&quot; and &quot;form&quot; can not be used &#39;</span>
-            <span class="s1">&#39;at the same time&#39;</span><span class="p">,</span>
-        <span class="p">)</span>
     <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NoValue</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">_json_response</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">content_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">content_type</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
-    <span class="k">if</span> <span class="n">form</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NoValue</span><span class="p">:</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">_form_response</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">content_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">content_type</span> <span class="o">=</span> <span class="s1">&#39;application/x-www-form-urlencoded&#39;</span>
-
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span>
             <span class="n">body</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
@@ -367,16 +291,11 @@
             <span class="n">content_type</span><span class="o">=</span><span class="n">content_type</span><span class="p">,</span>
             <span class="n">charset</span><span class="o">=</span><span class="n">charset</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported response </span><span class="si">{</span><span class="n">response</span><span class="si">!r}</span><span class="s1"> given&#39;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported response </span><span class="si">{response!r}</span><span class="s1"> given&#39;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_json_response</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_form_response</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -440,7 +359,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2022, Yandex LLC.
+      &copy;2020, Yandex LLC.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>

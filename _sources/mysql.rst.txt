@@ -6,7 +6,7 @@ In order to enable mysql support you have to add
 ``conftest.py`` file and configure MySQL schemas location.
 
 By default testsuite starts MySQL_ service. In this case MySQL installation
-is required.
+is required (MariaDB 10+ should work as well).
 
 Currently mysql plugin uses synchronous pymysql_ driver.
 

@@ -7,6 +7,10 @@ def _default_regex_match(doc: dict):
     return matching.RegexString(doc['pattern'])
 
 
+def _default_partial_dict_match(doc: dict):
+    return matching.PartialDict(doc['value'])
+
+
 def pytest_register_matching_hooks():
     return {
         'any-string': matching.any_string,
@@ -14,6 +18,7 @@ def pytest_register_matching_hooks():
         'objectid-string': matching.objectid_string,
         'datetime-string': matching.datetime_string,
         'regex': _default_regex_match,
+        'partial-dict': _default_partial_dict_match,
     }
 
 

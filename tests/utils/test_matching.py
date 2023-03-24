@@ -173,16 +173,11 @@ def test_not():
 
 
 def test_partial_dict():
-    sample = dict(
-        some_int=1,
-        some_str='abc',
-        some_dict=dict(a=5)
-    )
+    sample = dict(some_int=1, some_str='abc', some_dict=dict(a=5, b='b', c=6))
 
     assert sample == matching.PartialDict(some_int=1)
     assert sample == matching.PartialDict(some_int=1, some_str='abc')
-    assert sample == matching.PartialDict(some_dict=dict(a=5))
-    assert sample == dict(
+    assert sample == matching.PartialDict(
         some_int=1,
         some_str='abc',
         some_dict=matching.PartialDict(a=5),
@@ -190,12 +185,15 @@ def test_partial_dict():
 
     assert sample != matching.PartialDict(some_int=2)
     assert sample != matching.PartialDict(unknown=3)
-    assert sample != dict(
+    assert sample != matching.PartialDict(
         some_int=1,
         some_str='abc',
-        some_dict=matching.PartialDict(a=123),
+        some_dict=matching.PartialDict(a=123, asd=55),
     )
 
-    assert 5 != matching.PartialDict()
+    assert matching.PartialDict() != 5
 
     assert sample == matching.PartialDict({'some_int': 1})
+
+    assert sample == matching.PartialDict(some_int=1)
+    assert not (sample != matching.PartialDict(some_int=1))

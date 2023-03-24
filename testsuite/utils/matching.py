@@ -5,6 +5,16 @@ import re
 import dateutil.parser
 
 
+class Any:
+    """Matches any value."""
+
+    def __repr__(self):
+        return '<Any>'
+
+    def __eq__(self, other):
+        return True
+
+
 class AnyString:
     """Matches any string."""
 
@@ -147,22 +157,31 @@ class Le(Comparator):
     op = operator.le
 
 
-class PartialDict:
+class PartialDict(collections.abc.Mapping):
     def __init__(self, *args, **kwargs):
         self._dict = dict(*args, **kwargs)
 
+    def __contains__(self, item):
+        return True
+
     def __getitem__(self, item):
-        return self._dict.__getitem__(item)
+        return self._dict.get(item, Any())
+
+    def __iter__(self):
+        return self._dict.__iter__()
+
+    def __len__(self):
+        return self._dict.__len__()
 
     def __repr__(self):
         return self._dict.__repr__()
 
     def __eq__(self, other):
         if not isinstance(other, collections.abc.Mapping):
-            return False
+            return NotImplemented
 
-        for key in self._dict.keys():
-            if other.get(key) != self._dict.get(key):
+        for key in self.keys():
+            if other.get(key) != self.get(key):
                 return False
 
         return True

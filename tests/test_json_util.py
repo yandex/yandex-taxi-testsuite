@@ -123,6 +123,10 @@ def test_substitute_with_custom_hook(object_hook, json_input, expected_result):
         ({'$match': {'type': 'any-string'}}, 'other string matches'),
         ({'$match': {'type': 'regex', 'pattern': '^[0-9]{2}$'}}, '38'),
         ({'$match': {'type': 'custom-matching'}}, '<my-custom-type>'),
+        (
+            {'$match': {'type': 'partial-dict', 'value': {'a': 1}}},
+            {'a': 1, 'b': 2},
+        ),
     ],
 )
 def test_substitute_with_matching(object_hook, json_input, expected_result):

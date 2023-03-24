@@ -1,3 +1,4 @@
+import collections.abc
 import operator
 import re
 
@@ -144,6 +145,27 @@ class Lt(Comparator):
 
 class Le(Comparator):
     op = operator.le
+
+
+class PartialDict:
+    def __init__(self, *args, **kwargs):
+        self._dict = dict(*args, **kwargs)
+
+    def __getitem__(self, item):
+        return self._dict.__getitem__(item)
+
+    def __repr__(self):
+        return self._dict.__repr__()
+
+    def __eq__(self, other):
+        if not isinstance(other, collections.abc.Mapping):
+            return False
+
+        for key in self._dict.keys():
+            if other.get(key) != self._dict.get(key):
+                return False
+
+        return True
 
 
 any_float = IsInstance(float)

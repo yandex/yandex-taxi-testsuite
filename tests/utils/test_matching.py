@@ -170,3 +170,32 @@ def test_not():
     assert matching.Not(3) == 2
     assert matching.Not(3) != 3
     assert matching.Not(3) == 'foo'
+
+
+def test_partial_dict():
+    sample = dict(
+        some_int=1,
+        some_str='abc',
+        some_dict=dict(a=5)
+    )
+
+    assert sample == matching.PartialDict(some_int=1)
+    assert sample == matching.PartialDict(some_int=1, some_str='abc')
+    assert sample == matching.PartialDict(some_dict=dict(a=5))
+    assert sample == dict(
+        some_int=1,
+        some_str='abc',
+        some_dict=matching.PartialDict(a=5),
+    )
+
+    assert sample != matching.PartialDict(some_int=2)
+    assert sample != matching.PartialDict(unknown=3)
+    assert sample != dict(
+        some_int=1,
+        some_str='abc',
+        some_dict=matching.PartialDict(a=123),
+    )
+
+    assert 5 != matching.PartialDict()
+
+    assert sample == matching.PartialDict({'some_int': 1})

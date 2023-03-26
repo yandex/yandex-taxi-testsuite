@@ -173,7 +173,11 @@ def test_not():
 
 
 def test_partial_dict():
-    sample = dict(some_int=1, some_str='abc', some_dict=dict(a=5, b='b', c=6))
+    sample = {
+        'some_int': 1,
+        'some_str': 'abc',
+        'some_dict': {'a': 5, 'b': 'b', 'c': 6},
+    }
 
     assert sample == matching.PartialDict(some_int=1)
     assert sample == matching.PartialDict(some_int=1, some_str='abc')

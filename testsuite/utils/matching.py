@@ -168,17 +168,17 @@ class PartialDict(collections.abc.Mapping):
         return self._dict.get(item, Any())
 
     def __iter__(self):
-        return self._dict.__iter__()
+        return iter(self._dict)
 
     def __len__(self):
-        return self._dict.__len__()
+        return len(self._dict)
 
     def __repr__(self):
-        return self._dict.__repr__()
+        return repr(self._dict)
 
     def __eq__(self, other):
         if not isinstance(other, collections.abc.Mapping):
-            return NotImplemented
+            return False
 
         for key in self.keys():
             if other.get(key) != self.get(key):

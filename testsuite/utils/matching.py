@@ -165,7 +165,7 @@ class PartialDict(collections.abc.Mapping):
         return True
 
     def __getitem__(self, item):
-        return self._dict.get(item, Any())
+        return self._dict.get(item, any_value)
 
     def __iter__(self):
         return iter(self._dict)
@@ -174,19 +174,20 @@ class PartialDict(collections.abc.Mapping):
         return len(self._dict)
 
     def __repr__(self):
-        return repr(self._dict)
+        return f'<PartialDict {self._dict!r}>'
 
     def __eq__(self, other):
         if not isinstance(other, collections.abc.Mapping):
             return False
 
-        for key in self.keys():
+        for key in self:
             if other.get(key) != self.get(key):
                 return False
 
         return True
 
 
+any_value = Any()
 any_float = IsInstance(float)
 any_integer = IsInstance(int)
 any_numeric = IsInstance((int, float))

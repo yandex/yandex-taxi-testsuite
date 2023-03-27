@@ -1,7 +1,18 @@
+import collections.abc
 import operator
 import re
 
 import dateutil.parser
+
+
+class Any:
+    """Matches any value."""
+
+    def __repr__(self):
+        return '<Any>'
+
+    def __eq__(self, other):
+        return True
 
 
 class AnyString:
@@ -146,6 +157,37 @@ class Le(Comparator):
     op = operator.le
 
 
+class PartialDict(collections.abc.Mapping):
+    def __init__(self, *args, **kwargs):
+        self._dict = dict(*args, **kwargs)
+
+    def __contains__(self, item):
+        return True
+
+    def __getitem__(self, item):
+        return self._dict.get(item, any_value)
+
+    def __iter__(self):
+        return iter(self._dict)
+
+    def __len__(self):
+        return len(self._dict)
+
+    def __repr__(self):
+        return f'<PartialDict {self._dict!r}>'
+
+    def __eq__(self, other):
+        if not isinstance(other, collections.abc.Mapping):
+            return False
+
+        for key in self:
+            if other.get(key) != self.get(key):
+                return False
+
+        return True
+
+
+any_value = Any()
 any_float = IsInstance(float)
 any_integer = IsInstance(int)
 any_numeric = IsInstance((int, float))

@@ -162,8 +162,8 @@ def pytest_assertrepr_compare(config, op, left, right):
         # pylint: disable=unidiomatic-typecheck
         assertion_mode == 'default'
         or op != '=='
-        or type(left) is not type(right)
-        or type(left) not in TYPES
+        or _match_type(left) is not _match_type(right)
+        or _match_type(left) not in TYPES
     ):
         return None
     add_full_diff = assertion_mode == 'combine'
@@ -227,7 +227,10 @@ def _compare_pair(
             groups.append(group)
         return groups
 
-    if type(left) is not type(right) or type(left) not in TYPES:
+    if (
+        _match_type(left) is not _match_type(right)
+        or _match_type(left) not in TYPES
+    ):
         raise ValueError(
             'Incorrect input types: %s, %s' % (type(left), type(right)),
         )
@@ -380,4 +383,6 @@ def _match_type(obj):
     obj_type = type(obj)
     if issubclass(obj_type, matching.AnyString):
         return str
+    if issubclass(obj_type, matching.PartialDict):
+        return dict
     return obj_type

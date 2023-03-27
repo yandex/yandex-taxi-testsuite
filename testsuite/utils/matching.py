@@ -26,6 +26,16 @@ class AnyString:
 
 
 class RegexString(AnyString):
+    """Match string with regular expression.
+
+    .. code-block:: python
+
+       assert response.json() == {
+          'order_id': matching.RegexString('^[0-9a-f]*$'),
+          ...
+       }
+    """
+
     def __init__(self, pattern):
         self._pattern = re.compile(pattern)
 
@@ -70,6 +80,21 @@ class DatetimeString(AnyString):
 
 
 class IsInstance:
+    """Match value by its type.
+
+    Use this class when you only need to check value type.
+
+    .. code-block:: python
+
+       assert response.json() == {
+          # order_id must be a string
+          'order_id': matching.IsInstance(str),
+          # int or float is acceptable here
+          'weight': matching.IsInstance([int, float]),
+          ...
+       }
+    """
+
     def __init__(self, types):
         self.types = types
 
@@ -85,6 +110,14 @@ class IsInstance:
 
 
 class And:
+    """Logical AND on conditions.
+
+    .. code-block:: python
+
+       # match integer is in range [10, 100)
+       assert num == matching.And([matching.Ge(10), matching.Lt(100)])
+    """
+
     def __init__(self, *conditions):
         self.conditions = conditions
 
@@ -100,6 +133,14 @@ class And:
 
 
 class Or:
+    """Logical OR on conditions.
+
+    .. code-block:: python
+
+       # match integers abs(num) >= 10
+       assert num == matching.Or([matching.Ge(10), matching.Le(-10)])
+    """
+
     def __init__(self, *conditions):
         self.conditions = conditions
 
@@ -115,6 +156,16 @@ class Or:
 
 
 class Not:
+    """Condition inversion.
+
+    Example:
+
+    .. code-block:: python
+
+       # check value is not 1
+       assert value == matching.Not(1)
+    """
+
     def __init__(self, condition):
         self.condition = condition
 
@@ -142,22 +193,80 @@ class Comparator:
 
 
 class Gt(Comparator):
+    """Value is greater than.
+
+    Example:
+
+    .. code-block:: python
+
+       # Value must be > 10
+       assert value == matching.Gt(10)
+    """
+
     op = operator.gt
 
 
 class Ge(Comparator):
+    """Value is greater or equal.
+
+    Example:
+
+    .. code-block:: python
+
+       # Value must be >= 10
+       assert value == matching.Ge(10)
+    """
+
     op = operator.ge
 
 
 class Lt(Comparator):
+    """Value is less than.
+
+    Example:
+
+    .. code-block:: python
+
+       # Value must be < 10
+       assert value == matching.Lt(10)
+    """
+
     op = operator.lt
 
 
 class Le(Comparator):
+    """Value is less or equal.
+
+    Example:
+
+    .. code-block:: python
+
+       # Value must be <= 10
+       assert value == matching.Le(10)
+    """
+
     op = operator.le
 
 
 class PartialDict(collections.abc.Mapping):
+    """Partial dictionary comparison.
+
+    Sometimes you only need to check dictionary subset ignoring all
+    other keys. :py:class:`PartialDict` is there for this purpose.
+
+    `PartialDict` is wrapper around regular `dict()` when instantiated
+    all arguments are passed as is to internal dict object.
+
+    Example:
+
+    .. code-block:: python
+
+       assert {'foo': 1, 'bar': 2} == matching.PartialDict({
+           # Only check for foo >= 1 ignoring other keys
+           'foo': matching.Ge(1),
+       })
+    """
+
     def __init__(self, *args, **kwargs):
         self._dict = dict(*args, **kwargs)
 

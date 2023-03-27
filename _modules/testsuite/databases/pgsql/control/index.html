@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.databases.pgsql.control &#8212; yandex-taxi-testsuite 0.1.7.2 documentation</title>
+    <title>testsuite.databases.pgsql.control &#8212; yandex-taxi-testsuite 0.1.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -114,14 +114,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">conninfo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">connection</span><span class="o">.</span><span class="n">PgConnectionInfo</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; returns</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns</span>
 <span class="sd">        :py:class:`testsuite.databases.pgsql.connection.PgConnectionInfo`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conninfo</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">conn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">connection</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.connection`&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.connection`&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s1">&#39;Postgresql connection to </span><span class="si">{}</span><span class="s1"> was unexpectedly closed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -136,11 +136,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span>
 
     <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">cursor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.cursor`&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.cursor`&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dict_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">cursor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns dictionary cursor, see psycopg2.extras.DictCursor</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dictionary cursor, see psycopg2.extras.DictCursor</span>
 
 <span class="sd">        :returns: :py:class:`psycopg2.extensions.cursor`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -148,7 +148,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">apply_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">PgQuery</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Apply queries to database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply queries to database&quot;&quot;&quot;</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">cursor</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_try_truncate_tables</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
@@ -193,29 +193,29 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">conninfo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">connection</span><span class="o">.</span><span class="n">PgConnectionInfo</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; returns</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns</span>
 <span class="sd">        :py:class:`testsuite.databases.pgsql.connection.PgConnectionInfo`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">conninfo</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">conn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">connection</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.connection`&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.connection`&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">conn</span>
 
 <div class="viewcode-block" id="PgDatabaseWrapper.cursor"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.pgsql.control.PgDatabaseWrapper.cursor">[docs]</a>    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">cursor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.cursor`&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:returns: :py:class:`psycopg2.extensions.cursor`&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PgDatabaseWrapper.dict_cursor"><a class="viewcode-back" href="../../../../../databases/#testsuite.databases.pgsql.control.PgDatabaseWrapper.dict_cursor">[docs]</a>    <span class="k">def</span> <span class="nf">dict_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">cursor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns dictionary cursor, see psycopg2.extras.DictCursor</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dictionary cursor, see psycopg2.extras.DictCursor</span>
 
 <span class="sd">        :returns: :py:class:`psycopg2.extensions.cursor`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">dict_cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">apply_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Apply queries to database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply queries to database&quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s1">&#39;Do not use apply_queries directly, &#39;</span>
             <span class="s1">&#39;use @pytest.mark.pgsql instead&#39;</span><span class="p">,</span>
@@ -237,11 +237,11 @@
     <span class="n">_connections</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConnectionWrapper</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">pgsql_conninfo</span><span class="p">:</span> <span class="n">connection</span><span class="o">.</span><span class="n">PgConnectionInfo</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="n">skip_applied_schemas</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pgsql_conninfo</span><span class="p">:</span> <span class="n">connection</span><span class="o">.</span><span class="n">PgConnectionInfo</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">skip_applied_schemas</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conninfo</span> <span class="o">=</span> <span class="n">pgsql_conninfo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span> <span class="o">=</span> <span class="p">{}</span>
@@ -253,11 +253,12 @@
 
     <span class="nd">@testsuite_utils</span><span class="o">.</span><span class="n">cached_property</span>
     <span class="k">def</span> <span class="nf">_applied_schema_hashes</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">testsuite_db</span><span class="o">.</span><span class="n">AppliedSchemaHashes</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skip_applied_schemas</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">testsuite_db</span><span class="o">.</span><span class="n">AppliedSchemaHashes</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conninfo</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conninfo</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -269,7 +270,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">[</span><span class="n">dbname</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">initialize_sharded_db</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="n">discover</span><span class="o">.</span><span class="n">PgShardedDatabase</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">database</span><span class="p">:</span> <span class="n">discover</span><span class="o">.</span><span class="n">PgShardedDatabase</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s1">&#39;Initializing database </span><span class="si">%s</span><span class="s1"> for service </span><span class="si">%s</span><span class="s1">...&#39;</span><span class="p">,</span>
@@ -293,7 +295,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_create_database</span><span class="p">(</span><span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_apply_schema</span><span class="p">(</span><span class="n">shard</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_applied_schema_hashes</span><span class="o">.</span><span class="n">set_hash</span><span class="p">(</span>
-                    <span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">current_hash</span><span class="p">,</span>
+                    <span class="n">shard</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
+                    <span class="n">current_hash</span><span class="p">,</span>
                 <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_database</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -343,7 +346,9 @@
         <span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">shell</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="n">command</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">,</span> <span class="n">command_alias</span><span class="o">=</span><span class="s1">&#39;pgsql/script&#39;</span><span class="p">,</span>
+                <span class="n">command</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">,</span>
+                <span class="n">command_alias</span><span class="o">=</span><span class="s1">&#39;pgsql/script&#39;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">shell</span><span class="o">.</span><span class="n">SubprocessFailed</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
@@ -379,7 +384,7 @@
 
     <span class="nd">@testsuite_utils</span><span class="o">.</span><span class="n">cached_property</span>
     <span class="k">def</span> <span class="nf">_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">connection</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Connection to &#39;postgres&#39; database.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connection to &#39;postgres&#39; database.&quot;&quot;&quot;</span>
         <span class="n">pg_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_connection</span><span class="p">(</span><span class="s1">&#39;postgres&#39;</span><span class="p">)</span>
         <span class="n">pg_connection</span><span class="o">.</span><span class="n">autocommit</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">pg_connection</span>
@@ -462,11 +467,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2022, Yandex LLC.
+      &copy;2020-2023, Yandex LLC.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

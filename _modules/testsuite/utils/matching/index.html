@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>testsuite.utils.matching &#8212; yandex-taxi-testsuite 0.1.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex/" />
+    <link rel="search" title="Search" href="../../../../search/" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for testsuite.utils.matching</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">collections.abc</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">dateutil.parser</span>
+
+
+<span class="k">class</span> <span class="nc">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matches any value.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;Any&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">class</span> <span class="nc">AnyString</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matches any string.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;AnyString&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RegexString"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.RegexString">[docs]</a><span class="k">class</span> <span class="nc">RegexString</span><span class="p">(</span><span class="n">AnyString</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match string with regular expression.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       assert response.json() == {</span>
+<span class="sd">          &#39;order_id&#39;: matching.RegexString(&#39;^[0-9a-f]*$&#39;),</span>
+<span class="sd">          ...</span>
+<span class="sd">       }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> pattern=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="si">!r}</span><span class="s1">&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+<span class="k">class</span> <span class="nc">UuidString</span><span class="p">(</span><span class="n">RegexString</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matches lower-case hexadecimal uuid string.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s1">&#39;^[0-9a-f]</span><span class="si">{32}</span><span class="s1">$&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ObjectIdString</span><span class="p">(</span><span class="n">RegexString</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matches lower-case hexadecimal objectid string.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s1">&#39;^[0-9a-f]</span><span class="si">{24}</span><span class="s1">$&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">DatetimeString</span><span class="p">(</span><span class="n">AnyString</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matches datetime string in any format.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;DatetimeString&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="IsInstance"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.IsInstance">[docs]</a><span class="k">class</span> <span class="nc">IsInstance</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match value by its type.</span>
+
+<span class="sd">    Use this class when you only need to check value type.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       assert response.json() == {</span>
+<span class="sd">          # order_id must be a string</span>
+<span class="sd">          &#39;order_id&#39;: matching.IsInstance(str),</span>
+<span class="sd">          # int or float is acceptable here</span>
+<span class="sd">          &#39;weight&#39;: matching.IsInstance([int, float]),</span>
+<span class="sd">          ...</span>
+<span class="sd">       }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">types</span> <span class="o">=</span> <span class="n">types</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">type_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">type_names</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;of-type </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">type_names</span><span class="p">)</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="And"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.And">[docs]</a><span class="k">class</span> <span class="nc">And</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Logical AND on conditions.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # match integer is in range [10, 100)</span>
+<span class="sd">       assert num == matching.And([matching.Ge(10), matching.Lt(100)])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">conditions</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span> <span class="o">=</span> <span class="n">conditions</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;And </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conditions</span><span class="p">)</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">condition</span> <span class="o">!=</span> <span class="n">other</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Or"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.Or">[docs]</a><span class="k">class</span> <span class="nc">Or</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Logical OR on conditions.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # match integers abs(num) &gt;= 10</span>
+<span class="sd">       assert num == matching.Or([matching.Ge(10), matching.Le(-10)])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">conditions</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span> <span class="o">=</span> <span class="n">conditions</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Or </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conditions</span><span class="p">)</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">condition</span> <span class="o">==</span> <span class="n">other</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Not"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.Not">[docs]</a><span class="k">class</span> <span class="nc">Not</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Condition inversion.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # check value is not 1</span>
+<span class="sd">       assert value == matching.Not(1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">condition</span> <span class="o">=</span> <span class="n">condition</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Not </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">condition</span><span class="si">!r}</span><span class="s1">&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">condition</span> <span class="o">!=</span> <span class="n">other</span></div>
+
+
+<span class="k">class</span> <span class="nc">Comparator</span><span class="p">:</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">eq</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="Gt"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.Gt">[docs]</a><span class="k">class</span> <span class="nc">Gt</span><span class="p">(</span><span class="n">Comparator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value is greater than.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # Value must be &gt; 10</span>
+<span class="sd">       assert value == matching.Gt(10)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">op</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span></div>
+
+
+<div class="viewcode-block" id="Ge"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.Ge">[docs]</a><span class="k">class</span> <span class="nc">Ge</span><span class="p">(</span><span class="n">Comparator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value is greater or equal.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # Value must be &gt;= 10</span>
+<span class="sd">       assert value == matching.Ge(10)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">op</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">ge</span></div>
+
+
+<div class="viewcode-block" id="Lt"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.Lt">[docs]</a><span class="k">class</span> <span class="nc">Lt</span><span class="p">(</span><span class="n">Comparator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value is less than.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # Value must be &lt; 10</span>
+<span class="sd">       assert value == matching.Lt(10)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">op</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">lt</span></div>
+
+
+<div class="viewcode-block" id="Le"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.Le">[docs]</a><span class="k">class</span> <span class="nc">Le</span><span class="p">(</span><span class="n">Comparator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value is less or equal.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # Value must be &lt;= 10</span>
+<span class="sd">       assert value == matching.Le(10)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">op</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">le</span></div>
+
+
+<div class="viewcode-block" id="PartialDict"><a class="viewcode-back" href="../../../../utils/#testsuite.utils.matching.PartialDict">[docs]</a><span class="k">class</span> <span class="nc">PartialDict</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Partial dictionary comparison.</span>
+
+<span class="sd">    Sometimes you only need to check dictionary subset ignoring all</span>
+<span class="sd">    other keys. :py:class:`PartialDict` is there for this purpose.</span>
+
+<span class="sd">    `PartialDict` is wrapper around regular `dict()` when instantiated</span>
+<span class="sd">    all arguments are passed as is to internal dict object.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       assert {&#39;foo&#39;: 1, &#39;bar&#39;: 2} == matching.PartialDict({</span>
+<span class="sd">           # Only check for foo &gt;= 1 ignoring other keys</span>
+<span class="sd">           &#39;foo&#39;: matching.Ge(1),</span>
+<span class="sd">       })</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">any_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;PartialDict </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="si">!r}</span><span class="s1">&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<span class="n">any_value</span> <span class="o">=</span> <span class="n">Any</span><span class="p">()</span>
+<span class="n">any_float</span> <span class="o">=</span> <span class="n">IsInstance</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">any_integer</span> <span class="o">=</span> <span class="n">IsInstance</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">any_numeric</span> <span class="o">=</span> <span class="n">IsInstance</span><span class="p">((</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+<span class="n">positive_float</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_float</span><span class="p">,</span> <span class="n">Gt</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">positive_integer</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_integer</span><span class="p">,</span> <span class="n">Gt</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">positive_numeric</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_numeric</span><span class="p">,</span> <span class="n">Gt</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">negative_float</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_float</span><span class="p">,</span> <span class="n">Lt</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">negative_integer</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_integer</span><span class="p">,</span> <span class="n">Lt</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">negative_numeric</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_numeric</span><span class="p">,</span> <span class="n">Lt</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">non_negative_float</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_float</span><span class="p">,</span> <span class="n">Ge</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">non_negative_integer</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_integer</span><span class="p">,</span> <span class="n">Ge</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">non_negative_numeric</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">any_numeric</span><span class="p">,</span> <span class="n">Ge</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">any_string</span> <span class="o">=</span> <span class="n">AnyString</span><span class="p">()</span>
+<span class="n">datetime_string</span> <span class="o">=</span> <span class="n">DatetimeString</span><span class="p">()</span>
+<span class="n">objectid_string</span> <span class="o">=</span> <span class="n">ObjectIdString</span><span class="p">()</span>
+<span class="n">uuid_string</span> <span class="o">=</span> <span class="n">UuidString</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../">
+    <img class="logo" src="../../../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../">Documentation overview</a><ul>
+  <li><a href="../../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search/" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020-2023, Yandex LLC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

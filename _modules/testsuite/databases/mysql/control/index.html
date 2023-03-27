@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.databases.mysql.control &#8212; yandex-taxi-testsuite 0.1.7.2 documentation</title>
+    <title>testsuite.databases.mysql.control &#8212; yandex-taxi-testsuite 0.1.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
@@ -62,7 +62,7 @@
 
 
 <div class="viewcode-block" id="ConnectionWrapper"><a class="viewcode-back" href="../../../../../mysql/#testsuite.databases.mysql.control.ConnectionWrapper">[docs]</a><span class="k">class</span> <span class="nc">ConnectionWrapper</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;MySQL database connection wrapper.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;MySQL database connection wrapper.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">conninfo</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">connection</span>
@@ -70,15 +70,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">conninfo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">classes</span><span class="o">.</span><span class="n">ConnectionInfo</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;:py:class:`classes.ConnectionInfo` instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:py:class:`classes.ConnectionInfo` instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conninfo</span>
 
 <div class="viewcode-block" id="ConnectionWrapper.cursor"><a class="viewcode-back" href="../../../../../mysql/#testsuite.databases.mysql.control.ConnectionWrapper.cursor">[docs]</a>    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns cursor instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns cursor instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">dict_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return dictionary cursor, pymysql.cursors.DictCursor.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dictionary cursor, pymysql.cursors.DictCursor.&quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cursor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -147,7 +147,9 @@
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_migrations_run</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s1">&#39;Running mysql script </span><span class="si">%s</span><span class="s1"> against database </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span>
+            <span class="s1">&#39;Running mysql script </span><span class="si">%s</span><span class="s1"> against database </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="n">dbname</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">conninfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="o">.</span><span class="n">get_conninfo</span><span class="p">(</span><span class="n">dbname</span><span class="p">)</span>
         <span class="n">_run_script</span><span class="p">(</span><span class="n">conninfo</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;source </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
@@ -172,7 +174,9 @@
 
 <span class="k">class</span> <span class="nc">Control</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">databases</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">DatabasesDict</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">DatabasesState</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">databases</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">DatabasesDict</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">DatabasesState</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_databases</span> <span class="o">=</span> <span class="n">databases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">state</span>
@@ -209,18 +213,18 @@
 
 
 <span class="k">def</span> <span class="nf">_run_script</span><span class="p">(</span>
-        <span class="n">conninfo</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">ConnectionInfo</span><span class="p">,</span>
-        <span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">conninfo</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">ConnectionInfo</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">MYSQL_HELPER</span><span class="p">),</span> <span class="o">*</span><span class="n">_build_mysql_args</span><span class="p">(</span><span class="n">conninfo</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">]</span>
     <span class="n">shell</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">command_alias</span><span class="o">=</span><span class="s1">&#39;mysql/script&#39;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_db_tables_list</span><span class="p">(</span>
-        <span class="n">cursor</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">Cursor</span><span class="p">,</span>
-        <span class="n">db_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">truncate_non_empty</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">cursor</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">Cursor</span><span class="p">,</span>
+    <span class="n">db_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">truncate_non_empty</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">]:</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;show tables&#39;</span><span class="p">)</span>
     <span class="n">tables</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
@@ -242,16 +246,18 @@
 
 
 <span class="k">def</span> <span class="nf">apply_queries</span><span class="p">(</span>
-        <span class="n">connection</span><span class="p">:</span> <span class="n">ConnectionWrapper</span><span class="p">,</span>
-        <span class="n">queries</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">MysqlQuery</span><span class="p">],</span>
-        <span class="n">keep_tables</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">truncate_non_empty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">connection</span><span class="p">:</span> <span class="n">ConnectionWrapper</span><span class="p">,</span>
+    <span class="n">queries</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">MysqlQuery</span><span class="p">],</span>
+    <span class="n">keep_tables</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">truncate_non_empty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_tables</span><span class="p">:</span>
         <span class="n">keep_tables</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
         <span class="n">tables</span> <span class="o">=</span> <span class="n">_get_db_tables_list</span><span class="p">(</span>
-            <span class="n">cursor</span><span class="p">,</span> <span class="n">connection</span><span class="o">.</span><span class="n">conninfo</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">truncate_non_empty</span><span class="p">,</span>
+            <span class="n">cursor</span><span class="p">,</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">conninfo</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
+            <span class="n">truncate_non_empty</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">tables</span><span class="p">:</span>
@@ -267,8 +273,7 @@
                 <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[])</span>
             <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">error_message</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;MySQL apply query error</span><span class="se">\n</span><span class="s1">&#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;Query from: </span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;MySQL apply query error</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="sa">f</span><span class="s1">&#39;Query from: </span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
                     <span class="n">error_message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;File path: </span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -337,11 +342,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2022, Yandex LLC.
+      &copy;2020-2023, Yandex LLC.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

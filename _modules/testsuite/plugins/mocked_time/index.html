@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.plugins.mocked_time &#8212; yandex-taxi-testsuite 0.1.7.2 documentation</title>
+    <title>testsuite.plugins.mocked_time &#8212; yandex-taxi-testsuite 0.1.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -48,11 +48,11 @@
 
 
 <span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for errors in this module&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for errors in this module&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">DisabledUsageError</span><span class="p">(</span><span class="n">BaseError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when attempting to use a disabled feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when attempting to use a disabled feature&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="MockedTime"><a class="viewcode-back" href="../../../../other_plugins/#testsuite.plugins.mocked_time.MockedTime">[docs]</a><span class="k">class</span> <span class="nc">MockedTime</span><span class="p">:</span>
@@ -61,7 +61,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_enabled</span> <span class="o">=</span> <span class="n">is_enabled</span>
 
 <div class="viewcode-block" id="MockedTime.sleep"><a class="viewcode-back" href="../../../../other_plugins/#testsuite.plugins.mocked_time.MockedTime.sleep">[docs]</a>    <span class="k">def</span> <span class="nf">sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Increase mock time value</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Increase mock time value</span>
 
 <span class="sd">        :param delta: increase value in seconds</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -70,13 +70,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">+=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MockedTime.now"><a class="viewcode-back" href="../../../../other_plugins/#testsuite.plugins.mocked_time.MockedTime.now">[docs]</a>    <span class="k">def</span> <span class="nf">now</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;:returns: current value of mock time&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:returns: current value of mock time&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_enabled</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span>
         <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MockedTime.set"><a class="viewcode-back" href="../../../../other_plugins/#testsuite.plugins.mocked_time.MockedTime.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set mock time value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set mock time value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_enabled</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DisabledUsageError</span><span class="p">(</span><span class="n">MOCK_TIME_DISABLED_MESSAGE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="n">time</span></div>
@@ -97,7 +97,8 @@
 
 <span class="k">def</span> <span class="nf">pytest_configure</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="n">config</span><span class="o">.</span><span class="n">addinivalue_line</span><span class="p">(</span>
-        <span class="s1">&#39;markers&#39;</span><span class="p">,</span> <span class="s1">&#39;now: specify current time mocked value&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;markers&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;now: specify current time mocked value&#39;</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -114,7 +115,7 @@
 
 <div class="viewcode-block" id="mocked_time"><a class="viewcode-back" href="../../../../other_plugins/#testsuite.plugins.mocked_time.mocked_time">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span> <span class="nf">mocked_time</span><span class="p">(</span><span class="n">_mocked_time_enabled</span><span class="p">,</span> <span class="n">now</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MockedTime</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;:returns: :py:class:`MockedTime`&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;:returns: :py:class:`MockedTime`&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">MockedTime</span><span class="p">(</span><span class="n">now</span><span class="p">,</span> <span class="n">is_enabled</span><span class="o">=</span><span class="n">_mocked_time_enabled</span><span class="p">)</span></div>
 
 
@@ -215,11 +216,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2022, Yandex LLC.
+      &copy;2020-2023, Yandex LLC.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.mockserver.classes &#8212; yandex-taxi-testsuite 0.1.7.2 documentation</title>
+    <title>testsuite.mockserver.classes &#8212; yandex-taxi-testsuite 0.1.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -45,10 +45,12 @@
 <span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">url_util</span>
 
 <span class="n">GenericRequestHandler</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-    <span class="o">...</span><span class="p">,</span> <span class="n">annotations</span><span class="o">.</span><span class="n">MaybeAsyncResult</span><span class="p">[</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">],</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="n">annotations</span><span class="o">.</span><span class="n">MaybeAsyncResult</span><span class="p">[</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">],</span>
 <span class="p">]</span>
 <span class="n">GenericRequestDecorator</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-    <span class="p">[</span><span class="n">GenericRequestHandler</span><span class="p">],</span> <span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">GenericRequestHandler</span><span class="p">],</span>
+    <span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">JsonRequestHandler</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
     <span class="o">...</span><span class="p">,</span>
@@ -57,7 +59,8 @@
     <span class="p">],</span>
 <span class="p">]</span>
 <span class="n">JsonRequestDecorator</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-    <span class="p">[</span><span class="n">JsonRequestHandler</span><span class="p">],</span> <span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">JsonRequestHandler</span><span class="p">],</span>
+    <span class="n">callinfo</span><span class="o">.</span><span class="n">AsyncCallQueue</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">MockserverRequest</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">Request</span>
 
@@ -76,7 +79,7 @@
     <span class="n">ssl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">SslCertInfo</span><span class="p">]</span>
 
 <div class="viewcode-block" id="MockserverInfo.url"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.classes.MockserverInfo.url">[docs]</a>    <span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Concats ``base_url`` and provided ``path``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Concats ``base_url`` and provided ``path``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">url_util</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">get_host_header</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -153,11 +156,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2022, Yandex LLC.
+      &copy;2020-2023, Yandex LLC.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

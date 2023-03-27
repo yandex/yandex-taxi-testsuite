@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.mockserver.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.7.2 documentation</title>
+    <title>testsuite.mockserver.pytest_plugin &#8212; yandex-taxi-testsuite 0.1.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -78,7 +78,8 @@
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="n">MOCKSERVER_PORT_HELP</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">proto</span><span class="o">=</span><span class="s1">&#39;HTTP&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">MOCKSERVER_DEFAULT_PORT</span><span class="p">,</span>
+            <span class="n">proto</span><span class="o">=</span><span class="s1">&#39;HTTP&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">MOCKSERVER_DEFAULT_PORT</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
@@ -91,7 +92,8 @@
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="n">MOCKSERVER_PORT_HELP</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">proto</span><span class="o">=</span><span class="s1">&#39;HTTPS&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">MOCKSERVER_SSL_DEFAULT_PORT</span><span class="p">,</span>
+            <span class="n">proto</span><span class="o">=</span><span class="s1">&#39;HTTPS&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">MOCKSERVER_SSL_DEFAULT_PORT</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">addini</span><span class="p">(</span>
@@ -157,7 +159,8 @@
 
 <div class="viewcode-block" id="mockserver"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.pytest_plugin.mockserver">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span> <span class="nf">mockserver</span><span class="p">(</span>
-        <span class="n">_mockserver</span><span class="p">:</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">,</span> <span class="n">_mockserver_trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">_mockserver</span><span class="p">:</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">,</span>
+    <span class="n">_mockserver_trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">annotations</span><span class="o">.</span><span class="n">YieldFixture</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">MockserverFixture</span><span class="p">]:</span>
     <span class="k">with</span> <span class="n">_mockserver</span><span class="o">.</span><span class="n">new_session</span><span class="p">(</span><span class="n">_mockserver_trace_id</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">server</span><span class="o">.</span><span class="n">MockserverFixture</span><span class="p">(</span><span class="n">_mockserver</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span></div>
@@ -165,8 +168,8 @@
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">mockserver_ssl</span><span class="p">(</span>
-        <span class="n">_mockserver_ssl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">],</span>
-        <span class="n">_mockserver_trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">_mockserver_ssl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">],</span>
+    <span class="n">_mockserver_trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">annotations</span><span class="o">.</span><span class="n">AsyncYieldFixture</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">MockserverSslFixture</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">_mockserver_ssl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">MockServerError</span><span class="p">(</span>
@@ -179,13 +182,13 @@
 
 <div class="viewcode-block" id="mockserver_info"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.pytest_plugin.mockserver_info">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">mockserver_info</span><span class="p">(</span><span class="n">_mockserver</span><span class="p">:</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">classes</span><span class="o">.</span><span class="n">MockserverInfo</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Returns mockserver information object.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns mockserver information object.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_mockserver</span><span class="o">.</span><span class="n">server_info</span></div>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">mockserver_ssl_info</span><span class="p">(</span>
-        <span class="n">_mockserver_ssl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">],</span>
+    <span class="n">_mockserver_ssl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">classes</span><span class="o">.</span><span class="n">MockserverInfo</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">_mockserver_ssl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -208,7 +211,8 @@
     <span class="n">key_path</span> <span class="o">=</span> <span class="n">_get_ini_path</span><span class="p">(</span><span class="n">_SSL_KEY_FILE_INI_KEY</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cert_path</span> <span class="ow">and</span> <span class="n">key_path</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">classes</span><span class="o">.</span><span class="n">SslCertInfo</span><span class="p">(</span>
-            <span class="n">cert_path</span><span class="o">=</span><span class="n">cert_path</span><span class="p">,</span> <span class="n">private_key_path</span><span class="o">=</span><span class="n">key_path</span><span class="p">,</span>
+            <span class="n">cert_path</span><span class="o">=</span><span class="n">cert_path</span><span class="p">,</span>
+            <span class="n">private_key_path</span><span class="o">=</span><span class="n">key_path</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span>
 
@@ -222,8 +226,8 @@
         <span class="c1"># If service is started outside of testsuite use constant</span>
         <span class="c1"># port by default.</span>
         <span class="k">if</span> <span class="p">(</span>
-                <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_wait</span>
-                <span class="ow">or</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_disable</span>
+            <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_wait</span>
+            <span class="ow">or</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">service_disable</span>
         <span class="p">):</span>
             <span class="k">if</span> <span class="n">option_port</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">default_port</span>
@@ -234,35 +238,36 @@
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_mockserver</span><span class="p">(</span>
-        <span class="n">pytestconfig</span><span class="p">,</span>
-        <span class="n">testsuite_logger</span><span class="p">,</span>
-        <span class="n">loop</span><span class="p">,</span>
-        <span class="n">_mockserver_reporter</span><span class="p">,</span>
-        <span class="n">_mockserver_getport</span><span class="p">,</span>
+    <span class="n">pytestconfig</span><span class="p">,</span>
+    <span class="n">testsuite_logger</span><span class="p">,</span>
+    <span class="n">loop</span><span class="p">,</span>
+    <span class="n">_mockserver_reporter</span><span class="p">,</span>
+    <span class="n">_mockserver_getport</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">annotations</span><span class="o">.</span><span class="n">AsyncYieldFixture</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">]:</span>
     <span class="n">port</span> <span class="o">=</span> <span class="n">_mockserver_getport</span><span class="p">(</span>
-        <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mockserver_port</span><span class="p">,</span> <span class="n">MOCKSERVER_DEFAULT_PORT</span><span class="p">,</span>
+        <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mockserver_port</span><span class="p">,</span>
+        <span class="n">MOCKSERVER_DEFAULT_PORT</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">server</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span>
-            <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mockserver_host</span><span class="p">,</span>
-            <span class="n">port</span><span class="p">,</span>
-            <span class="n">loop</span><span class="p">,</span>
-            <span class="n">testsuite_logger</span><span class="p">,</span>
-            <span class="n">_mockserver_reporter</span><span class="p">,</span>
-            <span class="n">pytestconfig</span><span class="p">,</span>
-            <span class="n">ssl_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mockserver_host</span><span class="p">,</span>
+        <span class="n">port</span><span class="p">,</span>
+        <span class="n">loop</span><span class="p">,</span>
+        <span class="n">testsuite_logger</span><span class="p">,</span>
+        <span class="n">_mockserver_reporter</span><span class="p">,</span>
+        <span class="n">pytestconfig</span><span class="p">,</span>
+        <span class="n">ssl_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">result</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">result</span>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_mockserver_ssl</span><span class="p">(</span>
-        <span class="n">pytestconfig</span><span class="p">,</span>
-        <span class="n">testsuite_logger</span><span class="p">,</span>
-        <span class="n">loop</span><span class="p">,</span>
-        <span class="n">mockserver_ssl_cert</span><span class="p">,</span>
-        <span class="n">_mockserver_reporter</span><span class="p">,</span>
-        <span class="n">_mockserver_getport</span><span class="p">,</span>
+    <span class="n">pytestconfig</span><span class="p">,</span>
+    <span class="n">testsuite_logger</span><span class="p">,</span>
+    <span class="n">loop</span><span class="p">,</span>
+    <span class="n">mockserver_ssl_cert</span><span class="p">,</span>
+    <span class="n">_mockserver_reporter</span><span class="p">,</span>
+    <span class="n">_mockserver_getport</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">annotations</span><span class="o">.</span><span class="n">AsyncYieldFixture</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">]]:</span>
     <span class="k">if</span> <span class="n">mockserver_ssl_cert</span><span class="p">:</span>
         <span class="n">port</span> <span class="o">=</span> <span class="n">_mockserver_getport</span><span class="p">(</span>
@@ -270,13 +275,13 @@
             <span class="n">MOCKSERVER_SSL_DEFAULT_PORT</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">server</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span>
-                <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mockserver_ssl_host</span><span class="p">,</span>
-                <span class="n">port</span><span class="p">,</span>
-                <span class="n">loop</span><span class="p">,</span>
-                <span class="n">testsuite_logger</span><span class="p">,</span>
-                <span class="n">_mockserver_reporter</span><span class="p">,</span>
-                <span class="n">pytestconfig</span><span class="p">,</span>
-                <span class="n">mockserver_ssl_cert</span><span class="p">,</span>
+            <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">mockserver_ssl_host</span><span class="p">,</span>
+            <span class="n">port</span><span class="p">,</span>
+            <span class="n">loop</span><span class="p">,</span>
+            <span class="n">testsuite_logger</span><span class="p">,</span>
+            <span class="n">_mockserver_reporter</span><span class="p">,</span>
+            <span class="n">pytestconfig</span><span class="p">,</span>
+            <span class="n">mockserver_ssl_cert</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">result</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">result</span>
     <span class="k">else</span><span class="p">:</span>
@@ -285,7 +290,7 @@
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">_mockserver_reporter</span><span class="p">(</span>
-        <span class="n">pytestconfig</span><span class="p">,</span>
+    <span class="n">pytestconfig</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">pluginmanager</span><span class="o">.</span><span class="n">get_plugin</span><span class="p">(</span><span class="s1">&#39;mockserver_reporter&#39;</span><span class="p">)</span>
 
@@ -307,7 +312,9 @@
 <span class="k">def</span> <span class="nf">_mockserver_https_hook</span><span class="p">(</span><span class="n">mockserver_ssl_info</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_mockserver_info_hook</span><span class="p">(</span>
-            <span class="n">doc</span><span class="p">,</span> <span class="s1">&#39;$mockserver_https&#39;</span><span class="p">,</span> <span class="n">mockserver_ssl_info</span><span class="p">,</span>
+            <span class="n">doc</span><span class="p">,</span>
+            <span class="s1">&#39;$mockserver_https&#39;</span><span class="p">,</span>
+            <span class="n">mockserver_ssl_info</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">wrapper</span>
@@ -390,11 +397,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2022, Yandex LLC.
+      &copy;2020-2023, Yandex LLC.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

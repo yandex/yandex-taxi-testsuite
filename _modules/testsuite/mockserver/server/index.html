@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.mockserver.server &#8212; yandex-taxi-testsuite 0.1.7.2 documentation</title>
+    <title>testsuite.mockserver.server &#8212; yandex-taxi-testsuite 0.1.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -83,7 +83,8 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">raw_request</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json_response</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callqueue</span> <span class="o">=</span> <span class="n">callinfo</span><span class="o">.</span><span class="n">acallqueue</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handler_args</span> <span class="o">=</span> <span class="n">magicargs</span><span class="o">.</span><span class="n">MagicArgsHandler</span><span class="p">(</span>
-            <span class="n">func</span><span class="p">,</span> <span class="n">raw_request</span><span class="o">=</span><span class="n">raw_request</span><span class="p">,</span>
+            <span class="n">func</span><span class="p">,</span>
+            <span class="n">raw_request</span><span class="o">=</span><span class="n">raw_request</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">json_response</span> <span class="o">=</span> <span class="n">json_response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">orig_func</span> <span class="o">=</span> <span class="n">func</span>
@@ -111,15 +112,15 @@
     <span class="n">regex_handlers</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Pattern</span><span class="p">,</span> <span class="n">Handler</span><span class="p">]]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">reporter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
-                <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">tracing_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">trace_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">http_proxy_enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">mockserver_host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reporter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
+            <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">tracing_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">trace_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">http_proxy_enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mockserver_host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">trace_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">trace_id</span> <span class="o">=</span> <span class="n">generate_trace_id</span><span class="p">()</span>
@@ -190,16 +191,17 @@
     <span class="k">def</span> <span class="nf">_report_handler_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
-                <span class="n">exc</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Exception in mockserver handler for </span><span class="si">{</span><span class="n">path</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">exc</span> <span class="si">!r}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">exc</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;Exception in mockserver handler for </span><span class="si">{</span><span class="n">path</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">exc</span><span class="w"> </span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">register_handler</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">func</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">func</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
@@ -217,7 +219,8 @@
         <span class="k">return</span> <span class="n">func</span>
 
     <span class="k">def</span> <span class="nf">_get_handler_for_request</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">BaseRequest</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">BaseRequest</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Handler</span><span class="p">,</span> <span class="n">RouteParams</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_proxy_enabled</span><span class="p">:</span>
             <span class="n">host</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">)</span>
@@ -231,17 +234,17 @@
     <span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">mockserver_info</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">MockserverInfo</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">nofail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">reporter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
-                <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">tracing_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">trace_id_header</span><span class="o">=</span><span class="n">DEFAULT_TRACE_ID_HEADER</span><span class="p">,</span>
-            <span class="n">span_id_header</span><span class="o">=</span><span class="n">DEFAULT_SPAN_ID_HEADER</span><span class="p">,</span>
-            <span class="n">http_proxy_enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mockserver_info</span><span class="p">:</span> <span class="n">classes</span><span class="o">.</span><span class="n">MockserverInfo</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">nofail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">reporter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
+            <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tracing_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">trace_id_header</span><span class="o">=</span><span class="n">DEFAULT_TRACE_ID_HEADER</span><span class="p">,</span>
+        <span class="n">span_id_header</span><span class="o">=</span><span class="n">DEFAULT_SPAN_ID_HEADER</span><span class="p">,</span>
+        <span class="n">http_proxy_enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">mockserver_info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nofail</span> <span class="o">=</span> <span class="n">nofail</span>
@@ -328,7 +331,8 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">MockServerError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracing_enabled</span> <span class="ow">and</span> <span class="n">_is_other_test</span><span class="p">(</span>
-                <span class="n">trace_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">trace_id</span><span class="p">,</span>
+            <span class="n">trace_id</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">trace_id</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_report_other_test_request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">trace_id</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">_internal_error</span><span class="p">(</span><span class="n">REQUEST_FROM_ANOTHER_TEST_ERROR</span><span class="p">)</span>
@@ -341,7 +345,10 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_report_handler_not_found</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">HandlerNotFoundError</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">nofail</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">exc</span><span class="p">:</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">HandlerNotFoundError</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">nofail</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span> <span class="k">if</span> <span class="n">nofail</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
@@ -357,10 +364,13 @@
 
 
 <div class="viewcode-block" id="MockserverFixture"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.server.MockserverFixture">[docs]</a><span class="k">class</span> <span class="nc">MockserverFixture</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Mockserver handler installer fixture.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mockserver handler installer fixture.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">mockserver</span><span class="p">:</span> <span class="n">Server</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">base_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mockserver</span><span class="p">:</span> <span class="n">Server</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+        <span class="n">base_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">mockserver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span>
@@ -368,24 +378,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_prefix_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">base_prefix</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MockserverFixture.new"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.server.MockserverFixture.new">[docs]</a>    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;MockserverFixture&#39;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Create mockserver installer with given base prefix.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create mockserver installer with given base prefix.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MockserverFixture</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_fullpath</span><span class="p">(</span><span class="n">prefix</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_build_fullpath</span><span class="p">(</span><span class="n">prefix</span><span class="p">),</span>
         <span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">base_url</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Mockserver base url.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mockserver base url.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">server_info</span><span class="o">.</span><span class="n">base_url</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">host</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Mockserver hostname.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mockserver hostname.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">server_info</span><span class="o">.</span><span class="n">host</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Mockserver port.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mockserver port.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">server_info</span><span class="o">.</span><span class="n">port</span>
 
     <span class="nd">@property</span>
@@ -401,15 +413,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">trace_id</span>
 
 <div class="viewcode-block" id="MockserverFixture.handler"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.server.MockserverFixture.handler">[docs]</a>    <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">raw_request</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">json_response</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">raw_request</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">json_response</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">classes</span><span class="o">.</span><span class="n">GenericRequestDecorator</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Register basic http handler for ``path``.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register basic http handler for ``path``.</span>
 
 <span class="sd">        Returns decorator that registers handler ``path``. Original function is</span>
 <span class="sd">        wrapped with :ref:`AsyncCallQueue`.</span>
@@ -451,14 +463,14 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MockserverFixture.json_handler"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.server.MockserverFixture.json_handler">[docs]</a>    <span class="k">def</span> <span class="nf">json_handler</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">raw_request</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">raw_request</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">classes</span><span class="o">.</span><span class="n">JsonRequestDecorator</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Register json http handler for ``path``.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register json http handler for ``path``.</span>
 
 <span class="sd">        Returns decorator that registers handler ``path``. Original function is</span>
 <span class="sd">        wrapped with :ref:`AsyncCallQueue`.</span>
@@ -493,7 +505,11 @@
         <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">aiohttp_handler</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">classes</span><span class="o">.</span><span class="n">GenericRequestDecorator</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler_installer</span><span class="p">(</span>
             <span class="n">path</span><span class="p">,</span>
@@ -504,7 +520,11 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">aiohttp_json_handler</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">classes</span><span class="o">.</span><span class="n">JsonRequestDecorator</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler_installer</span><span class="p">(</span>
             <span class="n">path</span><span class="p">,</span>
@@ -515,7 +535,7 @@
         <span class="p">)</span>
 
 <div class="viewcode-block" id="MockserverFixture.url"><a class="viewcode-back" href="../../../../mockserver/#testsuite.mockserver.server.MockserverFixture.url">[docs]</a>    <span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Builds mockserver url for ``path``&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Builds mockserver url for ``path``&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">url_util</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">ignore_trace_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">ContextManager</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
@@ -540,22 +560,27 @@
     <span class="n">NetworkError</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">NetworkError</span>
 
     <span class="k">def</span> <span class="nf">_handler_installer</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">,</span>
-            <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">raw_request</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">json_response</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">raw_request</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">json_response</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">:</span>
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_fullpath</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">regex</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
             <span class="n">handler</span> <span class="o">=</span> <span class="n">Handler</span><span class="p">(</span>
-                <span class="n">func</span><span class="p">,</span> <span class="n">raw_request</span><span class="o">=</span><span class="n">raw_request</span><span class="p">,</span> <span class="n">json_response</span><span class="o">=</span><span class="n">json_response</span><span class="p">,</span>
+                <span class="n">func</span><span class="p">,</span>
+                <span class="n">raw_request</span><span class="o">=</span><span class="n">raw_request</span><span class="p">,</span>
+                <span class="n">json_response</span><span class="o">=</span><span class="n">json_response</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
-                <span class="n">path</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="n">regex</span><span class="p">,</span>
+                <span class="n">path</span><span class="p">,</span>
+                <span class="n">handler</span><span class="p">,</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+                <span class="n">regex</span><span class="o">=</span><span class="n">regex</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">handler</span><span class="o">.</span><span class="n">callqueue</span>
 
@@ -595,19 +620,21 @@
             <span class="sa">f</span><span class="s1">&#39;Service does not support mockserver error of type </span><span class="si">{</span><span class="n">error_code</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">http</span><span class="o">.</span><span class="n">make_response</span><span class="p">(</span>
-        <span class="n">response</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">599</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="n">_ERROR_HEADER</span><span class="p">:</span> <span class="n">error_code</span><span class="p">},</span>
+        <span class="n">response</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="mi">599</span><span class="p">,</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="n">_ERROR_HEADER</span><span class="p">:</span> <span class="n">error_code</span><span class="p">},</span>
     <span class="p">)</span>
 
 
 <span class="nd">@compat</span><span class="o">.</span><span class="n">asynccontextmanager</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">create_server</span><span class="p">(</span>
-        <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">loop</span><span class="p">,</span>
-        <span class="n">testsuite_logger</span><span class="p">,</span>
-        <span class="n">mockserver_reporter</span><span class="p">:</span> <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span><span class="p">,</span>
-        <span class="n">pytestconfig</span><span class="p">,</span>
-        <span class="n">ssl_info</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">classes</span><span class="o">.</span><span class="n">SslCertInfo</span><span class="p">],</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">loop</span><span class="p">,</span>
+    <span class="n">testsuite_logger</span><span class="p">,</span>
+    <span class="n">mockserver_reporter</span><span class="p">:</span> <span class="n">reporter_plugin</span><span class="o">.</span><span class="n">MockserverReporterPlugin</span><span class="p">,</span>
+    <span class="n">pytestconfig</span><span class="p">,</span>
+    <span class="n">ssl_info</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">classes</span><span class="o">.</span><span class="n">SslCertInfo</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">Server</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
     <span class="n">ssl_context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">ssl_info</span><span class="p">:</span>
@@ -616,10 +643,15 @@
         <span class="n">ssl_context</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">async</span> <span class="k">with</span> <span class="n">net_utils</span><span class="o">.</span><span class="n">create_tcp_server</span><span class="p">(</span>
-            <span class="k">lambda</span><span class="p">:</span> <span class="n">web_server</span><span class="p">(),</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">ssl_context</span><span class="p">,</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">web_server</span><span class="p">(),</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+        <span class="n">ssl</span><span class="o">=</span><span class="n">ssl_context</span><span class="p">,</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">aio_server</span><span class="p">:</span>
         <span class="n">mockserver_info</span> <span class="o">=</span> <span class="n">_create_mockserver_info</span><span class="p">(</span>
-            <span class="n">aio_server</span><span class="o">.</span><span class="n">sockets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">host</span><span class="p">,</span> <span class="n">ssl_info</span><span class="p">,</span>
+            <span class="n">aio_server</span><span class="o">.</span><span class="n">sockets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">host</span><span class="p">,</span>
+            <span class="n">ssl_info</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">server</span> <span class="o">=</span> <span class="n">Server</span><span class="p">(</span>
             <span class="n">mockserver_info</span><span class="p">,</span>
@@ -633,20 +665,27 @@
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="n">web_server</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">handle_request</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span> <span class="n">access_log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">handle_request</span><span class="p">,</span>
+            <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span>
+            <span class="n">access_log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">yield</span> <span class="n">server</span>
 
 
 <span class="k">def</span> <span class="nf">_create_mockserver_info</span><span class="p">(</span>
-        <span class="n">sock</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ssl_info</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">classes</span><span class="o">.</span><span class="n">SslCertInfo</span><span class="p">],</span>
+    <span class="n">sock</span><span class="p">,</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ssl_info</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">classes</span><span class="o">.</span><span class="n">SslCertInfo</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">classes</span><span class="o">.</span><span class="n">MockserverInfo</span><span class="p">:</span>
     <span class="n">sock_address</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span>
     <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;https&#39;</span> <span class="k">if</span> <span class="n">ssl_info</span> <span class="k">else</span> <span class="s1">&#39;http&#39;</span>
     <span class="n">port</span> <span class="o">=</span> <span class="n">sock_address</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">base_url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">://</span><span class="si">%s</span><span class="s1">:</span><span class="si">%d</span><span class="s1">/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">classes</span><span class="o">.</span><span class="n">MockserverInfo</span><span class="p">(</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">ssl_info</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span>
+        <span class="n">ssl</span><span class="o">=</span><span class="n">ssl_info</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -722,11 +761,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2022, Yandex LLC.
+      &copy;2020-2023, Yandex LLC.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

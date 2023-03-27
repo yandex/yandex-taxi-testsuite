@@ -1,6 +1,10 @@
 VENV_DOCS_PATH  = $(CURDIR)/.venv-docs
 VENV_DEV_PATH   = $(CURDIR)/.venv-dev
-VENV_PYTHON     = $(firstword $(shell which python3.9 python3.8 python3.7 python3))
+VENV_PYTHON     = $(firstword $(shell which python3.9 python3.8 python3.7 python3 2> /dev/null))
+
+VENV_COMMON_DEPS = setup.py setup.cfg requirements.txt
+VENV_DEV_DEPS = $(VENV_COMMON_DEPS) docs/examples/requirements.txt
+VENV_DOCS_DEPS = $(VENV_COMMON_DEPS) docs/requirements.txt
 
 PY_DIRS = testsuite
 PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
@@ -38,7 +42,7 @@ venv-%: setup-dev-venv
 
 setup-dev-venv: $(VENV_DEV_PATH)/.timestamp
 
-$(VENV_DEV_PATH)/.timestamp: setup.py setup.cfg requirements.txt docs/examples/requirements.txt
+$(VENV_DEV_PATH)/.timestamp:  $(VENV_DEV_DEPS)
 	test -x $(VENV_DEV_PATH)/bin/python || \
 		virtualenv --python=$(VENV_PYTHON) $(VENV_DEV_PATH)
 	$(VENV_DEV_PATH)/bin/pip install -r requirements.txt
@@ -53,9 +57,10 @@ build-docs-%: setup-docs-venv
 	PATH=$(VENV_DOCS_PATH)/bin:$(PATH) PYTHONPATH=$(PWD) \
 		$(MAKE) -C docs $*
 
-$(VENV_DOCS_PATH)/.timestamp: setup.py setup.cfg docs/requirements.txt
+$(VENV_DOCS_PATH)/.timestamp: $(VENV_DOCS_DEPS)
 	test -x $(VENV_DOCS_PATH)/bin/python || \
 		virtualenv --python=$(VENV_PYTHON) $(VENV_DOCS_PATH)
+	$(VENV_DOCS_PATH)/bin/pip install -r requirements.txt
 	$(VENV_DOCS_PATH)/bin/pip install -r docs/requirements.txt
 	touch $@
 

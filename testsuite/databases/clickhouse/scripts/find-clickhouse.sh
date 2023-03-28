@@ -2,7 +2,7 @@
 
 find_clickhouse() {
     CLICKHOUSE_BINPATH=$(which clickhouse)
-    if [ "x$CLICKHOUSE_BINPATH" == "x" ]; then
+    if [ "x$CLICKHOUSE_BINPATH" = "x" ]; then
         return 1
     fi
     return 0

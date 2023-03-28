@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 . $TESTSUITE_LIB_UTILS
 . $(dirname $0)/find-pg.sh

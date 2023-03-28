@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 PATH=$PATH:/usr/sbin:/sbin
 START_STOP_DAEMON=$(which start-stop-daemon 2>/dev/null)

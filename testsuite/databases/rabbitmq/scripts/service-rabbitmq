@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 . $TESTSUITE_LIB_UTILS
 . $(dirname $0)/find-rabbitmq.sh
@@ -22,8 +22,8 @@ fi
 RABBITMQ_DATA_DIR=$RABBITMQ_TMPDIR/mnesia
 RABBITMQ_LOG_DIR=$RABBITMQ_TMPDIR/log
 RABBITMQ_STARTUP_LOG=$RABBITMQ_LOG_DIR/startup.log
-RABBITMQ_NODENAME='testsuite@localhost' 
-V_RABBITMQ_ERLANG_COOKIE='testsuite' 
+RABBITMQ_NODENAME='testsuite@localhost'
+V_RABBITMQ_ERLANG_COOKIE='testsuite'
 
 export ERL_EPMD_PORT="$RABBITMQ_EPMD_PORT"
 export RABBITMQ_MNESIA_BASE="$RABBITMQ_DATA_DIR"

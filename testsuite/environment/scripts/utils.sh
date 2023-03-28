@@ -7,7 +7,7 @@ die() {
     echo "$@" >&2
     exit 1
 }
-TESTSUITE_DEBUG=1
+
 if [ "x$TESTSUITE_DEBUG" != "x" ]; then
     set -x
 fi

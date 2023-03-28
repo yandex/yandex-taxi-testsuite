@@ -51,12 +51,14 @@ jobs:
     - name: Test with pytest
       env:
           TESTSUITE_ALLOW_ROOT: 1
+          TESTSUITE_DEBUG: 1
       run: |
           make venv-tests
 
     - name: Run examples tests
       env:
           TESTSUITE_ALLOW_ROOT: 1
+          TESTSUITE_DEBUG: 1
           PYTEST: pytest
       run: |
           make venv-test-examples
@@ -64,6 +66,7 @@ jobs:
     - name: Rerun mysql tests with MariaDB
       env:
           TESTSUITE_ALLOW_ROOT: 1
+          TESTSUITE_DEBUG: 1
           PYTEST_ARGS: "-k mysql"
       run: |
           curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash

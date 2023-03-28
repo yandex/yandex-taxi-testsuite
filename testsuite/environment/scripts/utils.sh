@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 PATH=$PATH:/usr/sbin:/sbin
 START_STOP_DAEMON=$(which start-stop-daemon 2>/dev/null)
@@ -43,7 +43,7 @@ stop_daemon() {
         # MacOS X workaround
         for i in `seq 10`; do
             if [ -f "$pidfile" ]; then
-                if [ $i == "1" ]; then
+                if [ $i = "1" ]; then
                     kill -TERM $(cat "$pidfile")
                 else
                     kill -TERM $(cat "$pidfile") 2> /dev/null >&2

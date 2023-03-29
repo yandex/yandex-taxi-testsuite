@@ -127,6 +127,7 @@ def test_substitute_with_custom_hook(object_hook, json_input, expected_result):
             {'$match': {'type': 'partial-dict', 'value': {'a': 1}}},
             {'a': 1, 'b': 2},
         ),
+        ({'$match': 'any-integer'}, 256),
     ],
 )
 def test_substitute_with_matching(object_hook, json_input, expected_result):

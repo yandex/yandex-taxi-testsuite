@@ -128,6 +128,20 @@ def test_substitute_with_custom_hook(object_hook, json_input, expected_result):
             {'a': 1, 'b': 2},
         ),
         ({'$match': 'any-integer'}, 256),
+        ({'$match': 'any-float'}, 256.0),
+        ({'$match': 'any-value'}, 256),
+        ({'$match': 'any-value'}, {'key': 'value'}),
+        ({'$match': 'any-value'}, ['elem1', 'elem2']),
+        ({'$match': 'any-numeric'}, 1.0),
+        ({'$match': 'any-numeric'}, -1),
+        ({'$match': 'negative-float'}, -256.0),
+        ({'$match': 'negative-integer'}, -256),
+        ({'$match': 'negative-numeric'}, -256),
+        ({'$match': 'negative-numeric'}, -256.0),
+        ({'$match': 'non-negative-float'}, 0.0),
+        ({'$match': 'non-negative-integer'}, 256),
+        ({'$match': 'non-negative-numeric'}, 256),
+
     ],
 )
 def test_substitute_with_matching(object_hook, json_input, expected_result):

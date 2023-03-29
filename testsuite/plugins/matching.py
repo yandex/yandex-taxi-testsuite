@@ -13,6 +13,7 @@ def _default_partial_dict_match(doc: dict):
 
 def pytest_register_matching_hooks():
     return {
+        'any-integer': matching.any_integer,
         'any-string': matching.any_string,
         'uuid-string': matching.uuid_string,
         'objectid-string': matching.objectid_string,

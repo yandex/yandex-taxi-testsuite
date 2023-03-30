@@ -13,6 +13,19 @@ def _default_partial_dict_match(doc: dict):
 
 def pytest_register_matching_hooks():
     return {
+        'any-value': matching.any_value,
+        'any-float': matching.any_float,
+        'any-integer': matching.any_integer,
+        'any-numeric': matching.any_numeric,
+        'positive-float': matching.positive_float,
+        'positive-integer': matching.positive_integer,
+        'positive-numeric': matching.positive_numeric,
+        'negative-float': matching.negative_float,
+        'negative-integer': matching.negative_integer,
+        'negative-numeric': matching.negative_numeric,
+        'non-negative-float': matching.non_negative_float,
+        'non-negative-integer': matching.non_negative_integer,
+        'non-negative-numeric': matching.non_negative_numeric,
         'any-string': matching.any_string,
         'uuid-string': matching.uuid_string,
         'objectid-string': matching.objectid_string,

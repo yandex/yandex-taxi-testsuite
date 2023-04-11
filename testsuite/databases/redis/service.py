@@ -31,6 +31,7 @@ class ServiceSettings(typing.NamedTuple):
     master_ports: typing.Tuple[int, ...]
     sentinel_port: int
     slave_ports: typing.Tuple[int, ...]
+    cluster_sentinel_port: int
 
     def validate(self):
         if len(self.master_ports) != len(DEFAULT_MASTER_PORTS):
@@ -57,6 +58,10 @@ def get_service_settings():
         slave_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_SLAVE_PORTS',
             default=DEFAULT_SLAVE_PORTS,
+        ),
+        cluster_sentinel_port=utils.getenv_int(
+            key='TESTSUITE_REDIS_CLUSTER_SENTINEL_PORT',
+            default=DEFAULT_SENTINEL_PORT,
         ),
     )
 

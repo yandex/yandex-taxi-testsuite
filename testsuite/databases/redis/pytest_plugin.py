@@ -31,6 +31,7 @@ def pytest_configure(config):
 
 def pytest_service_register(register_service):
     register_service('redis', service.create_redis_service)
+    register_service('redis-cluster', service.create_cluster_redis_service)
 
 
 @pytest.fixture(scope='session')
@@ -85,36 +86,17 @@ def redis_store(
 
 @pytest.fixture
 def redis_cluster_store(
-        pytestconfig, request, load_json, redis_service, cluster_redis_sentinels,
+    pytestconfig,
+    request,
+    load_json,
+    redis_service,
+    cluster_redis_sentinels,
 ):
     def _flush_all(redis_db):
-        slot_infos = redis_db.cluster('SLOTS')
-        masters_hosts = [x[2][:2] for x in slot_infos]
-        for host, port in masters_hosts:
-            redis_db = redisdb.StrictRedis(host=host, port=port)
-            redis_db.flushall()
-            redis_db.wait(1, 10)
-                
-
-    # Wrapper for cluster redis. Process MOVED responses
-    class ClusterWrapper:
-        def __init__(self, endpoint=None):
-            self.end_point = endpoint
-
-        def __getattr__(self, attr):
-            def _f(*args, **kwargs):
-                try:
-                    return self.end_point.__getattribute__(attr)(*args, **kwargs)
-                except redisdb.ResponseError as e:
-                    resp = e.args[0].split()
-                    if resp[0] == 'MOVED':
-                        host, port = resp[2].rsplit(':', 1)
-                        print(f'redirect to {host}:{port}')
-                        c = redisdb.StrictRedis(host=host, port=port)
-                        return c.__getattribute__(attr)(*args, **kwargs)
-                    else:
-                        raise
-            return _f
+        slot_infos = redis_db.cluster_slots()
+        nodes = redis_db.get_primaries()
+        redis_db.flushall(target_nodes=nodes)
+        redis_db.wait(1, 10, target_nodes=nodes)
 
     if pytestconfig.option.no_redis:
         yield
@@ -126,17 +108,17 @@ def redis_cluster_store(
         store_file = mark.kwargs.get('file')
         if store_file is not None:
             redis_commands_from_file = load_json(
-                '%s.json' % store_file, object_hook=_json_object_hook,
+                '%s.json' % store_file,
+                object_hook=_json_object_hook,
             )
             redis_commands.extend(redis_commands_from_file)
 
         if mark.args:
             redis_commands.extend(mark.args)
 
-    redis_db = ClusterWrapper(
-        redisdb.StrictRedis(host=cluster_redis_sentinels[0]['host'],
-                            port=cluster_redis_sentinels[0]['port'],
-        )
+    redis_db = redisdb.RedisCluster(
+        host=cluster_redis_sentinels[0]['host'],
+        port=cluster_redis_sentinels[0]['port'],
     )
 
     for redis_command in redis_commands:
@@ -206,9 +188,11 @@ def cluster_redis_sentinels(pytestconfig, _redis_service_settings):
     return [
         {
             'host': _redis_service_settings.host,
-            'port': _redis_service_settings.cluster_sentinel_port,
-        },
+            'port': port,
+        }
+        for port in _redis_service_settings.cluster_ports
     ]
+
 
 @pytest.fixture(scope='session')
 def _redis_service_settings():

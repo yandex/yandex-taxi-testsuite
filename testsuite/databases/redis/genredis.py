@@ -10,6 +10,7 @@ from testsuite.utils import subprocess_helper
 MASTER_TPL_FILENAME = 'redis_master.conf.tpl'
 SENTINEL_TPL_FILENAME = 'redis_sentinel.conf.tpl'
 SLAVE_TPL_FILENAME = 'redis_slave.conf.tpl'
+CLUSTER_TPL_FILENAME = 'redis_cluster_node.conf.tpl'
 
 SENTINEL_PARAMS = [
     {
@@ -73,6 +74,13 @@ def _parse_args():
         type=int,
         default=26379,
         help='Redis sentinel port',
+    )
+    parser.add_argument(
+        '--cluster-port',
+        type=int,
+        nargs='+',
+        default=[27380, 27381, 27382, 27383, 27384, 27385],
+        help='Redis cluster port',
     )
     return parser.parse_args()
 
@@ -166,6 +174,28 @@ def _generate_sentinel(
     output_path.joinpath('redis_sentinel.conf').write_text('\n'.join(lines))
 
 
+def _generate_cluster_node(
+    protected_mode_no: str,
+    host: str,
+    port: int,
+    output_path: pathlib.Path,
+    index: int,
+) -> None:
+    input_file = _redis_config_directory() / CLUSTER_TPL_FILENAME
+    output_file = _construct_output_filename(
+        output_path,
+        CLUSTER_TPL_FILENAME,
+        index,
+    )
+    _generate_redis_config(
+        input_file,
+        output_file,
+        protected_mode_no,
+        host,
+        port,
+    )
+
+
 def _construct_output_filename(
     output_path: pathlib.Path,
     tpl_filename: str,
@@ -199,6 +229,25 @@ def redis_version() -> typing.List[int]:
     raise RuntimeError(
         f'Tag "{version_key}" not found in redis server reply "{reply}"',
     )
+
+
+def generate_cluster_redis_configs(
+    output_path: pathlib.Path,
+    host: str,
+    cluster_ports: [int],
+) -> None:
+    protected_mode_no = ''
+    if redis_version() >= [3, 2, 0]:
+        protected_mode_no = 'protected-mode no'
+
+    for index, port in enumerate(cluster_ports):
+        _generate_cluster_node(
+            protected_mode_no,
+            host,
+            port,
+            output_path,
+            index,
+        )
 
 
 def generate_redis_configs(
@@ -263,6 +312,12 @@ def main():
         slave1_port=args.slave1_port,
         slave2_port=args.slave2_port,
         sentinel_port=args.sentinel_port,
+        cluster_ports=args.cluster_port,
+    )
+    generate_cluster_redis_configs(
+        output_path=args.output,
+        host=args.host,
+        cluster_ports=args.cluster_port,
     )
 
 

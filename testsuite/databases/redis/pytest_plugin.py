@@ -42,6 +42,9 @@ def redis_service(
 ):
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started('redis', settings=_redis_service_settings)
+        ensure_service_started(
+            'redis-cluster', settings=_redis_service_settings
+        )
 
 
 @pytest.fixture
@@ -82,6 +85,29 @@ def redis_store(
         yield redis_db
     finally:
         redis_db.flushall()
+
+
+@pytest.fixture
+def redis_sentinel(
+    pytestconfig,
+    request,
+    load_json,
+    redis_service,
+    redis_sentinels,
+):
+    if pytestconfig.option.no_redis:
+        yield
+        return
+
+    redis_db = redisdb.StrictRedis(
+        host=redis_sentinels[0]['host'],
+        port=redis_sentinels[0]['port'],
+    )
+
+    try:
+        yield redis_db
+    finally:
+        pass
 
 
 @pytest.fixture

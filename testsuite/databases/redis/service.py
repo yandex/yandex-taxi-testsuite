@@ -87,7 +87,6 @@ def create_redis_service(
         settings.sentinel_port,
         *settings.master_ports,
         *settings.slave_ports,
-        *settings.cluster_ports,
     ]
 
     def prestart_hook():
@@ -102,7 +101,6 @@ def create_redis_service(
             slave1_port=settings.slave_ports[1],
             slave2_port=settings.slave_ports[2],
             sentinel_port=settings.sentinel_port,
-            cluster_ports=settings.cluster_ports,
         )
 
     return service.ScriptService(
@@ -152,8 +150,8 @@ def create_cluster_redis_service(
             'REDIS_HOST': settings.host,
             'REDIS_CLUSTER_PORTS': ' '.join(
                 [str(port) for port in settings.cluster_ports]
-            )
-            ** (env or {}),
+            ),
+            **(env or {}),
         },
         check_host=settings.host,
         check_ports=check_ports,

@@ -79,7 +79,7 @@ def _parse_args():
         '--cluster-port',
         type=int,
         nargs='+',
-        default=[27380, 27381, 27382, 27383, 27384, 27385],
+        default=[17380, 17381, 17382, 17383, 17384, 17385],
         help='Redis cluster port',
     )
     return parser.parse_args()
@@ -187,6 +187,7 @@ def _generate_cluster_node(
         CLUSTER_TPL_FILENAME,
         index,
     )
+
     _generate_redis_config(
         input_file,
         output_file,
@@ -240,14 +241,13 @@ def generate_cluster_redis_configs(
     if redis_version() >= [3, 2, 0]:
         protected_mode_no = 'protected-mode no'
 
-    for index, port in enumerate(cluster_ports):
-        _generate_cluster_node(
-            protected_mode_no,
-            host,
-            port,
-            output_path,
-            index,
-        )
+    _generate_cluster_node(
+        protected_mode_no,
+        host,
+        6379,
+        output_path,
+        0,
+    )
 
 
 def generate_redis_configs(

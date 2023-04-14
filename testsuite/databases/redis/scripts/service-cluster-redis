@@ -29,26 +29,30 @@ start() {
     mkdir -p $REDIS_LOGSDIR
 
     for port in ${REDIS_CLUSTER_PORTS}; do
-        echo "Starting redis cluster node on $port..."
-        config=$REDIS_CONFIGS_DIR/redis_cluster${port}.conf
+        config=$REDIS_CONFIGS_DIR/redis_cluster_node0.conf
         pidfile="$(get_pidfile $port)"
         logfile=$REDIS_LOGSDIR/redis_cluster$port.log
+        datadir=$REDIS_DATADIR/$port
+        echo "Starting redis cluster node on $port $logfile ..."
+        mkdir -p $datadir
         $REDIS_SERVER $config \
                       --pidfile $pidfile \
-                      --dir $REDIS_DATADIR \
+                      --dir $datadir \
+                      --port $port \
                       --dbfilename redis_cluster$port.db \
                       --logfile "$logfile" || {
             dump_log_stderr "$logfile"
             die "Failed to start redis ($port) server"
         }
-
         REDIS_INSTS="$REDIS_INSTS $REDIS_HOST:$port"
     done
 
+    echo "Creating redis cluster ..."
     $REDIS_CLI --cluster create $REDIS_INSTS \
         --cluster-replicas 1 \
         --cluster-yes || \
         die "Failed to create a redis cluster"
+    echo "Created redis cluster ..."
 
     sleep $REDIS_SLEEP_WORKAROUND_SECONDS
 }

@@ -133,7 +133,7 @@ def redis_cluster_store(
         redis_db.flushall(target_nodes=nodes)
         redis_db.wait(1, 10, target_nodes=nodes)
 
-    if pytestconfig.option.no_redis:
+    if pytestconfig.option.no_cluster_redis:
         yield
         return
 

@@ -20,6 +20,10 @@ def pytest_addoption(parser):
         help='Do not fill redis storage',
         action='store_true',
     )
+    group.addoption(
+        '--no-cluster-redis',
+        help='Do not start cluster redis storage',
+    )
 
 
 def pytest_configure(config):
@@ -42,6 +46,11 @@ def redis_service(
 ):
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started('redis', settings=_redis_service_settings)
+
+    if (
+        not pytestconfig.option.no_cluster_redis
+        and not pytestconfig.option.redis_host
+    ):
         ensure_service_started(
             'redis-cluster', settings=_redis_service_settings
         )
@@ -198,19 +207,6 @@ def redis_sentinels(pytestconfig, _redis_service_settings):
 
 @pytest.fixture(scope='session')
 def cluster_redis_sentinels(pytestconfig, _redis_service_settings):
-    # # TODO: WHERE IT COMES FROM???
-    # # TODO: IS IT NEEDED AT ALL
-    # if pytestconfig.option.redis_host:
-    #     # external Redis instance
-    #     return [
-    #         {
-    #             'host': pytestconfig.option.redis_host,
-    #             'port': (
-    #                 pytestconfig.option.redis_sentinel_port
-    #                 or _redis_service_settings.cluster_sentinel_port
-    #             ),
-    #         },
-    #     ]
     return [
         {
             'host': _redis_service_settings.host,

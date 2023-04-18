@@ -142,7 +142,7 @@ stop() {
 
     for INSTANCE_INDEX in $MONGO_RS_INSTANCE_INDEXES; do
         MONGO_RS_INSTANCE_PID_FILE="$(get_pidfile taxi-shrd0-$INSTANCE_INDEX/mongo-shard)"
-        stop_daemon $MONGOD "$MONGO_SHARD_PID_FILE"
+        stop_daemon $MONGOD "$MONGO_RS_INSTANCE_PID_FILE"
     done
 
     stop_daemon $MONGOS "$MONGOS_PID_FILE"

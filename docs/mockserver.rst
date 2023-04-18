@@ -10,6 +10,24 @@ Tested service should be configured to pass all HTTP calls to mockserver, e.g.:
 
    http://mockserver-address/service-name/path
 
+In order to achieve this you should point your service to mockserver instead
+of original service url.
+You can use :meth:`testsuite.mockserver.server.MockserverFixture.url`, e.g.:
+
+.. code-block::
+
+   ...
+   service_args = [
+       'bin/service',
+       '--service1-base-url',
+       mockserver.url('service1'),
+       '--service2-base-url',
+       mockserver.url('service2'),
+   ]
+   ...
+   # spawn service using mockserver as base for all external services
+   ...
+
 If there is no mockserver handler installed for path mockserver returns
 HTTP 500 error and fails current test. This behaviour could be switched off
 with ``--mockserver-nofail`` command-line option.

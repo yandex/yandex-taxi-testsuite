@@ -51,6 +51,76 @@ Example:
       # Ensure handler was used
       assert handler.times_called == 1
 
+Command line options
+--------------------
+
+--mockserver-nofail
+~~~~~~~~~~~~~~~~~~~
+
+Do not fail test if unhandled mockserver path is reached.
+
+--mockserver-host HOST
+~~~~~~~~~~~~~~~~~~~~~~
+
+Explicitly set HTTP mockserver hostname to bind to. Default is **localhost**.
+
+--mockserver-port PORT
+~~~~~~~~~~~~~~~~~~~~~~
+
+Explicitly set HTTP mockserver. Default is **0** which means bind to random port.
+
+--mockserver-ssl-host HOST
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Explicitly set HTTPs mockserver hostname to bind to. Default is **localhost**.
+
+--mockserver-ssl-port PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Explicitly set HTTPs mockserver. Default is **0** which means bind to random port.
+
+pytest.ini options
+------------------
+
+mockserver-tracing-enabled
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Boolean flags. Controls how mockserver takes requests with trace-id header set.
+
+When request trace-id header not from testsuite:
+ - **True**: handle, if handler missing return http status 500
+ - **False**: handle, if handler missing raise **HandlerNotFoundError**
+
+When request trace-id header from other test:
+ - **True**: do not handle, return http status 500
+ - **False**: handle, if handler missing raise **HandlerNotFoundError**
+
+mockserver-trace-id-header
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Name of tracing http header, value changes from test to test and is constant within test.
+Default value is **X-YaTraceId**.
+
+mockserver-span-id-header
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Name of tracing http header, value is unique for each request. Default value is **X-YaSpanId**.
+
+mockserver-ssl-cert-file
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Path to ssl certificate file to setup mockserver_ssl.
+
+mockserver-ssl-key-file
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Path to ssl key file to setup mockserver_ssl.
+
+mockserver-http-proxy-enabled
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When enabled mockserver acts as http proxy. Is disabled by default.
+
 Fixtures
 --------
 

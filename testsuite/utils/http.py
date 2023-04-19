@@ -123,7 +123,7 @@ class Request:
                     keep_blank_values=True,
                     encoding=charset,
                 )
-                self._form = {key: value for key, value in items}
+                self._form = dict(items)
             elif self._request.content_type.startswith('multipart/form-data'):
                 charset = self._request.charset or 'utf-8'
                 epost_data = MULTIPART_MIME_PATTERN % (
@@ -238,7 +238,7 @@ class ClientResponse:
                     keep_blank_values=True,
                     encoding=self.encoding,
                 )
-                self._form = {key: value for key, value in items}
+                self._form = dict(items)
             else:
                 self._form = {}
 

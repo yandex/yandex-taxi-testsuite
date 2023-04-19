@@ -1,37 +1,10 @@
 Http mockserver
 ===============
 
+.. currentmodule:: testsuite.mockserver
+
 Mockserver is a simple http server running inside pytest instance.
 Using ``mockserver`` fixture you can install per-test handler.
-
-Tested service should be configured to pass all HTTP calls to mockserver, e.g.:
-
-.. code-block::
-
-   http://mockserver-address/service-name/path
-
-In order to achieve this you should point your service to mockserver instead
-of original service url.
-You can use :meth:`testsuite.mockserver.server.MockserverFixture.url`, e.g.:
-
-.. code-block::
-
-   ...
-   service_args = [
-       'bin/service',
-       '--service1-base-url',
-       mockserver.url('service1'),
-       '--service2-base-url',
-       mockserver.url('service2'),
-   ]
-   ...
-   # spawn service using mockserver as base for all external services
-   ...
-
-If there is no mockserver handler installed for path mockserver returns
-HTTP 500 error and fails current test. This behaviour could be switched off
-with ``--mockserver-nofail`` command-line option.
-
 
 Example:
 
@@ -51,13 +24,47 @@ Example:
       # Ensure handler was used
       assert handler.times_called == 1
 
+
+Tested service should be configured to pass all HTTP calls to mockserver, e.g.:
+
+.. code-block::
+
+   http://mockserver-address/service-name/path
+
+In order to achieve this you should point your service to mockserver instead
+of original service url.
+
+You can use session fixture :py:meth:`mockserver_info.url()<.classes.MockserverInfo.url>` to build mockserver url, e.g.:
+
+.. code-block::
+
+   @pytest.fixture(scope='session')
+   def service_args(mockserver_info):
+       """Build service startup args."""
+       return (
+           'bin/service',
+           '--service1-base-url',
+           mockserver_info.url('service1'),
+           '--service2-base-url',
+           mockserver_info.url('service2'),
+       )
+
+
+Usually your service takes config file as an argument.
+In this case you should provide fixture that creates config file
+and substitutes all testsuite related parameters.
+
 Command line options
 --------------------
+
+.. _--mockserver-nofail:
 
 --mockserver-nofail
 ~~~~~~~~~~~~~~~~~~~
 
-Do not fail test if unhandled mockserver path is reached.
+If there is no mockserver handler installed for path mockserver returns
+HTTP 500 error and fails current test. This behaviour could be switched off
+with ``--mockserver-nofail`` command-line option.
 
 --mockserver-host HOST
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -129,6 +136,8 @@ Fixtures
 mockserver
 ~~~~~~~~~~
 
+Test scoped fixture. Mockserver is already running when it's requested.
+
 .. autofunction:: mockserver()
    :no-auto-options:
 
@@ -140,6 +149,8 @@ mockserver
 
 mockserver_info
 ~~~~~~~~~~~~~~~
+
+Session scoped fixture. Contains all information about mockserver: host, port, etc.
 
 .. autofunction:: mockserver_info()
    :no-auto-options:
@@ -270,7 +281,7 @@ What choices are there to make *TestB* pass:
 * Setup global mocks for any external APIs called from background tasks. It is
   undesirable because these mocks are only actually required by some of the
   tests.
-* Run testsuite with ``--mockserver-nofail`` flag. It is also undesirable
+* Run testsuite with :ref:`--mockserver-nofail` flag. It is also undesirable
   because the developer is not warned anymore if he actually forgets to mock an
   external call.
 
@@ -285,7 +296,7 @@ If the unhandled request was caused from current test case, mockserver
 terminates the test with error, as usually.
 
 If the call is unrelated to current test case, mockserver acts as if
-``--mockserver-nofail`` flag was specified, it responds with HTTP status 500
+:ref:`--mockserver-nofail` flag was specified, it responds with HTTP status 500
 and test case proceeds normally.
 
 OpenTracing can be enabled in ``pytest.ini`` ::

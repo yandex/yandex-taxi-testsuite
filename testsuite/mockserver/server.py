@@ -636,6 +636,38 @@ async def create_server(
         yield server
 
 
+@compat.asynccontextmanager
+async def create_unix_server(
+    socket_path: str,
+    loop,
+    testsuite_logger,
+    mockserver_reporter: reporter_plugin.MockserverReporterPlugin,
+    pytestconfig,
+) -> typing.AsyncGenerator[Server, None]:
+    async with net_utils.create_unix_server(
+        lambda: web_server(),
+        path=socket_path,
+    ):
+        mockserver_info = _create_unix_mockserver_info(socket_path)
+        server = Server(
+            mockserver_info,
+            nofail=pytestconfig.option.mockserver_nofail,
+            reporter=mockserver_reporter,
+            tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
+            trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
+            span_id_header=pytestconfig.getini('mockserver-span-id-header'),
+            http_proxy_enabled=pytestconfig.getini(
+                'mockserver-http-proxy-enabled',
+            ),
+        )
+        web_server = aiohttp.web.Server(
+            server.handle_request,
+            loop=loop,
+            access_log=None,
+        )
+        yield server
+
+
 def _create_mockserver_info(
     sock,
     host: str,
@@ -645,11 +677,21 @@ def _create_mockserver_info(
     schema = 'https' if ssl_info else 'http'
     port = sock_address[1]
     base_url = '%s://%s:%d/' % (schema, host, port)
-    return classes.MockserverInfo(
+    return classes.MockserverTcpInfo(
         host=host,
         port=port,
         base_url=base_url,
         ssl=ssl_info,
+    )
+
+
+def _create_unix_mockserver_info(
+    socket_path: str,
+) -> classes.MockserverUnixInfo:
+    return classes.MockserverUnixInfo(
+        socket_path=socket_path,
+        # use localhost to avoid aiohttp complains on invalid url
+        base_url='http://localhost',
     )
 
 

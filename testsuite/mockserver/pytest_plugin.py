@@ -60,6 +60,11 @@ def pytest_addoption(parser):
             default=MOCKSERVER_SSL_DEFAULT_PORT,
         ),
     )
+    group.addoption(
+        '--mockserver-unix-socket',
+        type=str,
+        help='Bind server to unix socket instead of tcp',
+    )
     parser.addini(
         'mockserver-tracing-enabled',
         type='bool',
@@ -208,20 +213,30 @@ async def _mockserver(
     _mockserver_reporter,
     _mockserver_getport,
 ) -> annotations.AsyncYieldFixture[server.Server]:
-    port = _mockserver_getport(
-        pytestconfig.option.mockserver_port,
-        MOCKSERVER_DEFAULT_PORT,
-    )
-    async with server.create_server(
-        pytestconfig.option.mockserver_host,
-        port,
-        loop,
-        testsuite_logger,
-        _mockserver_reporter,
-        pytestconfig,
-        ssl_info=None,
-    ) as result:
-        yield result
+    if pytestconfig.option.mockserver_unix_socket:
+        async with server.create_unix_server(
+            pytestconfig.option.mockserver_unix_socket,
+            loop,
+            testsuite_logger,
+            _mockserver_reporter,
+            pytestconfig,
+        ) as result:
+            yield result
+    else:
+        port = _mockserver_getport(
+            pytestconfig.option.mockserver_port,
+            MOCKSERVER_DEFAULT_PORT,
+        )
+        async with server.create_server(
+            pytestconfig.option.mockserver_host,
+            port,
+            loop,
+            testsuite_logger,
+            _mockserver_reporter,
+            pytestconfig,
+            ssl_info=None,
+        ) as result:
+            yield result
 
 
 @pytest.fixture(scope='session')

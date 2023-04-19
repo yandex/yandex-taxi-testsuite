@@ -64,7 +64,7 @@ async def example_service_scope(
             '--port',
             str(pytestconfig.option.example_service_port),
             '--storage-service-url',
-            mockserver_info.base_url + 'storage/',
+            mockserver_info.url('storage'),
         ],
         ping_url=example_service_baseurl + 'ping',
     ) as scope:

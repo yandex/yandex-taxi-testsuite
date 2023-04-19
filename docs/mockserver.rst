@@ -86,6 +86,11 @@ Explicitly set HTTPs mockserver hostname to bind to. Default is **localhost**.
 
 Explicitly set HTTPs mockserver. Default is **0** which means bind to random port.
 
+--mockserver-unix-socket PATH
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bind mockserver to unix domain socket. ``--mockserver-host`` and ``--mockserver-port`` options will be ignored.
+
 pytest.ini options
 ------------------
 

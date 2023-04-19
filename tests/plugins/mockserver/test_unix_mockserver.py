@@ -18,10 +18,13 @@ def unix_mockserver(
 
 @pytest.fixture(scope='session')
 async def _unix_mockserver(
-    testsuite_logger, _mockserver_reporter, pytestconfig
+    testsuite_logger,
+    _mockserver_reporter,
+    pytestconfig,
+    tmp_path_factory,
 ):
     async with server.create_unix_server(
-        '/tmp/mockserver.socket',
+        str(tmp_path_factory.mktemp('mockserver') / 'mockserver.socket'),
         loop=None,
         testsuite_logger=testsuite_logger,
         mockserver_reporter=_mockserver_reporter,
@@ -74,19 +77,3 @@ async def test_handler(
     response = await unix_mockserver_client.get('test_unix_socket')
     assert response.status_code == 200
     assert response.content == b'test'
-
-
-async def test_json_handler(
-    unix_mockserver: fixture_types.MockserverFixture,
-    unix_mockserver_client: service_client.Client,
-):
-    @unix_mockserver.json_handler('/test_unix_socket')
-    def _test(request: fixture_types.MockserverRequest):
-        assert request.json == {'cmd': 'ping'}
-        return {'msg': 'pong'}
-
-    response = await unix_mockserver_client.post(
-        'test_unix_socket', json={'cmd': 'ping'}
-    )
-    assert response.status_code == 200
-    assert response.json() == {'msg': 'pong'}

@@ -590,6 +590,30 @@ def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
     )
 
 
+def _create_server_obj(
+    mockserver_info, mockserver_reporter, pytestconfig
+) -> Server:
+    return Server(
+        mockserver_info,
+        nofail=pytestconfig.option.mockserver_nofail,
+        reporter=mockserver_reporter,
+        tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
+        trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
+        span_id_header=pytestconfig.getini('mockserver-span-id-header'),
+        http_proxy_enabled=pytestconfig.getini(
+            'mockserver-http-proxy-enabled',
+        ),
+    )
+
+
+def _create_web_server(server: Server, loop) -> aiohttp.web.Server:
+    return aiohttp.web.Server(
+        server.handle_request,
+        loop=loop,
+        access_log=None,
+    )
+
+
 @compat.asynccontextmanager
 async def create_server(
     host: str,
@@ -617,22 +641,10 @@ async def create_server(
             host,
             ssl_info,
         )
-        server = Server(
-            mockserver_info,
-            nofail=pytestconfig.option.mockserver_nofail,
-            reporter=mockserver_reporter,
-            tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
-            trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
-            span_id_header=pytestconfig.getini('mockserver-span-id-header'),
-            http_proxy_enabled=pytestconfig.getini(
-                'mockserver-http-proxy-enabled',
-            ),
+        server = _create_server_obj(
+            mockserver_info, mockserver_reporter, pytestconfig
         )
-        web_server = aiohttp.web.Server(
-            server.handle_request,
-            loop=loop,
-            access_log=None,
-        )
+        web_server = _create_web_server(server, loop)
         yield server
 
 
@@ -649,22 +661,10 @@ async def create_unix_server(
         path=socket_path,
     ):
         mockserver_info = _create_unix_mockserver_info(socket_path)
-        server = Server(
-            mockserver_info,
-            nofail=pytestconfig.option.mockserver_nofail,
-            reporter=mockserver_reporter,
-            tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
-            trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
-            span_id_header=pytestconfig.getini('mockserver-span-id-header'),
-            http_proxy_enabled=pytestconfig.getini(
-                'mockserver-http-proxy-enabled',
-            ),
+        server = _create_server_obj(
+            mockserver_info, mockserver_reporter, pytestconfig
         )
-        web_server = aiohttp.web.Server(
-            server.handle_request,
-            loop=loop,
-            access_log=None,
-        )
+        web_server = _create_web_server(server, loop)
         yield server
 
 
@@ -692,6 +692,7 @@ def _create_unix_mockserver_info(
         socket_path=socket_path,
         # use localhost to avoid aiohttp complains on invalid url
         base_url='http://localhost',
+        ssl=None,
     )
 
 

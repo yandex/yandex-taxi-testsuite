@@ -1,4 +1,5 @@
 import dataclasses
+import pathlib
 import typing
 
 import aiohttp.web
@@ -37,16 +38,19 @@ class SslCertInfo:
 
 @dataclasses.dataclass(frozen=True)
 class MockserverInfo:
-    host: str
-    port: int
+    host: typing.Optional[str]
+    port: typing.Optional[int]
     base_url: str
     ssl: typing.Optional[SslCertInfo]
+    socket_path: typing.Optional[pathlib.Path] = None
 
     def url(self, path: str) -> str:
         """Concats ``base_url`` and provided ``path``."""
         return url_util.join(self.base_url, path)
 
     def get_host_header(self) -> str:
+        if self.socket_path:
+            return str(self.socket_path)
         if self.port == 80:
             return self.host
         return f'{self.host}:{self.port}'

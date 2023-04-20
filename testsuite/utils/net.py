@@ -1,4 +1,5 @@
 import asyncio
+import pathlib
 import socket
 
 from . import compat
@@ -7,7 +8,7 @@ DEFAULT_BACKLOG = 50
 
 
 @compat.asynccontextmanager
-async def create_server(factory, *, loop=None, **kwargs):
+async def _create_server(factory, *, loop=None, **kwargs):
     if loop is None:
         loop = _get_running_loop()
     server = await loop.create_server(factory, **kwargs)
@@ -29,7 +30,7 @@ def create_tcp_server(
 ):
     if sock is None:
         sock = bind_socket(host, port)
-    return create_server(factory, loop=loop, sock=sock, **kwargs)
+    return _create_server(factory, loop=loop, sock=sock, **kwargs)
 
 
 def bind_socket(
@@ -43,6 +44,31 @@ def bind_socket(
     sock.bind((hostname, port))
     sock.listen(backlog)
     return sock
+
+
+@compat.asynccontextmanager
+async def _create_unix_server(factory, *, loop=None, **kwargs):
+    if loop is None:
+        loop = _get_running_loop()
+    server = await loop.create_unix_server(factory, **kwargs)
+    try:
+        yield server
+    finally:
+        server.close()
+        await server.wait_closed()
+
+
+def create_unix_server(
+    factory,
+    path: pathlib.Path,
+    *,
+    loop=None,
+    sock=None,
+    **kwargs,
+):
+    return _create_unix_server(
+        factory, loop=loop, path=path, sock=sock, **kwargs
+    )
 
 
 if hasattr(asyncio, 'get_running_loop'):

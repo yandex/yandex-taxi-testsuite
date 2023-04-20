@@ -38,9 +38,9 @@ class SslCertInfo:
 
 @dataclasses.dataclass(frozen=True)
 class MockserverInfo:
-    base_url: str
     host: typing.Optional[str]
     port: typing.Optional[int]
+    base_url: str
     ssl: typing.Optional[SslCertInfo]
     socket_path: typing.Optional[pathlib.Path] = None
 

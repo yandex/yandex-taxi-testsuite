@@ -1,4 +1,5 @@
 import dataclasses
+import pathlib
 import typing
 
 import aiohttp.web
@@ -66,10 +67,10 @@ class MockserverSslInfo(MockserverTcpInfo):
 
 @dataclasses.dataclass(frozen=True)
 class MockserverUnixInfo(MockserverInfo):
-    socket_path: str
+    socket_path: pathlib.Path
 
     def get_host_header(self) -> str:
-        return self.socket_path
+        return str(self.socket_path)
 
 
 MockserverInfoFixture = MockserverTcpInfo

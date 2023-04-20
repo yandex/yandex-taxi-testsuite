@@ -1,4 +1,5 @@
 import asyncio
+import pathlib
 import socket
 
 from . import compat
@@ -59,7 +60,7 @@ async def _create_unix_server(factory, *, loop=None, **kwargs):
 
 def create_unix_server(
     factory,
-    path,
+    path: pathlib.Path,
     *,
     loop=None,
     sock=None,

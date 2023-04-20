@@ -5,6 +5,8 @@ from testsuite._internal import fixture_types
 from testsuite.daemons import service_client
 from testsuite.mockserver import classes
 from testsuite.mockserver import server
+from typing import Any
+from typing import Dict
 
 
 @pytest.fixture
@@ -24,7 +26,7 @@ async def _unix_mockserver(
     tmp_path_factory,
 ):
     async with server.create_unix_server(
-        str(tmp_path_factory.mktemp('mockserver') / 'mockserver.socket'),
+        tmp_path_factory.mktemp('mockserver') / 'mockserver.socket',
         loop=None,
         testsuite_logger=testsuite_logger,
         mockserver_reporter=_mockserver_reporter,
@@ -44,26 +46,22 @@ def unix_mockserver_info(
 async def unix_mockserver_client(
     unix_mockserver: fixture_types.MockserverFixture,
     unix_mockserver_info: classes.MockserverUnixInfo,
-    pytestconfig,
+    service_client_options: Dict[str, Any],
 ) -> service_client.Client:
-    conn = aiohttp.UnixConnector(path=unix_mockserver_info.socket_path)
-    session = aiohttp.ClientSession(connector=conn)
+    with aiohttp.UnixConnector(path=unix_mockserver_info.socket_path) as conn:
+        async with aiohttp.ClientSession(connector=conn) as session:
+            unix_service_client_options = {
+                **service_client_options,
+                'session': session,
+            }
 
-    service_client_options = {
-        'session': session,
-        'timeout': pytestconfig.option.service_timeout or None,
-        'span_id_header': unix_mockserver.span_id_header,
-    }
-    yield service_client.Client(
-        unix_mockserver.base_url,
-        headers={
-            'host': unix_mockserver_info.socket_path,
-        },
-        **service_client_options,
-    )
-
-    await session.close()
-    await conn.close()
+            yield service_client.Client(
+                unix_mockserver.base_url,
+                headers={
+                    'host': str(unix_mockserver_info.socket_path),
+                },
+                **unix_service_client_options,
+            )
 
 
 async def test_handler(

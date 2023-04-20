@@ -2,6 +2,7 @@ import contextlib
 import datetime
 import itertools
 import logging
+import pathlib
 import re
 import ssl
 import time
@@ -650,7 +651,7 @@ async def create_server(
 
 @compat.asynccontextmanager
 async def create_unix_server(
-    socket_path: str,
+    socket_path: pathlib.Path,
     loop,
     testsuite_logger,
     mockserver_reporter: reporter_plugin.MockserverReporterPlugin,
@@ -686,7 +687,7 @@ def _create_mockserver_info(
 
 
 def _create_unix_mockserver_info(
-    socket_path: str,
+    socket_path: pathlib.Path,
 ) -> classes.MockserverUnixInfo:
     return classes.MockserverUnixInfo(
         socket_path=socket_path,

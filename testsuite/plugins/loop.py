@@ -1,22 +1,21 @@
 import asyncio
+import contextlib
 
 import pytest
 import uvloop
 
 
 @pytest.fixture(scope='session')
-def loop():
+def event_loop():
     """
     One event loop for all tests.
     """
-    event_loop = uvloop.new_event_loop()
-    asyncio.set_event_loop(event_loop)
-    try:
-        yield event_loop
-    finally:
-        event_loop.close()
+    loop = uvloop.new_event_loop()
+    asyncio.set_event_loop(loop)
+    with contextlib.closing(loop):
+        yield loop
 
 
 @pytest.fixture(scope='session')
-def event_loop(loop):
-    return loop
+def loop(event_loop):
+    return event_loop

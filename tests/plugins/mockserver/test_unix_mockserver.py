@@ -38,14 +38,14 @@ async def _unix_mockserver(
 @pytest.fixture(scope='session')
 def unix_mockserver_info(
     _unix_mockserver: server.Server,
-) -> classes.MockserverUnixInfo:
+) -> classes.MockserverInfo:
     return _unix_mockserver.server_info
 
 
 @pytest.fixture
 async def unix_mockserver_client(
     unix_mockserver: fixture_types.MockserverFixture,
-    unix_mockserver_info: classes.MockserverUnixInfo,
+    unix_mockserver_info: classes.MockserverInfo,
     service_client_options: Dict[str, Any],
 ) -> service_client.Client:
     with aiohttp.UnixConnector(path=unix_mockserver_info.socket_path) as conn:

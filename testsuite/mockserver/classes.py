@@ -39,39 +39,26 @@ class SslCertInfo:
 @dataclasses.dataclass(frozen=True)
 class MockserverInfo:
     base_url: str
+    host: typing.Optional[str]
+    port: typing.Optional[int]
     ssl: typing.Optional[SslCertInfo]
-
-    def get_host_header(self) -> str:
-        raise NotImplementedError
-
-
-@dataclasses.dataclass(frozen=True)
-class MockserverTcpInfo(MockserverInfo):
-    host: str
-    port: int
-    ssl: typing.Optional[SslCertInfo]
+    socket_path: typing.Optional[pathlib.Path] = None
 
     def url(self, path: str) -> str:
         """Concats ``base_url`` and provided ``path``."""
         return url_util.join(self.base_url, path)
 
     def get_host_header(self) -> str:
+        if self.socket_path:
+            return str(self.socket_path)
         if self.port == 80:
             return self.host
         return f'{self.host}:{self.port}'
 
 
-class MockserverSslInfo(MockserverTcpInfo):
+class MockserverSslInfo(MockserverInfo):
     ssl: SslCertInfo
 
 
-@dataclasses.dataclass(frozen=True)
-class MockserverUnixInfo(MockserverInfo):
-    socket_path: pathlib.Path
-
-    def get_host_header(self) -> str:
-        return str(self.socket_path)
-
-
-MockserverInfoFixture = MockserverTcpInfo
-MockserverSslInfoFixture = typing.Optional[MockserverTcpInfo]
+MockserverInfoFixture = MockserverInfo
+MockserverSslInfoFixture = typing.Optional[MockserverInfo]

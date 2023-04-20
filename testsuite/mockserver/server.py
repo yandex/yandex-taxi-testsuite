@@ -678,7 +678,7 @@ def _create_mockserver_info(
     schema = 'https' if ssl_info else 'http'
     port = sock_address[1]
     base_url = '%s://%s:%d/' % (schema, host, port)
-    return classes.MockserverTcpInfo(
+    return classes.MockserverInfo(
         host=host,
         port=port,
         base_url=base_url,
@@ -688,11 +688,13 @@ def _create_mockserver_info(
 
 def _create_unix_mockserver_info(
     socket_path: pathlib.Path,
-) -> classes.MockserverUnixInfo:
-    return classes.MockserverUnixInfo(
+) -> classes.MockserverInfo:
+    return classes.MockserverInfo(
         socket_path=socket_path,
         # use localhost to avoid aiohttp complains on invalid url
         base_url='http://localhost',
+        host=None,
+        port=None,
         ssl=None,
     )
 

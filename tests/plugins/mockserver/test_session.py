@@ -78,7 +78,7 @@ def test_mockserver_new(base_prefix, prefix, http_proxy_enabled, expected):
 
 
 def _create_server(**kwargs):
-    mockserver_info = classes.MockserverTcpInfo(
+    mockserver_info = classes.MockserverInfo(
         host='',
         port=0,
         base_url='http://mockserver/',

@@ -6,7 +6,7 @@ import uvloop
 
 
 @pytest.fixture(scope='session')
-def loop():
+def event_loop():
     """
     One event loop for all tests.
     """
@@ -17,6 +17,5 @@ def loop():
 
 
 @pytest.fixture(scope='session')
-def event_loop(loop):
-    with contextlib.closing(loop):
-        yield loop
+def loop(event_loop):
+    return event_loop

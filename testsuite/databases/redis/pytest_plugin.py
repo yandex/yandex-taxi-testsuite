@@ -20,11 +20,6 @@ def pytest_addoption(parser):
         help='Do not fill redis storage',
         action='store_true',
     )
-    group.addoption(
-        '--enable-cluster-redis',
-        help='Start cluster redis storage',
-        action='store_true',
-    )
 
 
 def pytest_configure(config):
@@ -48,7 +43,14 @@ def redis_service(
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started('redis', settings=_redis_service_settings)
 
-    if pytestconfig.option.enable_cluster_redis:
+
+@pytest.fixture(scope='session')
+def redis_cluster_service(
+    pytestconfig,
+    ensure_service_started,
+    _redis_service_settings,
+):
+    if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started(
             'redis-cluster', settings=_redis_service_settings
         )
@@ -122,7 +124,7 @@ def redis_cluster_store(
     pytestconfig,
     request,
     load_json,
-    redis_service,
+    redis_cluster_service,
     cluster_redis_sentinels,
 ):
     def _flush_all(redis_db):
@@ -131,7 +133,7 @@ def redis_cluster_store(
         redis_db.flushall(target_nodes=nodes)
         redis_db.wait(1, 10, target_nodes=nodes)
 
-    if not pytestconfig.option.enable_cluster_redis:
+    if pytestconfig.option.no_redis:
         yield
         return
 

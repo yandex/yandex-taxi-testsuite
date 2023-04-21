@@ -14,7 +14,7 @@ TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
 .PHONY: tests
 
 tests:
-	python3 -m pytest -v tests/ --enable-cluster-redis $(PYTEST_ARGS)
+	python3 -m pytest -v tests/ $(PYTEST_ARGS)
 
 test-examples:
 	make -C docs/examples runtests

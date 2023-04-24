@@ -27,6 +27,10 @@ def pytest_configure(config):
         'markers',
         'redis_store: per-test redis initialization',
     )
+    config.addinivalue_line(
+        'markers',
+        'redis_cluster_store: per-test redis cluster initialization',
+    )
 
 
 def pytest_service_register(register_service):
@@ -139,7 +143,7 @@ def redis_cluster_store(
 
     redis_commands = []
 
-    for mark in request.node.iter_markers('redis_store'):
+    for mark in request.node.iter_markers('redis_cluster_store'):
         store_file = mark.kwargs.get('file')
         if store_file is not None:
             redis_commands_from_file = load_json(

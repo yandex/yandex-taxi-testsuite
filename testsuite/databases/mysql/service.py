@@ -32,6 +32,10 @@ def create_service(
             **(env or {}),
         },
         check_ports=[settings.port],
+        start_timeout=utils.getenv_float(
+            key='TESTSUITE_MYSQL_SERVER_START_TIMEOUT',
+            default=10.0,
+        ),
     )
 
 

@@ -17,9 +17,11 @@ following names:
 * file ``my_DBNAME.sql``
 * directory ``my_DBNAME/``
 
-Customize MySQL start timeout
------------------------------
+Environment variables
+---------------------
 
+TESTSUITE_MYSQL_SERVER_START_TIMEOUT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default testsuite will wait for up to 10s for MySQL to start,
 one may customize this timeout via environment variable ``TESTSUITE_MYSQL_SERVER_START_TIMEOUT``.
 

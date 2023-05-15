@@ -20,6 +20,11 @@ following names:
 Environment variables
 ---------------------
 
+TESTSUITE_MYSQL_PORT
+~~~~~~~~~~~~~~~~~~~~
+
+Use to override mysql server port. Default is ``13307``.
+
 TESTSUITE_MYSQL_SERVER_START_TIMEOUT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default testsuite will wait for up to 10s for MySQL to start,

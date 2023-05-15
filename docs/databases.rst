@@ -79,6 +79,29 @@ Example integration:
 .. _mongodb: https://www.mongodb.com/
 .. _pymongo: https://api.mongodb.com/python/current/
 
+Environment variables
+---------------------
+
+TESTSUITE_MONGO_CONFIG_SERVER_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override mongo config server port. Default is ``27118``.
+
+TESTSUITE_MONGOS_PORT
+~~~~~~~~~~~~~~~~~~~~~
+
+Use to override mongos port. Default is ``27217``.
+
+TESTSUITE_MONGO_SHARD_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override mongo shard port. Default is ``27119``.
+
+TESTSUITE_MONGO_RS_INSTANCE_COUNT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Replica set instances count, one instance is started by default.
+
 Fixtures
 --------
 
@@ -233,6 +256,13 @@ Database access example
 .. _PostgreSQL: https://www.postgresql.org/
 .. _psycopg2: https://pypi.org/project/psycopg2/
 
+Environment variables
+---------------------
+
+TESTSUITE_POSTGRESQL_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override Postgresql server port. Default is ``15433``.
 
 Functions
 ---------
@@ -319,15 +349,25 @@ Redis
 
 Testsuite provides basic support for redis.
 
-Testsuite may start redis with custom ports, if following environment variables
-are specified:
 
-- ``TESTSUITE_REDIS_MASTER_PORTS`` - if set, must be two comma separated
-  integers
-- ``TESTSUITE_REDIS_SENTINEL_PORT`` - if set, must be integer
-- ``TESTSUITE_REDIS_SLAVE_PORTS`` - if set must be three comma separated
-  integers
+Environment variables
+---------------------
+
+TESTSUITE_REDIS_MASTER_PORTS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override redis master ports. Two comma separated integers. Default is ``16379, 16389``.
+
+TESTSUITE_REDIS_SENTINEL_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override sentinel server port. Default is ``26379``.
+
+TESTSUITE_REDIS_SLAVE_PORTS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override redis secondary server ports. Three comma separated integers. Default is ``16380, 16390, 16381``.
+
 
 .. include:: clickhouse.rst
-
 .. include:: rabbitmq.rst

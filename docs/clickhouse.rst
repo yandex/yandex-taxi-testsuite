@@ -35,6 +35,16 @@ If you already have clickhouse installed, please symlink it to ``/usr/bin/clickh
 Environment variables
 ---------------------
 
+TESTSUITE_CLICKHOUSE_SERVER_TCP_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override clickhouse server port. Default is ``17123``.
+
+TESTSUITE_CLICKHOUSE_SERVER_HTTP_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override clickhouse http server port. Default is ``17124``.
+
 TESTSUITE_CLICKHOUSE_SERVER_START_TIMEOUT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default testsuite will wait for up to 20s for ClickHouse to start,

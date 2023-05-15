@@ -22,6 +22,21 @@ If you already have RabbitMQ installed and its location differs from
 Environment variables
 ---------------------
 
+TESTSUITE_RABBITMQ_BINDIR
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override rabbitmq binary dir. Default is ``/usr/lib/rabbitmq/bin/``
+
+TESTSUITE_RABBITMQ_TCP_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override rabbitmq server port. Default is ``8672``.
+
+TESTSUITE_RABBITMQ_EPMD_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override rabbitmq epmd port. Default is ``8673``.
+
 TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default testsuite will wait for up to 10s for RabbitMQ to start,

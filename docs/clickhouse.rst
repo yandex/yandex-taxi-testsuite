@@ -36,7 +36,7 @@ Environment variables
 ---------------------
 
 TESTSUITE_CLICKHOUSE_SERVER_START_TIMEOUT
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default testsuite will wait for up to 20s for ClickHouse to start,
 one may customize this timeout via environment variable ``TESTSUITE_CLICKHOUSE_SERVER_START_TIMEOUT``.
 

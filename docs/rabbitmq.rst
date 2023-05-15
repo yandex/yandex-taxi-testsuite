@@ -19,6 +19,14 @@ If you already have RabbitMQ installed and its location differs from
 `/usr/lib/rabbitmq` please specify 
 ``TESTSUITE_RABBITMQ_BINDIR`` environment variable accordingly.
 
+Environment variables
+---------------------
+
+TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By default testsuite will wait for up to 10s for RabbitMQ to start,
+one may customize this timeout via environment variable ``TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT``.
+
 Customize ports
 ---------------
 

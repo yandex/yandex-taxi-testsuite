@@ -1,5 +1,5 @@
 Examples
-========
+********
 Here we demonstrate how to use testsuite based on a simple chat application.
 
 The frontend (``chat-backend/chat.html``) interacts with ``chat-backend``, a

@@ -134,7 +134,7 @@ Specify custom per-test collection data file prefix.
     :param suffixes: collection suffixes map, e.g.
                      ``{'collection': 'suffix', ...}``
 
-I
+
 In the following example plugin will look for filename
 ``db_collection_name_foo.json``:
 
@@ -142,6 +142,15 @@ In the following example plugin will look for filename
 
    @pytest.mark.filldb(collection_name='foo')
    def test_foo(...):
+
+
+pytest.mark.nofilldb
+~~~~~~~~~~~~~~~~~~~~
+
+Disables database loading.
+
+.. py:function:: pytest.mark.nofilldb
+
 
 Classes
 -------

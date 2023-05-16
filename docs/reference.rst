@@ -1,5 +1,5 @@
 API reference
-=============
+*************
 
 This enables base testsuite plugins, add ``testsuite.pytest_plugin`` to list of
 pytest plugins:
@@ -16,7 +16,6 @@ pytest plugins:
    mockserver
    servicerunner
    testpoint
-   databases
    other_plugins
    utils
    tcp_mockserver

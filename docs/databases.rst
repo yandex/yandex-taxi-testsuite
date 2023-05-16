@@ -1,10 +1,6 @@
 Database support
 ****************
 
-.. contents::
-   :depth: 2
-   :local:
-
 Database plugins can start and stop database process.
 You can configure it to use existing database.
 
@@ -13,20 +9,13 @@ database in known state.
 
 Data fixtures are loaded via staatic files, see :ref:`staticfiles`.
 
-Common database marks
-=====================
 
-pytest.mark.nofilldb
----------------------
+.. toctree::
+   :maxdepth: 2
 
-Disables database loading.
-
-.. py:function:: pytest.mark.nofilldb
-
-
-.. include:: mongo.rst
-.. include:: postgresql.rst
-.. include:: mysql.rst
-.. include:: redis.rst
-.. include:: clickhouse.rst
-.. include:: rabbitmq.rst
+   mongo.rst
+   postgresql.rst
+   mysql.rst
+   redis.rst
+   clickhouse.rst
+   rabbitmq.rst

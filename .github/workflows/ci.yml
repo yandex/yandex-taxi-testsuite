@@ -72,3 +72,6 @@ jobs:
           curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash
           sudo apt install -y mariadb-server
           make venv-tests
+    - name: Build documentation
+      run: |
+          make build-docs

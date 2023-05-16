@@ -17,14 +17,15 @@
 import configparser
 import datetime
 
-today = datetime.date.today()
+TODAY = datetime.date.today()
+
 setup_config = configparser.ConfigParser()
 setup_config.read('../setup.cfg')
 
 # -- Project information -----------------------------------------------------
 
 project = 'yandex-taxi-testsuite'
-copyright = f'2020-{today.year}, Yandex LLC'
+copyright = f'2020-{TODAY.year}, Yandex LLC'
 author = 'Yandex LLC'
 
 # The full version, including alpha/beta/rc tags

@@ -3,20 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+#########################################
 testsuite: microservice testing framework
-=========================================
+#########################################
 
 .. toctree::
    :maxdepth: 2
 
-   intro
-   reference
-   examples/README
-   license
+   intro.rst
+   reference.rst
+   databases.rst
+   examples/README.rst
+   license.rst
 
 
+##################
 Indices and tables
-==================
+##################
 
 * :ref:`genindex`
 * :ref:`modindex`

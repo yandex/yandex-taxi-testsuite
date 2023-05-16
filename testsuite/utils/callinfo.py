@@ -149,6 +149,7 @@ def acallqueue(
     checker: typing.Optional[CheckerType] = None,
 ) -> AsyncCallQueue:
     """Turn function into async call queue.
+
     :param func: async or sync callable, can be decorated with @staticmethod
     :param checker: optional function to check whether or not operation on
         callqueue is possible

@@ -21,16 +21,20 @@ def find_schemas(
     :param dbprefix: database name internal prefix
     :param extra_schema_args: for each DB contains list
         of tables we don't have to truncate and flag for explicit creation
-    example:
-        {
-            'database1': {
-                'create': False,
-                'truncate_non_empty': True,
-                'keep_tables': [
-                    'table1', 'table2'
-                ]
-            }
-        }
+        example:
+
+        .. code-block:: python
+
+          {
+              'database1': {
+                  'create': False,
+                  'truncate_non_empty': True,
+                  'keep_tables': [
+                      'table1', 'table2'
+                  ]
+              }
+          }
+
     :returns: Dictionary where key is dbname and value is
         ``classes.DatabaseConfig`` instance.
     """

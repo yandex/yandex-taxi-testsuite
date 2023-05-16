@@ -73,9 +73,11 @@ def find_schemas(
     schema_dirs: List[pathlib.Path],
 ) -> Dict[str, PgShardedDatabase]:
     """Read database schemas from directories ``schema_dirs``. ::
+
      |- schema_path/
        |- database1.sql
        |- database2.sql
+
     :param service_name: service name used as prefix for database name if not
            empty, e.g. "servicename_dbname".
     :param schema_dirs: list of pathes to scan for schemas

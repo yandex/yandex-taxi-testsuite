@@ -52,9 +52,9 @@ class ClusterServiceSettings(typing.NamedTuple):
     cluster_ports: typing.Tuple[int, ...]
 
     def validate(self):
-        if len(self.cluster_ports) < len(DEFAULT_CLUSTER_PORTS):
+        if len(self.cluster_ports) != len(DEFAULT_CLUSTER_PORTS):
             raise NotEnoughPorts(
-                f'Need more than {len(DEFAULT_SLAVE_PORTS)} cluster nodes!',
+                f'Need exactly {len(DEFAULT_CLUSTER_PORTS)} cluster nodes!',
             )
 
 

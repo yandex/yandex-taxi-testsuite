@@ -37,6 +37,7 @@ redis_store
 Provide access to non cluster redis via same interface as redis.StrictRedis().
 
 .. code-block:: python
+
   import pytest
 
   pytest_plugins = [
@@ -56,6 +57,7 @@ redis_cluster_store
 Provide access to cluster redis via same interface as redis.RedisCluster().
 
 .. code-block:: python
+
   import pytest
 
   pytest_plugins = [
@@ -78,13 +80,13 @@ pytest.mark.redis_store
 Specify custom per-test data for ``redis_store`` fixture
 
 .. code-block:: python
+
   import pytest
 
   pytest_plugins = [
       'testsuite.pytest_plugin',
       'testsuite.databases.redis.pytest_plugin',
   ]
-
 
   @pytest.mark.redis_store(
       ['set', 'foo', 'bar'],
@@ -94,9 +96,7 @@ Specify custom per-test data for ``redis_store`` fixture
       assert redis_store.get('foo') == b'bar'
       assert redis_store.hgetall('baz') == {b'quux': b'bat'}
 
-
   @pytest.mark.redis_store(file='use_redis_store_file')
-  @pytest.mark.nofilldb
   def test_redis_store_file(redis_store):
       assert redis_store.get('foo') == b'store'
 
@@ -107,13 +107,13 @@ pytest.mark.redis_cluster_store
 Specify custom per-test data for ``redis_cluster_store`` fixture
 
 .. code-block:: python
+
   import pytest
 
   pytest_plugins = [
       'testsuite.pytest_plugin',
       'testsuite.databases.redis.pytest_plugin',
   ]
-
 
   @pytest.mark.redis_cluster_store(
       ['set', 'foo', 'bar'],
@@ -123,8 +123,6 @@ Specify custom per-test data for ``redis_cluster_store`` fixture
       assert redis_cluster_store.get('foo') == b'bar'
       assert redis_cluster_store.hgetall('baz') == {b'quux': b'bat'}
 
-
   @pytest.mark.redis_cluster_store(file='use_redis_store_file')
-  @pytest.mark.nofilldb
   def test_redis_store_file(redis_cluster_store):
       assert redis_cluster_store.get('foo') == b'store'

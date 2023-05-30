@@ -4,11 +4,6 @@ import redis
 from testsuite.databases.redis import service
 
 
-@pytest.fixture(scope='session')
-def _redis_service_settings(pytestconfig):
-    return service.get_service_settings()
-
-
 def test_sentinel_config(
     redis_sentinel: redis.StrictRedis,
     _redis_service_settings: service.ServiceSettings,

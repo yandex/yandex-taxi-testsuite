@@ -117,10 +117,7 @@ def redis_sentinel(
         port=redis_sentinels[0]['port'],
     )
 
-    try:
-        yield redis_db
-    finally:
-        pass
+    yield redis_db
 
 
 @pytest.fixture
@@ -129,7 +126,7 @@ def redis_cluster_store(
     request,
     load_json,
     redis_cluster_service,
-    cluster_redis_sentinels,
+    redis_cluster_sentinels,
 ):
     def _flush_all(redis_db):
         slot_infos = redis_db.cluster_slots()
@@ -156,8 +153,8 @@ def redis_cluster_store(
             redis_commands.extend(mark.args)
 
     redis_db = redisdb.RedisCluster(
-        host=cluster_redis_sentinels[0]['host'],
-        port=cluster_redis_sentinels[0]['port'],
+        host=redis_cluster_sentinels[0]['host'],
+        port=redis_cluster_sentinels[0]['port'],
     )
 
     for redis_command in redis_commands:
@@ -210,7 +207,7 @@ def redis_sentinels(pytestconfig, _redis_service_settings):
 
 
 @pytest.fixture(scope='session')
-def cluster_redis_sentinels(pytestconfig, _redis_service_settings):
+def redis_cluster_sentinels(pytestconfig, _redis_service_settings):
     return [
         {
             'host': _redis_service_settings.host,

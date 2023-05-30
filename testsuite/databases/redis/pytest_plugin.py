@@ -52,11 +52,11 @@ def redis_service(
 def redis_cluster_service(
     pytestconfig,
     ensure_service_started,
-    _redis_service_settings,
+    _redis_cluster_service_settings,
 ):
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started(
-            'redis-cluster', settings=_redis_service_settings
+            'redis-cluster', settings=_redis_cluster_service_settings
         )
 
 
@@ -207,19 +207,24 @@ def redis_sentinels(pytestconfig, _redis_service_settings):
 
 
 @pytest.fixture(scope='session')
-def redis_cluster_sentinels(pytestconfig, _redis_service_settings):
+def redis_cluster_sentinels(pytestconfig, _redis_cluster_service_settings):
     return [
         {
-            'host': _redis_service_settings.host,
+            'host': _redis_cluster_service_settings.host,
             'port': port,
         }
-        for port in _redis_service_settings.cluster_ports
+        for port in _redis_cluster_service_settings.cluster_ports
     ]
 
 
 @pytest.fixture(scope='session')
 def _redis_service_settings():
     return service.get_service_settings()
+
+
+@pytest.fixture(scope='session')
+def _redis_cluster_service_settings():
+    return service.get_cluster_service_settings()
 
 
 def _json_object_hook(dct):

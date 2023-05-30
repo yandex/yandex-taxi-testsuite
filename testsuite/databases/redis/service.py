@@ -35,7 +35,6 @@ class ServiceSettings(typing.NamedTuple):
     master_ports: typing.Tuple[int, ...]
     sentinel_port: int
     slave_ports: typing.Tuple[int, ...]
-    cluster_ports: typing.Tuple[int, ...]
 
     def validate(self):
         if len(self.master_ports) != len(DEFAULT_MASTER_PORTS):
@@ -46,6 +45,13 @@ class ServiceSettings(typing.NamedTuple):
             raise NotEnoughPorts(
                 f'Need exactly {len(DEFAULT_SLAVE_PORTS)} slaves!',
             )
+
+
+class ClusterServiceSettings(typing.NamedTuple):
+    host: str
+    cluster_ports: typing.Tuple[int, ...]
+
+    def validate(self):
         if len(self.cluster_ports) < len(DEFAULT_CLUSTER_PORTS):
             raise NotEnoughPorts(
                 f'Need more than {len(DEFAULT_SLAVE_PORTS)} cluster nodes!',
@@ -67,6 +73,12 @@ def get_service_settings():
             key='TESTSUITE_REDIS_SLAVE_PORTS',
             default=DEFAULT_SLAVE_PORTS,
         ),
+    )
+
+
+def get_cluster_service_settings():
+    return ClusterServiceSettings(
+        host=_get_hostname(),
         cluster_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_CLUSTER_PORTS',
             default=DEFAULT_CLUSTER_PORTS,
@@ -125,7 +137,7 @@ def create_cluster_redis_service(
     env=None,
 ):
     if settings is None:
-        settings = get_service_settings()
+        settings = get_cluster_service_settings()
     configs_dir = pathlib.Path(working_dir).joinpath('configs')
     check_ports = [
         *settings.cluster_ports,

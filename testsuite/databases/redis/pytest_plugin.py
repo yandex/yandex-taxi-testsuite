@@ -77,9 +77,8 @@ def redis_store(
         port=_redis_masters[0]['port'],
     )
 
-    _execute_commands_from_file('redis_store', redis_db, request, load_json)
-
     try:
+        _execute_commands_from_file('redis_store', redis_db, request, load_json)
         yield redis_db
     finally:
         redis_db.flushall()
@@ -128,11 +127,10 @@ def redis_cluster_store(
         port=redis_cluster_sentinels[0]['port'],
     )
 
-    _execute_commands_from_file(
-        'redis_cluster_store', redis_db, request, load_json
-    )
-
     try:
+        _execute_commands_from_file(
+            'redis_cluster_store', redis_db, request, load_json
+        )
         yield redis_db
     finally:
         _flush_all(redis_db)

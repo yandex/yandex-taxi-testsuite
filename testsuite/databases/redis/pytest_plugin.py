@@ -72,28 +72,13 @@ def redis_store(
         yield
         return
 
-    redis_commands = []
-
-    for mark in request.node.iter_markers('redis_store'):
-        store_file = mark.kwargs.get('file')
-        if store_file is not None:
-            redis_commands_from_file = load_json(
-                '%s.json' % store_file,
-                object_hook=_json_object_hook,
-            )
-            redis_commands.extend(redis_commands_from_file)
-
-        if mark.args:
-            redis_commands.extend(mark.args)
-
     redis_db = redisdb.StrictRedis(
         host=_redis_masters[0]['host'],
         port=_redis_masters[0]['port'],
     )
 
-    for redis_command in redis_commands:
-        func = getattr(redis_db, redis_command[0])
-        func(*redis_command[1:])
+    _execute_commands_from_file('redis_store', redis_db, request, load_json)
+
     try:
         yield redis_db
     finally:
@@ -138,28 +123,15 @@ def redis_cluster_store(
         yield
         return
 
-    redis_commands = []
-
-    for mark in request.node.iter_markers('redis_cluster_store'):
-        store_file = mark.kwargs.get('file')
-        if store_file is not None:
-            redis_commands_from_file = load_json(
-                '%s.json' % store_file,
-                object_hook=_json_object_hook,
-            )
-            redis_commands.extend(redis_commands_from_file)
-
-        if mark.args:
-            redis_commands.extend(mark.args)
-
     redis_db = redisdb.RedisCluster(
         host=redis_cluster_sentinels[0]['host'],
         port=redis_cluster_sentinels[0]['port'],
     )
 
-    for redis_command in redis_commands:
-        func = getattr(redis_db, redis_command[0])
-        func(*redis_command[1:])
+    _execute_commands_from_file(
+        'redis_cluster_store', redis_db, request, load_json
+    )
+
     try:
         yield redis_db
     finally:
@@ -231,3 +203,23 @@ def _json_object_hook(dct):
     if '$json' in dct:
         return json.dumps(dct['$json'])
     return dct
+
+
+def _execute_commands_from_file(markers, redis_db, request, load_json):
+    redis_commands = []
+
+    for mark in request.node.iter_markers(markers):
+        store_file = mark.kwargs.get('file')
+        if store_file is not None:
+            redis_commands_from_file = load_json(
+                '%s.json' % store_file,
+                object_hook=_json_object_hook,
+            )
+            redis_commands.extend(redis_commands_from_file)
+
+        if mark.args:
+            redis_commands.extend(mark.args)
+
+    for redis_command in redis_commands:
+        func = getattr(redis_db, redis_command[0])
+        func(*redis_command[1:])

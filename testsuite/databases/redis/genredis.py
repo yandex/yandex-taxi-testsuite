@@ -211,7 +211,7 @@ def _redis_config_directory() -> pathlib.Path:
     return pathlib.Path(__file__).parent / 'configs'
 
 
-def redis_version() -> typing.List[int]:
+def redis_version() -> typing.Tuple[int, ...]:
     try:
         reply = subprocess_helper.sh('redis-server', '--version')
     except subprocess.CalledProcessError as err:
@@ -226,7 +226,7 @@ def redis_version() -> typing.List[int]:
     for token in reply[len(start) :].split(' '):
         key, value = token.split('=', 1)
         if key == version_key:
-            return list(map(int, value.split('.')))
+            return tuple(map(int, value.split('.')))
     raise RuntimeError(
         f'Tag "{version_key}" not found in redis server reply "{reply}"',
     )
@@ -238,7 +238,7 @@ def generate_cluster_redis_configs(
     cluster_ports: [int],
 ) -> None:
     protected_mode_no = ''
-    if redis_version() >= [3, 2, 0]:
+    if redis_version() >= (3, 2, 0):
         protected_mode_no = 'protected-mode no'
 
     _generate_cluster_node(
@@ -261,7 +261,7 @@ def generate_redis_configs(
     sentinel_port: int,
 ) -> None:
     protected_mode_no = ''
-    if redis_version() >= [3, 2, 0]:
+    if redis_version() >= (3, 2, 0):
         protected_mode_no = 'protected-mode no'
     _generate_master(protected_mode_no, host, master0_port, output_path, 0)
     _generate_master(protected_mode_no, host, master1_port, output_path, 1)

@@ -1,0 +1,23 @@
+[
+  [
+    "set",
+    "foo",
+    "store"
+  ],
+  [
+    "hset",
+    "baz",
+    "quux2",
+    "store"
+  ],
+  [
+    "hset",
+    "complicated",
+    "key",
+    {
+      "$json": {
+        "sub_key": "subvalue"
+      }
+    }
+  ]
+]

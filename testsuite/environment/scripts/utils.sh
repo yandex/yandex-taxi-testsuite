@@ -97,3 +97,14 @@ dump_log() {
 dump_log_stderr() {
     dump_log "$@" >&2
 }
+
+find_binary() {
+    which "$1" 2> /dev/null
+}
+
+find_binary_or_die() {
+    local binary_name="$1"
+    local binary=$(find_binary $binary_name)
+    [ -z "$binary" ] && die "No $binary_name binary found"
+    echo $binary
+}

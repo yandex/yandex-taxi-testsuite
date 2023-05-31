@@ -12,9 +12,13 @@ from . import genredis
 DEFAULT_MASTER_PORTS = (16379, 16389)
 DEFAULT_SENTINEL_PORT = 26379
 DEFAULT_SLAVE_PORTS = (16380, 16390, 16381)
+DEFAULT_CLUSTER_PORTS = (17380, 17381, 17382, 17383, 17384, 17385)
 
 SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
     'scripts/service-redis',
+)
+CLUSTER_SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
+    'scripts/service-cluster-redis',
 )
 
 
@@ -43,6 +47,17 @@ class ServiceSettings(typing.NamedTuple):
             )
 
 
+class ClusterServiceSettings(typing.NamedTuple):
+    host: str
+    cluster_ports: typing.Tuple[int, ...]
+
+    def validate(self):
+        if len(self.cluster_ports) != len(DEFAULT_CLUSTER_PORTS):
+            raise NotEnoughPorts(
+                f'Need exactly {len(DEFAULT_CLUSTER_PORTS)} cluster nodes!',
+            )
+
+
 def get_service_settings():
     return ServiceSettings(
         host=_get_hostname(),
@@ -57,6 +72,16 @@ def get_service_settings():
         slave_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_SLAVE_PORTS',
             default=DEFAULT_SLAVE_PORTS,
+        ),
+    )
+
+
+def get_cluster_service_settings():
+    return ClusterServiceSettings(
+        host=_get_hostname(),
+        cluster_ports=utils.getenv_ints(
+            key='TESTSUITE_REDIS_CLUSTER_PORTS',
+            default=DEFAULT_CLUSTER_PORTS,
         ),
     )
 
@@ -97,6 +122,47 @@ def create_redis_service(
         environment={
             'REDIS_TMPDIR': working_dir,
             'REDIS_CONFIGS_DIR': str(configs_dir),
+            **(env or {}),
+        },
+        check_host=settings.host,
+        check_ports=check_ports,
+        prestart_hook=prestart_hook,
+    )
+
+
+def create_cluster_redis_service(
+    service_name,
+    working_dir,
+    settings: typing.Optional[ServiceSettings] = None,
+    env=None,
+):
+    if settings is None:
+        settings = get_cluster_service_settings()
+    configs_dir = pathlib.Path(working_dir).joinpath('configs')
+    check_ports = [
+        *settings.cluster_ports,
+    ]
+
+    def prestart_hook():
+        configs_dir.mkdir(parents=True, exist_ok=True)
+        settings.validate()
+        genredis.generate_cluster_redis_configs(
+            output_path=configs_dir,
+            host=settings.host,
+            cluster_ports=settings.cluster_ports,
+        )
+
+    return service.ScriptService(
+        service_name=service_name,
+        script_path=str(CLUSTER_SERVICE_SCRIPT_PATH),
+        working_dir=working_dir,
+        environment={
+            'REDIS_TMPDIR': working_dir,
+            'REDIS_CONFIGS_DIR': str(configs_dir),
+            'REDIS_HOST': settings.host,
+            'REDIS_CLUSTER_PORTS': ' '.join(
+                [str(port) for port in settings.cluster_ports]
+            ),
             **(env or {}),
         },
         check_host=settings.host,

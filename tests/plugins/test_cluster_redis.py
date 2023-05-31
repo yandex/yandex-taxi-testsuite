@@ -14,9 +14,8 @@ def test_redis_marker_store(redis_cluster_store):
 
 @pytest.mark.redis_cluster_store(file='use_redis_store_file')
 @pytest.mark.nofilldb
-def test_redis_store_file(redis_cluster_store):
+def test_redis_store_file(redis_cluster_store, _check_store_file):
     assert redis_cluster_store.get('foo') == b'store'
-    _check_store_file(redis_cluster_store)
 
 
 @pytest.mark.redis_cluster_store(
@@ -24,9 +23,10 @@ def test_redis_store_file(redis_cluster_store):
 )
 @pytest.mark.nofilldb
 # pylint: disable=invalid-name
-def test_redis_store_file_with_overrides(redis_cluster_store):
+def test_redis_store_file_with_overrides(
+    redis_cluster_store, _check_store_file
+):
     assert redis_cluster_store.get('foo') == b'bar'
-    _check_store_file(redis_cluster_store)
 
 
 @pytest.mark.redis_cluster_store(file='redis')
@@ -39,6 +39,7 @@ def test_redis_default(redis_cluster_store):
     assert redis_cluster_store.hgetall('foo') == {b'qu': b'qux'}
 
 
+@pytest.fixture
 def _check_store_file(redis_cluster_store):
     assert redis_cluster_store.hgetall('baz') == {b'quux2': b'store'}
 

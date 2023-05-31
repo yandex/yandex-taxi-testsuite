@@ -13,11 +13,8 @@ REDIS_DATADIR=$REDIS_TMPDIR/data
 REDIS_LOGSDIR=$REDIS_TMPDIR/logs
 REDIS_SLEEP_WORKAROUND_SECONDS=${REDIS_SLEEP_WORKAROUND_SECONDS:=3}
 
-REDIS_SERVER=$(which redis-server)
-[ -z "$REDIS_SERVER" ] && die "No redis-server binary found"
-
-REDIS_CLI=$(which redis-cli)
-[ -z "$REDIS_CLI" ] && die "No redis-cli binary found"
+REDIS_SERVER=$(find_binary_or_die redis-server)
+REDIS_CLI=$(find_binary_or_die redis-cli)
 
 REDIS_INSTS=
 

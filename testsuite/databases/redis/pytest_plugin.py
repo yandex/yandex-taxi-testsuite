@@ -63,10 +63,9 @@ def redis_cluster_service(
 @pytest.fixture
 def redis_store(
     pytestconfig,
-    request,
-    load_json,
     redis_service,
     _redis_masters,
+    _redis_execute_commands_from_file,
 ):
     if pytestconfig.option.no_redis:
         yield
@@ -78,7 +77,7 @@ def redis_store(
     )
 
     try:
-        _execute_commands_from_file('redis_store', redis_db, request, load_json)
+        _redis_execute_commands_from_file('redis_store', redis_db)
         yield redis_db
     finally:
         redis_db.flushall()
@@ -107,10 +106,9 @@ def redis_sentinel(
 @pytest.fixture
 def redis_cluster_store(
     pytestconfig,
-    request,
-    load_json,
     redis_cluster_service,
     redis_cluster_sentinels,
+    _redis_execute_commands_from_file,
 ):
     def _flush_all(redis_db):
         slot_infos = redis_db.cluster_slots()
@@ -128,9 +126,7 @@ def redis_cluster_store(
     )
 
     try:
-        _execute_commands_from_file(
-            'redis_cluster_store', redis_db, request, load_json
-        )
+        _redis_execute_commands_from_file('redis_cluster_store', redis_db)
         yield redis_db
     finally:
         _flush_all(redis_db)
@@ -203,21 +199,25 @@ def _json_object_hook(dct):
     return dct
 
 
-def _execute_commands_from_file(markers, redis_db, request, load_json):
-    redis_commands = []
+@pytest.fixture
+def _redis_execute_commands_from_file(request, load_json):
+    def _execute_commands(markers, redis_db):
+        redis_commands = []
 
-    for mark in request.node.iter_markers(markers):
-        store_file = mark.kwargs.get('file')
-        if store_file is not None:
-            redis_commands_from_file = load_json(
-                '%s.json' % store_file,
-                object_hook=_json_object_hook,
-            )
-            redis_commands.extend(redis_commands_from_file)
+        for mark in request.node.iter_markers(markers):
+            store_file = mark.kwargs.get('file')
+            if store_file is not None:
+                redis_commands_from_file = load_json(
+                    '%s.json' % store_file,
+                    object_hook=_json_object_hook,
+                )
+                redis_commands.extend(redis_commands_from_file)
 
-        if mark.args:
-            redis_commands.extend(mark.args)
+            if mark.args:
+                redis_commands.extend(mark.args)
 
-    for redis_command in redis_commands:
-        func = getattr(redis_db, redis_command[0])
-        func(*redis_command[1:])
+        for redis_command in redis_commands:
+            func = getattr(redis_db, redis_command[0])
+            func(*redis_command[1:])
+
+    return _execute_commands

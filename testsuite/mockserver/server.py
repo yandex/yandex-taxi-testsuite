@@ -262,7 +262,7 @@ class Server:
             '_type': 'mockserver_request',
             'timestamp': datetime.datetime.utcnow(),
             'method': request.method,
-            'url': request.url,
+            'url': request.rel_url,
         }
         for header, key in _LOGGER_HEADERS:
             if header in request.headers:

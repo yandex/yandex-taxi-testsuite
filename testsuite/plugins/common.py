@@ -11,28 +11,6 @@ from testsuite.utils import json_util
 from testsuite.utils import yaml_util
 
 
-PathType = type(pathlib.Path())
-
-class CachedStatPath(pathlib.Path):
-    _flavour = PathType._flavour
-    _cache = {}
-
-    def stat(self):
-        key = str(self.absolute())
-        if key in self._cache:
-            is_exc, value = self._cache[key]
-            if is_exc:
-                raise value
-            return value
-        try:
-            value = super().stat()
-            self._cache[key] = (False, value)
-            return value
-        except FileNotFoundError as exc:
-            self._cache[key] = (True, exc)
-            raise
-
-
 class BaseError(Exception):
     """Base class for errors from this module."""
 
@@ -53,13 +31,14 @@ class GetSearchPathesFixture(fixture_class.Fixture):
     """Generates sequence of pathes for static files."""
 
     _fixture__search_directories: typing.Tuple[str, ...]
+    _fixture__cached_stat_path: pathlib.Path
 
     def __call__(
         self,
         filename: annotations.PathOrStr,
     ) -> typing.Iterator[pathlib.Path]:
         for directory in self._fixture__search_directories:
-            yield CachedStatPath(directory) / filename
+            yield self._fixture__cached_stat_path(directory) / filename
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -464,3 +443,27 @@ def _search_directories(
 @pytest.fixture(scope='session')
 def load_json_defaults():
     return {}
+
+
+@pytest.fixture(scope='session')
+def _cached_stat_path():
+    path_type = type(pathlib.Path())
+    stat_cache = {}
+
+    class CachedStatPath(path_type):
+        def stat(self):
+            key = str(self.absolute())
+            if key in stat_cache:
+                is_exc, value = stat_cache[key]
+                if is_exc:
+                    raise value
+                return value
+            try:
+                value = super().stat()
+                stat_cache[key] = (False, value)
+                return value
+            except FileNotFoundError as exc:
+                stat_cache[key] = (True, exc)
+                raise
+
+    return CachedStatPath

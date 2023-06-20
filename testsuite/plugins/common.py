@@ -11,6 +11,28 @@ from testsuite.utils import json_util
 from testsuite.utils import yaml_util
 
 
+PathType = type(pathlib.Path())
+
+class CachedStatPath(pathlib.Path):
+    _flavour = PathType._flavour
+    _cache = {}
+
+    def stat(self):
+        key = str(self.absolute())
+        if key in self._cache:
+            is_exc, value = self._cache[key]
+            if is_exc:
+                raise value
+            return value
+        try:
+            value = super().stat()
+            self._cache[key] = (False, value)
+            return value
+        except FileNotFoundError as exc:
+            self._cache[key] = (True, exc)
+            raise
+
+
 class BaseError(Exception):
     """Base class for errors from this module."""
 
@@ -37,7 +59,7 @@ class GetSearchPathesFixture(fixture_class.Fixture):
         filename: annotations.PathOrStr,
     ) -> typing.Iterator[pathlib.Path]:
         for directory in self._fixture__search_directories:
-            yield pathlib.Path(directory) / filename
+            yield CachedStatPath(directory) / filename
 
 
 class SearchPathFixture(fixture_class.Fixture):

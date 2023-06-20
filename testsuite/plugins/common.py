@@ -32,24 +32,14 @@ class GetSearchPathesFixture(fixture_class.Fixture):
     """Generates sequence of pathes for static files."""
 
     _fixture__search_directories: typing.Tuple[str, ...]
-    _fixture__cached_stat_path: pathlib.Path
-
-    _entry_cache = {}
+    _fixture__path_entries_cache: typing.Callable
 
     def __call__(
         self,
         filename: annotations.PathOrStr,
     ) -> typing.Iterator[pathlib.Path]:
         for directory in self._fixture__search_directories:
-
-            cache_key = directory, filename
-            if cache_key in self._entry_cache:
-                yield self._entry_cache[cache_key]
-
-            value = self._fixture__cached_stat_path(directory) / filename
-            self._entry_cache[cache_key] = value
-
-            yield value
+            yield self._fixture__path_entries_cache(directory, filename)
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -492,3 +482,18 @@ def _cached_stat_path():
             return super().is_file()
 
     return CachedStatPath
+
+
+@pytest.fixture(scope='session')
+def _path_entries_cache(_cached_stat_path):
+    entries_cache = {}
+
+    def get(*parts):
+        result = entries_cache.get(parts)
+        if result:
+            return result
+        result = _cached_stat_path(*parts)
+        entries_cache[parts] = result
+        return result
+
+    return get

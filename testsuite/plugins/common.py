@@ -7,6 +7,7 @@ import pytest
 
 from testsuite import annotations
 from testsuite._internal import fixture_class
+from testsuite.utils import cached_property
 from testsuite.utils import json_util
 from testsuite.utils import yaml_util
 
@@ -33,12 +34,22 @@ class GetSearchPathesFixture(fixture_class.Fixture):
     _fixture__search_directories: typing.Tuple[str, ...]
     _fixture__cached_stat_path: pathlib.Path
 
+    _entry_cache = {}
+
     def __call__(
         self,
         filename: annotations.PathOrStr,
     ) -> typing.Iterator[pathlib.Path]:
         for directory in self._fixture__search_directories:
-            yield self._fixture__cached_stat_path(directory) / filename
+
+            cache_key = directory, filename
+            if cache_key in self._entry_cache:
+                yield self._entry_cache[cache_key]
+
+            value = self._fixture__cached_stat_path(directory) / filename
+            self._entry_cache[cache_key] = value
+
+            yield value
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -465,5 +476,19 @@ def _cached_stat_path():
             except FileNotFoundError as exc:
                 stat_cache[key] = (True, exc)
                 raise
+
+        def is_dir(self):
+            return self._is_dir
+
+        def is_file(self):
+            return self._is_file
+
+        @cached_property
+        def _is_dir(self):
+            return super().is_dir()
+
+        @cached_property
+        def _is_file(self):
+            return super().is_file()
 
     return CachedStatPath

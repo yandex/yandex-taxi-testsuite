@@ -39,9 +39,9 @@ class GetSearchPathesFixture(fixture_class.Fixture):
         self,
         filename: annotations.PathOrStr,
         *,
-        _only_exisiting=True,
+        _only_existing=True,
     ) -> typing.Iterator[pathlib.Path]:
-        if _only_exisitng:
+        if _only_existing:
             for directory in self._fixture__search_directories_existing:
                 entry = self._fixture__path_entries_cache(directory, filename)
                 if entry.exists():

@@ -7,6 +7,7 @@ import pytest
 
 from testsuite import annotations
 from testsuite._internal import fixture_class
+from testsuite.utils import cached_property
 from testsuite.utils import json_util
 from testsuite.utils import yaml_util
 
@@ -30,14 +31,24 @@ class LoadYamlError(BaseError):
 class GetSearchPathesFixture(fixture_class.Fixture):
     """Generates sequence of pathes for static files."""
 
-    _fixture__search_directories: typing.Tuple[str, ...]
+    _fixture__search_directories: typing.Tuple[pathlib.Path, ...]
+    _fixture__search_directories_existing: typing.Tuple[pathlib.Path, ...]
+    _fixture__path_entries_cache: typing.Callable
 
     def __call__(
         self,
         filename: annotations.PathOrStr,
+        *,
+        _only_existing=True,
     ) -> typing.Iterator[pathlib.Path]:
-        for directory in self._fixture__search_directories:
-            yield pathlib.Path(directory) / filename
+        if _only_existing:
+            for directory in self._fixture__search_directories_existing:
+                entry = self._fixture__path_entries_cache(directory, filename)
+                if entry.exists():
+                    yield entry
+        else:
+            for directory in self._fixture__search_directories:
+                yield self._fixture__path_entries_cache(directory, filename)
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -73,7 +84,11 @@ class GetFilePathFixture(fixture_class.Fixture):
 
     def _file_not_found_error(self, message, filename):
         pathes = '\n'.join(
-            ' - %s' % path for path in self._fixture_get_search_pathes(filename)
+            ' - %s' % path
+            for path in self._fixture_get_search_pathes(
+                filename,
+                _only_existing=False,
+            )
         )
         return FileNotFoundError(
             '%s\n\nThe following pathes were examined:\n%s' % (message, pathes),
@@ -425,20 +440,89 @@ def _search_directories(
     static_dir: pathlib.Path,
     initial_data_path: typing.Tuple[pathlib.Path, ...],
     testsuite_request_path,
+    _path_entries_cache,
 ) -> typing.Tuple[pathlib.Path, ...]:
-    test_module_name = pathlib.Path(testsuite_request_path.stem)
+    test_module_name = testsuite_request_path.stem
     node_name = request.node.name
     if '[' in node_name:
         node_name = node_name[: node_name.index('[')]
-    local_path = [test_module_name / node_name]
-    local_path.append(test_module_name)
-    local_path.append('default')
-    local_path.append('')
-    search_directories = [static_dir / subdir for subdir in local_path]
-    search_directories.extend(initial_data_path)
+    search_directories = [
+        _path_entries_cache(static_dir, test_module_name, node_name),
+        _path_entries_cache(static_dir, test_module_name),
+        _path_entries_cache(static_dir, 'default'),
+        _path_entries_cache(static_dir, ''),
+    ]
+    search_directories.extend(
+        _path_entries_cache(path) for path in initial_data_path
+    )
     return tuple(search_directories)
+
+
+@pytest.fixture
+def _search_directories_existing(_search_directories):
+    return tuple(path for path in _search_directories if path.exists())
 
 
 @pytest.fixture(scope='session')
 def load_json_defaults():
     return {}
+
+
+@pytest.fixture(scope='session')
+def _cached_stat_path():
+    path_type = type(pathlib.Path())
+    stat_cache = {}
+
+    class CachedStatPath(path_type):
+        def stat(self):
+            key = str(self.absolute())
+            if key in stat_cache:
+                is_exc, value = stat_cache[key]
+                if is_exc:
+                    raise value
+                return value
+            try:
+                value = super().stat()
+                stat_cache[key] = (False, value)
+                return value
+            except FileNotFoundError as exc:
+                stat_cache[key] = (True, exc)
+                raise
+
+        def exists(self):
+            return self._exists
+
+        def is_dir(self):
+            return self._is_dir
+
+        def is_file(self):
+            return self._is_file
+
+        @cached_property
+        def _is_dir(self):
+            return super().is_dir()
+
+        @cached_property
+        def _is_file(self):
+            return super().is_file()
+
+        @cached_property
+        def _exists(self):
+            return super().exists()
+
+    return CachedStatPath
+
+
+@pytest.fixture(scope='session')
+def _path_entries_cache(_cached_stat_path):
+    entries_cache = {}
+
+    def get(*parts):
+        result = entries_cache.get(parts)
+        if result:
+            return result
+        result = _cached_stat_path(*parts)
+        entries_cache[parts] = result
+        return result
+
+    return get

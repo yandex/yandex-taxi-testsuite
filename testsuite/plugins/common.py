@@ -37,9 +37,18 @@ class GetSearchPathesFixture(fixture_class.Fixture):
     def __call__(
         self,
         filename: annotations.PathOrStr,
+        *,
+        include_all=False,
     ) -> typing.Iterator[pathlib.Path]:
-        for directory in self._fixture__search_directories:
-            yield self._fixture__path_entries_cache(directory, filename)
+        if include_all:
+            for directory in self._fixture__search_directories:
+                yield self._fixture__path_entries_cache(directory, filename)
+        else:
+            for directory in self._fixture__search_directories:
+                if directory.is_dir():
+                    entry = self._fixture__path_entries_cache(directory, filename)
+                    if entry.exists():
+                        yield entry
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -75,7 +84,9 @@ class GetFilePathFixture(fixture_class.Fixture):
 
     def _file_not_found_error(self, message, filename):
         pathes = '\n'.join(
-            ' - %s' % path for path in self._fixture_get_search_pathes(filename)
+            ' - %s' % path for path in self._fixture_get_search_pathes(
+                filename, include_all=True,
+            )
         )
         return FileNotFoundError(
             '%s\n\nThe following pathes were examined:\n%s' % (message, pathes),
@@ -427,17 +438,23 @@ def _search_directories(
     static_dir: pathlib.Path,
     initial_data_path: typing.Tuple[pathlib.Path, ...],
     testsuite_request_path,
+    _path_entries_cache,
 ) -> typing.Tuple[pathlib.Path, ...]:
-    test_module_name = pathlib.Path(testsuite_request_path.stem)
+    test_module_name = _path_entries_cache(testsuite_request_path.stem)
     node_name = request.node.name
     if '[' in node_name:
         node_name = node_name[: node_name.index('[')]
-    local_path = [test_module_name / node_name]
+    local_path = [_path_entries_cache(test_module_name, node_name)]
     local_path.append(test_module_name)
     local_path.append('default')
     local_path.append('')
-    search_directories = [static_dir / subdir for subdir in local_path]
-    search_directories.extend(initial_data_path)
+    search_directories = [
+        _path_entries_cache(static_dir, subdir) for subdir in local_path
+    ]
+    search_directories.extend(
+        _path_entries_cache(path)
+        for path in initial_data_path
+    )
     return tuple(search_directories)
 
 
@@ -467,6 +484,9 @@ def _cached_stat_path():
                 stat_cache[key] = (True, exc)
                 raise
 
+        def exists(self):
+            return self._exists
+
         def is_dir(self):
             return self._is_dir
 
@@ -480,6 +500,10 @@ def _cached_stat_path():
         @cached_property
         def _is_file(self):
             return super().is_file()
+
+        @cached_property
+        def _exists(self):
+            return super().exists()
 
     return CachedStatPath
 

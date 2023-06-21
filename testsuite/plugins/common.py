@@ -46,7 +46,9 @@ class GetSearchPathesFixture(fixture_class.Fixture):
         else:
             for directory in self._fixture__search_directories:
                 if directory.is_dir():
-                    entry = self._fixture__path_entries_cache(directory, filename)
+                    entry = self._fixture__path_entries_cache(
+                        directory, filename
+                    )
                     if entry.exists():
                         yield entry
 
@@ -84,8 +86,10 @@ class GetFilePathFixture(fixture_class.Fixture):
 
     def _file_not_found_error(self, message, filename):
         pathes = '\n'.join(
-            ' - %s' % path for path in self._fixture_get_search_pathes(
-                filename, include_all=True,
+            ' - %s' % path
+            for path in self._fixture_get_search_pathes(
+                filename,
+                include_all=True,
             )
         )
         return FileNotFoundError(
@@ -452,8 +456,7 @@ def _search_directories(
         _path_entries_cache(static_dir, subdir) for subdir in local_path
     ]
     search_directories.extend(
-        _path_entries_cache(path)
-        for path in initial_data_path
+        _path_entries_cache(path) for path in initial_data_path
     )
     return tuple(search_directories)
 

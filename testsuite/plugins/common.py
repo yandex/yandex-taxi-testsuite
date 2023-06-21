@@ -39,18 +39,16 @@ class GetSearchPathesFixture(fixture_class.Fixture):
         self,
         filename: annotations.PathOrStr,
         *,
-        include_all=False,
+        _only_exisiting=True,
     ) -> typing.Iterator[pathlib.Path]:
-        if include_all:
-            for directory in self._fixture__search_directories:
-                yield self._fixture__path_entries_cache(directory, filename)
-        else:
+        if _only_exisitng:
             for directory in self._fixture__search_directories_existing:
-                entry = self._fixture__path_entries_cache(
-                    directory, filename
-                )
+                entry = self._fixture__path_entries_cache(directory, filename)
                 if entry.exists():
                     yield entry
+        else:
+            for directory in self._fixture__search_directories:
+                yield self._fixture__path_entries_cache(directory, filename)
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -89,7 +87,7 @@ class GetFilePathFixture(fixture_class.Fixture):
             ' - %s' % path
             for path in self._fixture_get_search_pathes(
                 filename,
-                include_all=True,
+                _only_existing=False,
             )
         )
         return FileNotFoundError(
@@ -434,6 +432,7 @@ def worker_id(request) -> str:
 @pytest.fixture(scope='session')
 def _file_paths_cache() -> FilePathsCache:
     return {}
+
 
 @pytest.fixture
 def _search_directories(

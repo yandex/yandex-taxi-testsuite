@@ -440,7 +440,7 @@ def _search_directories(
     testsuite_request_path,
     _path_entries_cache,
 ) -> typing.Tuple[pathlib.Path, ...]:
-    test_module_name = _path_entries_cache(testsuite_request_path.stem)
+    test_module_name = testsuite_request_path.stem
     node_name = request.node.name
     if '[' in node_name:
         node_name = node_name[: node_name.index('[')]

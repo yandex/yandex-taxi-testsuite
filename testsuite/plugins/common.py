@@ -31,7 +31,8 @@ class LoadYamlError(BaseError):
 class GetSearchPathesFixture(fixture_class.Fixture):
     """Generates sequence of pathes for static files."""
 
-    _fixture__search_directories: typing.Tuple[str, ...]
+    _fixture__search_directories: typing.Tuple[pathlib.Path, ...]
+    _fixture__search_directories_existing: typing.Tuple[pathlib.Path, ...]
     _fixture__path_entries_cache: typing.Callable
 
     def __call__(
@@ -44,13 +45,12 @@ class GetSearchPathesFixture(fixture_class.Fixture):
             for directory in self._fixture__search_directories:
                 yield self._fixture__path_entries_cache(directory, filename)
         else:
-            for directory in self._fixture__search_directories:
-                if directory.is_dir():
-                    entry = self._fixture__path_entries_cache(
-                        directory, filename
-                    )
-                    if entry.exists():
-                        yield entry
+            for directory in self._fixture__search_directories_existing:
+                entry = self._fixture__path_entries_cache(
+                    directory, filename
+                )
+                if entry.exists():
+                    yield entry
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -435,7 +435,6 @@ def worker_id(request) -> str:
 def _file_paths_cache() -> FilePathsCache:
     return {}
 
-
 @pytest.fixture
 def _search_directories(
     request,
@@ -448,17 +447,21 @@ def _search_directories(
     node_name = request.node.name
     if '[' in node_name:
         node_name = node_name[: node_name.index('[')]
-    local_path = [_path_entries_cache(test_module_name, node_name)]
-    local_path.append(test_module_name)
-    local_path.append('default')
-    local_path.append('')
     search_directories = [
-        _path_entries_cache(static_dir, subdir) for subdir in local_path
+        _path_entries_cache(static_dir, test_module_name, node_name),
+        _path_entries_cache(static_dir, test_module_name),
+        _path_entries_cache(static_dir, 'default'),
+        _path_entries_cache(static_dir, ''),
     ]
     search_directories.extend(
         _path_entries_cache(path) for path in initial_data_path
     )
     return tuple(search_directories)
+
+
+@pytest.fixture
+def _search_directories_existing(_search_directories):
+    return tuple(path for path in _search_directories if path.exists())
 
 
 @pytest.fixture(scope='session')

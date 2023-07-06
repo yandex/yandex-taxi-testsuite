@@ -43,7 +43,7 @@ start() {
 
     cp $POSTGRESQL_CONFIGS_DIR/*.conf $POSTGRESQL_DATADIR
     # disable jit for PostgreSQL 12+
-    if [[ $($POSTGRESQL_BINPATH/pg_config --version | awk -F '[^0-9]+' '{ print $2 }') > 11 ]]; then
+    if [ $($POSTGRESQL_BINPATH/pg_config --version | awk -F '[^0-9]+' '{ print $2 }') -gt 11 ]; then
         echo "jit = off" >> $POSTGRESQL_DATADIR/postgresql.conf
     fi
 

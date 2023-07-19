@@ -63,18 +63,14 @@ def redis_cluster_service(
 @pytest.fixture
 def redis_store(
     pytestconfig,
-    redis_service,
-    _redis_masters,
+    _redis_store,
     _redis_execute_commands_from_file,
 ):
     if pytestconfig.option.no_redis:
         yield
         return
 
-    redis_db = redisdb.StrictRedis(
-        host=_redis_masters[0]['host'],
-        port=_redis_masters[0]['port'],
-    )
+    redis_db = _redis_store
 
     try:
         _redis_execute_commands_from_file('redis_store', redis_db)
@@ -193,6 +189,24 @@ def _json_object_hook(dct):
     if '$json' in dct:
         return json.dumps(dct['$json'])
     return dct
+
+
+@pytest.fixture
+def _redis_store(
+    pytestconfig,
+    redis_service,
+    _redis_masters,
+):
+    if pytestconfig.option.no_redis:
+        yield
+        return
+
+    redis_db = redisdb.StrictRedis(
+        host=_redis_masters[0]['host'],
+        port=_redis_masters[0]['port'],
+    )
+
+    yield redis_db
 
 
 @pytest.fixture(scope='session')

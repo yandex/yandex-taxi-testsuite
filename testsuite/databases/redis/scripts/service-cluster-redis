@@ -18,6 +18,20 @@ REDIS_CLI=$(find_binary_or_die redis-cli)
 
 REDIS_INSTS=
 
+wait_redis_ready() {
+    local HOST=$1
+    local PORT=$2
+    for i in $(seq 1 10);
+    do
+        if [ $($REDIS_CLI -h $HOST -p $PORT ping) = PONG ] ; then
+            return ;
+        fi
+        echo "retry to connect to redis instance on $HOST:$PORT"
+        sleep 1
+    done
+    die "Failed to connect to redis instance on port $HOST:$PORT"
+}
+
 start() {
     rm -rf $REDIS_DATADIR
 
@@ -41,6 +55,7 @@ start() {
             dump_log_stderr "$logfile"
             die "Failed to start redis ($port) server"
         }
+        wait_redis_ready $REDIS_HOST $port
         REDIS_INSTS="$REDIS_INSTS $REDIS_HOST:$port"
     done
 

@@ -209,6 +209,7 @@ def _redis_store(
     yield redis_db
 
 
+# creating RedisCluster is costly, so we do it once at session scope
 @pytest.fixture(scope='session')
 def _redis_cluster_store(
     pytestconfig,

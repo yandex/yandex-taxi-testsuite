@@ -191,7 +191,7 @@ def _json_object_hook(dct):
     return dct
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def _redis_store(
     pytestconfig,
     redis_service,

@@ -63,18 +63,14 @@ def redis_cluster_service(
 @pytest.fixture
 def redis_store(
     pytestconfig,
-    redis_service,
-    _redis_masters,
+    _redis_store,
     _redis_execute_commands_from_file,
 ):
     if pytestconfig.option.no_redis:
         yield
         return
 
-    redis_db = redisdb.StrictRedis(
-        host=_redis_masters[0]['host'],
-        port=_redis_masters[0]['port'],
-    )
+    redis_db = _redis_store
 
     try:
         _redis_execute_commands_from_file('redis_store', redis_db)
@@ -106,8 +102,7 @@ def redis_sentinel(
 @pytest.fixture
 def redis_cluster_store(
     pytestconfig,
-    redis_cluster_service,
-    redis_cluster_sentinels,
+    _redis_cluster_store,
     _redis_execute_commands_from_file,
 ):
     def _flush_all(redis_db):
@@ -120,10 +115,7 @@ def redis_cluster_store(
         yield
         return
 
-    redis_db = redisdb.RedisCluster(
-        host=redis_cluster_sentinels[0]['host'],
-        port=redis_cluster_sentinels[0]['port'],
-    )
+    redis_db = _redis_cluster_store
 
     try:
         _redis_execute_commands_from_file('redis_cluster_store', redis_db)
@@ -197,6 +189,43 @@ def _json_object_hook(dct):
     if '$json' in dct:
         return json.dumps(dct['$json'])
     return dct
+
+
+@pytest.fixture(scope='session')
+def _redis_store(
+    pytestconfig,
+    redis_service,
+    _redis_masters,
+):
+    if pytestconfig.option.no_redis:
+        yield
+        return
+
+    redis_db = redisdb.StrictRedis(
+        host=_redis_masters[0]['host'],
+        port=_redis_masters[0]['port'],
+    )
+
+    yield redis_db
+
+
+# creating RedisCluster is costly, so we do it once at session scope
+@pytest.fixture(scope='session')
+def _redis_cluster_store(
+    pytestconfig,
+    redis_cluster_service,
+    redis_cluster_sentinels,
+):
+    if pytestconfig.option.no_redis:
+        yield
+        return
+
+    redis_db = redisdb.RedisCluster(
+        host=redis_cluster_sentinels[0]['host'],
+        port=redis_cluster_sentinels[0]['port'],
+    )
+
+    yield redis_db
 
 
 @pytest.fixture

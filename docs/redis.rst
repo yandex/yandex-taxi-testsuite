@@ -76,6 +76,18 @@ Provide access to cluster redis via same interface as redis.RedisCluster().
       assert redis_cluster_store.get('somekey') == b'somedata'
 
 
+redis_cluster_nodes
+~~~~~~~~~~~~~~~~~~~
+
+Provides the list of redis cluster nodes.
+
+
+redis_cluster_replicas
+~~~~~~~~~~~~~~~~~~~
+
+Gives the number of replicas per primary node in redis cluster.
+
+
 Marks
 -----
 

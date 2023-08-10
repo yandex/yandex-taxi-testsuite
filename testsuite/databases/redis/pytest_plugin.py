@@ -165,7 +165,7 @@ def redis_sentinels(pytestconfig, _redis_service_settings):
 
 
 @pytest.fixture(scope='session')
-def redis_cluster_sentinels(pytestconfig, _redis_cluster_service_settings):
+def redis_cluster_nodes(_redis_cluster_service_settings):
     return [
         {
             'host': _redis_cluster_service_settings.host,
@@ -173,6 +173,17 @@ def redis_cluster_sentinels(pytestconfig, _redis_cluster_service_settings):
         }
         for port in _redis_cluster_service_settings.cluster_ports
     ]
+
+
+@pytest.fixture(scope='session')
+def redis_cluster_replicas(_redis_cluster_service_settings):
+    return _redis_cluster_service_settings.cluster_replicas
+
+
+# TODO: deprecated, misleading name: there are no sentinels in redis cluster
+@pytest.fixture(scope='session')
+def redis_cluster_sentinels(redis_cluster_nodes):
+    return redis_cluster_nodes
 
 
 @pytest.fixture(scope='session')

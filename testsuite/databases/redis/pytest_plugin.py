@@ -1,5 +1,6 @@
 import json
 
+import warnings
 import pytest
 import redis as redisdb
 
@@ -180,9 +181,9 @@ def redis_cluster_replicas(_redis_cluster_service_settings):
     return _redis_cluster_service_settings.cluster_replicas
 
 
-# TODO: deprecated, misleading name: there are no sentinels in redis cluster
 @pytest.fixture(scope='session')
 def redis_cluster_sentinels(redis_cluster_nodes):
+    warnings.warn('use redis_cluster_nodes',  PendingDeprecationWarning)
     return redis_cluster_nodes
 
 

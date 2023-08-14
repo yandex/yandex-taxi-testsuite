@@ -174,7 +174,7 @@ def create_cluster_redis_service(
             'REDIS_CLUSTER_PORTS': ' '.join(
                 [str(port) for port in settings.cluster_ports]
             ),
-            'REDIS_CLUSTER_REPLICAS': settings.cluster_replicas,
+            'REDIS_CLUSTER_REPLICAS': str(settings.cluster_replicas),
             **(env or {}),
         },
         check_host=settings.host,

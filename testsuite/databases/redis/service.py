@@ -13,6 +13,7 @@ DEFAULT_MASTER_PORTS = (16379, 16389)
 DEFAULT_SENTINEL_PORT = 26379
 DEFAULT_SLAVE_PORTS = (16380, 16390, 16381)
 DEFAULT_CLUSTER_PORTS = (17380, 17381, 17382, 17383, 17384, 17385)
+DEFAULT_CLUSTER_REPLICAS = 1
 
 SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
     'scripts/service-redis',
@@ -50,11 +51,17 @@ class ServiceSettings(typing.NamedTuple):
 class ClusterServiceSettings(typing.NamedTuple):
     host: str
     cluster_ports: typing.Tuple[int, ...]
+    cluster_replicas: int
 
     def validate(self):
-        if len(self.cluster_ports) != len(DEFAULT_CLUSTER_PORTS):
+        if len(self.cluster_ports) % (self.cluster_replicas + 1) != 0:
             raise NotEnoughPorts(
-                f'Need exactly {len(DEFAULT_CLUSTER_PORTS)} cluster nodes!',
+                f'Number of nodes does not match number of replicas ({self.cluster_replicas})',
+            )
+        min_masters = (self.cluster_replicas + 1) * 3
+        if len(self.cluster_ports) < min_masters:
+            raise NotEnoughPorts(
+                f'Need at least {min_masters} cluster nodes!',
             )
 
 
@@ -82,6 +89,10 @@ def get_cluster_service_settings():
         cluster_ports=utils.getenv_ints(
             key='TESTSUITE_REDIS_CLUSTER_PORTS',
             default=DEFAULT_CLUSTER_PORTS,
+        ),
+        cluster_replicas=utils.getenv_int(
+            key='TESTSUITE_REDIS_CLUSTER_REPLICAS',
+            default=DEFAULT_CLUSTER_REPLICAS,
         ),
     )
 
@@ -133,7 +144,7 @@ def create_redis_service(
 def create_cluster_redis_service(
     service_name,
     working_dir,
-    settings: typing.Optional[ServiceSettings] = None,
+    settings: typing.Optional[ClusterServiceSettings] = None,
     env=None,
 ):
     if settings is None:
@@ -163,6 +174,7 @@ def create_cluster_redis_service(
             'REDIS_CLUSTER_PORTS': ' '.join(
                 [str(port) for port in settings.cluster_ports]
             ),
+            'REDIS_CLUSTER_REPLICAS': str(settings.cluster_replicas),
             **(env or {}),
         },
         check_host=settings.host,

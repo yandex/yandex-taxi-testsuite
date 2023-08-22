@@ -186,27 +186,30 @@ def _run_script(
 
 
 def _get_db_tables_list(
-    cursor: pymysql.cursors.Cursor,
-    db_name: typing.Optional[str],
-    truncate_non_empty: bool,
+        cursor: pymysql.cursors.Cursor, truncate_non_empty: bool,
 ) -> typing.Optional[typing.Tuple]:
-    cursor.execute('show tables')
-    tables = cursor.fetchall()
-
-    if not db_name:
-        return tables
+    if not _get_db_tables_list.tables:
+        logger.debug('first time')
+        cursor.execute('show tables')
+        _get_db_tables_list.tables = cursor.fetchall()
 
     if truncate_non_empty:
-        if tables:
-            tables_enum: str = ', '.join([x for (x,) in tables])
-            cursor.execute('analyze no_write_to_binlog table ' + tables_enum)
-            cursor.execute(
-                'select `table_name` from information_schema.tables '
-                'where table_rows >= 1 and '
-                f'table_schema = \'{db_name}\'',
+        if _get_db_tables_list.tables:
+            subquery = ' union '.join(
+                [
+                    f'select \'{t}\' as name, count(*) as c from {t}'
+                    for (t,) in _get_db_tables_list.tables
+                ],
             )
-            tables = cursor.fetchall()
-    return tables
+            query = f'select name from ({subquery}) tables where c>0;'
+
+            cursor.execute(query)
+            return cursor.fetchall()
+
+    return _get_db_tables_list.tables
+
+
+_get_db_tables_list.tables = None
 
 
 def apply_queries(
@@ -218,20 +221,21 @@ def apply_queries(
     if not keep_tables:
         keep_tables = []
     with connection.cursor() as cursor:
-        tables = _get_db_tables_list(
-            cursor,
-            connection.conninfo.dbname,
-            truncate_non_empty,
-        )
+        tables = _get_db_tables_list(cursor, truncate_non_empty)
 
         if tables:
-            for (table,) in tables:
-                if table not in keep_tables:
-                    cursor.execute(
-                        'set foreign_key_checks=0;'
-                        f'truncate table {table};'
-                        'set foreign_key_checks=1;',
-                    )
+            truncate_sql = ' '.join(
+                [
+                    f'truncate table {t};'
+                    for (t,) in tables
+                    if t not in keep_tables
+                ],
+            )
+            cursor.execute(
+                'set foreign_key_checks=0;'
+                f'{truncate_sql}'
+                'set foreign_key_checks=1;',
+            )
         for query in queries:
             try:
                 cursor.execute(query.body, args=[])

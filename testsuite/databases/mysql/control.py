@@ -185,31 +185,34 @@ def _run_script(
     shell.execute(command, verbose=verbose, command_alias='mysql/script')
 
 
-def _get_db_tables_list(
-        cursor: pymysql.cursors.Cursor, truncate_non_empty: bool,
-) -> typing.Optional[typing.Tuple]:
-    if not _get_db_tables_list.tables:
-        logger.debug('first time')
-        cursor.execute('show tables')
-        _get_db_tables_list.tables = cursor.fetchall()
+class DBTablesList:
+    def __init__(self):
+        self.tables = None
 
-    if truncate_non_empty:
-        if _get_db_tables_list.tables:
-            subquery = ' union '.join(
-                [
-                    f'select \'{t}\' as name, count(*) as c from {t}'
-                    for (t,) in _get_db_tables_list.tables
-                ],
-            )
-            query = f'select name from ({subquery}) tables where c>0;'
+    def get_db_tables_list(
+        self,
+        cursor: pymysql.cursors.Cursor,
+        truncate_non_empty: bool,
+    ) -> typing.Optional[typing.Tuple]:
+        if not self.tables:
+            logger.debug('first time')
+            cursor.execute('show tables')
+            self.tables = cursor.fetchall()
 
-            cursor.execute(query)
-            return cursor.fetchall()
+        if truncate_non_empty:
+            if self.tables:
+                subquery = ' union '.join(
+                    [
+                        f'select \'{t}\' as name, count(*) as c from {t}'
+                        for (t,) in self.tables
+                    ],
+                )
+                query = f'select name from ({subquery}) tables where c>0;'
 
-    return _get_db_tables_list.tables
+                cursor.execute(query)
+                return cursor.fetchall()
 
-
-_get_db_tables_list.tables = None
+        return self.tables
 
 
 def apply_queries(
@@ -221,7 +224,7 @@ def apply_queries(
     if not keep_tables:
         keep_tables = []
     with connection.cursor() as cursor:
-        tables = _get_db_tables_list(cursor, truncate_non_empty)
+        tables = DBTablesList().get_db_tables_list(cursor, truncate_non_empty)
 
         if tables:
             truncate_sql = ' '.join(

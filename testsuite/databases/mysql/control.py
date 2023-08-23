@@ -186,6 +186,11 @@ def _run_script(
 
 
 class DBTablesList:
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(DBTablesList, cls).__new__(cls)
+        return cls.instance
+
     def __init__(self):
         self.tables = None
 
@@ -195,7 +200,6 @@ class DBTablesList:
         truncate_non_empty: bool,
     ) -> typing.Optional[typing.Tuple]:
         if not self.tables:
-            logger.debug('first time')
             cursor.execute('show tables')
             self.tables = cursor.fetchall()
 
@@ -229,9 +233,9 @@ def apply_queries(
         if tables:
             truncate_sql = ' '.join(
                 [
-                    f'truncate table {t};'
-                    for (t,) in tables
-                    if t not in keep_tables
+                    f'truncate table {table};'
+                    for (table,) in tables
+                    if table not in keep_tables
                 ],
             )
             cursor.execute(

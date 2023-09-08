@@ -65,7 +65,7 @@ class AsyncCallQueue:
 
     def flush(self) -> None:
         """Clear call queue."""
-        del self._queue
+        self._queue = asyncio.Queue()
 
     @property
     def has_calls(self) -> bool:

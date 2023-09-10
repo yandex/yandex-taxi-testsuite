@@ -12,6 +12,7 @@ import warnings
 
 import aiohttp.web
 
+from testsuite.utils import cached_property
 from testsuite.utils import callinfo
 from testsuite.utils import compat
 from testsuite.utils import http
@@ -46,13 +47,20 @@ RouteParams = typing.Dict[str, str]
 
 class Handler:
     def __init__(self, func, *, raw_request=False, json_response=False):
-        self.callqueue = callinfo.acallqueue(func)
-        self.handler_args = magicargs.MagicArgsHandler(
-            func,
-            raw_request=raw_request,
-        )
+        self.raw_request = raw_request
         self.json_response = json_response
         self.orig_func = func
+
+    @cached_property
+    def callqueue(self):
+        return callinfo.acallqueue(self.orig_func)
+
+    @cached_property
+    def handler_args(self):
+        return magicargs.MagicArgsHandler(
+            self.orig_func,
+            raw_request=self.raw_request,
+        )
 
     def __repr__(self):
         return (

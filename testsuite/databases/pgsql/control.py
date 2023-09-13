@@ -1,3 +1,4 @@
+import concurrent.futures
 import contextlib
 import dataclasses
 import logging
@@ -61,6 +62,8 @@ class ConnectionWrapper:
         self._conninfo = conninfo
         self._conn: typing.Optional[psycopg2.extensions.connection] = None
         self._tables: typing.Optional[typing.List[str]] = None
+        self._truncate_thread = None
+        self._executer = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
     def initialize(self, cleanup_exclude_tables: typing.FrozenSet[str]):
         if self._initialized:
@@ -115,9 +118,25 @@ class ConnectionWrapper:
         """Apply queries to database"""
         cursor = self.cursor()
         with contextlib.closing(cursor):
-            self._try_truncate_tables(cursor)
+            if self._truncate_thread:
+                self._truncate_thread.result()
+                self._truncate_thread = None
+            else:
+                self._try_truncate_tables(cursor)
             for query in queries:
                 self._apply_query(cursor, query)
+
+    def close(self):
+        self._executer.shutdown()
+
+    def schedule_truncation(self):
+        def truncate():
+            cursor = self.cursor()
+            with contextlib.closing(cursor):
+                self._try_truncate_tables(cursor)
+
+        assert not self._truncate_thread
+        self._truncate_thread = self._executer.submit(truncate)
 
     def _try_truncate_tables(self, cursor) -> None:
         for _ in range(TRUNCATE_RETRIES):
@@ -345,6 +364,11 @@ class PgControl:
                 f'File path: {path}\n\n'
                 f'{exc}',
             )
+
+
+    def close(self):
+        for conn in self._connections.values():
+            conn.close()
 
     @testsuite_utils.cached_property
     def _connection(self) -> psycopg2.extensions.connection:

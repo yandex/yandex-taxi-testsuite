@@ -365,7 +365,6 @@ class PgControl:
                 f'{exc}',
             )
 
-
     def close(self):
         for conn in self._connections.values():
             conn.close()

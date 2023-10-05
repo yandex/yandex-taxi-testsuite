@@ -9,7 +9,14 @@ SCHEMAS_DIR = pathlib.Path(__file__).parent.joinpath('schemas')
 
 @pytest.fixture(scope='session')
 def mysql_local():
-    return discover.find_schemas([SCHEMAS_DIR])
+    return discover.find_schemas(
+        [SCHEMAS_DIR],
+        extra_schema_args={
+            'testsuite-testdb': {
+                'truncate_non_empty': True,
+            },
+        },
+    )
 
 
 @pytest.mark.mysql(

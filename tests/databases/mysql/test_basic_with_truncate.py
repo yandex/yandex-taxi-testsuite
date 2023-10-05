@@ -6,20 +6,28 @@ from testsuite.databases.mysql import discover
 
 SCHEMAS_DIR = pathlib.Path(__file__).parent.joinpath('schemas')
 
+
 @pytest.fixture(scope='session')
 def mysql_local():
-    return discover.find_schemas([SCHEMAS_DIR])
+    return discover.find_schemas(
+        [SCHEMAS_DIR],
+        extra_schema_args={
+            'testsuite-testdb_with_truncate': {
+                'truncate_non_empty': True,
+            },
+        },
+    )
 
 
 @pytest.mark.mysql(
-    'testdb',
+    'testdb_with_truncate',
     queries=[
         'INSERT INTO foo (id, value) VALUES (1, "foo")',
         'INSERT INTO foo (id, value) VALUES (2, "bar")',
     ],
 )
 def test_foo(mysql):
-    cursor = mysql['testdb'].cursor()
+    cursor = mysql['testdb_with_truncate'].cursor()
 
     cursor.execute('select * from foo order by id')
     assert cursor.fetchall() == ((1, 'foo'), (2, 'bar'))
@@ -29,14 +37,14 @@ def test_foo(mysql):
 
 
 @pytest.mark.mysql(
-    'testdb',
+    'testdb_with_truncate',
     queries=[
         'INSERT INTO bar (id, value) VALUES (1, "foo")',
         'INSERT INTO bar (id, value) VALUES (2, "bar")',
     ],
 )
 def test_bar(mysql):
-    cursor = mysql['testdb'].cursor()
+    cursor = mysql['testdb_with_truncate'].cursor()
 
     cursor.execute('select * from foo order by id')
     assert cursor.fetchall() == ()
@@ -46,7 +54,7 @@ def test_bar(mysql):
 
 
 def test_file_data(mysql):
-    cursor = mysql['testdb'].cursor()
+    cursor = mysql['testdb_with_truncate'].cursor()
 
     cursor.execute('select * from foo order by id')
     assert cursor.fetchall() == ((1, 'one'), (2, 'two'))
@@ -56,11 +64,11 @@ def test_file_data(mysql):
 
 
 @pytest.mark.mysql(
-    'testdb',
+    'testdb_with_truncate',
     queries=['INSERT INTO foo (id, value) VALUES (1, "foo")'],
 )
 def test_dict_cursor(mysql):
-    cursor = mysql['testdb'].dict_cursor()
+    cursor = mysql['testdb_with_truncate'].dict_cursor()
 
     cursor.execute('select * from foo order by id')
     assert cursor.fetchone() == {'id': 1, 'value': 'foo'}

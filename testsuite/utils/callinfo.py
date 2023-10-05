@@ -2,6 +2,8 @@ import asyncio
 import inspect
 import typing
 
+from testsuite.utils import cached_property
+
 
 class BaseError(Exception):
     """Base exception class for this module."""
@@ -38,10 +40,19 @@ class AsyncCallQueue:
     ):
         self._func = func
         self._name = func.__name__
-        self._queue: asyncio.Queue = asyncio.Queue()
-        self._get_callinfo = callinfo(func)
-        self._is_coro = inspect.iscoroutinefunction(func)
         self._checker = checker
+
+    @cached_property
+    def _is_coro(self):
+        return inspect.iscoroutinefunction(self._func)
+
+    @cached_property
+    def _get_callinfo(self):
+        return callinfo(self._func)
+
+    @cached_property
+    def _queue(self) -> asyncio.Queue:
+        return asyncio.Queue()
 
     async def __call__(self, *args, **kwargs):
         """Call underlying function."""

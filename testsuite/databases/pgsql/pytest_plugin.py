@@ -1,5 +1,6 @@
 import collections
 import collections.abc
+import contextlib
 import re
 import typing
 
@@ -207,6 +208,11 @@ def _pgsql(
     return pgsql_local.initialize()
 
 
+@pytest.fixture(scope='session')
+def pgsql_background_truncate_enabled():
+    return True
+
+
 @pytest.fixture
 def pgsql_apply(
     request,
@@ -215,6 +221,7 @@ def pgsql_apply(
     get_file_path,
     get_directory_path,
     mockserver_info,
+    pgsql_background_truncate_enabled,
 ) -> None:
     """Initialize PostgreSQL database with data.
 
@@ -319,6 +326,12 @@ def pgsql_apply(
             queries = pgsql_default_queries(dbname)
         pg_db.apply_queries(queries)
 
+    yield
+
+    if pgsql_background_truncate_enabled:
+        for pg_db in _pgsql.values():
+            pg_db.schedule_truncation()
+
 
 @pytest.fixture
 def _pgsql_service(
@@ -357,7 +370,7 @@ def postgresql_base_connstr(_pgsql_conninfo) -> str:
 def pgsql_control(pytestconfig, _pgsql_conninfo, pgsql_disabled: bool):
     if pgsql_disabled:
         return {}
-    return control.PgControl(
+    instance = control.PgControl(
         _pgsql_conninfo,
         verbose=pytestconfig.option.verbose,
         skip_applied_schemas=(
@@ -365,6 +378,8 @@ def pgsql_control(pytestconfig, _pgsql_conninfo, pgsql_disabled: bool):
             or pytestconfig.option.service_wait
         ),
     )
+    with contextlib.closing(instance):
+        yield instance
 
 
 @pytest.fixture(scope='session')

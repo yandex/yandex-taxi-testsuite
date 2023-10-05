@@ -223,3 +223,23 @@ def test_getfullargspec():
     assert callinfo.getfullargspec(foo).args == ['a', 'b', 'c']
     assert callinfo.getfullargspec(bar).args == ['a', 'b', 'c']
     assert callinfo.getfullargspec(maurice).args == ['a', 'b', 'c']
+
+
+async def test_acallqueue_flush():
+    @callinfo.acallqueue
+    async def method(arg):
+        pass
+
+    await method(1)
+    assert method.has_calls
+
+    method.flush()
+    assert not method.has_calls
+
+    # Ensure that cached property works correctly
+    method.flush()
+    method.flush()
+    assert not method.has_calls
+
+    await method(2)
+    assert method.has_calls

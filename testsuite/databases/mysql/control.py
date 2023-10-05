@@ -139,6 +139,7 @@ class DatabasesState:
     _initialized: typing.Set[str]
 
     def __init__(self, connections: ConnectionCache, verbose: bool = False):
+        self._need_save_tables = True
         self._connections = connections
         self._verbose = verbose
         self._migrations_run = set()
@@ -163,6 +164,7 @@ class DatabasesState:
         key = dbname, path
         if key in self._migrations_run:
             return
+        self._need_save_tables = True
         logger.debug(
             'Running mysql script %s against database %s',
             path,
@@ -189,6 +191,9 @@ class DatabasesState:
         self._initialized.add(dbname)
 
     def save_tables(self, dbname: str) -> None:
+        if not self._need_save_tables:
+            return
+        self._need_save_tables = False
         connection = self._connections.get_connection(dbname)
         cursor = connection.cursor()
         with contextlib.closing(cursor):

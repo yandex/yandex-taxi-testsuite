@@ -65,10 +65,10 @@ class ConnectionWrapper:
                 return cursor.fetchall()
 
     def apply_queries(
-            self,
-            queries: typing.List[MysqlQuery],
-            keep_tables: typing.List[str] = None,
-            truncate_non_empty: bool = False,
+        self,
+        queries: typing.List[MysqlQuery],
+        keep_tables: typing.List[str] = None,
+        truncate_non_empty: bool = False,
     ) -> None:
         if not keep_tables:
             keep_tables = []
@@ -96,7 +96,8 @@ class ConnectionWrapper:
                     cursor.execute(query.body, args=[])
                 except pymysql.Error as exc:
                     error_message = (
-                        f'MySQL apply query error\n' f'Query from: {query.source}\n'
+                        f'MySQL apply query error\n'
+                        f'Query from: {query.source}\n'
                     )
                     if query.path:
                         error_message += f'File path: {query.path}\n'
@@ -160,7 +161,7 @@ class DatabasesState:
         return ConnectionWrapper(
             self._connections.get_connection(dbname),
             self._connections.get_conninfo(dbname),
-            self._tables.get(dbname)
+            self._tables.get(dbname),
         )
 
     def run_migration(self, dbname: str, path: str):
@@ -202,9 +203,9 @@ class DatabasesState:
 
 class Control:
     def __init__(
-            self,
-            databases: classes.DatabasesDict,
-            state: DatabasesState,
+        self,
+        databases: classes.DatabasesDict,
+        state: DatabasesState,
     ):
         self._databases = databases
         self._state = state
@@ -242,9 +243,9 @@ def _build_mysql_args(conninfo: classes.ConnectionInfo) -> typing.List[str]:
 
 
 def _run_script(
-        conninfo: classes.ConnectionInfo,
-        args: typing.List[str],
-        verbose: bool,
+    conninfo: classes.ConnectionInfo,
+    args: typing.List[str],
+    verbose: bool,
 ):
     command = [str(MYSQL_HELPER), *_build_mysql_args(conninfo), *args]
     shell.execute(command, verbose=verbose, command_alias='mysql/script')

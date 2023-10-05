@@ -79,18 +79,13 @@ class ConnectionWrapper:
                 tables = self._tables
 
             if tables:
-                truncate_sql = ' '.join(
-                    [
-                        f'truncate table {t};'
-                        for (t,) in tables
-                        if t not in keep_tables
-                    ],
-                )
-                cursor.execute(
-                    'set foreign_key_checks=0;'
-                    f'{truncate_sql}'
-                    'set foreign_key_checks=1;',
-                )
+                for (table,) in tables:
+                    if table not in keep_tables:
+                        cursor.execute(
+                            'set foreign_key_checks=0;'
+                            f'truncate table {table};'
+                            'set foreign_key_checks=1;',
+                        )
             for query in queries:
                 try:
                     cursor.execute(query.body, args=[])

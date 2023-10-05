@@ -6,6 +6,7 @@ from testsuite.databases.mysql import discover
 
 SCHEMAS_DIR = pathlib.Path(__file__).parent.joinpath('schemas')
 
+
 @pytest.fixture(scope='session')
 def mysql_local():
     return discover.find_schemas([SCHEMAS_DIR])

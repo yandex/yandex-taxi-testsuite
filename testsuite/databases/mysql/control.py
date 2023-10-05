@@ -57,7 +57,7 @@ class ConnectionWrapper:
                 subquery = ' union '.join(
                     [
                         f'select \'{t}\' as name, count(*) as c from {t}'
-                        for (t,) in self.tables
+                        for (t,) in self._tables
                     ],
                 )
                 query = f'select name from ({subquery}) tables where c>0;'

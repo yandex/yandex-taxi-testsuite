@@ -169,7 +169,6 @@ class DatabasesState:
         key = dbname, path
         if key in self._migrations_run:
             return
-        self._need_save_tables = True
         logger.debug(
             'Running mysql script %s against database %s',
             path,
@@ -178,6 +177,7 @@ class DatabasesState:
         conninfo = self._connections.get_conninfo(dbname)
         _run_script(conninfo, ['-e', f'source {path}'], verbose=self._verbose)
         self._migrations_run.add(key)
+        self._need_save_tables = True
 
     @cached_property
     def known_databases(self):

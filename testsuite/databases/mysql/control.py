@@ -79,13 +79,13 @@ class ConnectionWrapper:
                 tables = self._tables
 
             if tables:
-                truncate_sql = ' '.join(
-                    [
-                        f'truncate table {t};'
-                        for (t,) in tables
-                        if t not in keep_tables
-                    ],
-                )
+                truncate_sql = []
+                for (table,) in tables:
+                    if table not in keep_tables:
+                        truncate_sql.append(
+                            f'truncate table {table};'
+                        )
+                truncate_sql = ' '.join(truncate_sql)
                 cursor.execute(
                     'set foreign_key_checks=0;'
                     f'{truncate_sql}'
@@ -93,7 +93,7 @@ class ConnectionWrapper:
                 )
             for query in queries:
                 try:
-                    cursor.execute(query.body, args=[])
+                    cursor.execute(query.body)
                 except pymysql.Error as exc:
                     error_message = (
                         f'MySQL apply query error\n'

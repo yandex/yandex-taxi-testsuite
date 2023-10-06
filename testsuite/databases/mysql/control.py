@@ -82,9 +82,7 @@ class ConnectionWrapper:
                 truncate_sql = []
                 for (table,) in tables:
                     if table not in keep_tables:
-                        truncate_sql.append(
-                            f'truncate table {table};'
-                        )
+                        truncate_sql.append(f'truncate table {table};')
                 truncate_sql = ' '.join(truncate_sql)
                 cursor.execute(
                     'set foreign_key_checks=0;'

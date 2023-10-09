@@ -136,8 +136,8 @@ def _mysql_apply(
             queries = overrides[alias]
         else:
             queries = load_default_queries(alias)
-        control.apply_queries(
-            _mysql_state.wrapper_for(dbconfig.dbname),
+        connection_wrapper = _mysql_state.wrapper_for(dbconfig.dbname)
+        connection_wrapper.apply_queries(
             queries,
             keep_tables=dbconfig.keep_tables,
             truncate_non_empty=dbconfig.truncate_non_empty,

@@ -92,7 +92,7 @@ class ConnectionWrapper:
                 )
             for query in queries:
                 try:
-                    cursor.execute(query.body)
+                    cursor.execute(query.body, args=[])
                 except pymysql.Error as exc:
                     error_message = (
                         f'MySQL apply query error\n'

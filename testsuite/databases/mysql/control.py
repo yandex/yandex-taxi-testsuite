@@ -31,7 +31,7 @@ class ConnectionWrapper:
     def __init__(self, connection, conninfo, tables):
         self._connection = connection
         self._conninfo = conninfo
-        self._tables: typing.Optional[typing.List[str]] = tables
+        self._tables: typing.List[str] = tables
 
     @property
     def conninfo(self) -> classes.ConnectionInfo:
@@ -52,17 +52,18 @@ class ConnectionWrapper:
 
     def _truncate_non_empty_tables(self) -> typing.Optional[typing.List[str]]:
         cursor = self.cursor()
-        with contextlib.closing(cursor):
-            if self._tables:
-                subquery = ' union '.join(
-                    [
-                        f'select \'{t}\' as name, count(*) as c from {t}'
-                        for (t,) in self._tables
-                    ],
-                )
+        if self._tables:
+            with contextlib.closing(cursor):
+                queries = []
+                for table in self._tables:
+                    queries.append(
+                        f'select \'{table}\' as name, count(*) as c from {table}'
+                    )
+                subquery = ' union '.join(queries)
                 query = f'select name from ({subquery}) tables where c>0;'
                 cursor.execute(query)
-                return cursor.fetchall()
+                tables = cursor.fetchall()
+                return [table for (table,) in tables]
 
     def apply_queries(
         self,
@@ -80,7 +81,7 @@ class ConnectionWrapper:
 
             if tables:
                 truncate_sql = []
-                for (table,) in tables:
+                for table in tables:
                     if table not in keep_tables:
                         truncate_sql.append(f'truncate table {table};')
                 truncate_sql = ' '.join(truncate_sql)
@@ -201,7 +202,7 @@ class DatabasesState:
         cursor = connection.cursor()
         with contextlib.closing(cursor):
             cursor.execute('show tables')
-            self._tables[dbname] = cursor.fetchall()
+            self._tables[dbname] = [table for (table,) in cursor.fetchall()]
 
 
 class Control:

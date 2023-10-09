@@ -197,12 +197,12 @@ class DatabasesState:
     def save_tables(self, dbname: str) -> None:
         if not self._need_save_tables:
             return
-        self._need_save_tables = False
         connection = self._connections.get_connection(dbname)
         cursor = connection.cursor()
         with contextlib.closing(cursor):
             cursor.execute('show tables')
             self._tables[dbname] = [table for (table,) in cursor.fetchall()]
+        self._need_save_tables = False
 
 
 class Control:

@@ -474,7 +474,7 @@ def _cached_stat_path():
     stat_cache = {}
 
     class CachedStatPath(path_type):
-        def stat(self):
+        def stat(self, *, follow_symlinks=True):
             key = str(self.absolute())
             if key in stat_cache:
                 is_exc, value = stat_cache[key]

@@ -48,7 +48,9 @@ async def unix_mockserver_client(
     unix_mockserver_info: classes.MockserverInfo,
     service_client_options: Dict[str, Any],
 ) -> service_client.Client:
-    with aiohttp.UnixConnector(path=unix_mockserver_info.socket_path) as conn:
+    async with aiohttp.UnixConnector(
+        path=unix_mockserver_info.socket_path
+    ) as conn:
         async with aiohttp.ClientSession(connector=conn) as session:
             unix_service_client_options = {
                 **service_client_options,

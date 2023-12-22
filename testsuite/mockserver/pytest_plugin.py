@@ -65,6 +65,11 @@ def pytest_addoption(parser):
         type=str,
         help='Bind server to unix socket instead of tcp',
     )
+    group.addoption(
+        '--mockserver-debug',
+        action='store_true',
+        help='Enable debugging logs.',
+    )
     parser.addini(
         'mockserver-tracing-enabled',
         type='bool',

@@ -211,6 +211,7 @@ class Server:
         mockserver_info: classes.MockserverInfo,
         *,
         nofail=False,
+        mockserver_debug=False,
         reporter: typing.Optional[
             reporter_plugin.MockserverReporterPlugin
         ] = None,
@@ -221,6 +222,7 @@ class Server:
     ):
         self._info = mockserver_info
         self._nofail = nofail
+        self._mockserver_debug = mockserver_debug
         self._reporter = reporter
         self._tracing_enabled = tracing_enabled
         self._trace_id_header = trace_id_header
@@ -265,7 +267,17 @@ class Server:
 
     async def handle_request(self, request):
         started = time.perf_counter()
-        log_level = logging.DEBUG
+        try:
+            response = await self._handle_request(request)
+            self._log_request(started, request, response)
+            return response
+        except BaseException as exc:
+            self._log_request(started, request, exc=exc)
+            raise
+
+    def _log_request(self, started, request, response=None, exc=None):
+        if exc is None and not self._mockserver_debug:
+            return
         fields = {
             '_type': 'mockserver_request',
             'timestamp': datetime.datetime.utcnow(),
@@ -275,20 +287,17 @@ class Server:
         for header, key in _LOGGER_HEADERS:
             if header in request.headers:
                 fields[key] = request.headers[header]
-        try:
-            response = await self._handle_request(request)
+        delay_ms = 1000 * (time.perf_counter() - started)
+        fields['delay'] = f'{delay_ms:.3f}ms'
+        if response:
+            log_level = logging.DEBUG
             fields['meta_code'] = response.status
             fields['status'] = 'DONE'
-            return response
-        except BaseException as exc:
+        else:
             log_level = logging.ERROR
             fields['status'] = 'FAIL'
             fields['exc_info'] = str(exc)
-            raise
-        finally:
-            delay_ms = 1000 * (time.perf_counter() - started)
-            fields['delay'] = f'{delay_ms:.3f}ms'
-            logger.log(log_level, 'Mockserver request', extra={'tskv': fields})
+        logger.log(log_level, 'Mockserver request', extra={'tskv': fields})
 
     async def _handle_request(self, request: aiohttp.web.BaseRequest):
         trace_id = request.headers.get(self.trace_id_header)
@@ -605,6 +614,7 @@ def _create_server_obj(
     return Server(
         mockserver_info,
         nofail=pytestconfig.option.mockserver_nofail,
+        mockserver_debug=pytestconfig.option.mockserver_debug,
         reporter=mockserver_reporter,
         tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
         trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),

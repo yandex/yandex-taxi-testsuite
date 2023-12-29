@@ -214,14 +214,45 @@ def pgsql_background_truncate_enabled():
 
 
 @pytest.fixture
+def _pgsql_query_loader(get_file_path, get_directory_path, mockserver_info):
+    def substitute_mockserver(str_val: str):
+        return str_val.replace(
+            '$mockserver',
+            'http://{}:{}'.format(mockserver_info.host, mockserver_info.port),
+        )
+
+    def load_pg_file(path, source):
+        query = substitute_mockserver(path.read_text())
+        return control.PgQuery(body=query, source=source, path=str(path))
+
+    class Loader:
+        @staticmethod
+        def load(path, source, missing_ok=False):
+            path = get_file_path(path, missing_ok=missing_ok)
+            if not path:
+                return []
+            return [load_pg_file(path, source)]
+
+        @staticmethod
+        def loaddir(directory, source, missing_ok=False):
+            result = []
+            directory = get_directory_path(directory, missing_ok=missing_ok)
+            if not directory:
+                return []
+            for path in utils.scan_sql_directory(directory):
+                result.append(load_pg_file(path, source))
+            return result
+
+    return Loader()
+
+
+@pytest.fixture
 def pgsql_apply(
     request,
     _pgsql: ServiceLocalConfig,
     load,
-    get_file_path,
-    get_directory_path,
-    mockserver_info,
     pgsql_background_truncate_enabled,
+    _pgsql_query_loader,
 ) -> None:
     """Initialize PostgreSQL database with data.
 
@@ -245,29 +276,28 @@ def pgsql_apply(
     """
 
     def pgsql_default_queries(dbname):
-        queries = []
-        try:
-            queries.append(
-                load_pg_query(f'pg_{dbname}.sql', 'pgsql.default_queries'),
-            )
-        except FileNotFoundError:
-            pass
-        try:
-            queries.extend(
-                load_pg_queries(f'pg_{dbname}', 'pgsql.default_queries'),
-            )
-        except FileNotFoundError:
-            pass
-        return queries
+        return [
+            *_pgsql_query_loader.load(
+                f'pg_{dbname}.sql',
+                'pgsql.default_queries',
+                missing_ok=True,
+            ),
+            *_pgsql_query_loader.loaddir(
+                f'pg_{dbname}',
+                'pgsql.default_queries',
+                missing_ok=True,
+            ),
+        ]
 
     def pgsql_mark(dbname, files=(), directories=(), queries=()):
         result_queries = []
 
         for path in files:
-            result_queries.append(load_pg_query(path, 'mark.pgsql.files'))
+            result_queries += _pgsql_query_loader.load(path, 'mark.pgsql.files')
         for path in directories:
-            result_queries.extend(
-                load_pg_queries(path, 'mark.pgsql.directories'),
+            result_queries += _pgsql_query_loader.loaddir(
+                path,
+                'mark.pgsql.directories',
             )
         for query in queries:
             queries_str = []
@@ -288,26 +318,6 @@ def pgsql_apply(
                     ),
                 )
         return dbname, result_queries
-
-    def load_pg_query(path, source):
-        query = substitute_mockserver(load(path))
-        return control.PgQuery(
-            body=query,
-            source=source,
-            path=str(get_file_path(path)),
-        )
-
-    def load_pg_queries(directory, source):
-        result = []
-        for path in utils.scan_sql_directory(get_directory_path(directory)):
-            result.append(load_pg_query(path, source))
-        return result
-
-    def substitute_mockserver(str_val: str):
-        return str_val.replace(
-            '$mockserver',
-            'http://{}:{}'.format(mockserver_info.host, mockserver_info.port),
-        )
 
     overrides: typing.DefaultDict[
         str,

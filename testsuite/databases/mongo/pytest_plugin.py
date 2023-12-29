@@ -286,14 +286,25 @@ def _mongo_thread_pool() -> (
 
 
 @pytest.fixture
+def _mongo_query_loader(load_json):
+    def loader(filename, missing_ok=False):
+        data = load_json(filename, missing_ok=missing_ok)
+        if data is None:
+            return []
+        return data
+
+    return loader
+
+
+@pytest.fixture
 def mongodb_init(
     request,
-    load_json,
     verify_file_paths,
     static_dir: pathlib.Path,
     _mongodb_local,
     _mongo_thread_pool,
     _mongo_create_indexes,
+    _mongo_query_loader,
 ) -> None:
     """Populate mongodb with fixture data."""
 
@@ -312,7 +323,7 @@ def mongodb_init(
         for dbname, alias in marker.kwargs.items():
             if dbname not in aliases:
                 raise UnknownCollectionError(
-                    'Unknown collection %s requested' % (dbname,),
+                    f'Unknown collection {dbname} requested'
                 )
             if alias != 'default':
                 aliases[dbname] = '%s_%s' % (dbname, alias)
@@ -343,12 +354,11 @@ def mongodb_init(
             col = getattr(_mongodb_local, dbname)
         except AttributeError:
             return
-        try:
-            docs = load_json('db_%s.json' % alias)
-        except FileNotFoundError:
-            if dbname in requested:
-                raise
-            docs = []
+
+        docs = _mongo_query_loader(
+            f'db_{alias}.json', missing_ok=dbname in requested
+        )
+
         if not docs and col.find_one({}, []) is None:
             return
 

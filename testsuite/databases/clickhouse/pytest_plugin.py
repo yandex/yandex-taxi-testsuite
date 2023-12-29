@@ -49,45 +49,65 @@ def _clickhouse(clickhouse_local, _clickhouse_service, _clickhouse_state):
 
 
 @pytest.fixture
+def _clickhouse_query_loader(get_file_path, get_directory_path):
+    def load_query(path, source):
+        return control.ClickhouseQuery(
+            body=path.read_text(),
+            source=source,
+            path=str(path),
+        )
+
+    class Loader:
+        @staticmethod
+        def load(path, source, missing_ok=False):
+            data = get_file_path(path, missing_ok=missing_ok)
+            if not data:
+                return []
+            return [load_query(data)]
+
+        @staticmethod
+        def loaddir(directory, source, missing_ok=False):
+            result = []
+            directory = get_directory_path(directory, missing_ok=missing_ok)
+            if not directory:
+                return []
+            for path in utils.scan_sql_directory(directory):
+                result.append(load_query(path, source))
+            return result
+
+    return Loader()
+
+
+@pytest.fixture
 def _clickhouse_apply(
     clickhouse_local,
     _clickhouse_state,
-    load,
-    get_file_path,
-    get_directory_path,
+    _clickhouse_query_loader,
     request,
 ):
     def load_default_queries(dbname):
-        queries = []
-        try:
-            queries.append(
-                load_clickhouse_query(
-                    f'ch_{dbname}.sql',
-                    'clickhouse.default_queries',
-                ),
-            )
-        except FileNotFoundError:
-            pass
-        try:
-            queries.extend(
-                load_clickhouse_queries(
-                    f'ch_{dbname}',
-                    'clickhouse.default_queries',
-                ),
-            )
-        except FileNotFoundError:
-            pass
-        return queries
+        return [
+            *_clickhouse_query_loader.load(
+                f'ch_{dbname}.sql',
+                'clickhouse.default_queries',
+                missing_ok=True,
+            ),
+            *_clickhouse_query_loader.loaddir(
+                f'ch_{dbname}',
+                'clickhouse.default_queries',
+                missing_ok=True,
+            ),
+        ]
 
     def clickhouse_mark(dbname, *, files=(), directories=(), queries=()):
         result_queries = []
         for path in files:
-            result_queries.append(
-                load_clickhouse_query(path, 'mark.clickhouse.files'),
+            result_queries += _clickhouse_query_loader.load(
+                path, 'mark.clickhouse.files'
             )
         for path in directories:
-            result_queries.extend(
-                load_clickhouse_queries(path, 'mark.clickhouse.directories'),
+            result_queries += _clickhouse_query_loader.loaddir(
+                path, 'mark.clickhouse.directories'
             )
         for query in queries:
             result_queries.append(
@@ -99,19 +119,6 @@ def _clickhouse_apply(
             )
 
         return dbname, result_queries
-
-    def load_clickhouse_query(path, source):
-        return control.ClickhouseQuery(
-            body=load(path),
-            source=source,
-            path=str(get_file_path(path)),
-        )
-
-    def load_clickhouse_queries(directory, source):
-        return [
-            load_clickhouse_query(path, source)
-            for path in utils.scan_sql_directory(get_directory_path(directory))
-        ]
 
     overrides = collections.defaultdict(list)
     for mark in request.node.iter_markers('clickhouse'):

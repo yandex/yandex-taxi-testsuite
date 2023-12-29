@@ -68,37 +68,59 @@ def _mysql(mysql_local, _mysql_service, _mysql_state):
 
 
 @pytest.fixture
+def _mysql_query_loader(get_file_path, get_directory_path):
+    def load_query(path, source):
+        return control.MysqlQuery(
+            body=path.read_text(),
+            source=source,
+            path=str(path),
+        )
+
+    class Loader:
+        @staticmethod
+        def load(path, source, missing_ok=False):
+            data = get_file_path(path, missing_ok=missing_ok)
+            if not data:
+                return []
+            return [load_query(data)]
+
+        @staticmethod
+        def loaddir(directory, source, missing_ok=False):
+            result = []
+            directory = get_directory_path(directory, missing_ok=missing_ok)
+            if not directory:
+                return []
+            for path in utils.scan_sql_directory(directory):
+                result.append(load_query(path, source))
+            return result
+
+    return Loader()
+
+
+@pytest.fixture
 def _mysql_apply(
     mysql_local,
     _mysql_state,
-    load,
-    get_file_path,
-    get_directory_path,
+    _mysql_query_loader,
     request,
 ):
     def load_default_queries(dbname):
-        queries = []
-        try:
-            queries.append(
-                load_mysql_query(f'my_{dbname}.sql', 'mysql.default_queries'),
-            )
-        except FileNotFoundError:
-            pass
-        try:
-            queries.extend(
-                load_mysql_queries(f'my_{dbname}', 'mysql.default_queries'),
-            )
-        except FileNotFoundError:
-            pass
-        return queries
+        return [
+            *_mysql_query_loader.load(
+                f'my_{dbname}.sql', 'mysql.default_queries', missing_ok=True
+            ),
+            *_mysql_query_loader.loaddir(
+                f'my_{dbname}', 'mysql.default_queries', missing_ok=True
+            ),
+        ]
 
     def mysql_mark(dbname, *, files=(), directories=(), queries=()):
         result_queries = []
         for path in files:
-            result_queries.append(load_mysql_query(path, 'mark.mysql.files'))
+            result_queries += _mysql_query_loader.load(path, 'mark.mysql.files')
         for path in directories:
-            result_queries.extend(
-                load_mysql_queries(path, 'mark.mysql.directories'),
+            result_queries += _mysql_query_loader.loaddir(
+                path, 'mark.mysql.directories'
             )
         for query in queries:
             result_queries.append(
@@ -109,19 +131,6 @@ def _mysql_apply(
                 ),
             )
         return dbname, result_queries
-
-    def load_mysql_query(path, source):
-        return control.MysqlQuery(
-            body=load(path),
-            source=source,
-            path=str(get_file_path(path)),
-        )
-
-    def load_mysql_queries(directory, source):
-        result = []
-        for path in utils.scan_sql_directory(get_directory_path(directory)):
-            result.append(load_mysql_query(path, source))
-        return result
 
     overrides = collections.defaultdict(list)
 

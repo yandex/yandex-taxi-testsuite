@@ -229,7 +229,6 @@ class JsonLoadsFixture(fixture_class.Fixture):
 
     _fixture_load_json_defaults: typing.Dict
     _fixture_object_hook: typing.Any
-    _json_cache = {}
 
     def __call__(self, content, *args, **kwargs) -> typing.Any:
         if 'object_hook' not in kwargs:

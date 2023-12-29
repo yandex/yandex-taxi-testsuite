@@ -31,24 +31,17 @@ class LoadYamlError(BaseError):
 class GetSearchPathesFixture(fixture_class.Fixture):
     """Generates sequence of pathes for static files."""
 
-    _fixture__search_directories: typing.Tuple[pathlib.Path, ...]
     _fixture__search_directories_existing: typing.Tuple[pathlib.Path, ...]
     _fixture__path_entries_cache: typing.Callable
 
     def __call__(
         self,
         filename: annotations.PathOrStr,
-        *,
-        _only_existing=True,
     ) -> typing.Iterator[pathlib.Path]:
-        if _only_existing:
-            for directory in self._fixture__search_directories_existing:
-                entry = self._fixture__path_entries_cache(directory, filename)
-                if entry.exists():
-                    yield entry
-        else:
-            for directory in self._fixture__search_directories:
-                yield self._fixture__path_entries_cache(directory, filename)
+        for directory in self._fixture__search_directories_existing:
+            entry = self._fixture__path_entries_cache(directory, filename)
+            if entry.exists():
+                yield entry
 
 
 class SearchPathFixture(fixture_class.Fixture):
@@ -73,10 +66,18 @@ class GetFilePathFixture(fixture_class.Fixture):
 
     _fixture_search_path: SearchPathFixture
     _fixture_get_search_pathes: GetSearchPathesFixture
+    _fixture__search_directories_existing: typing.Tuple[pathlib.Path, ...]
 
-    def __call__(self, filename: annotations.PathOrStr) -> pathlib.Path:
+    def __call__(
+        self,
+        filename: annotations.PathOrStr,
+        *,
+        missing_ok=False,
+    ) -> typing.Optional[pathlib.Path]:
         for path in self._fixture_search_path(filename):
             return path
+        if missing_ok:
+            return None
         raise self._file_not_found_error(
             f'File {filename} was not found',
             filename,
@@ -84,23 +85,27 @@ class GetFilePathFixture(fixture_class.Fixture):
 
     def _file_not_found_error(self, message, filename):
         pathes = '\n'.join(
-            ' - %s' % path
-            for path in self._fixture_get_search_pathes(
-                filename,
-                _only_existing=False,
-            )
+            f' - {path / filename}'
+            for path in self._fixture__search_directories_existing
         )
         return FileNotFoundError(
-            '%s\n\nThe following pathes were examined:\n%s' % (message, pathes),
+            f'{message}\n\nThe following pathes were examined:\n{pathes}',
         )
 
 
 class GetDirectoryPathFixture(GetFilePathFixture):
     """Returns path to static directory."""
 
-    def __call__(self, filename: annotations.PathOrStr) -> pathlib.Path:
+    def __call__(
+        self,
+        filename: annotations.PathOrStr,
+        *,
+        missing_ok=False,
+    ) -> typing.Optional[pathlib.Path]:
         for path in self._fixture_search_path(filename, directory=True):
             return path
+        if missing_ok:
+            return None
         raise self._file_not_found_error(
             f'Directory {filename} was not found',
             filename,
@@ -160,37 +165,27 @@ class LoadFixture(fixture_class.Fixture):
     :return: :py:class:`LoadFixture` callable instance.
     """
 
-    _fixture_open_file: OpenFileFixture
+    _fixture_get_file_path: GetFilePathFixture
 
     def __call__(
         self,
         filename: annotations.PathOrStr,
-        mode='r',
         encoding='utf-8',
         errors=None,
+        *,
+        missing_ok=False,
     ) -> typing.Union[bytes, str]:
         """Load static text file.
 
         :param filename: static file name part.
-        :param mode: file open mode, see :func:`open`, read-only modes are
-            supported.
         :param encoding: stream encoding, see :func:`open`.
         :param errors: error handling mode see :func:`open`.
-        :returns: ``str`` instance. Binary mode is obsolte, use
-          :func:`load_binary` fixture instead.
+        :returns: ``str`` instance.
         """
-        if 'b' in mode:
-            warnings.warn(
-                'load(): binary mode is deprecated, use load_binary() instead',
-                PendingDeprecationWarning,
-            )
-        with self._fixture_open_file(
-            filename,
-            mode=mode,
-            encoding=encoding,
-            errors=errors,
-        ) as file:
-            return file.read()
+        path = self._fixture_get_file_path(filename, missing_ok=missing_ok)
+        if path is None:
+            return None
+        return path.read_text(encoding=encoding, errors=errors)
 
 
 class LoadBinaryFixture(fixture_class.Fixture):
@@ -204,7 +199,7 @@ class LoadBinaryFixture(fixture_class.Fixture):
             bytes_data = load_binary('data.bin')
     """
 
-    _fixture_open_file: OpenFileFixture
+    _fixture_get_file_path: GetFilePathFixture
 
     def __call__(self, filename: annotations.PathOrStr) -> bytes:
         """Load static binary file.
@@ -212,12 +207,8 @@ class LoadBinaryFixture(fixture_class.Fixture):
         :param filename": static file name part
         :returns: ``bytes`` file content.
         """
-        with self._fixture_open_file(
-            filename,
-            mode='rb',
-            encoding=None,
-        ) as file:
-            return file.read()
+        path = self._fixture_get_file_path(filename)
+        return path.read_bytes()
 
 
 class JsonLoadsFixture(fixture_class.Fixture):
@@ -273,9 +264,13 @@ class LoadJsonFixture(fixture_class.Fixture):
         self,
         filename: annotations.PathOrStr,
         *args,
+        missing_ok=False,
+        missing=None,
         **kwargs,
     ) -> typing.Any:
-        content = self._fixture_load(filename)
+        content = self._fixture_load(filename, missing_ok=missing_ok)
+        if content is None:
+            return missing
         try:
             return self._fixture_json_loads(content, *args, **kwargs)
         except json.JSONDecodeError as err:
@@ -460,7 +455,7 @@ def _search_directories(
 
 @pytest.fixture
 def _search_directories_existing(_search_directories):
-    return tuple(path for path in _search_directories if path.exists())
+    return tuple(path for path in _search_directories if path.is_dir())
 
 
 @pytest.fixture(scope='session')
@@ -472,10 +467,13 @@ def load_json_defaults():
 def _cached_stat_path():
     path_type = type(pathlib.Path())
     stat_cache = {}
+    glob_cache = {}
+    content_cache = {}
+    iterdir_cache = {}
 
     class CachedStatPath(path_type):
         def stat(self, *, follow_symlinks=True):
-            key = str(self.absolute())
+            key = str(self)
             if key in stat_cache:
                 is_exc, value = stat_cache[key]
                 if is_exc:
@@ -488,6 +486,44 @@ def _cached_stat_path():
             except FileNotFoundError as exc:
                 stat_cache[key] = (True, exc)
                 raise
+
+        def iterdir(self):
+            cache_key = str(self)
+            data = iterdir_cache.get(cache_key)
+            if data is None:
+                data = tuple(super().iterdir())
+                content_cache[cache_key] = data
+            return data
+
+        def read_bytes(self):
+            cache_key = (str(self), 'b')
+            data = content_cache.get(cache_key)
+            if data is None:
+                data = super().read_bytes()
+                content_cache[cache_key] = data
+            return data
+
+        def read_text(self, encoding=None, errors=None):
+            cache_key = (str(self), encoding, errors)
+            data = content_cache.get(cache_key)
+            if data is None:
+                data = super().read_text(encoding=encoding, errors=errors)
+                content_cache[cache_key] = data
+            return data
+
+        def glob(self, pattern):
+            key = (str(self), pattern)
+            if key not in glob_cache:
+                data = glob_cache[key] = tuple(super().glob(pattern))
+                return data
+            return glob_cache[key]
+
+        def rglob(self, pattern):
+            key = ('r', str(self), pattern)
+            if key not in glob_cache:
+                data = glob_cache[key] = tuple(super().rglob(pattern))
+                return data
+            return glob_cache[key]
 
         def exists(self):
             return self._exists

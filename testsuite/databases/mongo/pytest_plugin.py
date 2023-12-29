@@ -356,7 +356,7 @@ def mongodb_init(
             return
 
         docs = _mongo_query_loader(
-            f'db_{alias}.json', missing_ok=dbname in requested
+            f'db_{alias}.json', missing_ok=dbname not in requested
         )
 
         if not docs and col.find_one({}, []) is None:

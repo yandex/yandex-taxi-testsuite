@@ -123,7 +123,7 @@ def _clickhouse_query_loader(get_file_path, get_directory_path):
             data = get_file_path(path, missing_ok=missing_ok)
             if not data:
                 return []
-            return [load_query(data)]
+            return [load_query(data, source)]
 
         @staticmethod
         def loaddir(directory, source, missing_ok=False):

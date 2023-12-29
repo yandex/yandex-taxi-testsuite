@@ -214,39 +214,6 @@ def pgsql_background_truncate_enabled():
 
 
 @pytest.fixture
-def _pgsql_query_loader(get_file_path, get_directory_path, mockserver_info):
-    def substitute_mockserver(str_val: str):
-        return str_val.replace(
-            '$mockserver',
-            'http://{}:{}'.format(mockserver_info.host, mockserver_info.port),
-        )
-
-    def load_pg_file(path, source):
-        query = substitute_mockserver(path.read_text())
-        return control.PgQuery(body=query, source=source, path=str(path))
-
-    class Loader:
-        @staticmethod
-        def load(path, source, missing_ok=False):
-            path = get_file_path(path, missing_ok=missing_ok)
-            if not path:
-                return []
-            return [load_pg_file(path, source)]
-
-        @staticmethod
-        def loaddir(directory, source, missing_ok=False):
-            result = []
-            directory = get_directory_path(directory, missing_ok=missing_ok)
-            if not directory:
-                return []
-            for path in utils.scan_sql_directory(directory):
-                result.append(load_pg_file(path, source))
-            return result
-
-    return Loader()
-
-
-@pytest.fixture
 def pgsql_apply(
     request,
     _pgsql: ServiceLocalConfig,
@@ -341,6 +308,39 @@ def pgsql_apply(
     if pgsql_background_truncate_enabled:
         for pg_db in _pgsql.values():
             pg_db.schedule_truncation()
+
+
+@pytest.fixture
+def _pgsql_query_loader(get_file_path, get_directory_path, mockserver_info):
+    def substitute_mockserver(str_val: str):
+        return str_val.replace(
+            '$mockserver',
+            'http://{}:{}'.format(mockserver_info.host, mockserver_info.port),
+        )
+
+    def load_pg_file(path, source):
+        query = substitute_mockserver(path.read_text())
+        return control.PgQuery(body=query, source=source, path=str(path))
+
+    class Loader:
+        @staticmethod
+        def load(path, source, missing_ok=False):
+            path = get_file_path(path, missing_ok=missing_ok)
+            if not path:
+                return []
+            return [load_pg_file(path, source)]
+
+        @staticmethod
+        def loaddir(directory, source, missing_ok=False):
+            result = []
+            directory = get_directory_path(directory, missing_ok=missing_ok)
+            if not directory:
+                return []
+            for path in utils.scan_sql_directory(directory):
+                result.append(load_pg_file(path, source))
+            return result
+
+    return Loader()
 
 
 @pytest.fixture

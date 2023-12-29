@@ -49,36 +49,6 @@ def _clickhouse(clickhouse_local, _clickhouse_service, _clickhouse_state):
 
 
 @pytest.fixture
-def _clickhouse_query_loader(get_file_path, get_directory_path):
-    def load_query(path, source):
-        return control.ClickhouseQuery(
-            body=path.read_text(),
-            source=source,
-            path=str(path),
-        )
-
-    class Loader:
-        @staticmethod
-        def load(path, source, missing_ok=False):
-            data = get_file_path(path, missing_ok=missing_ok)
-            if not data:
-                return []
-            return [load_query(data)]
-
-        @staticmethod
-        def loaddir(directory, source, missing_ok=False):
-            result = []
-            directory = get_directory_path(directory, missing_ok=missing_ok)
-            if not directory:
-                return []
-            for path in utils.scan_sql_directory(directory):
-                result.append(load_query(path, source))
-            return result
-
-    return Loader()
-
-
-@pytest.fixture
 def _clickhouse_apply(
     clickhouse_local,
     _clickhouse_state,
@@ -136,6 +106,36 @@ def _clickhouse_apply(
             _clickhouse_state.get_connection(dbconfig.dbname),
             queries,
         )
+
+
+@pytest.fixture
+def _clickhouse_query_loader(get_file_path, get_directory_path):
+    def load_query(path, source):
+        return control.ClickhouseQuery(
+            body=path.read_text(),
+            source=source,
+            path=str(path),
+        )
+
+    class Loader:
+        @staticmethod
+        def load(path, source, missing_ok=False):
+            data = get_file_path(path, missing_ok=missing_ok)
+            if not data:
+                return []
+            return [load_query(data)]
+
+        @staticmethod
+        def loaddir(directory, source, missing_ok=False):
+            result = []
+            directory = get_directory_path(directory, missing_ok=missing_ok)
+            if not directory:
+                return []
+            for path in utils.scan_sql_directory(directory):
+                result.append(load_query(path, source))
+            return result
+
+    return Loader()
 
 
 @pytest.fixture(scope='session')

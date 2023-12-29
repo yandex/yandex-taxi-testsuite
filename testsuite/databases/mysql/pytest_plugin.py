@@ -68,36 +68,6 @@ def _mysql(mysql_local, _mysql_service, _mysql_state):
 
 
 @pytest.fixture
-def _mysql_query_loader(get_file_path, get_directory_path):
-    def load_query(path, source):
-        return control.MysqlQuery(
-            body=path.read_text(),
-            source=source,
-            path=str(path),
-        )
-
-    class Loader:
-        @staticmethod
-        def load(path, source, missing_ok=False):
-            data = get_file_path(path, missing_ok=missing_ok)
-            if not data:
-                return []
-            return [load_query(data)]
-
-        @staticmethod
-        def loaddir(directory, source, missing_ok=False):
-            result = []
-            directory = get_directory_path(directory, missing_ok=missing_ok)
-            if not directory:
-                return []
-            for path in utils.scan_sql_directory(directory):
-                result.append(load_query(path, source))
-            return result
-
-    return Loader()
-
-
-@pytest.fixture
 def _mysql_apply(
     mysql_local,
     _mysql_state,
@@ -151,6 +121,36 @@ def _mysql_apply(
             keep_tables=dbconfig.keep_tables,
             truncate_non_empty=dbconfig.truncate_non_empty,
         )
+
+
+@pytest.fixture
+def _mysql_query_loader(get_file_path, get_directory_path):
+    def load_query(path, source):
+        return control.MysqlQuery(
+            body=path.read_text(),
+            source=source,
+            path=str(path),
+        )
+
+    class Loader:
+        @staticmethod
+        def load(path, source, missing_ok=False):
+            data = get_file_path(path, missing_ok=missing_ok)
+            if not data:
+                return []
+            return [load_query(data)]
+
+        @staticmethod
+        def loaddir(directory, source, missing_ok=False):
+            result = []
+            directory = get_directory_path(directory, missing_ok=missing_ok)
+            if not directory:
+                return []
+            for path in utils.scan_sql_directory(directory):
+                result.append(load_query(path, source))
+            return result
+
+    return Loader()
 
 
 @pytest.fixture(scope='session')

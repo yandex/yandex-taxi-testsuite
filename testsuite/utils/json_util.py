@@ -22,7 +22,7 @@ def substitute(json_obj, *, object_hook=None):
     """Create transformed json by making substitutions:
 
     {"$mockserver": "/path", "$schema": true} -> "http://localhost:9999/path"
-    {"$dateDiff": 10} -> datetime.utcnow() + timedelta(seconds=10)
+    {"$dateDiff": 10} -> datetime.now(tz=datetime.timezone.utc) + timedelta(seconds=10)
     """
     hook = object_hook_util.build_object_hook(object_hook=object_hook)
     return object_hook_util.substitute(json_obj, hook)
@@ -58,6 +58,8 @@ def default(obj):
 def relative_dates_default(obj):
     """Add ``$dateDiff`` hook to ``bson.json_util.default``."""
     if isinstance(obj, datetime.datetime):
-        diff = obj.replace(tzinfo=None) - datetime.datetime.utcnow()
+        diff = obj.replace(tzinfo=None) - datetime.datetime.now(
+            tz=datetime.timezone.utc
+        )
         return {'$dateDiff': diff.total_seconds()}
     return default(obj)

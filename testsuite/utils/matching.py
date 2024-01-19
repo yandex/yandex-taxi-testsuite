@@ -296,6 +296,22 @@ class PartialDict(collections.abc.Mapping):
         return True
 
 
+class UnorderedList:
+    def __init__(self, sequence, key):
+        self.value = sorted(sequence, key=key)
+        self.key = key
+
+    def __repr__(self):
+        return f'<UnorderedList: {self.value}>'
+
+    def __eq__(self, other):
+        return sorted(other, key=self.key) == self.value
+
+
+def unordered_list(sequence, *, key=None):
+    return UnorderedList(sequence, key)
+
+
 any_value = Any()
 any_float = IsInstance(float)
 any_integer = IsInstance(int)

@@ -201,3 +201,10 @@ def test_partial_dict():
 
     assert sample == matching.PartialDict(some_int=1)
     assert not (sample != matching.PartialDict(some_int=1))
+
+
+def test_unordered_list():
+    assert [1, 3, 2] == matching.unordered_list([3, 2, 1])
+    assert [{'v': 'a'}, {'v': 'b'}] == matching.unordered_list(
+        [{'v': 'b'}, {'v': 'a'}], key=lambda x: x['v']
+    )

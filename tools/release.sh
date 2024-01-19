@@ -18,7 +18,7 @@ $EDITOR setup.cfg || die "Not edited"
 PACKAGE_VERSION=$(awk '/^version = /{print $3}' setup.cfg)
 
 if [ "$OLD_PACKAGE_VERSION" = "$PACKAGE_VERSION" ]; then
-    die "Version did not changed"
+    die "Version has not changed"
 fi
 
 git commit -m "Version bump $PACKAGE_VERSION" setup.cfg || die "Commit failed"

@@ -36,6 +36,10 @@ venv-linters:
 venv-tests:
 venv-check-black:
 venv-black:
+venv-start-release:
+venv-release-upload-testpypi:
+venv-release-upload-pypi:
+
 
 venv-%: setup-dev-venv
 	PATH=$(VENV_DEV_PATH)/bin:$(PATH) $(MAKE) $*

@@ -143,3 +143,9 @@ Partial dict
 ------------
 
 .. autoclass:: PartialDict
+
+
+Unordered list
+--------------
+
+.. autofunction:: unordered_list

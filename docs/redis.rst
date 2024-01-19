@@ -28,7 +28,7 @@ TESTSUITE_REDIS_CLUSTER_PORTS
 Use to override redis cluster server ports. Six comma separated integers. Default is ``17380, 17381, 17382, 17383, 17384, 17385``.
 
 TESTSUITE_REDIS_CLUSTER_REPLICAS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use to override number of replicas per master in redis cluster. Default is ``1``.
 
@@ -83,7 +83,7 @@ Provides the list of redis cluster nodes.
 
 
 redis_cluster_replicas
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 Gives the number of replicas per primary node in redis cluster.
 

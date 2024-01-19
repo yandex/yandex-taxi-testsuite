@@ -309,6 +309,23 @@ class UnorderedList:
 
 
 def unordered_list(sequence, *, key=None):
+    """Unordered list comparison.
+
+    You may want to compare lists without respect to order. For instance,
+    when your service is serializing std::unordered_map to array.
+
+    `unordered_list` can help you with that. It sorts both array before
+    comparison.
+
+    :param sequence: Initial sequence
+    :param key: Sorting key function
+
+    Example:
+
+    .. code-block:: python
+
+       assert [3, 2, 1] == matching.unordered_list([1, 2, 3])
+    """
     return UnorderedList(sequence, key)
 
 

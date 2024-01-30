@@ -289,7 +289,7 @@ class Server:
                 fields[key] = request.headers[header]
         delay_ms = 1000 * (time.perf_counter() - started)
         fields['delay'] = f'{delay_ms:.3f}ms'
-        if response:
+        if response is not None:
             log_level = logging.DEBUG
             fields['meta_code'] = response.status
             fields['status'] = 'DONE'

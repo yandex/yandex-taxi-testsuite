@@ -1,4 +1,5 @@
 """Tools to format messages to different formats."""
+
 import datetime
 import itertools
 

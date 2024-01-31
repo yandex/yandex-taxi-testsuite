@@ -54,6 +54,9 @@ class AsyncCallQueue:
     def _queue(self) -> asyncio.Queue:
         return asyncio.Queue()
 
+    def __repr__(self):
+        return f'<AsyncCallQueue: for {self._func!r}>'
+
     async def __call__(self, *args, **kwargs):
         """Call underlying function."""
         try:

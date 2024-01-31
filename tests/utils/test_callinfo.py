@@ -6,6 +6,7 @@ import sys
 import pytest
 
 from testsuite.utils import callinfo
+from testsuite.utils import matching
 
 python37_or_higher = pytest.mark.skipif(
     sys.version_info < (3, 7),
@@ -243,3 +244,13 @@ async def test_acallqueue_flush():
 
     await method(2)
     assert method.has_calls
+
+
+def test_acallqueue_repr():
+    @callinfo.acallqueue
+    async def method(arg):
+        pass
+
+    assert repr(method) == matching.RegexString(
+        r'^<AsyncCallQueue: for <function test_acallqueue_repr.<locals>.method at 0x.*>>$'
+    )

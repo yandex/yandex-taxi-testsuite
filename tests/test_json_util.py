@@ -196,7 +196,7 @@ def test_substitute_with_matching(object_hook, json_input, expected_result):
                 {'key': 2, 'value': 2},
                 {'key': 2, 'value': 3},
             ],
-        )
+        ),
     ],
 )
 def test_match_unordered_list(object_hook, json_input, expected_result):

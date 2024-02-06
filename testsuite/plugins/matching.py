@@ -11,6 +11,17 @@ def _default_partial_dict_match(doc: dict):
     return matching.PartialDict(doc['value'])
 
 
+def _match_unordered_list(doc: dict):
+    items = doc['items']
+    if 'keys' in doc:
+        key = _make_keys_getter(doc['keys'])
+    elif 'key' in doc:
+        key = _make_key_getter(doc['key'])
+    else:
+        key = None
+    return matching.unordered_list(items, key=key)
+
+
 def pytest_register_matching_hooks():
     return {
         'any-value': matching.any_value,
@@ -32,6 +43,7 @@ def pytest_register_matching_hooks():
         'datetime-string': matching.datetime_string,
         'regex': _default_regex_match,
         'partial-dict': _default_partial_dict_match,
+        'unordered_list': _match_unordered_list,
     }
 
 
@@ -68,12 +80,37 @@ def operator_match(request, pytestconfig):
     plugin = pytestconfig.pluginmanager.get_plugin('matching_params')
 
     def _wrapper(doc: dict):
-        for key, hook in plugin.matching_hooks.items():
-            if doc['type'] == key:
-                if callable(hook):
-                    return hook(doc)
-                return hook
-
-        raise RuntimeError(f'Unknown match type {doc["type"]}')
+        match = doc['$match']
+        if isinstance(match, str):
+            match = {'type': match}
+        match_type = match.get('type')
+        try:
+            hook = plugin.matching_hooks[match_type]
+        except KeyError:
+            raise RuntimeError(f'Unknown match type {match_type}')
+        if callable(hook):
+            return hook(match)
+        return hook
 
     return _wrapper
+
+
+def _make_keys_getter(keys):
+    key_getters = tuple(_make_key_getter(key) for key in keys)
+
+    def getter(value):
+        return tuple(getter(value) for getter in key_getters)
+
+    return getter
+
+
+def _make_key_getter(path):
+    if isinstance(path, str):
+        path = [path]
+
+    def getter(doc):
+        for key in path:
+            doc = doc[key]
+        return doc
+
+    return getter

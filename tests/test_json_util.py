@@ -149,3 +149,56 @@ def test_substitute_with_custom_hook(object_hook, json_input, expected_result):
 def test_substitute_with_matching(object_hook, json_input, expected_result):
     result = json_util.substitute(json_input, object_hook=object_hook)
     assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    'json_input,expected_result',
+    [
+        ({'$match': {'type': 'unordered_list', 'items': [3, 2, 1]}}, [1, 2, 3]),
+        (
+            {
+                '$match': {
+                    'type': 'unordered_list',
+                    'key': 'id',
+                    'items': [{'id': 3}, {'id': 2}, {'id': 1}],
+                }
+            },
+            [{'id': 1}, {'id': 2}, {'id': 3}],
+        ),
+        (
+            {
+                '$match': {
+                    'type': 'unordered_list',
+                    'key': ['id', 'value'],
+                    'items': [
+                        {'id': {'value': 1}},
+                        {'id': {'value': 2}},
+                        {'id': {'value': 3}},
+                    ],
+                }
+            },
+            [{'id': {'value': 1}}, {'id': {'value': 2}}, {'id': {'value': 3}}],
+        ),
+        (
+            {
+                '$match': {
+                    'type': 'unordered_list',
+                    'keys': ['key', 'value'],
+                    'items': [
+                        {'key': 1, 'value': 1},
+                        {'key': 2, 'value': 2},
+                        {'key': 2, 'value': 3},
+                    ],
+                }
+            },
+            [
+                {'key': 1, 'value': 1},
+                {'key': 2, 'value': 2},
+                {'key': 2, 'value': 3},
+            ],
+        ),
+    ],
+)
+def test_match_unordered_list(object_hook, json_input, expected_result):
+    result = json_util.substitute(json_input, object_hook=object_hook)
+    assert result == expected_result

@@ -29,13 +29,7 @@ def pytest_configure(config):
 
 @pytest.fixture(scope='session')
 def _base_object_hook(request, pytestconfig, operator_match):
-    def _match_hook(doc: dict):
-        match = doc['$match']
-        if isinstance(match, str):
-            match = {'type': match}
-        return operator_match(match)
-
-    hooks = {'$match': _match_hook}
+    hooks = {'$match': operator_match}
 
     plugin = pytestconfig.pluginmanager.get_plugin('object_hook_params')
     hooks.update(plugin.object_hooks)

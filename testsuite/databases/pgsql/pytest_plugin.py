@@ -64,9 +64,8 @@ class ServiceLocalConfig(collections.abc.Mapping):
                 )
 
         if parallel_init:
-            with concurrent.futures.ThreadPoolExecutor() as e:
-                for database in self._databases:
-                    e.submit(init_database, database)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.map(init_database, self._databases)
         else:
             for database in self._databases:
                 init_database(database)
@@ -223,7 +222,7 @@ def _pgsql(
             pgsql_control,
             pgsql_cleanup_exclude_tables,
         )
-    return pgsql_local.initialize(pgsql_parallelization_enabled)
+    return pgsql_local.initialize(parallel_init=pgsql_parallelization_enabled)
 
 
 @pytest.fixture(scope='session')
@@ -232,35 +231,9 @@ def pgsql_background_truncate_enabled():
 
 
 @pytest.fixture
-def pgsql_apply(
-    request,
-    _pgsql: ServiceLocalConfig,
-    load,
-    pgsql_background_truncate_enabled: bool,
-    pgsql_parallelization_enabled: bool,
-    _pgsql_query_loader,
-) -> None:
-    """Initialize PostgreSQL database with data.
-
-    By default pg_${DBNAME}.sql and pg_${DBNAME}/*.sql files are used
-    to fill PostgreSQL databases.
-
-    Use pytest.mark.pgsql to change this behaviour:
-
-    @pytest.mark.pgsql(
-        'foo@0',
-        files=[
-            'pg_foo@0_alternative.sql'
-        ],
-        directories=[
-            'pg_foo@0_alternative_dir'
-        ],
-        queries=[
-          'INSERT INTO foo VALUES (1, 2, 3, 4)',
-        ]
-    )
-    """
-
+def _pgsql_apply_queries(
+    request, _pgsql: ServiceLocalConfig, _pgsql_query_loader
+) -> typing.Dict[str, typing.List[control.PgQuery]]:
     def pgsql_default_queries(dbname):
         return [
             *_pgsql_query_loader.load(
@@ -315,16 +288,50 @@ def pgsql_apply(
             raise exceptions.PostgresqlError('Unknown database %s' % (dbname,))
         overrides[dbname].extend(queries)
 
-    def get_db_queries(dbname):
-        return overrides.get(dbname, pgsql_default_queries(dbname))
+    queries = {}
+
+    for dbname in _pgsql.keys():
+        queries[dbname] = overrides.get(dbname, pgsql_default_queries(dbname))
+
+    return queries
+
+
+@pytest.fixture
+def pgsql_apply(
+    _pgsql: ServiceLocalConfig,
+    load,
+    pgsql_background_truncate_enabled: bool,
+    pgsql_parallelization_enabled: bool,
+    _pgsql_apply_queries,
+) -> None:
+    """Initialize PostgreSQL database with data.
+
+    By default pg_${DBNAME}.sql and pg_${DBNAME}/*.sql files are used
+    to fill PostgreSQL databases.
+
+    Use pytest.mark.pgsql to change this behaviour:
+
+    @pytest.mark.pgsql(
+        'foo@0',
+        files=[
+            'pg_foo@0_alternative.sql'
+        ],
+        directories=[
+            'pg_foo@0_alternative_dir'
+        ],
+        queries=[
+          'INSERT INTO foo VALUES (1, 2, 3, 4)',
+        ]
+    )
+    """
 
     if pgsql_parallelization_enabled:
-        with concurrent.futures.ThreadPoolExecutor() as e:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             for dbname, pg_db in _pgsql.items():
-                e.submit(pg_db.apply_queries, get_db_queries(dbname))
+                executor.submit(pg_db.apply_queries, _pgsql_apply_queries[dbname])
     else:
         for dbname, pg_db in _pgsql.items():
-            pg_db.apply_queries(get_db_queries(dbname))
+            pg_db.apply_queries(_pgsql_apply_queries[dbname])
 
     yield
 

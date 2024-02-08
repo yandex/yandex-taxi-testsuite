@@ -1,3 +1,4 @@
+import concurrent.futures
 import collections
 import collections.abc
 import contextlib
@@ -48,16 +49,26 @@ class ServiceLocalConfig(collections.abc.Mapping):
         """
         return self._shard_connections[dbname].conninfo
 
-    def initialize(self) -> typing.Dict[str, control.ConnectionWrapper]:
+    def initialize(
+        self, parallel_init: bool
+    ) -> typing.Dict[str, control.ConnectionWrapper]:
         if self._initialized:
             return self._shard_connections
 
-        for database in self._databases:
-            self._pgsql_control.initialize_sharded_db(database)
-            for shard in database.shards:
+        def init_database(db):
+            self._pgsql_control.initialize_sharded_db(db)
+
+            for shard in db.shards:
                 self._shard_connections[shard.pretty_name].initialize(
-                    self._cleanup_exclude_tables,
+                    self._cleanup_exclude_tables
                 )
+
+        if parallel_init:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.map(init_database, self._databases)
+        else:
+            for database in self._databases:
+                init_database(database)
 
         self._initialized = True
         return self._shard_connections
@@ -192,12 +203,18 @@ def pgsql_local(pgsql_local_create) -> ServiceLocalConfig:
     return pgsql_local_create([])
 
 
+@pytest.fixture(scope='session')
+def pgsql_parallelization_enabled():
+    return True
+
+
 @pytest.fixture
 def _pgsql(
     _pgsql_service,
     pgsql_local,
     pgsql_control,
     pgsql_disabled: bool,
+    pgsql_parallelization_enabled: bool,
 ) -> typing.Dict[str, control.ConnectionWrapper]:
     if pgsql_disabled:
         pgsql_local = ServiceLocalConfig(
@@ -205,7 +222,7 @@ def _pgsql(
             pgsql_control,
             pgsql_cleanup_exclude_tables,
         )
-    return pgsql_local.initialize()
+    return pgsql_local.initialize(parallel_init=pgsql_parallelization_enabled)
 
 
 @pytest.fixture(scope='session')
@@ -214,34 +231,9 @@ def pgsql_background_truncate_enabled():
 
 
 @pytest.fixture
-def pgsql_apply(
-    request,
-    _pgsql: ServiceLocalConfig,
-    load,
-    pgsql_background_truncate_enabled,
-    _pgsql_query_loader,
-) -> None:
-    """Initialize PostgreSQL database with data.
-
-    By default pg_${DBNAME}.sql and pg_${DBNAME}/*.sql files are used
-    to fill PostgreSQL databases.
-
-    Use pytest.mark.pgsql to change this behaviour:
-
-    @pytest.mark.pgsql(
-        'foo@0',
-        files=[
-            'pg_foo@0_alternative.sql'
-        ],
-        directories=[
-            'pg_foo@0_alternative_dir'
-        ],
-        queries=[
-          'INSERT INTO foo VALUES (1, 2, 3, 4)',
-        ]
-    )
-    """
-
+def _pgsql_apply_queries(
+    request, _pgsql: ServiceLocalConfig, _pgsql_query_loader
+) -> typing.Dict[str, typing.List[control.PgQuery]]:
     def pgsql_default_queries(dbname):
         return [
             *_pgsql_query_loader.load(
@@ -296,12 +288,52 @@ def pgsql_apply(
             raise exceptions.PostgresqlError('Unknown database %s' % (dbname,))
         overrides[dbname].extend(queries)
 
-    for dbname, pg_db in _pgsql.items():
-        if dbname in overrides:
-            queries = overrides[dbname]
-        else:
-            queries = pgsql_default_queries(dbname)
-        pg_db.apply_queries(queries)
+    queries = {}
+
+    for dbname in _pgsql.keys():
+        queries[dbname] = overrides.get(dbname, pgsql_default_queries(dbname))
+
+    return queries
+
+
+@pytest.fixture
+def pgsql_apply(
+    _pgsql: ServiceLocalConfig,
+    load,
+    pgsql_background_truncate_enabled: bool,
+    pgsql_parallelization_enabled: bool,
+    _pgsql_apply_queries,
+) -> None:
+    """Initialize PostgreSQL database with data.
+
+    By default pg_${DBNAME}.sql and pg_${DBNAME}/*.sql files are used
+    to fill PostgreSQL databases.
+
+    Use pytest.mark.pgsql to change this behaviour:
+
+    @pytest.mark.pgsql(
+        'foo@0',
+        files=[
+            'pg_foo@0_alternative.sql'
+        ],
+        directories=[
+            'pg_foo@0_alternative_dir'
+        ],
+        queries=[
+          'INSERT INTO foo VALUES (1, 2, 3, 4)',
+        ]
+    )
+    """
+
+    if pgsql_parallelization_enabled:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for dbname, pg_db in _pgsql.items():
+                executor.submit(
+                    pg_db.apply_queries, _pgsql_apply_queries[dbname]
+                )
+    else:
+        for dbname, pg_db in _pgsql.items():
+            pg_db.apply_queries(_pgsql_apply_queries[dbname])
 
     yield
 

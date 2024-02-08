@@ -79,18 +79,26 @@ def pytest_configure(config):
 def operator_match(request, pytestconfig):
     plugin = pytestconfig.pluginmanager.get_plugin('matching_params')
 
-    def _wrapper(doc: dict):
-        match = doc['$match']
-        if isinstance(match, str):
-            match = {'type': match}
-        match_type = match.get('type')
+    def match(doc: dict):
+        match_type = doc.get('type')
         try:
             hook = plugin.matching_hooks[match_type]
         except KeyError:
             raise RuntimeError(f'Unknown match type {match_type}')
         if callable(hook):
-            return hook(match)
+            return hook(doc)
         return hook
+
+    return match
+
+
+@pytest.fixture(scope='session')
+def match_operator(operator_match):
+    def _wrapper(doc: dict):
+        match = doc['$match']
+        if isinstance(match, str):
+            match = {'type': match}
+        return operator_match(match)
 
     return _wrapper
 

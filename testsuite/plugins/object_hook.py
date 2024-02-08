@@ -28,8 +28,8 @@ def pytest_configure(config):
 
 
 @pytest.fixture(scope='session')
-def _base_object_hook(request, pytestconfig, operator_match):
-    hooks = {'$match': operator_match}
+def _base_object_hook(request, pytestconfig, match_operator):
+    hooks = {'$match': match_operator}
 
     plugin = pytestconfig.pluginmanager.get_plugin('object_hook_params')
     hooks.update(plugin.object_hooks)

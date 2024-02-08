@@ -328,7 +328,9 @@ def pgsql_apply(
     if pgsql_parallelization_enabled:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for dbname, pg_db in _pgsql.items():
-                executor.submit(pg_db.apply_queries, _pgsql_apply_queries[dbname])
+                executor.submit(
+                    pg_db.apply_queries, _pgsql_apply_queries[dbname]
+                )
     else:
         for dbname, pg_db in _pgsql.items():
             pg_db.apply_queries(_pgsql_apply_queries[dbname])

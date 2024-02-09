@@ -1,4 +1,5 @@
 import pytest
+import yarl
 
 
 @pytest.mark.parametrize(
@@ -37,6 +38,19 @@ async def test_empty_http_header(mockserver, create_service_client):
     client = create_service_client(mockserver.base_url)
     response = await client.post(
         'arbitrary/path',
+        headers={'key-only-header': None},
+    )
+    assert response.status_code == 200
+
+
+async def test_yarl_url(mockserver, create_service_client):
+    @mockserver.json_handler('/arbitrary/../path')
+    async def _handler(request):
+        pass
+
+    client = create_service_client(mockserver.base_url)
+    response = await client.post(
+        yarl.URL(mockserver.url('arbitrary/../path'), encoded=True),
         headers={'key-only-header': None},
     )
     assert response.status_code == 200

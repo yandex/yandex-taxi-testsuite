@@ -2,6 +2,7 @@ import json
 import ssl
 import typing
 import uuid
+import yarl
 
 import aiohttp
 
@@ -46,13 +47,16 @@ class BaseAiohttpClient:
     async def _aiohttp_request(
         self,
         http_method: str,
-        path: str,
+        path: typing.Union[str, yarl.URL],
         headers: typing.Optional[typing.Dict[str, str]] = None,
         bearer: typing.Optional[str] = None,
         x_real_ip: typing.Optional[str] = None,
         **kwargs,
     ) -> aiohttp.ClientResponse:
-        url = url_util.join(self._base_url, path)
+        if isinstance(path, str):
+            url = url_util.join(self._base_url, path)
+        else:
+            url = path
         headers = self._build_headers(
             headers,
             bearer=bearer,
@@ -236,7 +240,7 @@ class GenericClient(BaseAiohttpClient, typing.Generic[TResponse]):
     async def _request(
         self,
         http_method: str,
-        path: str,
+        path: typing.Union[str, yarl.URL],
         headers: typing.Optional[typing.Dict[str, str]] = None,
         bearer: typing.Optional[str] = None,
         x_real_ip: typing.Optional[str] = None,
@@ -249,7 +253,7 @@ class AiohttpClient(GenericClient[aiohttp.ClientResponse]):
     async def _request(
         self,
         http_method: str,
-        path: str,
+        path: typing.Union[str, yarl.URL],
         headers: typing.Optional[typing.Dict[str, str]] = None,
         bearer: typing.Optional[str] = None,
         x_real_ip: typing.Optional[str] = None,
@@ -269,7 +273,7 @@ class Client(GenericClient[http.ClientResponse]):
     async def _request(
         self,
         http_method: str,
-        path: str,
+        path: typing.Union[str, yarl.URL],
         headers: typing.Optional[typing.Dict[str, str]] = None,
         bearer: typing.Optional[str] = None,
         x_real_ip: typing.Optional[str] = None,

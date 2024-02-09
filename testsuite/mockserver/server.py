@@ -9,6 +9,7 @@ import time
 import typing
 import uuid
 import warnings
+import yarl
 
 import aiohttp.web
 
@@ -519,6 +520,10 @@ class MockserverFixture:
     def url(self, path: str) -> str:
         """Builds mockserver url for ``path``"""
         return url_util.join(self.base_url, path)
+
+    def url_encoded(self, path: str) -> yarl.URL:
+        """Builds mockserver url for ``path``"""
+        return yarl.URL(url_util.join(self.base_url, path), encoded=True)
 
     def ignore_trace_id(self) -> typing.ContextManager[None]:
         return self.tracing(False)

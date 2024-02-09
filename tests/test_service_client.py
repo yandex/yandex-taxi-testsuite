@@ -50,7 +50,7 @@ async def test_yarl_url(mockserver, create_service_client):
 
     client = create_service_client(mockserver.base_url)
     response = await client.post(
-        yarl.URL(mockserver.url('arbitrary/../path'), encoded=True),
+        mockserver.url_encoded('arbitrary/../path'),
         headers={'key-only-header': None},
     )
     assert response.status_code == 200

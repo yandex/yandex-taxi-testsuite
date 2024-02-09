@@ -1,5 +1,4 @@
 import pytest
-import yarl
 
 
 @pytest.mark.parametrize(

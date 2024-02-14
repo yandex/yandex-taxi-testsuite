@@ -54,7 +54,7 @@ used in a particular test: ``@pytest.mark.now('2016-12-01T12:00:00')`` or
 ``@pytest.mark.now(enabled=True)``.
 
 If time is not specified in ``@pytest.mark.now``, then
-``datetime.datetime.utcnow()`` value at the start of test is used as time value
+``datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)`` value at the start of test is used as time value
 until it is modified by calling ``mocked_time.set(...)`` or
 ``mocked_time.sleep(...)``
 

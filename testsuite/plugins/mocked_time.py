@@ -37,7 +37,7 @@ class MockedTime:
         """:returns: current value of mock time"""
         if self._is_enabled:
             return self._now
-        return datetime.datetime.utcnow()
+        return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
     def set(self, time: datetime.datetime):
         """Set mock time value"""
@@ -87,7 +87,7 @@ def mocked_time(_mocked_time_enabled, now) -> MockedTime:
 def now(request) -> datetime.datetime:
     marker = request.node.get_closest_marker('now')
     if not marker or not marker.args:
-        return datetime.datetime.utcnow()
+        return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
     stamp = marker.args[0]
     if isinstance(stamp, int):
         return datetime.datetime.utcfromtimestamp(stamp)

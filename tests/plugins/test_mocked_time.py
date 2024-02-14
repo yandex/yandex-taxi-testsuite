@@ -21,9 +21,7 @@ def test_disabled_mocked_time_raises_on_usage_attempt(mocked_time):
     assert not mocked_time.is_enabled
 
     with pytest.raises(mocked_time_module.DisabledUsageError):
-        mocked_time.set(
-            datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-        )
+        mocked_time.set(datetime.datetime.now(datetime.timezone.utc))
 
     with pytest.raises(mocked_time_module.DisabledUsageError):
         mocked_time.sleep(2)

@@ -37,13 +37,18 @@ class MockedTime:
         """:returns: current value of mock time"""
         if self._is_enabled:
             return self._now
-        return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        return utils.compat.utcnow()
 
     def set(self, time: datetime.datetime):
         """Set mock time value"""
         if not self._is_enabled:
             raise DisabledUsageError(MOCK_TIME_DISABLED_MESSAGE)
         self._now = time
+
+        if self._now.tzinfo is not None:
+            self._now = self._now.astimezone(datetime.timezone.utc).replace(
+                tzinfo=None
+            )
 
     @property
     def is_enabled(self) -> bool:

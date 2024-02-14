@@ -281,9 +281,7 @@ class Server:
             return
         fields = {
             '_type': 'mockserver_request',
-            'timestamp': datetime.datetime.now(datetime.timezone.utc).replace(
-                tzinfo=None
-            ),
+            'timestamp': compat.utcnow(),
             'method': request.method,
             'url': request.rel_url,
         }

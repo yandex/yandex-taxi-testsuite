@@ -90,7 +90,7 @@ def now(request) -> datetime.datetime:
         return utils.utcnow()
     stamp = marker.args[0]
     if isinstance(stamp, int):
-        return utils.fromtimestamp(stamp, tz=datetime.timezone.utc)
+        return utils.utcfromtimestamp(stamp)
     return utils.to_utc(dateutil.parser.parse(stamp))
 
 

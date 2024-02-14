@@ -1,5 +1,4 @@
 import contextlib
-import datetime
 import itertools
 import logging
 import pathlib
@@ -19,6 +18,7 @@ from testsuite.utils import compat
 from testsuite.utils import http
 from testsuite.utils import net as net_utils
 from testsuite.utils import url_util
+from testsuite import utils
 
 from . import classes
 from . import exceptions
@@ -281,7 +281,7 @@ class Server:
             return
         fields = {
             '_type': 'mockserver_request',
-            'timestamp': compat.utcnow(),
+            'timestamp': utils.utcnow(),
             'method': request.method,
             'url': request.rel_url,
         }

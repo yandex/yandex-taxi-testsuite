@@ -1,9 +1,4 @@
 import contextlib
-import datetime
-
-
-def utcnow() -> datetime.datetime:
-    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
 
 # Required for python3.6 compatibility

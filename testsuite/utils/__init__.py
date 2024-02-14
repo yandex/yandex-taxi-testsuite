@@ -1,5 +1,7 @@
 import datetime
 
+from .cached_property import cached_property
+
 
 def to_utc(stamp: datetime.datetime) -> datetime.datetime:
     if stamp.tzinfo is not None:

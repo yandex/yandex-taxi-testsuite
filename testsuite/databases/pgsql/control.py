@@ -12,6 +12,7 @@ import psycopg2.extensions
 import psycopg2.extras
 
 from testsuite import utils as testsuite_utils
+from testsuite.utils import autocommit_connection_pool as conn_pool
 from testsuite.environment import shell
 
 from . import connection
@@ -240,7 +241,7 @@ class PgControl:
     ) -> typing.Optional[testsuite_db.AppliedSchemaHashes]:
         if self._skip_applied_schemas:
             return testsuite_db.AppliedSchemaHashes(
-                self._connection,
+                self._pg_connection_pool,
                 self._conninfo,
             )
         return None
@@ -285,10 +286,10 @@ class PgControl:
     def _create_database(self, dbname: str) -> None:
         if dbname in self._applied_schemas:
             return
-        cursor = self._connection.cursor()
-        with contextlib.closing(cursor):
-            cursor.execute(DROP_DATABASE_TEMPLATE.format(dbname))
-            cursor.execute(CREATE_DATABASE_TEMPLATE.format(dbname))
+        with self._pg_connection_pool.get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(DROP_DATABASE_TEMPLATE.format(dbname))
+                cursor.execute(CREATE_DATABASE_TEMPLATE.format(dbname))
         self._applied_schemas[dbname] = set()
 
     def _apply_schema(self, shard: discover.PgShard) -> None:
@@ -366,18 +367,13 @@ class PgControl:
             )
 
     def close(self):
+        self._pg_connection_pool.close()
         for conn in self._connections.values():
             conn.close()
 
     @testsuite_utils.cached_property
-    def _connection(self) -> psycopg2.extensions.connection:
-        """Connection to 'postgres' database."""
-        pg_connection = self._create_connection('postgres')
-        pg_connection.autocommit = True
-        return pg_connection
-
-    def _create_connection(self, dbname) -> psycopg2.extensions.connection:
-        return psycopg2.connect(self._get_connection_uri(dbname))
+    def _pg_connection_pool(self) -> conn_pool.AutocommitConnectionPool:
+        return conn_pool.AutocommitConnectionPool(minconn=1, maxconn=10, uri=self._get_connection_uri('postgres'))
 
     def _get_connection_uri(self, dbname: str) -> str:
         return self._conninfo.replace(dbname=dbname).get_uri()

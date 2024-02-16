@@ -1,10 +1,9 @@
-import contextlib
 import typing
 
-import psycopg2
 import psycopg2.extensions
 
 from testsuite import utils
+from testsuite.utils import autocommit_connection_pool as conn_pool
 
 from . import connection
 
@@ -36,11 +35,14 @@ TESTSUITE_DB_NAME = 'testsuite'
 class AppliedSchemaHashes:
     def __init__(
         self,
-        postgres_db_connection: psycopg2.extensions.connection,
+        conn_pool: conn_pool.AutocommitConnectionPool,
         base_conninfo: connection.PgConnectionInfo,
     ):
-        self._postgres_db_connection = postgres_db_connection
+        self._conn_pool = conn_pool
         self._conninfo = base_conninfo.replace(dbname=TESTSUITE_DB_NAME)
+
+        self._create_db()
+        self._create_schema_table()
 
     def get_hash(self, dbname: str) -> typing.Optional[str]:
         """Get hash of schema applied to a database"""
@@ -51,35 +53,33 @@ class AppliedSchemaHashes:
         applied to a database
         """
         self._hash_by_dbname[dbname] = schema_hash
-        cursor = self._connection.cursor()
-        with contextlib.closing(cursor):
-            cursor.execute(
-                UPDATE_DB_HASH_TEMPLATE,
-                {'dbname': dbname, 'hash': schema_hash},
-            )
+
+        with self._conn_pool.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    UPDATE_DB_HASH_TEMPLATE,
+                    {'dbname': dbname, 'hash': schema_hash},
+                )
 
     @utils.cached_property
     def _hash_by_dbname(self) -> typing.Dict[str, str]:
-        cursor = self._connection.cursor()
-        with contextlib.closing(cursor):
-            cursor.execute(SELECT_DB_HASH_TEMPLATE)
-            return {entry[0]: entry[1] for entry in cursor}
+        with self._conn_pool.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(SELECT_DB_HASH_TEMPLATE)
+                return {entry[0]: entry[1] for entry in cursor}
 
-    @utils.cached_property
-    def _connection(self) -> psycopg2.extensions.connection:
-        self._create_db()
-        conn = psycopg2.connect(self._conninfo.get_uri())
-        conn.autocommit = True
-        cursor = conn.cursor()
-        with contextlib.closing(cursor):
-            cursor.execute(CREATE_TABLE_SQL)
-        return conn
+    def _create_schema_table(self) -> None:
+        with self._conn_pool.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(CREATE_TABLE_SQL)
 
     def _create_db(self) -> None:
-        cursor = self._postgres_db_connection.cursor()
-        with contextlib.closing(cursor):
-            cursor.execute(DATABASE_EXISTS_TEMPLATE, (TESTSUITE_DB_NAME,))
-            db_exists = any(cursor)
-            if db_exists:
-                return
-            cursor.execute(CREATE_DATABASE_TEMPLATE.format(TESTSUITE_DB_NAME))
+        with self._conn_pool.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(DATABASE_EXISTS_TEMPLATE, (TESTSUITE_DB_NAME,))
+                db_exists = any(cursor)
+                if db_exists:
+                    return
+                cursor.execute(
+                    CREATE_DATABASE_TEMPLATE.format(TESTSUITE_DB_NAME)
+                )

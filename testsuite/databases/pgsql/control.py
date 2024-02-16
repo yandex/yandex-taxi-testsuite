@@ -19,7 +19,7 @@ from . import discover
 from . import exceptions
 from . import service
 from . import testsuite_db
-from . import autocommit_connection_pool as conn_pool
+from . import pool
 
 
 logger = logging.getLogger(__name__)
@@ -372,8 +372,8 @@ class PgControl:
             conn.close()
 
     @testsuite_utils.cached_property
-    def _pg_connection_pool(self) -> conn_pool.AutocommitConnectionPool:
-        return conn_pool.AutocommitConnectionPool(
+    def _pg_connection_pool(self) -> pool.AutocommitConnectionPool:
+        return pool.AutocommitConnectionPool(
             minconn=1, maxconn=10, uri=self._get_connection_uri('postgres')
         )
 

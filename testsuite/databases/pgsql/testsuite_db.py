@@ -1,11 +1,9 @@
 import typing
 
-import psycopg2.extensions
-
 from testsuite import utils
 
 from . import connection
-from . import autocommit_connection_pool as conn_pool
+from . import pool
 
 CREATE_DATABASE_TEMPLATE = """
 CREATE DATABASE "{}" WITH TEMPLATE = template0
@@ -35,10 +33,10 @@ TESTSUITE_DB_NAME = 'testsuite'
 class AppliedSchemaHashes:
     def __init__(
         self,
-        conn_pool: conn_pool.AutocommitConnectionPool,
+        pool: pool.AutocommitConnectionPool,
         base_conninfo: connection.PgConnectionInfo,
     ):
-        self._conn_pool = conn_pool
+        self._pool = pool
         self._conninfo = base_conninfo.replace(dbname=TESTSUITE_DB_NAME)
 
         self._create_db()
@@ -54,7 +52,7 @@ class AppliedSchemaHashes:
         """
         self._hash_by_dbname[dbname] = schema_hash
 
-        with self._conn_pool.get_connection() as conn:
+        with self._pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     UPDATE_DB_HASH_TEMPLATE,
@@ -63,18 +61,18 @@ class AppliedSchemaHashes:
 
     @utils.cached_property
     def _hash_by_dbname(self) -> typing.Dict[str, str]:
-        with self._conn_pool.get_connection() as conn:
+        with self._pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(SELECT_DB_HASH_TEMPLATE)
                 return {entry[0]: entry[1] for entry in cursor}
 
     def _create_schema_table(self) -> None:
-        with self._conn_pool.get_connection() as conn:
+        with self._pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(CREATE_TABLE_SQL)
 
     def _create_db(self) -> None:
-        with self._conn_pool.get_connection() as conn:
+        with self._pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(DATABASE_EXISTS_TEMPLATE, (TESTSUITE_DB_NAME,))
                 db_exists = any(cursor)

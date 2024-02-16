@@ -3,9 +3,9 @@ import typing
 import psycopg2.extensions
 
 from testsuite import utils
-from testsuite.utils import autocommit_connection_pool as conn_pool
 
 from . import connection
+from . import autocommit_connection_pool as conn_pool
 
 CREATE_DATABASE_TEMPLATE = """
 CREATE DATABASE "{}" WITH TEMPLATE = template0

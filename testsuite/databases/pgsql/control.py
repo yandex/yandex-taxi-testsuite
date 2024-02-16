@@ -12,7 +12,6 @@ import psycopg2.extensions
 import psycopg2.extras
 
 from testsuite import utils as testsuite_utils
-from testsuite.utils import autocommit_connection_pool as conn_pool
 from testsuite.environment import shell
 
 from . import connection
@@ -20,6 +19,7 @@ from . import discover
 from . import exceptions
 from . import service
 from . import testsuite_db
+from . import autocommit_connection_pool as conn_pool
 
 
 logger = logging.getLogger(__name__)

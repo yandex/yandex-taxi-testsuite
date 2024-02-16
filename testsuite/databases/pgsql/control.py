@@ -373,7 +373,9 @@ class PgControl:
 
     @testsuite_utils.cached_property
     def _pg_connection_pool(self) -> conn_pool.AutocommitConnectionPool:
-        return conn_pool.AutocommitConnectionPool(minconn=1, maxconn=10, uri=self._get_connection_uri('postgres'))
+        return conn_pool.AutocommitConnectionPool(
+            minconn=1, maxconn=10, uri=self._get_connection_uri('postgres')
+        )
 
     def _get_connection_uri(self, dbname: str) -> str:
         return self._conninfo.replace(dbname=dbname).get_uri()

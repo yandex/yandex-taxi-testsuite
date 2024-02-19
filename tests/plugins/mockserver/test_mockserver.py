@@ -5,6 +5,10 @@ import pytest
 from testsuite._internal import fixture_types
 
 
+class UserError(Exception):
+    pass
+
+
 class Client:
     def __init__(self, *, base_url, session):
         self._session = session
@@ -71,3 +75,21 @@ async def test_handler(
     data = await response.content.read()
 
     assert data == b'hello'
+
+
+async def test_user_error(
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
+):
+    @mockserver.json_handler('/foo')
+    def _foo_handler(request):
+        raise UserError
+
+    response = await mockserver_client.get('/foo')
+    assert response.status == 500
+
+    session = mockserver._session
+    assert len(session._errors) == 1
+
+    error = session._errors.pop()
+    assert isinstance(error, UserError)

@@ -21,7 +21,6 @@ def unix_mockserver(
 @pytest.fixture(scope='session')
 async def _unix_mockserver(
     testsuite_logger,
-    _mockserver_reporter,
     pytestconfig,
     tmp_path_factory,
 ):
@@ -29,7 +28,6 @@ async def _unix_mockserver(
         tmp_path_factory.mktemp('mockserver') / 'mockserver.socket',
         loop=None,
         testsuite_logger=testsuite_logger,
-        mockserver_reporter=_mockserver_reporter,
         pytestconfig=pytestconfig,
     ) as result:
         yield result

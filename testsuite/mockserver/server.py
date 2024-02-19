@@ -140,9 +140,19 @@ class Session:
             f'{handlers_list}'
         )
 
-    async def handle_request(self, request: aiohttp.web.BaseRequest):
+    async def handle_request(
+        self,
+        request: aiohttp.web.BaseRequest,
+        nofail_404: bool,
+    ):
         try:
             handler, kwargs = self._get_handler_for_request(request)
+        except exceptions.HandlerNotFoundError as exc:
+            if not nofail_404:
+                self._errors.append(exc)
+            return _internal_error(f'Internal server error: {exc!r}')
+
+        try:
             response = await handler(request, **kwargs)
             if isinstance(response, aiohttp.web.Response):
                 return response
@@ -154,9 +164,7 @@ class Session:
             return _mocked_error_response(request, exc.error_code)
         except Exception as exc:
             self._errors.append(exc)
-            return http.make_response(
-                f'Internal server error: {exc!r}', status=500
-            )
+            return _internal_error(f'Internal server error: {exc!r}')
 
     def raise_errors(self):
         for exc in self._errors:
@@ -295,11 +303,9 @@ class Server:
 
     async def _handle_request(self, request: aiohttp.web.BaseRequest):
         trace_id = request.headers.get(self.trace_id_header)
-        nofail = (
-            self._nofail
-            or self.tracing_enabled
-            and not _is_from_client_fixture(trace_id)
-        )
+        nofail = self._nofail
+        if self.tracing_enabled and not _is_from_client_fixture(trace_id):
+            nofail = True
         if not self.session:
             error_message = 'Internal error: missing mockserver fixture'
             if nofail:
@@ -313,7 +319,7 @@ class Server:
             self._report_other_test_request(request, trace_id)
             return _internal_error(REQUEST_FROM_ANOTHER_TEST_ERROR)
         try:
-            return await self.session.handle_request(request)
+            return await self.session.handle_request(request, nofail_404=nofail)
         except exceptions.HandlerNotFoundError as exc:
             return _internal_error(
                 'Internal error: mockserver handler not found',

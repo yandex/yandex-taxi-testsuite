@@ -2,6 +2,7 @@
 import aiohttp
 import pytest
 
+from testsuite.mockserver import exceptions
 from testsuite._internal import fixture_types
 
 
@@ -93,3 +94,20 @@ async def test_user_error(
 
     error = session._errors.pop()
     assert isinstance(error, UserError)
+
+
+async def test_nohandler(
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
+):
+    response = await mockserver_client.get(
+        '/foo123',
+        headers={mockserver.trace_id_header: mockserver.trace_id},
+    )
+    assert response.status == 500
+
+    session = mockserver._session
+    assert len(session._errors) == 1
+
+    error = session._errors.pop()
+    assert isinstance(error, exceptions.HandlerNotFoundError)

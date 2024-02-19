@@ -98,6 +98,4 @@ async def test_mockserver_responds_500_on_unhandled_request_from_other_sources(
     assert response.status_code == 500
 
     session = mockserver._session
-    assert len(session._errors) == 1
-    error = session._errors.pop()
-    assert isinstance(error, exceptions.HandlerNotFoundError)
+    assert len(session._errors) == 0

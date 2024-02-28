@@ -202,6 +202,12 @@ class ClientResponse:
         self._form: typing.Optional[typing.Dict[str, str]] = None
         self._json_loads = json_loads
 
+    def __repr__(self):
+        return (
+            f'<{self.__class__.__name__} method={self._response.method} '
+            f'url={self._response.url} status={self.status} content={self.content}>'
+        )
+
     @property
     def status_code(self) -> int:
         return self._response.status

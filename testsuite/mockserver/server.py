@@ -23,7 +23,6 @@ from testsuite import utils
 from . import classes
 from . import exceptions
 from . import magicargs
-from . import reporter_plugin
 
 DEFAULT_TRACE_ID_HEADER = 'X-YaTraceId'
 DEFAULT_SPAN_ID_HEADER = 'X-YaSpanId'
@@ -87,9 +86,6 @@ class Session:
 
     def __init__(
         self,
-        reporter: typing.Optional[
-            reporter_plugin.MockserverReporterPlugin
-        ] = None,
         *,
         tracing_enabled=True,
         trace_id=None,
@@ -99,13 +95,13 @@ class Session:
         if trace_id is None:
             trace_id = generate_trace_id()
         self.trace_id = trace_id
-        self.reporter = reporter
         self.tracing_enabled = tracing_enabled
         self.handlers = {}
         self.prefix_handlers = []
         self.regex_handlers = []
         self.http_proxy_enabled = http_proxy_enabled
         self.mockserver_host = mockserver_host
+        self._errors = []
 
     def get_handler(self, path: str) -> typing.Tuple[Handler, RouteParams]:
         handler = self.handlers.get(path)
@@ -144,8 +140,18 @@ class Session:
             f'{handlers_list}'
         )
 
-    async def handle_request(self, request: aiohttp.web.BaseRequest):
-        handler, kwargs = self._get_handler_for_request(request)
+    async def handle_request(
+        self,
+        request: aiohttp.web.BaseRequest,
+        nofail_404: bool,
+    ):
+        try:
+            handler, kwargs = self._get_handler_for_request(request)
+        except exceptions.HandlerNotFoundError as exc:
+            if not nofail_404:
+                self._errors.append(exc)
+            return _internal_error(f'Internal server error: {exc!r}')
+
         try:
             response = await handler(request, **kwargs)
             if isinstance(response, aiohttp.web.Response):
@@ -154,20 +160,18 @@ class Session:
                 'aiohttp.web.Response instance is expected '
                 f'{response!r} given',
             )
-        except exceptions.HandlerNotFoundError:
-            raise
         except http.MockedError as exc:
             return _mocked_error_response(request, exc.error_code)
         except Exception as exc:
-            self._report_handler_failure(request.path, exc)
-            raise
+            self._errors.append(exc)
+            return _internal_error(f'Internal server error: {exc!r}')
 
-    def _report_handler_failure(self, path: str, exc: Exception):
-        if self.reporter:
-            self.reporter.report_error(
-                exc,
-                f'Exception in mockserver handler for {path!r}: {exc !r}',
-            )
+    def raise_errors(self):
+        for exc in self._errors:
+            raise exceptions.MockServerError(
+                f'There were {len(self._errors)} errors while processing '
+                f'mockserver requests, showing the last one',
+            ) from exc
 
     def register_handler(
         self,
@@ -213,9 +217,6 @@ class Server:
         *,
         nofail=False,
         mockserver_debug=False,
-        reporter: typing.Optional[
-            reporter_plugin.MockserverReporterPlugin
-        ] = None,
         tracing_enabled=True,
         trace_id_header=DEFAULT_TRACE_ID_HEADER,
         span_id_header=DEFAULT_SPAN_ID_HEADER,
@@ -224,7 +225,6 @@ class Server:
         self._info = mockserver_info
         self._nofail = nofail
         self._mockserver_debug = mockserver_debug
-        self._reporter = reporter
         self._tracing_enabled = tracing_enabled
         self._trace_id_header = trace_id_header
         self._span_id_header = span_id_header
@@ -254,17 +254,18 @@ class Server:
 
     @contextlib.contextmanager
     def new_session(self, trace_id: typing.Optional[str] = None):
-        self.session = Session(
-            self._reporter,
+        session = Session(
             tracing_enabled=self._tracing_enabled,
             trace_id=trace_id,
             http_proxy_enabled=self._http_proxy_enabled,
             mockserver_host=self._info.get_host_header(),
         )
+        self.session = session
         try:
-            yield self.session
+            yield session
         finally:
             self.session = None
+            session.raise_errors()
 
     async def handle_request(self, request):
         started = time.perf_counter()
@@ -302,11 +303,9 @@ class Server:
 
     async def _handle_request(self, request: aiohttp.web.BaseRequest):
         trace_id = request.headers.get(self.trace_id_header)
-        nofail = (
-            self._nofail
-            or self.tracing_enabled
-            and not _is_from_client_fixture(trace_id)
-        )
+        nofail = self._nofail
+        if self.tracing_enabled and not _is_from_client_fixture(trace_id):
+            nofail = True
         if not self.session:
             error_message = 'Internal error: missing mockserver fixture'
             if nofail:
@@ -320,23 +319,11 @@ class Server:
             self._report_other_test_request(request, trace_id)
             return _internal_error(REQUEST_FROM_ANOTHER_TEST_ERROR)
         try:
-            return await self.session.handle_request(request)
+            return await self.session.handle_request(request, nofail_404=nofail)
         except exceptions.HandlerNotFoundError as exc:
-            self._report_handler_not_found(exc, nofail=nofail)
             return _internal_error(
                 'Internal error: mockserver handler not found',
             )
-
-    def _report_handler_not_found(
-        self,
-        exc: exceptions.HandlerNotFoundError,
-        *,
-        nofail: bool,
-    ):
-        level = logging.WARNING if nofail else logging.ERROR
-        logger.log(level, '%s', exc)
-        if not nofail and self._reporter is not None:
-            self._reporter.report_error(exc)
 
     def _report_other_test_request(self, request, trace_id):
         logger.warning(
@@ -613,29 +600,20 @@ def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
     )
 
 
-def _create_server_obj(
-    mockserver_info, mockserver_reporter, pytestconfig
-) -> Server:
+def _create_server_obj(mockserver_info, pytestconfig) -> Server:
     return Server(
         mockserver_info,
         nofail=pytestconfig.option.mockserver_nofail,
         mockserver_debug=pytestconfig.option.mockserver_debug,
-        reporter=mockserver_reporter,
         tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
         trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
         span_id_header=pytestconfig.getini('mockserver-span-id-header'),
-        http_proxy_enabled=pytestconfig.getini(
-            'mockserver-http-proxy-enabled',
-        ),
+        http_proxy_enabled=pytestconfig.getini('mockserver-http-proxy-enabled'),
     )
 
 
 def _create_web_server(server: Server, loop) -> aiohttp.web.Server:
-    return aiohttp.web.Server(
-        server.handle_request,
-        loop=loop,
-        access_log=None,
-    )
+    return aiohttp.web.Server(server.handle_request, loop=loop, access_log=None)
 
 
 @compat.asynccontextmanager
@@ -644,7 +622,6 @@ async def create_server(
     port: int,
     loop,
     testsuite_logger,
-    mockserver_reporter: reporter_plugin.MockserverReporterPlugin,
     pytestconfig,
     ssl_info: typing.Optional[classes.SslCertInfo],
 ) -> typing.AsyncGenerator[Server, None]:
@@ -665,9 +642,7 @@ async def create_server(
             host,
             ssl_info,
         )
-        server = _create_server_obj(
-            mockserver_info, mockserver_reporter, pytestconfig
-        )
+        server = _create_server_obj(mockserver_info, pytestconfig)
         web_server = _create_web_server(server, loop)
         yield server
 
@@ -677,7 +652,6 @@ async def create_unix_server(
     socket_path: pathlib.Path,
     loop,
     testsuite_logger,
-    mockserver_reporter: reporter_plugin.MockserverReporterPlugin,
     pytestconfig,
 ) -> typing.AsyncGenerator[Server, None]:
     async with net_utils.create_unix_server(
@@ -685,9 +659,7 @@ async def create_unix_server(
         path=socket_path,
     ):
         mockserver_info = _create_unix_mockserver_info(socket_path)
-        server = _create_server_obj(
-            mockserver_info, mockserver_reporter, pytestconfig
-        )
+        server = _create_server_obj(mockserver_info, pytestconfig)
         web_server = _create_web_server(server, loop)
         yield server
 

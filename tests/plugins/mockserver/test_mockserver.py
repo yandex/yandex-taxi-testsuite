@@ -2,7 +2,12 @@
 import aiohttp
 import pytest
 
+from testsuite.mockserver import exceptions
 from testsuite._internal import fixture_types
+
+
+class UserError(Exception):
+    pass
 
 
 class Client:
@@ -71,3 +76,38 @@ async def test_handler(
     data = await response.content.read()
 
     assert data == b'hello'
+
+
+async def test_user_error(
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
+):
+    @mockserver.json_handler('/foo')
+    def _foo_handler(request):
+        raise UserError
+
+    response = await mockserver_client.get('/foo')
+    assert response.status == 500
+
+    session = mockserver._session
+    assert len(session._errors) == 1
+
+    error = session._errors.pop()
+    assert isinstance(error, UserError)
+
+
+async def test_nohandler(
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
+):
+    response = await mockserver_client.get(
+        '/foo123',
+        headers={mockserver.trace_id_header: mockserver.trace_id},
+    )
+    assert response.status == 500
+
+    session = mockserver._session
+    assert len(session._errors) == 1
+
+    error = session._errors.pop()
+    assert isinstance(error, exceptions.HandlerNotFoundError)

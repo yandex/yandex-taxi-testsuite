@@ -15,6 +15,10 @@ def test_mocked_time_mutators(mocked_time):
     mocked_time.set(datetime.datetime(2021, 1, 1, 0, 0, 0))
     assert mocked_time.now() == datetime.datetime(2021, 1, 1, 0, 0, 0)
 
+    assert mocked_time.now(
+        tz=datetime.timezone(datetime.timedelta(hours=3), name='UTC+3')
+    ).replace(tzinfo=None) == datetime.datetime(2021, 1, 1, 3, 0, 0)
+
 
 @pytest.mark.now(enabled=False)
 def test_disabled_mocked_time_raises_on_usage_attempt(mocked_time):

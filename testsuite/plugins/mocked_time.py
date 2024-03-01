@@ -1,4 +1,5 @@
 import datetime
+import typing
 
 import dateutil.parser
 import pytest
@@ -33,11 +34,20 @@ class MockedTime:
             raise DisabledUsageError(MOCK_TIME_DISABLED_MESSAGE)
         self._now += datetime.timedelta(seconds=delta)
 
-    def now(self) -> datetime.datetime:
+    def now(
+        self, tz: typing.Optional[datetime.tzinfo] = None
+    ) -> datetime.datetime:
         """:returns: current value of mock time"""
+        now = None
         if self._is_enabled:
-            return self._now
-        return utils.utcnow()
+            now = self._now
+        else:
+            now = utils.utcnow()
+
+        if tz:
+            now = now.replace(tzinfo=datetime.timezone.utc).astimezone(tz=tz)
+
+        return now
 
     def set(self, time: datetime.datetime):
         """Set mock time value"""

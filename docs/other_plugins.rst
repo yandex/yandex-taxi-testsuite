@@ -58,6 +58,16 @@ current time at UTC timezone is used at the start of test as time value
 until it is modified by calling ``mocked_time.set(...)`` or
 ``mocked_time.sleep(...)``
 
+Timezones
+~~~~~~~~~
+
+Mocked time is always stored as offset-naive datetime in UTC timezone.
+``mocked_time.set(...)`` treats offset-naive datetime as datetime in UTC timezone
+and converts offset-aware datetime to offset-naive automatically.
+
+``mocked_time.now()`` returns returns offset-naive datetime by default,
+but with `tz` arg it will return offset-aware datetime in tz timezone.
+
 Classes
 ~~~~~~~
 

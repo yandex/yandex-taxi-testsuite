@@ -3,7 +3,6 @@ import aiohttp.test_utils
 import pytest
 
 from testsuite.mockserver import exceptions
-from testsuite.mockserver import reporter_plugin
 from testsuite.mockserver import server
 
 
@@ -43,19 +42,17 @@ async def test_mockserver_raises_on_unhandled_request_from_other_sources(
     http_headers,
     mockserver_info,
 ):
-    reporter = reporter_plugin.MockserverReporterPlugin(colors_enabled=False)
     mockserver = server.Server(
         mockserver_info,
         tracing_enabled=False,
-        reporter=reporter,
     )
-    with mockserver.new_session():
+    with mockserver.new_session() as session:
         request = aiohttp.test_utils.make_mocked_request(
             'POST',
             '/arbitrary/path',
             headers=http_headers,
         )
         await mockserver._handle_request(request)
-        assert len(reporter._errors) == 1
-        error, _report_msg = reporter._errors[0]
+        assert len(session._errors) == 1
+        error = session._errors.pop()
         assert isinstance(error, exceptions.HandlerNotFoundError)

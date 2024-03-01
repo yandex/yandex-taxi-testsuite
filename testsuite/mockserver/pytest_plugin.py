@@ -1,4 +1,6 @@
+import contextlib
 import typing
+import warnings
 
 import pytest
 
@@ -7,7 +9,6 @@ from testsuite.utils import colors
 
 from . import classes
 from . import exceptions
-from . import reporter_plugin
 from . import server
 
 MOCKSERVER_DEFAULT_PORT = 9999
@@ -23,6 +24,23 @@ Random port is used by default. If testsuite is started with
 
 NOTE: non-default workers always use random port.
 """
+
+
+class MockserverPlugin:
+    def __init__(self):
+        self._invalidators = set()
+
+    def pytest_runtest_call(self, item):
+        for invalidator in self._invalidators:
+            invalidator()
+
+    @contextlib.contextmanager
+    def register_invalidator(self, invalidator):
+        self._invalidators.add(invalidator)
+        try:
+            yield
+        finally:
+            self._invalidators.discard(invalidator)
 
 
 def pytest_addoption(parser):
@@ -116,11 +134,10 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    config.pluginmanager.register(
-        reporter_plugin.MockserverReporterPlugin(
-            colors_enabled=colors.should_enable_color(config),
-        ),
-        'mockserver_reporter',
+    config.pluginmanager.register(MockserverPlugin(), 'mockserver_plugin')
+    config.addinivalue_line(
+        'markers',
+        'mockserver_nosetup_errors: do not fail on mockserver setup errors',
     )
 
 
@@ -131,27 +148,41 @@ def pytest_register_object_hooks():
     }
 
 
+@pytest.fixture(name='_mockserver_create_session')
+def fixture_mockserver_create_session(
+    _mockserver_trace_id: str,
+    _mockserver_errors_clear,
+):
+    @contextlib.contextmanager
+    def create_session(mockserver):
+        with mockserver.new_session(_mockserver_trace_id) as session:
+            with _mockserver_errors_clear(session):
+                yield server.MockserverFixture(mockserver, session)
+
+    return create_session
+
+
 @pytest.fixture
 def mockserver(
     _mockserver: server.Server,
-    _mockserver_trace_id: str,
+    _mockserver_create_session,
 ) -> annotations.YieldFixture[server.MockserverFixture]:
-    with _mockserver.new_session(_mockserver_trace_id) as session:
-        yield server.MockserverFixture(_mockserver, session)
+    with _mockserver_create_session(_mockserver) as fixture:
+        yield fixture
 
 
 @pytest.fixture
 async def mockserver_ssl(
     _mockserver_ssl: typing.Optional[server.Server],
-    _mockserver_trace_id: str,
+    _mockserver_create_session,
 ) -> annotations.AsyncYieldFixture[server.MockserverSslFixture]:
     if _mockserver_ssl is None:
         raise exceptions.MockServerError(
             f'mockserver_ssl is not configured. {_SSL_KEY_FILE_INI_KEY} and '
             f'{_SSL_CERT_FILE_INI_KEY} must be specified in pytest.ini',
         )
-    with _mockserver_ssl.new_session(_mockserver_trace_id) as session:
-        yield server.MockserverFixture(_mockserver_ssl, session)
+    with _mockserver_create_session(_mockserver_ssl) as fixture:
+        yield fixture
 
 
 @pytest.fixture(scope='session')
@@ -215,16 +246,14 @@ async def _mockserver(
     pytestconfig,
     testsuite_logger,
     loop,
-    _mockserver_reporter,
     _mockserver_getport,
 ) -> annotations.AsyncYieldFixture[server.Server]:
     if pytestconfig.option.mockserver_unix_socket:
         async with server.create_unix_server(
-            pytestconfig.option.mockserver_unix_socket,
-            loop,
-            testsuite_logger,
-            _mockserver_reporter,
-            pytestconfig,
+            socket_path=pytestconfig.option.mockserver_unix_socket,
+            loop=loop,
+            testsuite_logger=testsuite_logger,
+            pytestconfig=pytestconfig,
         ) as result:
             yield result
     else:
@@ -233,12 +262,11 @@ async def _mockserver(
             MOCKSERVER_DEFAULT_PORT,
         )
         async with server.create_server(
-            pytestconfig.option.mockserver_host,
-            port,
-            loop,
-            testsuite_logger,
-            _mockserver_reporter,
-            pytestconfig,
+            host=pytestconfig.option.mockserver_host,
+            port=port,
+            loop=loop,
+            testsuite_logger=testsuite_logger,
+            pytestconfig=pytestconfig,
             ssl_info=None,
         ) as result:
             yield result
@@ -250,7 +278,6 @@ async def _mockserver_ssl(
     testsuite_logger,
     loop,
     mockserver_ssl_cert,
-    _mockserver_reporter,
     _mockserver_getport,
 ) -> annotations.AsyncYieldFixture[typing.Optional[server.Server]]:
     if mockserver_ssl_cert:
@@ -259,24 +286,16 @@ async def _mockserver_ssl(
             MOCKSERVER_SSL_DEFAULT_PORT,
         )
         async with server.create_server(
-            pytestconfig.option.mockserver_ssl_host,
-            port,
-            loop,
-            testsuite_logger,
-            _mockserver_reporter,
-            pytestconfig,
-            mockserver_ssl_cert,
+            host=pytestconfig.option.mockserver_ssl_host,
+            port=port,
+            loop=loop,
+            testsuite_logger=testsuite_logger,
+            pytestconfig=pytestconfig,
+            ssl_info=mockserver_ssl_cert,
         ) as result:
             yield result
     else:
         yield None
-
-
-@pytest.fixture(scope='session')
-def _mockserver_reporter(
-    pytestconfig,
-) -> reporter_plugin.MockserverReporterPlugin:
-    return pytestconfig.pluginmanager.get_plugin('mockserver_reporter')
 
 
 @pytest.fixture
@@ -302,6 +321,47 @@ def _mockserver_https_hook(mockserver_ssl_info):
         )
 
     return wrapper
+
+
+@pytest.fixture(name='_mockserver_errors_clear')
+def fixture_mockserver_errors_clear(
+    _mockserver_plugin: MockserverPlugin,
+    request,
+    mockserver_nosetup_errors,
+):
+    """
+    Clear mockserver errors at startup.
+
+    Required for backward compatibility with older testsuite versions.
+    """
+    marker = request.node.get_closest_marker('mockserver_nosetup_errors')
+    if marker:
+        warnings.warn(
+            'pytest.mark.mockserver_nosetup_errors is for backward '
+            'compatibility only, please rewrite your code',
+            DeprecationWarning,
+        )
+        mockserver_nosetup_errors = True
+
+    @contextlib.contextmanager
+    def errors_clear(session: server.Session):
+        if not mockserver_nosetup_errors:
+            yield
+            return
+        with _mockserver_plugin.register_invalidator(session.clear_errors):
+            yield
+
+    return errors_clear
+
+
+@pytest.fixture(name='mockserver_nosetup_errors', scope='session')
+def fixture_mockserver_nosetup_errors():
+    return True
+
+
+@pytest.fixture(name='_mockserver_plugin', scope='session')
+def fixture_mockserver_plugin(pytestconfig) -> MockserverPlugin:
+    return pytestconfig.pluginmanager.get_plugin('mockserver_plugin')
 
 
 def _mockserver_info_hook(doc: dict, key=None, mockserver_info=None):

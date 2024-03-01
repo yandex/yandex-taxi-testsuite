@@ -20,5 +20,5 @@ async def test_mockserver_raises_on_get_with_content(
     )
     assert response.status_code == 500
     # pylint: disable=protected-access
-    error, _report_msg = mockserver._session.reporter._errors.pop()
+    error = mockserver._session._errors.pop()
     assert isinstance(error, http.InvalidRequestError)

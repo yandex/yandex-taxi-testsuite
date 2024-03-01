@@ -1,6 +1,7 @@
 import aiohttp.web
 import pytest
 
+from testsuite.mockserver import exceptions
 from testsuite.mockserver import server  # pylint: disable=protected-access
 
 
@@ -95,3 +96,6 @@ async def test_mockserver_responds_500_on_unhandled_request_from_other_sources(
     client = create_service_client(mockserver.base_url, headers=http_headers)
     response = await client.post('arbitrary/path')
     assert response.status_code == 500
+
+    session = mockserver._session
+    assert len(session._errors) == 0

@@ -356,7 +356,7 @@ def fixture_mockserver_errors_clear(
 
 @pytest.fixture(name='mockserver_nosetup_errors', scope='session')
 def fixture_mockserver_nosetup_errors():
-    return True
+    return False
 
 
 @pytest.fixture(name='_mockserver_plugin', scope='session')

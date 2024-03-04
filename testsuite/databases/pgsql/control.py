@@ -220,6 +220,7 @@ class PgControl:
     _applied_schemas: typing.Dict[str, typing.Set[pathlib.Path]]
     _connections: typing.Dict[str, ConnectionWrapper]
     _connection_pool: typing.Optional[pool.AutocommitConnectionPool]
+    _applied_schema_hashes: typing.Optional[testsuite_db.AppliedSchemaHashes]
 
     def __init__(
         self,
@@ -237,16 +238,19 @@ class PgControl:
         self._applied_schemas = {}
         self._skip_applied_schemas = skip_applied_schemas
 
-    @testsuite_utils.cached_property
-    def _applied_schema_hashes(
-        self,
-    ) -> typing.Optional[testsuite_db.AppliedSchemaHashes]:
+    def initialize(self) -> None:
+        if not self._connection_pool:
+            self._connection_pool = pool.AutocommitConnectionPool(
+                minconn=1, maxconn=10, uri=self._get_connection_uri('postgres')
+            )
+
         if self._skip_applied_schemas:
-            return testsuite_db.AppliedSchemaHashes(
-                self._get_connection_pool(),
+            self._applied_schema_hashes = None
+        else:
+            self._applied_schema_hashes = testsuite_db.AppliedSchemaHashes(
+                self._connection_pool,
                 self._conninfo,
             )
-        return None
 
     def get_connection_cached(self, dbname) -> ConnectionWrapper:
         if dbname not in self._connections:
@@ -288,7 +292,7 @@ class PgControl:
     def _create_database(self, dbname: str) -> None:
         if dbname in self._applied_schemas:
             return
-        with self._get_connection_pool().get_connection() as connection:
+        with self._connection_pool.get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(DROP_DATABASE_TEMPLATE.format(dbname))
                 cursor.execute(CREATE_DATABASE_TEMPLATE.format(dbname))
@@ -373,14 +377,6 @@ class PgControl:
             self._connection_pool.close()
         for conn in self._connections.values():
             conn.close()
-
-    def _get_connection_pool(self) -> pool.AutocommitConnectionPool:
-        if not self._connection_pool:
-            self._connection_pool = pool.AutocommitConnectionPool(
-                minconn=1, maxconn=10, uri=self._get_connection_uri('postgres')
-            )
-
-        return self._connection_pool
 
     def _get_connection_uri(self, dbname: str) -> str:
         return self._conninfo.replace(dbname=dbname).get_uri()

@@ -220,6 +220,7 @@ class PgControl:
     _applied_schemas: typing.Dict[str, typing.Set[pathlib.Path]]
     _connections: typing.Dict[str, ConnectionWrapper]
     _connection_pool: typing.Optional[pool.AutocommitConnectionPool]
+    _applied_schema_hashes: typing.Optional[testsuite_db.AppliedSchemaHashes]
 
     def __init__(
         self,
@@ -235,18 +236,14 @@ class PgControl:
         self._pgmigrate = _get_pgmigrate()
         self._verbose = verbose
         self._applied_schemas = {}
-        self._skip_applied_schemas = skip_applied_schemas
 
-    @testsuite_utils.cached_property
-    def _applied_schema_hashes(
-        self,
-    ) -> typing.Optional[testsuite_db.AppliedSchemaHashes]:
-        if self._skip_applied_schemas:
-            return testsuite_db.AppliedSchemaHashes(
+        if skip_applied_schemas:
+            self._applied_schema_hashes = None
+        else:
+            self._applied_schema_hashes = testsuite_db.AppliedSchemaHashes(
                 self._get_connection_pool(),
                 self._conninfo,
             )
-        return None
 
     def get_connection_cached(self, dbname) -> ConnectionWrapper:
         if dbname not in self._connections:

@@ -237,6 +237,7 @@ class PgControl:
         self._verbose = verbose
         self._applied_schemas = {}
         self._skip_applied_schemas = skip_applied_schemas
+        self._applied_schema_hashes = None
 
     def initialize(self) -> None:
         if not self._connection_pool:

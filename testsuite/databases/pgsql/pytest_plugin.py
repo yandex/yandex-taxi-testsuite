@@ -55,7 +55,8 @@ class ServiceLocalConfig(collections.abc.Mapping):
         if self._initialized:
             return self._shard_connections
 
-        self._pgsql_control.initialize()
+        if self._databases:
+            self._pgsql_control.initialize()
 
         def init_database(db):
             self._pgsql_control.initialize_sharded_db(db)

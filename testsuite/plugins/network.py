@@ -22,7 +22,7 @@ class NoEnabledPorts(BaseError):
 def get_free_port() -> typing.Callable[[], int]:
     """
     Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
-    
+
     Provides strong guarantee that no other application could bind
     to that port via bind(('', 0)).
     """

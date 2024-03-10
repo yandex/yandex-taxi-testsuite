@@ -79,7 +79,7 @@ def _get_free_port_sock_storing(
             raise NoEnabledPorts()
 
 
-async def _get_free_port_range_based(
+def _get_free_port_range_based(
     socket_af,
     host: str,
 ) -> typing.Callable[[], int]:

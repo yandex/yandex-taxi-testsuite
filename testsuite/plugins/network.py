@@ -58,7 +58,7 @@ def _get_free_port_sock_storing() -> typing.Callable[[], int]:
             sock.bind((_LOCALHOST, 0))
             sock_list.add(sock)
             return sock.getsockname()[1]
-        except OSError as err:
+        except OSError:
             raise NoEnabledPorts()
 
     try:
@@ -70,11 +70,12 @@ def _get_free_port_sock_storing() -> typing.Callable[[], int]:
 
 def _get_free_port_range_based() -> typing.Callable[[], int]:
     port = 61000
-    
+
     def _get_free_port():
         nonlocal port
 
-        while port > 1:
+        close_to_privileged_ports = 2048
+        while port > close_to_privileged_ports:
             port -= 1
 
             if _is_port_free(port):

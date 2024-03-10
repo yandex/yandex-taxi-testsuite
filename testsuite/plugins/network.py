@@ -31,7 +31,7 @@ def _get_ipv6_localhost_or_fallback() -> str:
 
 
 _IPV6_AF_OR_FALLBACK = _get_ipv6_localhost_or_fallback()
-_LOCALHOST = ('127.0.0.1' if _IPV6_AF_OR_FALLBACK == socket.AF_INET else '::')
+_LOCALHOST = '127.0.0.1' if _IPV6_AF_OR_FALLBACK == socket.AF_INET else '::'
 
 
 def _is_port_free(port_num: int) -> bool:
@@ -91,9 +91,6 @@ def _get_free_port_range_based() -> typing.Callable[[], int]:
 def get_free_port() -> typing.Callable[[], int]:
     """
     Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
-
-    Provides strong guarantee that no other application could bind
-    to that port via bind(('', 0)).
     """
     if platform.system() == 'Linux':
         return _get_free_port_sock_storing()

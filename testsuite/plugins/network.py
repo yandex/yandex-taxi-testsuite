@@ -18,18 +18,36 @@ class NoEnabledPorts(BaseError):
 
 
 @pytest.fixture(scope='session')
-def get_free_port(worker_id: str) -> typing.Callable[[], int]:
-    counter = itertools.islice(itertools.count(), MAX_PORTS_NUMBER)
-    worker_num = 0 if worker_id == 'master' else int(worker_id[2:]) + 1
+def get_free_port() -> typing.Callable[[], int]:
+    """
+    Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
+    
+    Provides strong guarantee that no other application could bind
+    to that port via bind(('', 0)).
+    """
+
+    sock_list = set()
+    socket_af = socket.AF_INET
+    if hasattr(socket, 'AF_INET6'):
+        socket_af = socket.AF_INET6
 
     def _get_free_port():
-        for value in counter:
-            port = BASE_PORT + worker_num * MAX_PORTS_NUMBER + value
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            with contextlib.closing(sock):
-                result_code = sock.connect_ex(('localhost', port))
-            if result_code != 0:
-                return port
+        nonlocal socket_af
+        nonlocal sock_list
+
+        sock = socket.socket(socket_af, socket.SOCK_STREAM)
+        with contextlib.closing(sock):
+            addr = ('127.0.0.1' if socket_af == socket.AF_INET else '::', 0)
+            try:
+                sock.bind(addr)
+                sock_list.append(sock)
+                return sock.getsockname()[1]
+            except OSError as err:
+                if socket_af != socket.AF_INET:
+                    if err.errno == errno.EADDRNOTAVAIL:
+                        socket_af = socket.AF_INET
+                        return _get_free_port()
+
         raise NoEnabledPorts()
 
     return _get_free_port

@@ -31,7 +31,6 @@ def _get_ipv6_af_or_fallback():
     return socket.AF_INET
 
 
-
 def _is_port_free(port_num: int, socket_af, host: str) -> bool:
     sock = socket.socket(socket_af, socket.SOCK_STREAM)
     try:
@@ -53,7 +52,9 @@ async def _get_open_sock_list_impl():
 
 
 def _get_free_port_sock_storing(
-    socket_af, host: str, sock_list: set,
+    socket_af,
+    host: str,
+    sock_list: set,
 ) -> typing.Callable[[], int]:
     # Relies on https://github.com/torvalds/linux/commit/aacd9289af8b82f5fb01b
     def _get_free_port():
@@ -70,7 +71,8 @@ def _get_free_port_sock_storing(
 
 
 async def _get_free_port_range_based(
-    socket_af, host: str,
+    socket_af,
+    host: str,
 ) -> typing.Callable[[], int]:
     port = 61000
 
@@ -91,7 +93,9 @@ async def _get_free_port_range_based(
 
 @pytest.fixture(scope='session')
 def get_free_port(
-    _get_ipv6_af_or_fallback, _get_localhost, _get_open_sock_list_impl,
+    _get_ipv6_af_or_fallback,
+    _get_localhost,
+    _get_open_sock_list_impl,
 ) -> typing.Callable[[], int]:
     """
     Returns an ephemeral TCP port that is free for IPv4 and for IPv6.

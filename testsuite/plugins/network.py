@@ -28,10 +28,9 @@ def _is_port_free(port_num: int) -> bool:
         sock.bind(addr)
         return True
     except OSError as err:
-        if socket_af != socket.AF_INET:
-            if err.errno == errno.EADDRNOTAVAIL:
-                socket_af = socket.AF_INET
-                return _is_port_free(port_num)
+        if socket_af != socket.AF_INET and err.errno == errno.EADDRNOTAVAIL:
+            socket_af = socket.AF_INET
+            return _is_port_free(port_num)
     finally:
         sock.close()
 

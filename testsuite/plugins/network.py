@@ -50,6 +50,7 @@ def _is_port_free(port_num: int, socket_af, host: str) -> bool:
     return False
 
 
+@pytest.fixture(scope='session')
 async def _get_open_sock_list_impl():
     sock_list = set()
     try:

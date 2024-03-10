@@ -45,7 +45,7 @@ def _is_port_free(port_num: int) -> bool:
     return False
 
 
-def _get_free_port_sock_storing() -> typing.Callable[[], int]:
+async def _get_free_port_sock_storing() -> typing.Callable[[], int]:
     # Relies on https://github.com/torvalds/linux/commit/aacd9289af8b82f5fb01b
     sock_list = set()
 
@@ -68,7 +68,7 @@ def _get_free_port_sock_storing() -> typing.Callable[[], int]:
             sock.close()
 
 
-def _get_free_port_range_based() -> typing.Callable[[], int]:
+async def _get_free_port_range_based() -> typing.Callable[[], int]:
     port = 61000
 
     def _get_free_port():
@@ -83,7 +83,7 @@ def _get_free_port_range_based() -> typing.Callable[[], int]:
 
         raise NoEnabledPorts()
 
-    return _get_free_port
+    yield _get_free_port
 
 
 @pytest.fixture(scope='session')
@@ -92,6 +92,6 @@ async def get_free_port() -> typing.Callable[[], int]:
     Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
     """
     if platform.system() == 'Linux':
-        return await _get_free_port_sock_storing()
+        return _get_free_port_sock_storing()
 
     return _get_free_port_range_based()

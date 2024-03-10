@@ -31,6 +31,14 @@ def _get_ipv6_af_or_fallback():
     return socket.AF_INET
 
 
+@pytest.fixture(scope='session')
+def _get_ipv6_localhost_or_fallback(_get_ipv6_af_or_fallback):
+    if _get_ipv6_af_or_fallback == socket.AF_INET:
+        return '127.0.0.1'
+
+    return '::'
+
+
 def _is_port_free(port_num: int, socket_af, host: str) -> bool:
     sock = socket.socket(socket_af, socket.SOCK_STREAM)
     try:
@@ -94,7 +102,7 @@ async def _get_free_port_range_based(
 @pytest.fixture(scope='session')
 def get_free_port(
     _get_ipv6_af_or_fallback,
-    _get_localhost,
+    _get_ipv6_localhost_or_fallback,
     _get_open_sock_list_impl,
 ) -> typing.Callable[[], int]:
     """
@@ -102,7 +110,12 @@ def get_free_port(
     """
     if platform.system() == 'Linux':
         return _get_free_port_sock_storing(
-            _get_ipv6_af_or_fallback, _get_localhost, _get_open_sock_list_impl,
+            _get_ipv6_af_or_fallback,
+            _get_ipv6_localhost_or_fallback,
+            _get_open_sock_list_impl,
         )
 
-    return _get_free_port_range_based(_get_ipv6_af_or_fallback, _get_localhost)
+    return _get_free_port_range_based(
+        _get_ipv6_af_or_fallback,
+        _get_ipv6_localhost_or_fallback,
+    )

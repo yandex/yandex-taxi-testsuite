@@ -6,9 +6,6 @@ import typing
 
 import pytest
 
-BASE_PORT = 30000
-MAX_PORTS_NUMBER = 100
-
 
 class BaseError(Exception):
     """Base class for errors from this module."""
@@ -41,7 +38,7 @@ def get_free_port() -> typing.Callable[[], int]:
         try:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind(addr)
-            sock_list.append(sock)
+            sock_list.add(sock)
             return sock.getsockname()[1]
         except OSError as err:
             if socket_af != socket.AF_INET:

@@ -87,11 +87,11 @@ def _get_free_port_range_based() -> typing.Callable[[], int]:
 
 
 @pytest.fixture(scope='session')
-def get_free_port() -> typing.Callable[[], int]:
+async def get_free_port() -> typing.Callable[[], int]:
     """
     Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
     """
     if platform.system() == 'Linux':
-        return _get_free_port_sock_storing()
-    else:
-        return _get_free_port_range_based()
+        return await _get_free_port_sock_storing()
+
+    return _get_free_port_range_based()

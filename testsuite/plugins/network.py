@@ -69,18 +69,16 @@ def _get_free_port_sock_storing() -> typing.Callable[[], int]:
 
 
 def _get_free_port_range_based() -> typing.Callable[[], int]:
-    base_port = 30000
-    last_port = 65000
-    next_port = base_port
-
+    port = 61000
+    
     def _get_free_port():
-        nonlocal next_port
+        nonlocal port
 
-        while next_port <= last_port:
-            next_port += 1
+        while port > 1:
+            port -= 1
 
-            if _is_port_free(next_port - 1):
-                return next_port - 1
+            if _is_port_free(next_port):
+                return next_port
 
         raise NoEnabledPorts()
 

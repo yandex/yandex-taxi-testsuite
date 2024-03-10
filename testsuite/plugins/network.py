@@ -77,8 +77,8 @@ def _get_free_port_range_based() -> typing.Callable[[], int]:
         while port > 1:
             port -= 1
 
-            if _is_port_free(next_port):
-                return next_port
+            if _is_port_free(port):
+                return port
 
         raise NoEnabledPorts()
 

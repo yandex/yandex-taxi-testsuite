@@ -67,16 +67,16 @@ def _get_free_port_sock_storing(
 ) -> typing.Callable[[], int]:
     # Relies on https://github.com/torvalds/linux/commit/aacd9289af8b82f5fb01b
     def _get_free_port():
-        nonlocal sock_list
-
         sock = socket.socket(socket_af, socket.SOCK_STREAM)
         try:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind((host, 0))
-            sock_list.add(sock)
+            sock_list.add(sock)  # shared variable
             return sock.getsockname()[1]
         except OSError:
             raise NoEnabledPorts()
+
+    return _get_free_port
 
 
 def _get_free_port_range_based(

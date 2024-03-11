@@ -25,6 +25,8 @@ def _get_ipv6_af_or_fallback():
     try:
         sock.bind(('::', 0))
         return socket.AF_INET6
+    except OSError:
+        pass
     finally:
         sock.close()
 
@@ -39,7 +41,7 @@ def _get_ipv6_localhost_or_fallback(_get_ipv6_af_or_fallback):
     return '::'
 
 
-def _is_port_free(port_num: int, socket_af, host: str) -> bool:
+def _is_port_free(port_num: int, socket_af: int, host: str) -> bool:
     sock = socket.socket(socket_af, socket.SOCK_STREAM)
     try:
         sock.bind((host, port_num))
@@ -61,7 +63,7 @@ async def _get_open_sock_list_impl():
 
 
 def _get_free_port_sock_storing(
-    socket_af,
+    socket_af: int,
     host: str,
     sock_list: set,
 ) -> typing.Callable[[], int]:
@@ -80,7 +82,7 @@ def _get_free_port_sock_storing(
 
 
 def _get_free_port_range_based(
-    socket_af,
+    socket_af: int,
     host: str,
 ) -> typing.Callable[[], int]:
     port = 61000

@@ -138,7 +138,7 @@ def pgsql(_pgsql, pgsql_apply) -> typing.Dict[str, control.PgDatabaseWrapper]:
 
 @pytest.fixture(scope='session')
 def pgsql_local_create(
-    pgsql_control,
+    _pgsql_control,
     pgsql_cleanup_exclude_tables,
 ) -> typing.Callable[
     [typing.List[discover.PgShardedDatabase]],
@@ -153,7 +153,7 @@ def pgsql_local_create(
     def _pgsql_local_create(databases):
         return ServiceLocalConfig(
             databases,
-            pgsql_control,
+            _pgsql_control,
             pgsql_cleanup_exclude_tables,
         )
 
@@ -214,15 +214,15 @@ def pgsql_parallelization_enabled():
 @pytest.fixture
 def _pgsql(
     _pgsql_service,
+    _pgsql_control,
     pgsql_local,
-    pgsql_control,
     pgsql_disabled: bool,
     pgsql_parallelization_enabled: bool,
 ) -> typing.Dict[str, control.ConnectionWrapper]:
     if pgsql_disabled:
         pgsql_local = ServiceLocalConfig(
             [],
-            pgsql_control,
+            _pgsql_control,
             pgsql_cleanup_exclude_tables,
         )
     return pgsql_local.initialize(parallel_init=pgsql_parallelization_enabled)
@@ -395,24 +395,7 @@ def _pgsql_service(
 
 
 @pytest.fixture(scope='session')
-def postgresql_base_connstr(_pgsql_conninfo) -> str:
-    """Connection string to PostgreSQL instance used by testsuite.
-
-    Deprecated, use ``pgsql_control`` fixture instead:
-
-    - ``pgsql_local[shard.pretty_name].get_dsn()``
-    - ``pgsql_local[shard.pretty_name].get_uri()``
-    """
-    if _pgsql_conninfo.dbname == '':
-        _pgsql_conninfo = _pgsql_conninfo.replace(dbname=None)
-    dsn = _pgsql_conninfo.get_dsn()
-    if _pgsql_conninfo.dbname is None:
-        dsn += ' dbname='
-    return dsn
-
-
-@pytest.fixture(scope='session')
-def pgsql_control(pytestconfig, _pgsql_conninfo, pgsql_disabled: bool):
+def _pgsql_control(pytestconfig, _pgsql_conninfo, pgsql_disabled: bool):
     if pgsql_disabled:
         return {}
     instance = control.PgControl(

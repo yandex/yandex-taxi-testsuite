@@ -1,5 +1,5 @@
-import logging
 import contextlib
+import logging
 import subprocess
 import threading
 import typing

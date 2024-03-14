@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import subprocess
 import threading
@@ -19,8 +20,8 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
     lock_process_completion = threading.Lock()
     process_completed = False
 
-    def _capture_output():
-        for line in process.stdout:
+    def _capture_output(stream):
+        for line in stream:
             try:
                 decoded = line.decode('utf-8')
             except UnicodeDecodeError:
@@ -42,13 +43,17 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
                     else:
                         buffer.append(decoded)
 
+    def _do_capture_output(stream):
+        with contextlib.closing(stream):
+            _capture_output(stream)
+
     process = subprocess.Popen(
         args,
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
-    thread = threading.Thread(target=_capture_output)
+    thread = threading.Thread(target=_do_capture_output, args=(process.stdout,))
     thread.daemon = True
     thread.start()
     exit_code = process.wait()

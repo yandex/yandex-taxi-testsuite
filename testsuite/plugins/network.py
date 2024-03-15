@@ -40,23 +40,36 @@ def _get_ipv6_localhost_or_fallback(_get_ipv6_af_or_fallback):
     return '::'
 
 
-def _is_port_free(port_num: int, socket_af: int, host: str) -> bool:
-    sock = socket.socket(socket_af, socket.SOCK_STREAM)
-    with contextlib.closing(sock):
-        sock.bind((host, port_num))
-        return True
-
-    return False
-
-
 @pytest.fixture(scope='session')
-async def _get_open_sock_list_impl():
+def _get_open_sock_list_impl():
     sock_list = []
     try:
         yield sock_list
     finally:
         for sock in sock_list:
             sock.close()
+
+
+@pytest.fixture(scope='session')
+def get_free_port(
+    _get_ipv6_af_or_fallback,
+    _get_ipv6_localhost_or_fallback,
+    _get_open_sock_list_impl,
+) -> typing.Callable[[], int]:
+    """
+    Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
+    """
+    if platform.system() == 'Linux':
+        return _get_free_port_sock_storing(
+            _get_ipv6_af_or_fallback,
+            _get_ipv6_localhost_or_fallback,
+            _get_open_sock_list_impl,
+        )
+
+    return _get_free_port_range_based(
+        _get_ipv6_af_or_fallback,
+        _get_ipv6_localhost_or_fallback,
+    )
 
 
 def _get_free_port_sock_storing(
@@ -96,23 +109,10 @@ def _get_free_port_range_based(
     return _get_free_port
 
 
-@pytest.fixture(scope='session')
-def get_free_port(
-    _get_ipv6_af_or_fallback,
-    _get_ipv6_localhost_or_fallback,
-    _get_open_sock_list_impl,
-) -> typing.Callable[[], int]:
-    """
-    Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
-    """
-    if platform.system() == 'Linux':
-        return _get_free_port_sock_storing(
-            _get_ipv6_af_or_fallback,
-            _get_ipv6_localhost_or_fallback,
-            _get_open_sock_list_impl,
-        )
+def _is_port_free(port_num: int, socket_af: int, host: str) -> bool:
+    sock = socket.socket(socket_af, socket.SOCK_STREAM)
+    with contextlib.closing(sock):
+        sock.bind((host, port_num))
+        return True
 
-    return _get_free_port_range_based(
-        _get_ipv6_af_or_fallback,
-        _get_ipv6_localhost_or_fallback,
-    )
+    return False

@@ -246,8 +246,6 @@ class PgControl:
             )
 
         if self._skip_applied_schemas:
-            self._applied_schema_hashes = None
-        else:
             self._applied_schema_hashes = testsuite_db.AppliedSchemaHashes(
                 self._connection_pool,
                 self._conninfo,
@@ -273,7 +271,7 @@ class PgControl:
             self._initialize_shard(shard)
 
     def _initialize_shard(self, shard: discover.PgShard) -> None:
-        logger.debug('Creating database %s', shard.dbname)
+        logger.debug('Initializing shard %s', shard.dbname)
         if self._applied_schema_hashes is None:
             self._create_database(shard.dbname)
             self._apply_schema(shard)
@@ -293,6 +291,8 @@ class PgControl:
     def _create_database(self, dbname: str) -> None:
         if dbname in self._applied_schemas:
             return
+
+        logger.debug('Creating database %s', shard.dbname)
         with self._connection_pool.get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(DROP_DATABASE_TEMPLATE.format(dbname))

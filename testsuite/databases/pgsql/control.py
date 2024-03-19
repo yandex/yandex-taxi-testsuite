@@ -292,7 +292,7 @@ class PgControl:
         if dbname in self._applied_schemas:
             return
 
-        logger.debug('Creating database %s', shard.dbname)
+        logger.debug('Creating database %s', dbname)
         with self._connection_pool.get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(DROP_DATABASE_TEMPLATE.format(dbname))

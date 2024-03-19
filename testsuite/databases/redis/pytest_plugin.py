@@ -226,15 +226,15 @@ def _redis_store(
 def _redis_cluster_store(
     pytestconfig,
     redis_cluster_service,
-    redis_cluster_sentinels,
+    redis_cluster_nodes,
 ):
     if pytestconfig.option.no_redis:
         yield
         return
 
     redis_db = redisdb.RedisCluster(
-        host=redis_cluster_sentinels[0]['host'],
-        port=redis_cluster_sentinels[0]['port'],
+        host=redis_cluster_nodes[0]['host'],
+        port=redis_cluster_nodes[0]['port'],
     )
 
     yield redis_db

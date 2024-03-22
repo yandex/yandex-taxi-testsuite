@@ -31,6 +31,7 @@ class MockedTime:
         :param delta: increase value in seconds
         """
         if not self._is_enabled:
+            __tracebackhide__ = True
             raise DisabledUsageError(MOCK_TIME_DISABLED_MESSAGE)
         self._now += datetime.timedelta(seconds=delta)
 
@@ -52,6 +53,7 @@ class MockedTime:
     def set(self, time: datetime.datetime):
         """Set mock time value"""
         if not self._is_enabled:
+            __tracebackhide__ = True
             raise DisabledUsageError(MOCK_TIME_DISABLED_MESSAGE)
         self._now = utils.to_utc(time)
 

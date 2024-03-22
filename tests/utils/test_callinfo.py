@@ -254,3 +254,12 @@ def test_acallqueue_repr():
     assert repr(method) == matching.RegexString(
         r'^<AsyncCallQueue: for <function test_acallqueue_repr.<locals>.method at 0x.*>>$'
     )
+
+
+async def test_timeout():
+    @callinfo.acallqueue
+    def method(arg):
+        pass
+
+    with pytest.raises(callinfo.CallQueueTimeoutError):
+        await method.wait_call(timeout=0.001)

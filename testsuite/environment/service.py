@@ -49,6 +49,7 @@ class ScriptService:
             logger.info('Starting %s service...', self._service_name)
         self._command(COMMAND_START, verbose)
         if not self._wait_for_ports():
+            __tracebackhide__ = True
             raise RuntimeError(
                 'Service %s failed to start within %f seconds.'
                 % (self._service_name, self._start_timeout),

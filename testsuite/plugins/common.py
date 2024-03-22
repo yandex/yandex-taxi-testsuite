@@ -78,6 +78,7 @@ class GetFilePathFixture(fixture_class.Fixture):
             return path
         if missing_ok:
             return None
+        __tracebackhide__ = True
         raise self._file_not_found_error(
             f'File {filename} was not found',
             filename,
@@ -106,6 +107,7 @@ class GetDirectoryPathFixture(GetFilePathFixture):
             return path
         if missing_ok:
             return None
+        __tracebackhide__ = True
         raise self._file_not_found_error(
             f'Directory {filename} was not found',
             filename,
@@ -139,6 +141,7 @@ class OpenFileFixture(fixture_class.Fixture):
         errors=None,
     ) -> typing.IO:
         if mode not in self._modes_whitelist:
+            __tracebackhide__ = True
             raise UnsupportedFileModeError(
                 f'Incorrect file open mode {mode!r} passed. '
                 f'Only read-only modes are supported.',
@@ -274,6 +277,7 @@ class LoadJsonFixture(fixture_class.Fixture):
         try:
             return self._fixture_json_loads(content, *args, **kwargs)
         except json.JSONDecodeError as err:
+            __tracebackhide__ = True
             raise LoadJsonError(
                 f'Failed to load JSON file {filename}',
             ) from err
@@ -300,6 +304,7 @@ class LoadYamlFixture(fixture_class.Fixture):
         try:
             return yaml_util.load(content, *args, **kwargs)
         except yaml_util.ParserError as exc:
+            __tracebackhide__ = True
             raise LoadYamlError(
                 f'Failed to load YAML file {filename}',
             ) from exc

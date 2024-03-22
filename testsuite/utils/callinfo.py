@@ -109,6 +109,7 @@ class AsyncCallQueue:
             item = await asyncio.wait_for(self._queue.get(), timeout=timeout)
             return self._get_callinfo(*item)
         except asyncio.TimeoutError:
+            __tracebackhide__ = True
             raise CallQueueTimeoutError(
                 f'Timeout while waiting for {self._name}() to be called',
             )

@@ -106,21 +106,6 @@ mongo_connection_info
    :py:class:`testsuite.databases.mongo.connection.ConnectionInfo`
 
 
-mongo_host
-~~~~~~~~~~
-
-.. autofunction:: mongo_host()
-   :no-auto-options:
-
-   This fixture is obsolete. Use ``mongo_connection_info`` fixture instead.
-
-   Returns mongodb connection string, e.g.:
-   ``mongodb://localhost:27119/?retryWrites=false``
-
-   ``retryWrites`` parameter can be changed through ``pytest.ini`` via
-   ``mongo-retry-writes`` boolean setting. Default value is ``false`` which is
-   required since mongodb version 4.2 and pymongo version 3.9.
-
 Marks
 -----
 

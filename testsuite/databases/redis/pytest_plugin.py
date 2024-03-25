@@ -182,12 +182,6 @@ def redis_cluster_replicas(_redis_cluster_service_settings):
 
 
 @pytest.fixture(scope='session')
-def redis_cluster_sentinels(redis_cluster_nodes):
-    warnings.warn('Use redis_cluster_nodes instead', PendingDeprecationWarning)
-    return redis_cluster_nodes
-
-
-@pytest.fixture(scope='session')
 def _redis_service_settings():
     return service.get_service_settings()
 

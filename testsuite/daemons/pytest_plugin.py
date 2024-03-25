@@ -10,6 +10,7 @@ from typing import Dict
 from typing import Optional
 from typing import Sequence
 from typing import Tuple
+import uuid
 import warnings
 
 import aiohttp
@@ -47,6 +48,7 @@ class DaemonInstance:
     process: Optional[subprocess.Popen]
 
     def __init__(self, daemon, process) -> None:
+        self.id = uuid.uuid4().hex
         self._daemon = daemon
         self.process = process
 

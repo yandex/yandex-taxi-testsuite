@@ -177,14 +177,6 @@ def mongo_extra_connections() -> typing.Tuple[str, ...]:
 
 
 @pytest.fixture(scope='session')
-def mongo_host(mongo_connection_info) -> str:
-    """Deprecated, use ``mongo_connection_info`` instead
-    returns: string with mongo connection uri
-    """
-    return mongo_connection_info.get_uri()
-
-
-@pytest.fixture(scope='session')
 def mongo_connection_info(
     pytestconfig,
     _mongo_service_settings,

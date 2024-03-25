@@ -109,3 +109,12 @@ async def test_ensure_daemon_started_repeatable(
     instance1 = await ensure_daemon_started(httpd_scope)
     instance2 = await ensure_daemon_started(httpd_scope)
     assert instance1.process.pid == instance2.process.pid
+
+
+async def test_ensure_daemon_started_id(
+    ensure_daemon_started,
+    mockserver,
+    httpd_scope,
+):
+    instance = await ensure_daemon_started(httpd_scope)
+    assert len(instance.id) == 32

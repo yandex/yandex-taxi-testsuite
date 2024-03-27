@@ -7,6 +7,7 @@ import random
 import re
 import typing
 
+from bson import json_util
 import pymongo
 import pymongo.collection
 import pymongo.errors
@@ -23,6 +24,7 @@ from . import service
 # pylint: disable=too-many-statements
 
 DB_FILE_RE_PATTERN = re.compile(r'^db_(?P<mongo_db_alias>\w+)\.json$')
+JSON_OPTIONS = json_util.JSONOptions(tz_aware=False)
 
 
 class BaseError(Exception):
@@ -280,7 +282,9 @@ def _mongo_thread_pool() -> (
 @pytest.fixture
 def _mongo_query_loader(load_json):
     def loader(filename, missing_ok=False):
-        data = load_json(filename, missing_ok=missing_ok)
+        data = load_json(
+            filename, object_hook=_mongo_object_hook, missing_ok=missing_ok
+        )
         if data is None:
             return []
         return data
@@ -438,3 +442,7 @@ def _is_nested_path(parent: pathlib.Path, nested: pathlib.Path) -> bool:
         return True
     except ValueError:
         return False
+
+
+def _mongo_object_hook(doc):
+    return json_util.object_hook(doc, JSON_OPTIONS)

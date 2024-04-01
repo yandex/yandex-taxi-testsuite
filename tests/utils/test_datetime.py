@@ -1,11 +1,10 @@
 import datetime
 
 import pytest
-import pytz
 
 from testsuite import utils
 
-TZ_MOSCOW = pytz.timezone('Europe/Moscow')
+TZ_MOSCOW = datetime.timezone(offset=datetime.timedelta(hours=3))
 
 
 @pytest.mark.parametrize(
@@ -16,7 +15,7 @@ TZ_MOSCOW = pytz.timezone('Europe/Moscow')
             datetime.datetime(2019, 1, 2, 11, 22, 33, 123132),
         ),
         (
-            TZ_MOSCOW.localize(datetime.datetime(2019, 1, 2, 10, 30)),
+            datetime.datetime(2019, 1, 2, 10, 30, tzinfo=TZ_MOSCOW),
             datetime.datetime(2019, 1, 2, 7, 30),
         ),
     ],
@@ -33,7 +32,7 @@ def test_to_utc(stamp, result):
             '2019-01-02T11:22:33.123132+0000',
         ),
         (
-            TZ_MOSCOW.localize(datetime.datetime(2019, 1, 2, 10, 30)),
+            datetime.datetime(2019, 1, 2, 10, 30, tzinfo=TZ_MOSCOW),
             '2019-01-02T07:30:00.000000+0000',
         ),
     ],

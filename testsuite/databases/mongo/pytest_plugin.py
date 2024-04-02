@@ -7,6 +7,7 @@ import random
 import re
 import typing
 
+from bson import json_util
 import pymongo
 import pymongo.collection
 import pymongo.errors
@@ -23,6 +24,27 @@ from . import service
 # pylint: disable=too-many-statements
 
 DB_FILE_RE_PATTERN = re.compile(r'^db_(?P<mongo_db_alias>\w+)\.json$')
+JSON_OPTIONS = json_util.JSONOptions(tz_aware=False)
+MONGO_OBJECT_HOOKS = (
+    '$binary',
+    '$code',
+    '$date',
+    '$dbPointer',
+    '$maxKey',
+    '$minKey',
+    '$numberDecimal',
+    '$numberDouble',
+    '$numberInt',
+    '$numberLong',
+    '$oid',
+    '$ref',
+    '$regex',
+    '$regularExpression',
+    '$symbol',
+    '$timestamp',
+    '$undefined',
+    '$uuid',
+)
 
 
 class BaseError(Exception):
@@ -135,6 +157,10 @@ def pytest_addoption(parser):
 
 def pytest_service_register(register_service):
     register_service('mongo', service.create_mongo_service)
+
+
+def pytest_register_object_hooks():
+    return {key: _mongo_object_hook for key in MONGO_OBJECT_HOOKS}
 
 
 @pytest.fixture
@@ -272,7 +298,7 @@ def _mongo_create_indexes(
 def _mongo_thread_pool() -> (
     annotations.YieldFixture[multiprocessing.pool.ThreadPool,]
 ):
-    pool = multiprocessing.pool.ThreadPool(processes=20)
+    pool = multiprocessing.pool.ThreadPool(processes=1)
     with contextlib.closing(pool):
         yield pool
 
@@ -438,3 +464,7 @@ def _is_nested_path(parent: pathlib.Path, nested: pathlib.Path) -> bool:
         return True
     except ValueError:
         return False
+
+
+def _mongo_object_hook(doc):
+    return json_util.object_hook(doc, JSON_OPTIONS)

@@ -1,9 +1,7 @@
 import datetime
-
-from bson import json_util
+import json
 
 from testsuite.utils import object_hook as object_hook_util
-from testsuite import utils
 
 
 def loads(string, *args, **kwargs):
@@ -16,7 +14,7 @@ def loads(string, *args, **kwargs):
     kwargs['object_hook'] = object_hook_util.build_object_hook(
         object_hook=object_hook,
     )
-    return json_util.json.loads(string, *args, **kwargs)
+    return json.loads(string, *args, **kwargs)
 
 
 def substitute(json_obj, *, object_hook=None):
@@ -42,23 +40,11 @@ def dumps(obj, *args, **kwargs):
     kwargs['separators'] = kwargs.get('separators', (',', ': '))
 
     if 'default' not in kwargs:
-        if kwargs.pop('relative_datetimes', False):
-            kwargs['default'] = relative_dates_default
-        else:
-            kwargs['default'] = default
-    return json_util.json.dumps(obj, *args, **kwargs)
+        kwargs['default'] = default
+    return json.dumps(obj, *args, **kwargs)
 
 
 def default(obj):
-    obj = json_util.default(obj)
     if isinstance(obj, datetime.datetime):
         return obj.replace(tzinifo=None)
     return obj
-
-
-def relative_dates_default(obj):
-    """Add ``$dateDiff`` hook to ``bson.json_util.default``."""
-    if isinstance(obj, datetime.datetime):
-        diff = obj.replace(tzinfo=None) - utils.utcnow()
-        return {'$dateDiff': diff.total_seconds()}
-    return default(obj)

@@ -68,7 +68,11 @@ class ServiceLocalConfig(collections.abc.Mapping):
 
         if parallel_init:
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                executor.map(init_database, self._databases)
+                init_db_futures = [
+                    executor.submit(init_database, db) for db in self._databases
+                ]
+                for future in init_db_futures:
+                    future.result()
         else:
             for database in self._databases:
                 init_database(database)
@@ -330,10 +334,17 @@ def pgsql_apply(
 
     if pgsql_parallelization_enabled:
         with concurrent.futures.ThreadPoolExecutor() as executor:
+            db_apply_queries_future = []
             for dbname, pg_db in _pgsql.items():
-                executor.submit(
-                    pg_db.apply_queries, _pgsql_apply_queries[dbname]
+                db_apply_queries_future.append(
+                    executor.submit(
+                        pg_db.apply_queries, _pgsql_apply_queries[dbname]
+                    )
                 )
+
+            for future in db_apply_queries_future:
+                future.result()
+
     else:
         for dbname, pg_db in _pgsql.items():
             pg_db.apply_queries(_pgsql_apply_queries[dbname])

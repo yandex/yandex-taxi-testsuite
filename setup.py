@@ -12,13 +12,12 @@ setuptools.setup(
         'pytest>=4.5.0',
         'python-dateutil>=2.7.3',
         'uvloop>=0.12.1',
-        'pymongo>=3.7.1',  # Currently required by .utils.json_util
         'cached-property>=1.5.1',
         'contextlib2; python_version < "3.7"',
         'dataclasses; python_version < "3.7"',
     ],
     extras_require={
-        'mongodb': [],
+        'mongodb': ['pymongo>=3.7.1'],
         'postgresql': ['psycopg2>=2.7.5', 'yandex-pgmigrate'],
         'postgresql-binary': ['psycopg2-binary>=2.7.5'],
         'clickhouse': ['clickhouse-driver>=0.2.0'],

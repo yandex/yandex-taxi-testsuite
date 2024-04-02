@@ -11,6 +11,8 @@ MOCK_TIME_DISABLED_MESSAGE = (
     'time for a particular test'
 )
 
+UTC = datetime.timezone.utc
+
 
 class BaseError(Exception):
     """Base class for errors in this module"""
@@ -46,7 +48,7 @@ class MockedTime:
             now = utils.utcnow()
 
         if tz:
-            now = now.replace(tzinfo=datetime.timezone.utc).astimezone(tz=tz)
+            now = now.replace(tzinfo=UTC).astimezone(tz=tz)
 
         return now
 
@@ -90,7 +92,10 @@ def pytest_servicetest_modifyitem(session, item):
 
 
 @pytest.fixture
-def mocked_time(_mocked_time_enabled, now) -> MockedTime:
+def mocked_time(
+    _mocked_time_enabled: bool,
+    now: datetime.datetime,
+) -> MockedTime:
     """:returns: :py:class:`MockedTime`"""
     return MockedTime(now, is_enabled=_mocked_time_enabled)
 
@@ -119,7 +124,7 @@ def _mocked_time_enabled(request, pytestconfig) -> bool:
 
 
 @pytest.fixture
-def _date_diff_hook(now):
+def _date_diff_hook(now: datetime.datetime):
     def wrapper(doc: dict):
         seconds = float(doc['$dateDiff'])
         return now + datetime.timedelta(seconds=seconds)

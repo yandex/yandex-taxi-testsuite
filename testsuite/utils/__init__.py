@@ -2,10 +2,12 @@ import datetime
 
 from .cached_property import cached_property
 
+UTC = datetime.timezone.utc
+
 
 def to_utc(stamp: datetime.datetime) -> datetime.datetime:
     if stamp.tzinfo is not None:
-        stamp = stamp.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+        stamp = stamp.astimezone(UTC).replace(tzinfo=None)
     return stamp
 
 
@@ -15,10 +17,8 @@ def timestring(stamp: datetime.datetime) -> str:
 
 
 def utcnow() -> datetime.datetime:
-    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+    return datetime.datetime.now(UTC).replace(tzinfo=None)
 
 
 def utcfromtimestamp(stamp: int) -> datetime.datetime:
-    return datetime.datetime.fromtimestamp(
-        stamp, tz=datetime.timezone.utc
-    ).replace(tzinfo=None)
+    return datetime.datetime.fromtimestamp(stamp, tz=UTC).replace(tzinfo=None)

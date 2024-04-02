@@ -1,9 +1,3 @@
-from bson import json_util
-
-
-JSON_OPTIONS = json_util.JSONOptions(tz_aware=False)
-
-
 def substitute(json_obj, hook):
     if hook is None:
         return json_obj
@@ -28,10 +22,6 @@ def build_object_hook(object_hook):
         for key, hook in object_hook:
             if key in doc:
                 return hook(doc)
-        return _default_hook(doc)
+        return doc
 
     return hook
-
-
-def _default_hook(doc: dict):
-    return json_util.object_hook(doc, JSON_OPTIONS)

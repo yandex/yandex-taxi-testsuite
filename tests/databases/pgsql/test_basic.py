@@ -22,3 +22,9 @@ def test_file_data(pgsql):
 
     cursor.execute('select * from no_clean_table order by id')
     assert cursor.fetchall() == [(1, 'one'), (2, 'two')]
+
+
+@pytest.mark.xfail(reason='errors from executing sql files must be propagated')
+@pytest.mark.pgsql('testdb', files=['test_file_data.sql'])
+def test_sql_error(pgsql):
+    pass

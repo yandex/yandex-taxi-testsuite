@@ -18,5 +18,6 @@ def pgsql_local(pgsql_local_create):
     return pgsql_local_create(list(databases.values()))
 
 
+@pytest.mark.xfail(reason='errors from pgmigrate must be propagated')
 def test_pgmigrate_error(pgsql):
     pass

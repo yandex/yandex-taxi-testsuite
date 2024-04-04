@@ -24,7 +24,7 @@ def test_file_data(pgsql):
     assert cursor.fetchall() == [(1, 'one'), (2, 'two')]
 
 
+@pytest.mark.xfail(reason='errors from executing sql files must be propagated')
 @pytest.mark.pgsql('testdb', files=['test_file_data.sql'])
 def test_sql_error(pgsql):
     pass
-

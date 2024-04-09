@@ -83,3 +83,38 @@ async def test_not_handled(
     )
     assert response.status_code == 200
     assert response.json() == {'data': None, 'handled': False}
+
+
+def test_deletion_by_name(testpoint):
+    @testpoint('foo')
+    def foo_point(data): ...
+
+    assert 'foo' in testpoint
+    del testpoint['foo']
+
+    assert 'foo' not in testpoint
+
+    with pytest.raises(KeyError):
+        del testpoint['foo']
+
+
+def test_deletion_func(testpoint):
+    @testpoint('foo')
+    def foo_point(data): ...
+
+    del testpoint[foo_point]
+    assert 'foo' not in testpoint
+
+    with pytest.raises(KeyError):
+        del testpoint[foo_point]
+
+    @testpoint('foo')
+    @testpoint('bar')
+    def foo_point(data): ...
+
+    del testpoint[foo_point]
+    assert 'foo' not in testpoint
+    assert 'bar' not in testpoint
+
+    with pytest.raises(KeyError):
+        del testpoint[foo_point]

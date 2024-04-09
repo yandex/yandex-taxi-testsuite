@@ -19,7 +19,7 @@ TestpointDecorator = typing.Callable[
 ]
 
 
-class TestpointFixture(collections.abc.Mapping):
+class TestpointFixture(collections.abc.MutableMapping):
     """Testpoint control object."""
 
     def __init__(self, *, checker_factory) -> None:
@@ -28,6 +28,21 @@ class TestpointFixture(collections.abc.Mapping):
 
     def __getitem__(self, name: str) -> callinfo.AsyncCallQueue:
         return self._handlers[name]
+
+    def __setitem__(self, key: str, value: callinfo.AsyncCallQueue):
+        self._handlers[key] = value
+
+    def __delitem__(self, key):
+        if isinstance(key, callinfo.AsyncCallQueue):
+            names = [
+                name for name, value in self._handlers.items() if value == key
+            ]
+            if not names:
+                raise KeyError(f'{key!r}')
+            for name in names:
+                del self._handlers[name]
+        else:
+            del self._handlers[key]
 
     def __len__(self):
         return len(self._handlers)
@@ -45,7 +60,7 @@ class TestpointFixture(collections.abc.Mapping):
 
         def decorator(func) -> callinfo.AsyncCallQueue:
             wrapped = callinfo.acallqueue(func, checker=checker)
-            self._handlers[name] = wrapped
+            self[name] = wrapped
             return wrapped
 
         return decorator

@@ -81,3 +81,19 @@ async def test_prefix_handler(
     response = await mockserver_client.get('test123')
     assert response.status_code == 200
     assert test.next_call()
+
+
+async def test_request_encoding(
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: service_client.Client,
+):
+    @mockserver.handler('/test', prefix=True)
+    def mock(request: fixture_types.MockserverRequest):
+        return mockserver.make_response(
+            'test', 200, content_type='text/csv', charset='utf-16le'
+        )
+
+    response = await mockserver_client.get('test')
+    assert response.status_code == 200
+    assert response.encoding == 'utf-16-le'
+    assert response.content_type == 'text/csv'

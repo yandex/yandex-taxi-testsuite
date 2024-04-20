@@ -47,7 +47,7 @@ async def test_mockserver_raises_on_unhandled_request_from_other_sources(
         tracing_enabled=False,
     )
     with mockserver.new_session() as session:
-        request = aiohttp.test_utils.make_mocked_request(
+        request = _make_mocked_request(
             'POST',
             '/arbitrary/path',
             headers=http_headers,
@@ -56,3 +56,9 @@ async def test_mockserver_raises_on_unhandled_request_from_other_sources(
         assert len(session._errors) == 1
         error = session._errors.pop()
         assert isinstance(error, exceptions.HandlerNotFoundError)
+
+
+def _make_mocked_request(*args, **kwargs):
+    request = aiohttp.test_utils.make_mocked_request(*args, **kwargs)
+    request.original_path = request.path
+    return request

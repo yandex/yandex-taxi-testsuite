@@ -6,6 +6,7 @@ import re
 import ssl
 import time
 import typing
+import urllib.parse
 import uuid
 import warnings
 import yarl
@@ -43,6 +44,13 @@ _LOGGER_HEADERS = (
 logger = logging.getLogger(__name__)
 
 RouteParams = typing.Dict[str, str]
+
+
+class MockserverRequest(aiohttp.web.BaseRequest):
+    # We need original path including scheme and hostname
+    def __init__(self, message, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
+        self.original_path = _path_from_message(message)
 
 
 class Handler:
@@ -201,13 +209,14 @@ class Session:
 
     def _get_handler_for_request(
         self,
-        request: aiohttp.web.BaseRequest,
+        request: MockserverRequest,
     ) -> typing.Tuple[Handler, RouteParams]:
+        path = request.original_path
         if self.http_proxy_enabled:
             host = request.headers.get('host')
             if host and host != self.mockserver_host:
-                return self.get_handler(f'http://{host}{request.path}')
-        return self.get_handler(request.path)
+                return self.get_handler(f'http://{host}{path}')
+        return self.get_handler(path)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -616,7 +625,15 @@ def _create_server_obj(mockserver_info, pytestconfig) -> Server:
 
 
 def _create_web_server(server: Server, loop) -> aiohttp.web.Server:
-    return aiohttp.web.Server(server.handle_request, loop=loop, access_log=None)
+    def request_factory(*args):
+        return MockserverRequest(*args, loop=loop)
+
+    return aiohttp.web.Server(
+        server.handle_request,
+        request_factory=request_factory,
+        loop=loop,
+        access_log=None,
+    )
 
 
 @compat.asynccontextmanager
@@ -707,3 +724,11 @@ def _is_from_client_fixture(trace_id: str) -> bool:
 
 def _is_other_test(trace_id: str, current_trace_id: str) -> bool:
     return trace_id != current_trace_id and _is_from_client_fixture(trace_id)
+
+
+def _path_from_message(message):
+    """Returns original HTTP path without query."""
+    path = str(message.url)
+    path = path.split('?')[0]
+    path = urllib.parse.unquote(path)
+    return path

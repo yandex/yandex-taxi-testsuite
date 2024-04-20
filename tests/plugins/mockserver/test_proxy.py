@@ -8,22 +8,21 @@ from testsuite._internal import fixture_types
 @pytest.fixture
 def simple_client(mockserver_info):
     async def client(path: str):
-        async with asyncio.timeout(10):
-            reader, writer = await asyncio.open_connection(
-                mockserver_info.host, mockserver_info.port
-            )
+        reader, writer = await asyncio.open_connection(
+            mockserver_info.host, mockserver_info.port
+        )
 
-            request = f'GET {path} HTTP/1.0\r\n' f'\r\n'
-            writer.write(request.encode())
-            await writer.drain()
+        request = f'GET {path} HTTP/1.0\r\n' f'\r\n'
+        writer.write(request.encode())
+        await writer.drain()
 
-            data = await reader.read()
-            writer.close()
-            await writer.wait_closed()
+        data = await reader.read()
+        writer.close()
+        await writer.wait_closed()
 
-            lines = data.splitlines()
-            assert len(lines) > 1
-            assert lines[0].decode('utf-8') == ('HTTP/1.0 200 OK'), data
+        lines = data.splitlines()
+        assert len(lines) > 1
+        assert lines[0].decode('utf-8') == ('HTTP/1.0 200 OK'), data
 
     return client
 

@@ -9,7 +9,7 @@ setuptools.setup(
         'py>=1.10',
         'pytest-aiohttp>=0.3.0',
         'pytest-asyncio<0.22',
-        'pytest>=4.5.0',
+        'pytest>=4.5.0,<8.0.0',
         'python-dateutil>=2.7.3',
         'uvloop>=0.12.1',
         'cached-property>=1.5.1',

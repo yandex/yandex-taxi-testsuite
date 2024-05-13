@@ -61,7 +61,7 @@ def _get_free_port_range_based(
         for port in port_seq:
             if _is_port_free(port, family, address):
                 return port
-        raise NoEnabledPorts
+        raise NoEnabledPorts()
 
     return _get_free_port
 

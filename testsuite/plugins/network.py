@@ -18,7 +18,8 @@ class NoEnabledPorts(BaseError):
 
 @pytest.fixture(scope='session')
 def get_free_port(
-        _get_free_port_sock_storing, _get_free_port_range_based,
+    _get_free_port_sock_storing,
+    _get_free_port_range_based,
 ) -> typing.Callable[[], int]:
     """
     Returns an ephemeral TCP port that is free for IPv4 and for IPv6.
@@ -30,7 +31,8 @@ def get_free_port(
 
 @pytest.fixture(scope='session')
 def _get_free_port_sock_storing(
-        _testsuite_default_af, _testsuite_socket_cleanup,
+    _testsuite_default_af,
+    _testsuite_socket_cleanup,
 ) -> typing.Callable[[], int]:
     family, address = _testsuite_default_af
 
@@ -50,7 +52,7 @@ def _get_free_port_sock_storing(
 
 @pytest.fixture(scope='session')
 def _get_free_port_range_based(
-        _testsuite_default_af,
+    _testsuite_default_af,
 ) -> typing.Callable[[], int]:
     family, address = _testsuite_default_af
     port_seq = iter(range(61000, 2048, -1))
@@ -76,10 +78,9 @@ def _testsuite_socket_cleanup():
 
 @pytest.fixture(scope='session')
 def _testsuite_default_af():
-    af_available = _get_inet_families()
-    if not af_available:
-        raise RuntimeError('No suitable address families available')
-    return af_available[0]
+    for family, address in _get_inet_families():
+        return family, address
+    raise RuntimeError('No suitable address families available')
 
 
 def _is_port_free(port_num: int, family: int, address: str) -> bool:
@@ -97,9 +98,7 @@ def _is_af_available(family: int, address: str):
 
 
 def _get_inet_families():
-    result = []
     for family_str, address in (('AF_INET6', '::'), ('AF_INET', '127.0.0.1')):
         family = getattr(socket, family_str, None)
         if family and _is_af_available(family, address):
-            result.append((family, address))
-    return result
+            yield family, address

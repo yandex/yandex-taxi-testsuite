@@ -208,3 +208,40 @@ def test_unordered_list():
     assert [{'v': 'a'}, {'v': 'b'}] == matching.unordered_list(
         [{'v': 'b'}, {'v': 'a'}], key=lambda x: x['v']
     )
+
+
+def test_recursive_partial_dict():
+    sample = {
+        'some_key': 'some_value',
+        'some_map_like_object': [('a', 1), ('b', 2), ('c', 3)],
+        'some_dict': {
+            'wrapped_int': 10_000,
+            'wrapped_str': 'value',
+            'wrapped_dict': {
+                'inner_key': 'inner_value',
+                'inner_dict': {
+                    'other_key': 'other_value',
+                },
+            },
+        },
+    }
+
+    needle = {'some_key': 'some_value'}
+    assert sample == matching.RecursivePartialDict(**needle)
+    needle = {'some_map_like_object': [('a', 1), ('b', 2), ('c', 3)]}
+    assert sample == matching.RecursivePartialDict(**needle)
+    needle = {'some_dict': {}}
+    assert sample == matching.RecursivePartialDict(**needle)
+    needle = {'some_dict': {'wrapped_int': 10_000}}
+    assert sample == matching.RecursivePartialDict(**needle)
+    needle = {'some_dict': {'wrapped_str': 'value'}}
+    assert sample == matching.RecursivePartialDict(**needle)
+    needle = {'some_dict': {'wrapped_dict': {}}}
+    assert sample == matching.RecursivePartialDict(**needle)
+    needle = {'some_dict': {'wrapped_dict': {'inner_key': 'inner_value'}}}
+    assert sample == matching.RecursivePartialDict(**needle)
+    needle = {'some_dict': {'wrapped_dict': {'inner_dict': {}}}}
+    assert sample == matching.RecursivePartialDict(**needle)
+    
+    needle = {'some_map_like_object': {'a': 1, 'b': 2, 'c': 3}}
+    assert sample != matching.RecursivePartialDict(**needle)

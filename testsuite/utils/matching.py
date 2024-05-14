@@ -296,6 +296,58 @@ class PartialDict(collections.abc.Mapping):
         return True
 
 
+class RecursivePartialDict(PartialDict):
+    """RecursivePartialDict is inherited from PartialDict.
+
+    The difference is that RecursivePartialDict applies
+    itself on all nested mapping-like objects.
+
+    It simplifies *really* nested objects comparison.
+
+    Example:
+    - instead of
+
+    ``` code-block:: python
+        assert order == matching.PartialDict(
+            items=matching.PartialDict(
+                price='100.0',
+                amoun='2',
+                courier_info=matching.PartialDict(
+                    name='Max',
+                    organization=matching.PartialDict(
+                        comission_rate='10',
+                    ),
+                ),
+            ),
+        )
+    ```
+
+    - you can write
+
+    ``` code-block:: python
+        assert order == matching.RecursivePartialDict(
+            items={
+                'price': '100.0',
+                'amount': '2',
+                'courier_info': {
+                    'name': 'Max',
+                    'organization': {'comission_rate': 10},
+                },
+            },
+        )
+    ```
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._dict = dict()
+
+        for key, value in tuple(*args) + tuple(kwargs.items()):
+            if isinstance(value, collections.abc.Mapping):
+                self._dict[key] = RecursivePartialDict(**value)
+            else:
+                self._dict[key] = value
+
+
 class UnorderedList:
     def __init__(self, sequence, key):
         self.value = sorted(sequence, key=key)

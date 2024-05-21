@@ -118,3 +118,7 @@ async def test_ensure_daemon_started_id(
 ):
     instance = await ensure_daemon_started(httpd_scope)
     assert len(instance.id) == 32
+
+
+def test_client_url(httpd_client, httpd_baseurl):
+    assert httpd_client.url('/foo/bar') == f'{httpd_baseurl}/foo/bar'

@@ -5,6 +5,11 @@ import pytest
 import uvloop
 
 
+def pytest_configure(config):
+    # Force default asyncio mode
+    config.option.asyncio_mode = 'auto'
+
+
 @pytest.fixture(scope='session')
 def event_loop():
     """

@@ -44,6 +44,11 @@ class BaseAiohttpClient:
         self._ssl_context = ssl_context
         self._span_id_header = span_id_header
 
+    def url(self, path: typing.Union[str, yarl.URL]):
+        if isinstance(path, str):
+            return url_util.join(self._base_url, path)
+        return path
+
     async def _aiohttp_request(
         self,
         http_method: str,
@@ -53,10 +58,7 @@ class BaseAiohttpClient:
         x_real_ip: typing.Optional[str] = None,
         **kwargs,
     ) -> aiohttp.ClientResponse:
-        if isinstance(path, str):
-            url = url_util.join(self._base_url, path)
-        else:
-            url = path
+        url = self.url(path)
         headers = self._build_headers(
             headers,
             bearer=bearer,

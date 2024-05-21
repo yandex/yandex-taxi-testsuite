@@ -641,7 +641,6 @@ async def create_server(
     host: str,
     port: int,
     loop,
-    testsuite_logger,
     pytestconfig,
     ssl_info: typing.Optional[classes.SslCertInfo],
 ) -> typing.AsyncGenerator[Server, None]:
@@ -671,7 +670,6 @@ async def create_server(
 async def create_unix_server(
     socket_path: pathlib.Path,
     loop,
-    testsuite_logger,
     pytestconfig,
 ) -> typing.AsyncGenerator[Server, None]:
     async with net_utils.create_unix_server(

@@ -40,20 +40,13 @@ def dummy_daemon(mockserver):
     return pathlib.Path(__file__).parent / 'daemons/dummy_daemon.py'
 
 
-@pytest.fixture
-def logger_plugin(pytestconfig):
-    return pytestconfig.pluginmanager.getplugin('testsuite_logger')
-
-
 async def test_service_daemon(
     mockserver,
     dummy_daemon,
-    logger_plugin,
     health_check,
 ):
     async with service_daemon.start(
         args=[sys.executable, dummy_daemon],
-        logger_plugin=logger_plugin,
         health_check=health_check,
         subprocess_options={'stdout': subprocess.PIPE, 'bufsize': 0},
     ):

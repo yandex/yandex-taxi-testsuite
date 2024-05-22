@@ -156,9 +156,7 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
 
         pytestconfig = self._fixture_pytestconfig
 
-        shutdown_timeout = (
-            pytestconfig.option.service_shutdown_timeout
-        )
+        shutdown_timeout = pytestconfig.option.service_shutdown_timeout
         if shutdown_signal is None:
             shutdown_signal = SHUTDOWN_SIGNALS[
                 pytestconfig.option.service_shutdown_signal

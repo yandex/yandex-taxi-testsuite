@@ -136,7 +136,7 @@ def _setup_logging(log_level):
     root_logger.setLevel(log_level)
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(
-        testsuite_logger.ColoredLevelFormatter(
+        ColoredLevelFormatter(
             colors_enabled=sys.stderr.isatty(),
         ),
     )

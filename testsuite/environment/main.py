@@ -6,7 +6,7 @@ import pathlib
 import subprocess
 import sys
 
-from testsuite.logging import logger as testsuite_logger
+from testsuite.utils import colors
 
 from . import control
 from . import shell
@@ -22,6 +22,27 @@ DEFAULT_SERVICE_PLUGINS = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+class ColoredLevelFormatter(logging.Formatter):
+    LEVEL_COLORS = {
+        logging.DEBUG: colors.Colors.GRAY,
+        logging.INFO: colors.Colors.BRIGHT_GREEN,
+        logging.WARNING: colors.Colors.YELLOW,
+        logging.ERROR: colors.Colors.RED,
+        logging.CRITICAL: colors.Colors.BRIGHT_RED,
+    }
+
+    def __init__(self, *, colors_enabled=False):
+        super().__init__()
+        self._colors_enabled = colors_enabled
+
+    def format(self, record: logging.LogRecord):
+        message = super().format(record)
+        if not self._colors_enabled:
+            return f'{record.levelname} {message}'
+        color = self.LEVEL_COLORS.get(record.levelno, colors.Colors.DEFAULT)
+        return f'{color}{record.levelname}{colors.Colors.DEFAULT} {message}'
 
 
 def csv_arg(value: str):

@@ -3,7 +3,6 @@ pytest_plugins = [
     'testsuite.plugins.loop',
     'testsuite.daemons.pytest_plugin',
     'testsuite.environment.pytest_plugin',
-    'testsuite.logging.pytest_plugin',
     'testsuite.mockserver.pytest_plugin',
     'testsuite.plugins.assertrepr_compare',
     'testsuite.plugins.common',

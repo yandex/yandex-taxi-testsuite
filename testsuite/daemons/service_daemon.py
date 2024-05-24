@@ -33,7 +33,6 @@ async def start(
     *,
     health_check: HealthCheckType,
     session_factory: ClientSessionFactory = aiohttp.ClientSession,
-    logger_plugin,
     env: Optional[Dict[str, str]] = None,
     shutdown_signal: int = signal.SIGINT,
     shutdown_timeout: float = 120,
@@ -44,25 +43,22 @@ async def start(
     stdout_handler=None,
     stderr_handler=None,
 ) -> AsyncGenerator[Optional[subprocess.Popen], None]:
-    with logger_plugin.temporary_suspend() as log_manager:
-        async with session_factory() as session:
-            async with _service_daemon(
-                args=args,
-                env=env,
-                shutdown_signal=shutdown_signal,
-                shutdown_timeout=shutdown_timeout,
-                poll_retries=poll_retries,
-                subprocess_options=subprocess_options,
-                setup_service=setup_service,
-                subprocess_spawner=subprocess_spawner,
-                health_check=health_check,
-                session=session,
-                stdout_handler=stdout_handler,
-                stderr_handler=stderr_handler,
-            ) as process:
-                log_manager.clear()
-                log_manager.resume()
-                yield process
+    async with session_factory() as session:
+        async with _service_daemon(
+            args=args,
+            env=env,
+            shutdown_signal=shutdown_signal,
+            shutdown_timeout=shutdown_timeout,
+            poll_retries=poll_retries,
+            subprocess_options=subprocess_options,
+            setup_service=setup_service,
+            subprocess_spawner=subprocess_spawner,
+            health_check=health_check,
+            session=session,
+            stdout_handler=stdout_handler,
+            stderr_handler=stderr_handler,
+        ) as process:
+            yield process
 
 
 async def service_wait(

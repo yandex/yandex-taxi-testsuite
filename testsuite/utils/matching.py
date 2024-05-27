@@ -312,11 +312,11 @@ class RecursivePartialDict(PartialDict):
             items=matching.PartialDict(
                 price='100.0',
                 amoun='2',
-                courier_info=matching.PartialDict(
-                    name='Max',
-                    organization=matching.PartialDict(
-                        comission_rate='10',
-                    ),
+            ),
+            courier_info=matching.PartialDict(
+                name='Max',
+                organization=matching.PartialDict(
+                    comission_rate='10',
                 ),
             ),
         )
@@ -329,10 +329,10 @@ class RecursivePartialDict(PartialDict):
             items={
                 'price': '100.0',
                 'amount': '2',
-                'courier_info': {
-                    'name': 'Max',
-                    'organization': {'comission_rate': 10},
-                },
+            },
+            courier_info={
+                'name': 'Max',
+                'organization': {'comission_rate': 10},
             },
         )
     ```

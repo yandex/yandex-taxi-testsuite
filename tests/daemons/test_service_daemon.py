@@ -40,13 +40,20 @@ def dummy_daemon(mockserver):
     return pathlib.Path(__file__).parent / 'daemons/dummy_daemon.py'
 
 
+@pytest.fixture
+def logger_plugin(pytestconfig):
+    return pytestconfig.pluginmanager.getplugin('testsuite_logger')
+
+
 async def test_service_daemon(
     mockserver,
     dummy_daemon,
+    logger_plugin,
     health_check,
 ):
     async with service_daemon.start(
         args=[sys.executable, dummy_daemon],
+        logger_plugin=logger_plugin,
         health_check=health_check,
         subprocess_options={'stdout': subprocess.PIPE, 'bufsize': 0},
     ):
@@ -58,6 +65,7 @@ async def test_service_daemon(
 async def test_service_wait_custom_health(
     mockserver,
     dummy_daemon,
+    logger_plugin,
     pytestconfig,
     wait_service_started,
 ):
@@ -91,6 +99,7 @@ async def test_service_daemon_failure(
     dummy_daemon,
     daemon_args,
     expected_message,
+    logger_plugin,
     health_check,
 ):
     with pytest.raises(spawn.ExitCodeError) as exc:
@@ -98,6 +107,7 @@ async def test_service_daemon_failure(
         async with service_daemon.start(
             start_command,
             health_check=health_check,
+            logger_plugin=logger_plugin,
             subprocess_options={'stdout': subprocess.PIPE, 'bufsize': 0},
         ):
             pass

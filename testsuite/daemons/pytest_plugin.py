@@ -59,8 +59,9 @@ class DaemonInstance:
 class _DaemonStore:
     cells: Dict[str, DaemonInstance]
 
-    def __init__(self) -> None:
+    def __init__(self, logger_plugin) -> None:
         self.cells = {}
+        self.logger_plugin = logger_plugin
 
     async def aclose(self) -> None:
         for daemon in self.cells.values():
@@ -96,7 +97,9 @@ class _DaemonStore:
         return False
 
     async def _close_daemon(self, daemon: DaemonInstance):
-        await daemon.aclose()
+        with self.logger_plugin.temporary_suspend() as log_manager:
+            await daemon.aclose()
+            log_manager.clear()
 
 
 class EnsureDaemonStartedFixture(fixture_class.Fixture):
@@ -155,11 +158,16 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
             warnings.warn(CHECK_URL_DEPRECATION, PendingDeprecationWarning)
 
         pytestconfig = self._fixture_pytestconfig
+        logger_plugin = pytestconfig.pluginmanager.getplugin(
+            'testsuite_logger',
+        )
 
-        shutdown_timeout = pytestconfig.option.service_shutdown_timeout
+        shutdown_timeout = (
+            self._fixture_pytestconfig.option.service_shutdown_timeout
+        )
         if shutdown_signal is None:
             shutdown_signal = SHUTDOWN_SIGNALS[
-                pytestconfig.option.service_shutdown_signal
+                self._fixture_pytestconfig.option.service_shutdown_signal
             ]
 
         health_check = service_daemon.make_health_check(
@@ -190,6 +198,7 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
                 session_factory=self._fixture_service_client_session_factory,
                 subprocess_options=subprocess_options,
                 setup_service=setup_service,
+                logger_plugin=logger_plugin,
                 subprocess_spawner=subprocess_spawner,
                 stdout_handler=stdout_handler,
                 stderr_handler=stderr_handler,
@@ -425,8 +434,9 @@ def service_client_options(
 
 
 @pytest.fixture(scope='session')
-async def _global_daemon_store(loop):
-    store = _DaemonStore()
+async def _global_daemon_store(loop, pytestconfig):
+    logger_plugin = pytestconfig.pluginmanager.getplugin('testsuite_logger')
+    store = _DaemonStore(logger_plugin)
     async with compat.aclosing(store):
         yield store
 

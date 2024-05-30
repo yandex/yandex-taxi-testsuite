@@ -147,8 +147,12 @@ async def test_run_health_check(status, expected):
 
 async def test_run_health_check_poll_failed():
     class Process:
+        args = ('binary',)
+        pid = 0
+        returncode = 123
+
         def poll(self):
-            return 123
+            return self.returncode
 
     async def health_check(*, session, process):
         return False

@@ -36,7 +36,15 @@ _POLL_TIMEOUT = 0.1
 logger = logging.getLogger(__name__)
 
 
-class ExitCodeError(RuntimeError):
+class BaseError(Exception):
+    pass
+
+
+class HealthCheckError(BaseError):
+    pass
+
+
+class ExitCodeError(BaseError):
     def __init__(self, message: str, exit_code: int) -> None:
         super().__init__(message)
         self.exit_code = exit_code
@@ -107,18 +115,17 @@ async def spawned(
             yield process
 
 
-def exit_code_error(retcode: int) -> ExitCodeError:
+def exit_code_error(process: subprocess.Popen) -> ExitCodeError:
+    retcode = process.returncode
+    return ExitCodeError(_exit_code_text(retcode), retcode)
+
+
+def _exit_code_text(retcode: int):
     if retcode >= 0:
-        return ExitCodeError(
-            f'Service exited with status code {retcode}',
-            retcode,
-        )
+        return f'Service exited with status code {retcode}'
     signal_name = _pretty_signal(-retcode)
     signal_error_fmt = SIGNAL_ERRORS.get(-retcode, DEFAULT_SIGNAL_ERROR)
-    return ExitCodeError(
-        signal_error_fmt.format(signal_name=signal_name),
-        retcode,
-    )
+    return signal_error_fmt.format(signal_name=signal_name)
 
 
 @compat.asynccontextmanager
@@ -138,7 +145,7 @@ async def _do_service_shutdown(process, *, shutdown_signal, shutdown_timeout):
             '[%d] Process already finished with code %d', process.pid, retcode
         )
         if retcode not in allowed_exit_codes:
-            raise exit_code_error(retcode)
+            raise exit_code_error(process)
         return retcode
 
     try:
@@ -156,7 +163,7 @@ async def _do_service_shutdown(process, *, shutdown_signal, shutdown_timeout):
             retcode = process.poll()
             if retcode is not None:
                 if retcode not in allowed_exit_codes:
-                    raise exit_code_error(retcode)
+                    raise exit_code_error(process)
                 return retcode
             current_time = time.monotonic()
             if current_time - poll_start > shutdown_timeout:
@@ -173,7 +180,7 @@ async def _do_service_shutdown(process, *, shutdown_signal, shutdown_timeout):
     while True:
         retcode = process.poll()
         if retcode is not None:
-            raise exit_code_error(retcode)
+            raise exit_code_error(process)
         try:
             process.send_signal(signal.SIGKILL)
         except OSError:
@@ -207,3 +214,7 @@ else:
 def _setup_process() -> None:
     if _LIBC is not None:
         _LIBC.prctl(_PR_SET_PDEATHSIG, signal.SIGKILL)
+
+
+def __tracebackhide__(excinfo):
+    return excinfo.errisinstance(BaseError)

@@ -15,6 +15,7 @@ from typing import Tuple
 import aiohttp
 
 from testsuite.daemons import spawn
+from testsuite.daemons.spawn import __tracebackhide__
 from testsuite.utils import compat
 
 
@@ -134,7 +135,7 @@ async def _run_health_check(
     sleep: float = 0.05,
 ):
     if process and process.poll() is not None:
-        raise spawn.exit_code_error(process.poll())
+        raise spawn.HealthCheckError('Process already finished')
 
     begin = time.perf_counter()
     if await health_check(session=session, process=process):

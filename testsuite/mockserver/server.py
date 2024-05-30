@@ -122,6 +122,7 @@ class Session:
         for prefix, handler in reversed(self.prefix_handlers):
             if path.startswith(prefix):
                 return handler, {}
+        __tracebackhide__ = True
         raise exceptions.HandlerNotFoundError(
             self._get_handler_not_found_message(path),
         )
@@ -141,9 +142,8 @@ class Session:
             ),
         )
         return (
-            f'Mockserver handler is not installed for {path!r}.\n'
-            'Perhaps you forgot to setup mockserver handler. Run with '
-            '--mockserver-nofail flag to suppress these errors.\n'
+            f'Mockserver handler is not installed for {path!r}.\n\n'
+            f'Perhaps you forgot to setup mockserver handler. '
             f'Tracing: {tracing_state}. Installed handlers:\n'
             f'{handlers_list}'
         )
@@ -153,6 +153,7 @@ class Session:
         request: aiohttp.web.BaseRequest,
         nofail_404: bool,
     ):
+        __tracebackhide__ = True
         try:
             handler, kwargs = self._get_handler_for_request(request)
         except exceptions.HandlerNotFoundError as exc:
@@ -177,7 +178,8 @@ class Session:
     def clear_errors(self):
         self._errors = []
 
-    def raise_errors(self):
+    def raise_errors_if_any(self):
+        __tracebackhide__ = True
         for exc in self._errors:
             raise exceptions.MockServerError(
                 f'There were {len(self._errors)} errors while processing '
@@ -211,6 +213,7 @@ class Session:
         self,
         request: MockserverRequest,
     ) -> typing.Tuple[Handler, RouteParams]:
+        __tracebackhide__ = True
         path = request.original_path
         if self.http_proxy_enabled:
             host = request.headers.get('host')
@@ -277,7 +280,8 @@ class Server:
             yield session
         finally:
             self.session = None
-            session.raise_errors()
+            __tracebackhide__ = True
+            session.raise_errors_if_any()
 
     async def handle_request(self, request):
         started = time.perf_counter()

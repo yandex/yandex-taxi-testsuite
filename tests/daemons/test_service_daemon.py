@@ -145,7 +145,7 @@ async def test_run_health_check(status, expected):
         )
 
 
-async def test_run_health_check_poll_failed():
+async def test_run_health_check_process_exited():
     class Process:
         args = ('binary',)
         pid = 0
@@ -158,10 +158,28 @@ async def test_run_health_check_poll_failed():
         return False
 
     async with aiohttp.ClientSession() as session:
-        with pytest.raises(spawn.ExitCodeError) as exc:
+        with pytest.raises(spawn.HealthCheckError) as exc:
             await service_daemon._run_health_check(
                 health_check,
                 session=session,
                 process=Process(),
             )
-        assert exc.value.exit_code == 123
+
+
+
+async def test_poll_failed():
+    class Process:
+        def poll(self):
+            return None
+
+    async def health_check(*, session, process):
+        return False
+
+    async with aiohttp.ClientSession() as session:
+        with pytest.raises(spawn.HealthCheckError) as exc:
+            await service_daemon._service_wait(
+                health_check=health_check,
+                session=session,
+                process=Process(),
+                poll_retries=1,
+            )

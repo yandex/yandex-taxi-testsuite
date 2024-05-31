@@ -187,7 +187,7 @@ async def _service_wait(
             process=process,
         ):
             return True
-    raise RuntimeError('service daemon is not ready')
+    raise spawn.HealthCheckError('service daemon is not ready')
 
 
 def _prepare_env(*envs: Optional[Dict[str, str]]) -> Dict[str, str]:

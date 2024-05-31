@@ -166,7 +166,6 @@ async def test_run_health_check_process_exited():
             )
 
 
-
 async def test_poll_failed():
     class Process:
         def poll(self):

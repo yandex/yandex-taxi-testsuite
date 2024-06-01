@@ -7,6 +7,7 @@ pytest_plugins = [
     'testsuite.plugins.assertrepr_compare',
     'testsuite.plugins.common',
     'testsuite.plugins.matching',
+    'testsuite.plugins.misc',
     'testsuite.plugins.mocked_time',
     'testsuite.plugins.network',
     'testsuite.plugins.object_hook',

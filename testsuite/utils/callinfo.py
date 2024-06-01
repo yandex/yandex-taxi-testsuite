@@ -91,9 +91,10 @@ class AsyncCallQueue:
         try:
             return self._get_callinfo(*self._queue.get_nowait())
         except asyncio.queues.QueueEmpty:
+            __tracebackhide__ = True
             raise CallQueueEmptyError(
                 f'No calls for {self._name}() left in the queue',
-            )
+            ) from None
 
     async def wait_call(self, timeout=10.0) -> dict:
         """Wait for fucntion to be called. Pops call from queue. Blocks if
@@ -112,7 +113,7 @@ class AsyncCallQueue:
             __tracebackhide__ = True
             raise CallQueueTimeoutError(
                 f'Timeout while waiting for {self._name}() to be called',
-            )
+            ) from None
 
     def _check_callqueue(self, caller):
         if self._checker is not None:

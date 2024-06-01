@@ -23,6 +23,8 @@ from testsuite.utils import compat
 
 from . import service_client
 from . import service_daemon
+from . import spawn
+from .spawn import __tracebackhide__
 
 SHUTDOWN_SIGNALS = {
     'SIGINT': signal.SIGINT,

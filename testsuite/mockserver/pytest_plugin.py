@@ -155,6 +155,7 @@ def fixture_mockserver_create_session(
 ):
     @contextlib.contextmanager
     def create_session(mockserver):
+        __tracebackhide__ = True
         with mockserver.new_session(_mockserver_trace_id) as session:
             with _mockserver_errors_clear(session):
                 yield server.MockserverFixture(mockserver, session)

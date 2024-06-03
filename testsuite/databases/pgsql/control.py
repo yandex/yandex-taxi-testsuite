@@ -169,7 +169,7 @@ class ConnectionWrapper:
             if query.path:
                 error_message += f'File path: {query.path}\n'
             error_message += '\n' + str(exc)
-            raise exceptions.PostgresqlError(error_message)
+            raise exceptions.PostgresqlError(error_message) from None
 
 
 class PgDatabaseWrapper:
@@ -338,7 +338,6 @@ class PgControl:
                 command_alias='psql',
             )
         except shell.SubprocessFailed as exc:
-            __tracebackhide__ = True
             raise exceptions.PostgresqlError(
                 f'Failed to run psql script for DB {dbname!r}, see logs\n'
                 f'path: {path}\n\n'

@@ -36,10 +36,10 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
                     # Treat postmortem output from pipe as error.
                     # For example pg_ctl does not close pipe on exit so we may
                     # get output later from a started process.
-                    logger.warning('[%s] %s', command_alias, decoded)
+                    logger.warning('%s: %s', ident, decoded)
                 else:
                     if verbose > 1:
-                        logger.info('[%s] %s', command_alias, decoded)
+                        logger.info('%s: %s', ident, decoded)
                     else:
                         buffer.append(decoded)
 
@@ -53,6 +53,8 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
+    ident = f'{command_alias}[{process.pid}]'
+
     thread = threading.Thread(target=_do_capture_output, args=(process.stdout,))
     thread.daemon = True
     thread.start()
@@ -61,16 +63,17 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
         process_completed = True
         if exit_code != 0:
             for msg in buffer:
-                logger.error('[%s] %s', command_alias, msg)
+                logger.error('%s: %s', ident, msg)
             logger.error(
-                '[%s] subprocess %s exited with code %d',
-                command_alias,
+                '%s: subprocess %s exited with code %d',
+                ident,
                 process.args,
                 exit_code,
             )
 
     if exit_code != 0:
+        __tracebackhide__ = True
         raise SubprocessFailed(
-            f'{command_alias} subprocess {process.args!r} '
-            f'exited with code {exit_code}',
+            f'Subprocess {ident} exited with code {exit_code}\n'
+            f'... args={process.args!r}'
         )

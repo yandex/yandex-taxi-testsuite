@@ -20,6 +20,7 @@ from . import exceptions
 from . import service
 from . import testsuite_db
 from . import pool
+from .exceptions import __tracebackhide__
 
 
 logger = logging.getLogger(__name__)
@@ -168,7 +169,7 @@ class ConnectionWrapper:
             if query.path:
                 error_message += f'File path: {query.path}\n'
             error_message += '\n' + str(exc)
-            raise exceptions.PostgresqlError(error_message)
+            raise exceptions.PostgresqlError(error_message) from None
 
 
 class PgDatabaseWrapper:
@@ -304,11 +305,6 @@ class PgControl:
         for path in shard.files:
             if path in applied_schemas:
                 continue
-            logger.debug(
-                'Running sql script %s against database %s',
-                path,
-                shard.dbname,
-            )
             self._run_script(shard.dbname, path)
             applied_schemas.add(path)
 
@@ -316,15 +312,15 @@ class PgControl:
             for path in shard.migrations:
                 if path in applied_schemas:
                     continue
-                logger.debug(
-                    'Running migrations from %s against database %s',
-                    path,
-                    shard.dbname,
-                )
-                self._run_migrations(shard.dbname, path)
+                self._run_pgmigrate(shard.dbname, path)
                 applied_schemas.add(path)
 
     def _run_script(self, dbname, path) -> None:
+        logger.debug(
+            'Running sql script %s against database %s',
+            path,
+            dbname,
+        )
         command = [
             str(self._psql_helper),
             '-q',
@@ -339,16 +335,21 @@ class PgControl:
             shell.execute(
                 command,
                 verbose=self._verbose,
-                command_alias='pgsql/script',
+                command_alias='psql',
             )
         except shell.SubprocessFailed as exc:
             raise exceptions.PostgresqlError(
-                f'PostgreSQL run script failed:\n'
-                f'File path: {path}\n\n'
+                f'Failed to run psql script for DB {dbname!r}, see logs\n'
+                f'path: {path}\n\n'
                 f'{exc}',
-            )
+            ) from None
 
-    def _run_migrations(self, dbname, path) -> None:
+    def _run_pgmigrate(self, dbname, path) -> None:
+        logger.debug(
+            'Running migrations from %s against database %s',
+            path,
+            dbname,
+        )
         command = [
             str(self._pgmigrate),
             '-c',
@@ -364,14 +365,14 @@ class PgControl:
             shell.execute(
                 command,
                 verbose=self._verbose,
-                command_alias='pgsql/migrations',
+                command_alias='pgmigrate',
             )
         except shell.SubprocessFailed as exc:
             raise exceptions.PostgresqlError(
-                f'PostgreSQL run migration failed:\n'
-                f'File path: {path}\n\n'
-                f'{exc}',
-            )
+                f'Failed to run pgmigrate for DB {dbname!r}, see logs\n'
+                f'path: {path}\n\n'
+                f'{exc}'
+            ) from None
 
     def close(self):
         if self._connection_pool:

@@ -8,3 +8,7 @@ class PostgresqlError(BaseError):
 
 class NameCannotBeShortend(BaseError):
     pass
+
+
+def __tracebackhide__(excinfo):
+    return excinfo.errisinstance(BaseError)

@@ -12,6 +12,7 @@ def pytest_sessionstart():
     for mod in _get_tracebackhide_modules():
         setattr(mod, '__tracebackhide__', True)
 
+
 def pytest_sessionfinish():
     for mod in _get_tracebackhide_modules():
         delattr(mod, '__tracebackhide__')

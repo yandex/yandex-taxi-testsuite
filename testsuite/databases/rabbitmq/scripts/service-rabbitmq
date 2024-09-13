@@ -1,7 +1,7 @@
 #!/bin/sh
 
-. $TESTSUITE_LIB_UTILS
-. $(dirname $0)/find-rabbitmq.sh
+. "$TESTSUITE_LIB_UTILS"
+. "$(dirname "$0")/find-rabbitmq.sh"
 
 # use ramdisk for rabbitmq if available
 RAMDISK="/mnt/ramdisk/$USER"

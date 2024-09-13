@@ -7,4 +7,4 @@ python3-yandex-pgmigrate'" >&2
     exit 1
 fi
 
-exec $PGMIGRATE "$@"
+exec "$PGMIGRATE" "$@"

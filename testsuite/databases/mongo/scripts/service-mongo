@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $TESTSUITE_LIB_UTILS
+. "$TESTSUITE_LIB_UTILS"
 
 MONGO=$(which mongo || which mongosh)
 MONGOD=$(which mongod)

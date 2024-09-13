@@ -1,5 +1,5 @@
-VENV_DOCS_PATH  = $(CURDIR)/.venv-docs
-VENV_DEV_PATH   = $(CURDIR)/.venv-dev
+VENV_DOCS_PATH  = .venv-docs
+VENV_DEV_PATH   = .venv-dev
 VENV_PYTHON     = $(firstword $(shell which python3.9 python3.8 python3.7 python3 2> /dev/null))
 
 VENV_COMMON_DEPS = setup.py setup.cfg requirements.txt
@@ -42,7 +42,7 @@ venv-release-upload-pypi:
 
 
 venv-%: setup-dev-venv
-	PATH=$(VENV_DEV_PATH)/bin:$(PATH) $(MAKE) $*
+	(. $(VENV_DEV_PATH)/bin/activate && $(MAKE) $*)
 
 setup-dev-venv: $(VENV_DEV_PATH)/.timestamp
 
@@ -58,8 +58,8 @@ setup-docs-venv: $(VENV_DOCS_PATH)/.timestamp
 build-docs: build-docs-html
 
 build-docs-%: setup-docs-venv
-	PATH=$(VENV_DOCS_PATH)/bin:$(PATH) PYTHONPATH=$(PWD) \
-		$(MAKE) -C docs $*
+	(. $(VENV_DOCS_PATH)/bin/activate && PYTHONPATH="$$PYTHONPATH:$(PWD)" \
+		$(MAKE) -C docs $*)
 
 $(VENV_DOCS_PATH)/.timestamp: $(VENV_DOCS_DEPS)
 	test -x $(VENV_DOCS_PATH)/bin/python || \

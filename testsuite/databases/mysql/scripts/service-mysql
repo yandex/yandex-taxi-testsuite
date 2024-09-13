@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $TESTSUITE_LIB_UTILS
+. "$TESTSUITE_LIB_UTILS"
 
 if [ "x$MYSQL_PORT" = "x" ]; then
     die "MYSQL_PORT must be set"

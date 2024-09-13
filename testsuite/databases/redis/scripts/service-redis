@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $TESTSUITE_LIB_UTILS
+. "$TESTSUITE_LIB_UTILS"
 
 if [ "x$REDIS_TMPDIR" = "x" ]; then
     die "REDIS_TMPDIR must be set"

@@ -12,6 +12,7 @@ DEFAULT_CONTROLLER_PORT = 9093
 PLUGIN_DIR = pathlib.Path(__file__).parent
 SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
 
+
 @dataclasses.dataclass(frozen=True)
 class ServiceSettings:
     server_port: int
@@ -49,9 +50,11 @@ def create_kafka_service(
 def get_service_settings() -> ServiceSettings:
     return ServiceSettings(
         server_port=utils.getenv_int(
-            'TESTSUITE_KAFKA_SERVER_PORT', DEFAULT_SERVER_PORT,
+            'TESTSUITE_KAFKA_SERVER_PORT',
+            DEFAULT_SERVER_PORT,
         ),
         controller_port=utils.getenv_int(
-            'TESTSUITE_KAFKA_CONTROLLER_PORT', DEFAULT_CONTROLLER_PORT,
+            'TESTSUITE_KAFKA_CONTROLLER_PORT',
+            DEFAULT_CONTROLLER_PORT,
         ),
     )

@@ -28,6 +28,7 @@ def pytest_configure(config):
 def pytest_service_register(register_service):
     register_service('kafka', service.create_kafka_service)
 
+
 def _callback(err, msg):
     if err is not None:
         logger.error(
@@ -43,13 +44,18 @@ def _callback(err, msg):
 def kafka_producer(_kafka_service, _kafka_service_settings):
     class Wrapper:
         def __init__(self):
-            self.producer = confluent_kafka.Producer({
-                'bootstrap.servers': f'localhost:{_kafka_service_settings.server_port}',
-            })
+            self.producer = confluent_kafka.Producer(
+                {
+                    'bootstrap.servers': f'localhost:{_kafka_service_settings.server_port}',
+                }
+            )
 
         async def produce(self, topic, key, value, callback=_callback):
             self.producer.produce(
-                topic, value=value, key=key, on_delivery=callback,
+                topic,
+                value=value,
+                key=key,
+                on_delivery=callback,
             )
             self.producer.flush()
 

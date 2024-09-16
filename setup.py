@@ -27,9 +27,7 @@ setuptools.setup(
             'aio-pika==7.2.0; python_version < "3.7"',
             'aio-pika>=8.1.0; python_version >= "3.7"',
         ],
-        'kafka': [
-            'confluent-kafka==2.4.0'
-        ]
+        'kafka': ['confluent-kafka==2.4.0'],
     },
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],

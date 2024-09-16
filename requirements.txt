@@ -1,4 +1,4 @@
-.[mongodb,postgresql,redis,mysql,clickhouse,rabbitmq]
+.[mongodb,postgresql,redis,mysql,clickhouse,rabbitmq,kafka]
 
 # Development requirements
 flake8

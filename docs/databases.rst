@@ -19,3 +19,4 @@ Data fixtures are loaded via staatic files, see :ref:`staticfiles`.
    redis.rst
    clickhouse.rst
    rabbitmq.rst
+   kafka.rst

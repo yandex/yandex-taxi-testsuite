@@ -39,6 +39,9 @@ Installation using pip_::
    # testsuite with rabbitmq support
    pip3 install yandex-taxi-testsuite[rabbitmq]
 
+   # testsuite with kafka support
+   pip3 install yandex-taxi-testsuite[kafka]
+
 You can also include testsuite into your project as submodule, e.g.::
 
   mkdir -p submodules

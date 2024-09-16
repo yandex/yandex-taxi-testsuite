@@ -54,7 +54,7 @@ Use external instance
 
 Usage of external instance is not officially supported for now,
 but if your instance is local you may try setting environment variable
-``TESTSUITE_RABBITMQ_TCP_PORT`` and pytest option ``--rabbitmq=1``
+``TESTSUITE_KAFKA_SERVER_PORT`` and pytest option ``--kafka=1``
 and see if it works.
 
 Usage example

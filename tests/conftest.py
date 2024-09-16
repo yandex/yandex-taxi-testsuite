@@ -18,7 +18,7 @@ pytest_plugins = [
     'testsuite.databases.clickhouse.pytest_plugin',
     # RabbitMQ
     'testsuite.databases.rabbitmq.pytest_plugin',
-    # Kafka 
+    # Kafka
     'testsuite.databases.kafka.pytest_plugin',
 ]
 

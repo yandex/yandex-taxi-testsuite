@@ -1,0 +1,87 @@
+#!/bin/sh
+
+. $TESTSUITE_LIB_UTILS
+. $(dirname $0)/find_kafka.sh
+
+# use ramdrive for kafka if available
+RAMDISK="/ramdrive/$USER"
+if mkdir -p "$RAMDISK" 2> /dev/null; then
+    KAFKA_TMPDIR=$RAMDISK/_kafka${WORKER_SUFFIX_PATH}
+fi
+
+echo "KAFKA TMP: $KAFKA_TMPDIR"
+if [ "x$KAFKA_TMPDIR" = "x" ]; then
+    die "KAFKA_TMPDIR must be set or RAM-disk must be enabled"
+fi
+if [ "x$KAFKA_HOME" = "x" ]; then
+    die "KAFKA_HOME must be set"
+fi
+if [ "x$KAFKA_SERVER_PORT" = "x" ]; then
+    die "KAFKA_SERVER_PORT must be set"
+fi
+if [ "x$KAFKA_CONTROLLER_PORT" = "x" ]; then
+    die "KAFKA_CONTROLLER_PORT must be set"
+fi
+
+KAFKA_SOURCE_DIR=$KAFKA_TMPDIR/kafka
+KAFKA_CONF_FILE=$KAFKA_SOURCE_DIR/config/kraft/server.properties
+KAFKA_BIN_DIR=$KAFKA_SOURCE_DIR/bin
+KAFKA_LOGS_DIR=$KAFKA_TMPDIR/logs # Logs means data
+
+KAFKA_PID_FILE=$KAFKA_TMPDIR/kafka.pid
+KAFKA_LOG_FILE=$KAFKA_TMPDIR/kafka.log
+
+start_kafka() {
+    mkdir -p $KAFKA_SOURCE_DIR
+    mkdir -p $KAFKA_LOGS_DIR
+
+    echo "Copying Kafka home to tmp (to patch server configs): $KAFKA_HOME -> $KAFKA_SOURCE_DIR"
+    cp -r $KAFKA_HOME/* $KAFKA_SOURCE_DIR/
+
+    echo "Generating cluster UUID..."
+    CLUSTER_UUID_FILE=$KAFKA_TMPDIR/cluster_uuid.txt
+    $KAFKA_BIN_DIR/kafka-storage.sh random-uuid > $CLUSTER_UUID_FILE
+    echo "Cluster UUID is $(cat $CLUSTER_UUID_FILE)"
+
+    echo "Patching server.properties. Setting logs dir to $KAFKA_LOGS_DIR"
+    sed -i 's/log\.dirs=.*/log\.dirs='"$(echo $KAFKA_LOGS_DIR | sed 's/\//\\\//g')"'/' $KAFKA_CONF_FILE
+    echo "Patched server config:\n$(cat $KAFKA_CONF_FILE | grep "log\.dirs")"
+
+    echo "Formatting logs dir..."
+    $KAFKA_BIN_DIR/kafka-storage.sh format \
+        --cluster-id $(cat $CLUSTER_UUID_FILE) \
+        --config $KAFKA_CONF_FILE \
+        --ignore-formatted
+
+    echo "Running Kafka broker..."
+    $KAFKA_BIN_DIR/kafka-server-start.sh -daemon $KAFKA_CONF_FILE \
+        --override auto.create.topics.enable=true \
+        --override listeners=PLAINTEXT://localhost:$KAFKA_SERVER_PORT,CONTROLLER://localhost:$KAFKA_CONTROLLER_PORT \
+        --override advertised.listeners=PLAINTEXT://localhost:$KAFKA_SERVER_PORT \
+        --override controller.quorum.voters=1@localhost:$KAFKA_CONTROLLER_PORT \
+        --override offsets.topic.num.partitions=1 \
+        --override log.dir=$KAFKA_LOGS_DIR \
+        --override log.dirs=$KAFKA_LOGS_DIR &
+
+    echo "Creating test topic..."
+    $KAFKA_BIN_DIR/kafka-topics.sh \
+        --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
+        --create --topic test-topic \
+        --partitions=1 --replication-factor=1
+
+    echo "Deleting test topic..."
+    $KAFKA_BIN_DIR/kafka-topics.sh \
+        --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
+        --delete --topic test-topic
+}
+
+start() {
+    start_kafka
+}
+
+stop() {
+    $KAFKA_BIN_DIR/kafka-server-stop.sh
+    rm -rf "$KAFKA_TMPDIR"
+}
+
+script_main "$@"

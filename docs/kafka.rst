@@ -33,7 +33,7 @@ TESTSUITE_KAFKA_SERVER_PORT
 Use to override Kafka server port. Default is ``9092``.
 
 TESTSUITE_KAFKA_CONTROLLER_PORT
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use to override Kafka controller port. Default is ``9093``.
 
@@ -62,8 +62,18 @@ Usage example
 
 .. code-block:: python
 
-    async def test_kafka_basic(kafka_producer):
-        await kafka_producer.produce('Test-topic', 'test-key', 'test-value')
+      async def test_kafka_producer_consumer_chain(kafka_producer, kafka_consumer):
+          TOPIC = 'Test-topic-chain'
+          KEY = 'test-key'
+          MESSAGE = 'test-message'
+
+          await kafka_producer.send(TOPIC, KEY, MESSAGE)
+
+          consumed_message = await kafka_consumer.receive_one([TOPIC])
+
+          assert consumed_message.topic == TOPIC
+          assert consumed_message.key == KEY
+          assert consumed_message.value == MESSAGE
 
 .. _Kafka: https://kafka.apache.org/
 .. _confluent-kafka-python: https://github.com/confluentinc/confluent-kafka-python
@@ -74,7 +84,25 @@ Fixtures
 .. currentmodule:: testsuite.databases.kafka.pytest_plugin
 
 kafka_producer
-~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 .. autofunction:: kafka_producer()
   :noindex:
+
+kafka_consumer
+~~~~~~~~~~~~~~
+
+.. autofunction:: kafka_consumer()
+  :noindex:
+
+
+Classes
+-------
+
+.. currentmodule:: testsuite.databases.kafka.classes
+
+.. autoclass:: KafkaProducer()
+  :members: send, send_async
+
+.. autoclass:: KafkaConsumer()
+  :members: receive_one, receive_batch

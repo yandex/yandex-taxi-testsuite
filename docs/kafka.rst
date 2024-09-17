@@ -8,7 +8,7 @@ In order to enable Kafka support you have to add
 By default testsuite starts Kafka_ service. In this case Kafka installation
 is required.
 
-Currently Kafka plugin uses sync confluent-kafka-python_ driver.
+Currently Kafka plugin uses async aiokafka_ driver.
 
 Kafka installation
 ---------------------
@@ -39,7 +39,7 @@ Use to override Kafka controller port. Default is ``9093``.
 
 TESTSUITE_KAFKA_SERVER_START_TIMEOUT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-By default testsuite will wait for up to 20s for Kafka to start,
+By default testsuite will wait for up to 10s for Kafka to start,
 one may customize this timeout via environment variable ``TESTSUITE_KAFKA_SERVER_START_TIMEOUT``.
 
 Customize ports
@@ -76,7 +76,7 @@ Usage example
           assert consumed_message.value == MESSAGE
 
 .. _Kafka: https://kafka.apache.org/
-.. _confluent-kafka-python: https://github.com/confluentinc/confluent-kafka-python
+.. _aiokafka: https://github.com/aio-libs/aiokafka
 
 Fixtures
 --------

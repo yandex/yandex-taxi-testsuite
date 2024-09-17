@@ -4,7 +4,7 @@
 . $(dirname $0)/find_kafka.sh
 
 # use ramdrive for kafka if available
-RAMDISK="/ramdrive/$USER"
+RAMDISK="/mnt/ramdisk/$USER"
 if mkdir -p "$RAMDISK" 2> /dev/null; then
     KAFKA_TMPDIR=$RAMDISK/_kafka${WORKER_SUFFIX_PATH}
 fi

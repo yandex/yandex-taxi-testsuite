@@ -1,7 +1,7 @@
 #!/bin/sh
 
-. $TESTSUITE_LIB_UTILS
-. $(dirname $0)/find_kafka.sh
+. "$TESTSUITE_LIB_UTILS"
+. "$(dirname "$0")/find_kafka.sh"
 
 # use ramdrive for kafka if available
 RAMDISK="/mnt/ramdisk/$USER"
@@ -25,6 +25,7 @@ if [ "x$KAFKA_CONTROLLER_PORT" = "x" ]; then
 fi
 
 KAFKA_SOURCE_DIR="$KAFKA_TMPDIR/kafka"
+echo "Kafka source directory: $KAFKA_SOURCE_DIR"
 KAFKA_CONF_FILE="$KAFKA_SOURCE_DIR/config/kraft/server.properties"
 KAFKA_BIN_DIR="$KAFKA_SOURCE_DIR/bin"
 KAFKA_LOGS_DIR="$KAFKA_TMPDIR/logs" # Logs means data
@@ -82,7 +83,7 @@ start() {
 }
 
 stop() {
-    $KAFKA_BIN_DIR/kafka-server-stop.sh
+    "$KAFKA_BIN_DIR/kafka-server-stop.sh"
     rm -rf "$KAFKA_TMPDIR"
 }
 

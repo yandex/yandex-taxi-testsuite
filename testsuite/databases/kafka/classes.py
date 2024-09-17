@@ -108,7 +108,7 @@ class KafkaConsumer:
     async def receive_batch(
         self,
         topics: typing.List[str],
-        max_batch_size: int | None = None,
+        max_batch_size: typing.Optional[int],
         timeout_ms: int = 3000,
     ) -> typing.List[ConsumedMessage]:
         if not self._enabled:

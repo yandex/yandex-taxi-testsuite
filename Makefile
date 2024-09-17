@@ -14,7 +14,7 @@ TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
 .PHONY: tests
 
 tests:
-	$(VENV_DEV_PATH)/bin/python -m pytest -v tests/ $(PYTEST_ARGS)
+	python -m pytest -v tests/ $(PYTEST_ARGS)
 
 test-examples:
 	make -C docs/examples runtests

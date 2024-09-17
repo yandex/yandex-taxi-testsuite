@@ -39,25 +39,25 @@ start_kafka() {
 
     echo "Copying Kafka home to tmp (to patch server configs): $KAFKA_HOME -> $KAFKA_SOURCE_DIR"
     cd "$KAFKA_HOME"
-    cp -r ./* $KAFKA_SOURCE_DIR/
+    cp -r ./* "$KAFKA_SOURCE_DIR/"
 
     echo "Generating cluster UUID..."
     CLUSTER_UUID_FILE=$KAFKA_TMPDIR/cluster_uuid.txt
-    $KAFKA_BIN_DIR/kafka-storage.sh random-uuid > $CLUSTER_UUID_FILE
+    "$KAFKA_BIN_DIR/kafka-storage.sh" random-uuid > "$CLUSTER_UUID_FILE"
     echo "Cluster UUID is $(cat $CLUSTER_UUID_FILE)"
 
     echo "Patching server.properties. Setting logs dir to $KAFKA_LOGS_DIR"
-    sed -i 's/log\.dirs=.*/log\.dirs='"$(echo $KAFKA_LOGS_DIR | sed 's/\//\\\//g')"'/' $KAFKA_CONF_FILE
-    echo "Patched server config:\n$(cat $KAFKA_CONF_FILE | grep "log\.dirs")"
+    sed -i 's/log\.dirs=.*/log\.dirs='"$(echo $KAFKA_LOGS_DIR | sed 's/\//\\\//g')"'/' "$KAFKA_CONF_FILE"
+    echo "Patched server config:\n$(cat "$KAFKA_CONF_FILE" | grep "log\.dirs")"
 
     echo "Formatting logs dir..."
-    $KAFKA_BIN_DIR/kafka-storage.sh format \
+    "$KAFKA_BIN_DIR/kafka-storage.sh" format \
         --cluster-id $(cat $CLUSTER_UUID_FILE) \
         --config $KAFKA_CONF_FILE \
         --ignore-formatted
 
     echo "Running Kafka broker..."
-    $KAFKA_BIN_DIR/kafka-server-start.sh -daemon $KAFKA_CONF_FILE \
+    "$KAFKA_BIN_DIR/kafka-server-start.sh" -daemon "$KAFKA_CONF_FILE" \
         --override auto.create.topics.enable=true \
         --override listeners=PLAINTEXT://localhost:$KAFKA_SERVER_PORT,CONTROLLER://localhost:$KAFKA_CONTROLLER_PORT \
         --override advertised.listeners=PLAINTEXT://localhost:$KAFKA_SERVER_PORT \
@@ -67,13 +67,13 @@ start_kafka() {
         --override log.dirs=$KAFKA_LOGS_DIR &
 
     echo "Creating test topic..."
-    $KAFKA_BIN_DIR/kafka-topics.sh \
+    "$KAFKA_BIN_DIR/kafka-topics.sh" \
         --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
         --create --topic test-topic \
         --partitions=1 --replication-factor=1
 
     echo "Deleting test topic..."
-    $KAFKA_BIN_DIR/kafka-topics.sh \
+    "$KAFKA_BIN_DIR/kafka-topics.sh" \
         --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
         --delete --topic test-topic
 }

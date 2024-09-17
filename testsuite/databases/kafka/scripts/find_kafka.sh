@@ -5,12 +5,12 @@ MIN_KAFKA_VERSION_MAJOR="3"
 MIN_KAFKA_VERSION_MINOR="3"
 
 check_java() {
-    if type java; then
+    if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ];  then
+        _java="$JAVA_HOME/bin/java"
+        echo "Found java executable in JAVA_HOME: $_java"
+    elif type java; then
         echo "Found java executable in PATH"
         _java=java
-    elif [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ];  then
-        echo "Found java executable in JAVA_HOME"
-        _java="$JAVA_HOME/bin/java"
     else
         echo "No java found"
         return 1
@@ -40,9 +40,11 @@ find_kafka() {
 }
 
 check_kafka() {
-    kafka_bin=$KAFKA_HOME/bin
+    kafka_bin_dir="$KAFKA_HOME/bin"
+    echo "Kafka bin directory: $kafka_bin_dir"
+    cd "$kafka_bin_dir"
 
-    kafka_version=$($kafka_bin/kafka-topics.sh --version)
+    kafka_version=$(./kafka-run-class.sh org.apache.kafka.tools.TopicCommand --version)
     echo "Found Kafka version $kafka_version"
 
     major_version=$(echo $kafka_version | cut -d'.' -f 1)

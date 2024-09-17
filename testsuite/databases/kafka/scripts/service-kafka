@@ -9,7 +9,8 @@ if mkdir -p "$RAMDISK" 2> /dev/null; then
     KAFKA_TMPDIR=$RAMDISK/_kafka${WORKER_SUFFIX_PATH}
 fi
 
-echo "KAFKA TMP: $KAFKA_TMPDIR"
+echo "Kafka data directory: $KAFKA_TMPDIR"
+
 if [ "x$KAFKA_TMPDIR" = "x" ]; then
     die "KAFKA_TMPDIR must be set or RAM-disk must be enabled"
 fi
@@ -23,20 +24,21 @@ if [ "x$KAFKA_CONTROLLER_PORT" = "x" ]; then
     die "KAFKA_CONTROLLER_PORT must be set"
 fi
 
-KAFKA_SOURCE_DIR=$KAFKA_TMPDIR/kafka
-KAFKA_CONF_FILE=$KAFKA_SOURCE_DIR/config/kraft/server.properties
-KAFKA_BIN_DIR=$KAFKA_SOURCE_DIR/bin
-KAFKA_LOGS_DIR=$KAFKA_TMPDIR/logs # Logs means data
+KAFKA_SOURCE_DIR="$KAFKA_TMPDIR/kafka"
+KAFKA_CONF_FILE="$KAFKA_SOURCE_DIR/config/kraft/server.properties"
+KAFKA_BIN_DIR="$KAFKA_SOURCE_DIR/bin"
+KAFKA_LOGS_DIR="$KAFKA_TMPDIR/logs" # Logs means data
 
-KAFKA_PID_FILE=$KAFKA_TMPDIR/kafka.pid
-KAFKA_LOG_FILE=$KAFKA_TMPDIR/kafka.log
+KAFKA_PID_FILE="$KAFKA_TMPDIR/kafka.pid"
+KAFKA_LOG_FILE="$KAFKA_TMPDIR/kafka.log"
 
 start_kafka() {
     mkdir -p $KAFKA_SOURCE_DIR
     mkdir -p $KAFKA_LOGS_DIR
 
     echo "Copying Kafka home to tmp (to patch server configs): $KAFKA_HOME -> $KAFKA_SOURCE_DIR"
-    cp -r $KAFKA_HOME/* $KAFKA_SOURCE_DIR/
+    cd "$KAFKA_HOME"
+    cp -r ./* $KAFKA_SOURCE_DIR/
 
     echo "Generating cluster UUID..."
     CLUSTER_UUID_FILE=$KAFKA_TMPDIR/cluster_uuid.txt

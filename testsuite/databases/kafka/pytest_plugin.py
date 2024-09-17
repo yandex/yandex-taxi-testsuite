@@ -1,11 +1,7 @@
-import confluent_kafka
-import logging
 import pytest
 
 from . import service
-
-
-logger = logging.getLogger(__name__)
+from . import classes
 
 
 def pytest_addoption(parser):
@@ -29,37 +25,28 @@ def pytest_service_register(register_service):
     register_service('kafka', service.create_kafka_service)
 
 
-def _callback(err, msg):
-    if err is not None:
-        logger.error(
-            f'Failed to deliver message to topic {msg.topic()}: {str(err)}',
-        )
-    else:
-        logger.info(
-            f'Message produced to topic {msg.topic()} with key {msg.key()}',
-        )
+@pytest.fixture
+def kafka_producer(
+    _kafka_service, _kafka_service_settings, event_loop
+) -> classes.KafkaProducer:
+    producer = classes.KafkaProducer(
+        enabled=_kafka_service, server_port=_kafka_service_settings.server_port
+    )
+    event_loop.run_until_complete(producer.start())
+    yield producer
+    event_loop.run_until_complete(producer.teardown())
 
 
 @pytest.fixture
-def kafka_producer(_kafka_service, _kafka_service_settings):
-    class Wrapper:
-        def __init__(self):
-            self.producer = confluent_kafka.Producer(
-                {
-                    'bootstrap.servers': f'localhost:{_kafka_service_settings.server_port}',
-                }
-            )
-
-        async def produce(self, topic, key, value, callback=_callback):
-            self.producer.produce(
-                topic,
-                value=value,
-                key=key,
-                on_delivery=callback,
-            )
-            self.producer.flush()
-
-    return Wrapper()
+def kafka_consumer(
+    _kafka_service, _kafka_service_settings, event_loop
+) -> classes.KafkaConsumer:
+    consumer = classes.KafkaConsumer(
+        enabled=_kafka_service, server_port=_kafka_service_settings.server_port
+    )
+    event_loop.run_until_complete(consumer.start())
+    yield consumer
+    event_loop.run_until_complete(consumer.teardown())
 
 
 @pytest.fixture(scope='session')

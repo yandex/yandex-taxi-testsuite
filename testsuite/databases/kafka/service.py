@@ -42,7 +42,7 @@ def create_kafka_service(
         check_ports=[settings.server_port, settings.controller_port],
         start_timeout=utils.getenv_float(
             key='TESTSUITE_KAFKA_SERVER_START_TIMEOUT',
-            default=20.0,
+            default=10.0,
         ),
     )
 

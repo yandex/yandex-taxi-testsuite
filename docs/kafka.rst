@@ -37,12 +37,12 @@ Use to override Kafka server host. Default is ``localhost``.
 TESTSUITE_KAFKA_SERVER_PORT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use to override Kafka server port. Default is ``9092``.
+Use to override Kafka server port. Default is ``9099``.
 
 TESTSUITE_KAFKA_CONTROLLER_PORT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use to override Kafka controller port. Default is ``9093``.
+Use to override Kafka controller port. Default is ``9100``.
 
 TESTSUITE_KAFKA_SERVER_START_TIMEOUT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

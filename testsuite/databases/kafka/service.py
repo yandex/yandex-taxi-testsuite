@@ -7,8 +7,8 @@ from testsuite.environment import service
 from testsuite.environment import utils
 
 DEFAULT_SERVER_HOST = 'localhost'
-DEFAULT_SERVER_PORT = 9092
-DEFAULT_CONTROLLER_PORT = 9093
+DEFAULT_SERVER_PORT = 9099
+DEFAULT_CONTROLLER_PORT = 9100
 
 PLUGIN_DIR = pathlib.Path(__file__).parent
 SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')

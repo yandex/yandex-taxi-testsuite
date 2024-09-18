@@ -36,22 +36,31 @@ KAFKA_LOGS_DIR="$KAFKA_TMPDIR/logs" # Logs means data
 KAFKA_PID_FILE="$KAFKA_TMPDIR/kafka.pid"
 KAFKA_LOG_FILE="$KAFKA_TMPDIR/kafka.log"
 
+# Not default node.id value. Not to kill all Kafka brokers running on the machine.
+KAFKA_NODE_ID="77"
+echo "Using Kafka node.id $KAFKA_NODE_ID"
+
 start_kafka() {
     mkdir -p $KAFKA_SOURCE_DIR
     mkdir -p $KAFKA_LOGS_DIR
 
     echo "Copying Kafka home to tmp (to patch server configs): $KAFKA_HOME -> $KAFKA_SOURCE_DIR"
-    cd "$KAFKA_HOME"
-    cp -r ./* "$KAFKA_SOURCE_DIR/"
+    cp -r "$KAFKA_HOME"/* "$KAFKA_SOURCE_DIR/"
 
     echo "Generating cluster UUID..."
     CLUSTER_UUID_FILE=$KAFKA_TMPDIR/cluster_uuid.txt
     "$KAFKA_BIN_DIR/kafka-storage.sh" random-uuid > "$CLUSTER_UUID_FILE"
     echo "Cluster UUID is $(cat $CLUSTER_UUID_FILE)"
 
+    # For some reasons, kafka-storage.sh does not support --override option
+    # to override the log.dirs, node.id and  controller.quorum.voters configuration params.
+    # Though, manually substitute it in the file.
     echo "Patching server.properties. Setting logs dir to $KAFKA_LOGS_DIR"
     sed -i 's/log\.dirs=.*/log\.dirs='"$(echo "$KAFKA_LOGS_DIR" | sed 's/\//\\\//g')"'/' "$KAFKA_CONF_FILE"
-    echo "Patched server config:\n$(cat "$KAFKA_CONF_FILE" | grep "log\.dirs")"
+    sed -i 's/node\.id=.*/node\.id='"$KAFKA_NODE_ID"'/' "$KAFKA_CONF_FILE"
+    sed -i 's/controller\.quorum\.voters=.*/controller.quorum.voters='"$KAFKA_NODE_ID"'@'"$KAFKA_SERVER_HOST:""$KAFKA_CONTROLLER_PORT"'/' "$KAFKA_CONF_FILE"
+    patched_config=$(cat "$KAFKA_CONF_FILE" | grep -E "(log\.dirs|node\.id|controller\.quorum\.voters)")
+    echo "Patched server config:\n$patched_config"
 
     echo "Formatting logs dir..."
     "$KAFKA_BIN_DIR/kafka-storage.sh" format \
@@ -60,11 +69,13 @@ start_kafka() {
         --ignore-formatted
 
     echo "Running Kafka broker..."
-    "$KAFKA_BIN_DIR/kafka-server-start.sh" -daemon "$KAFKA_CONF_FILE" \
+    "$KAFKA_BIN_DIR/kafka-server-start.sh" -daemon \
+        "$KAFKA_CONF_FILE" \
+        --override node.id="$KAFKA_NODE_ID" \
         --override auto.create.topics.enable=true \
         --override listeners="PLAINTEXT://$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT,CONTROLLER://$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
         --override advertised.listeners="PLAINTEXT://$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT" \
-        --override controller.quorum.voters="1@$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
+        --override controller.quorum.voters="$KAFKA_NODE_ID@$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
         --override offsets.topic.num.partitions=1 \
         --override log.dir="$KAFKA_LOGS_DIR" \
         --override log.dirs="$KAFKA_LOGS_DIR"
@@ -96,13 +107,46 @@ start_kafka() {
     done
 }
 
+stop_kafka() {
+    # Kafka script kafka-server-stop.sh does not suppose
+    # that there are different brokers on one host
+    # and tries to kill all of them.
+    # Underlying solution is also a bit of strange
+    # but it is safer than kafka-server-stop.sh
+
+    # Official Apache solution to find all brokers on the host.
+    PIDS=$(ps ax | grep ' kafka\.Kafka ' | grep java | grep -v grep | awk '{print $1}'| xargs)
+    echo "Potential brokers pids: $PIDS"
+
+    # Finds the process which was started as a
+    # bin/kafka-server-start.sh $KAFKA_CONF_FILE
+    for pid in $PIDS; do
+        echo "Checking pid: $pid"
+        PathToConfig=$(ps ax | grep $pid | grep ' kafka\.Kafka ' | grep java | grep -v grep | sed 's/--override .*=[^ ]*//g' | awk 'NF>1{print $NF}')
+        echo "Current path to config: $PathToConfig"
+        if [ "$PathToConfig" = "$KAFKA_CONF_FILE" ]; then
+            echo "Found candidate: $pid -> $PathToConfig"
+            keyword="node.id="
+            NID=$(sed -n "/$keyword/ { s/$keyword//p; q; }" "$PathToConfig")
+            echo "Current candidate node.id: $NID"
+            if [ "$NID" = "$KAFKA_NODE_ID" ]; then
+                echo "Killing broker: $pid"
+                kill -s TERM $pid
+            fi
+        else
+            echo "Skipping $pid"
+        fi
+    done
+
+    rm -rf "$KAFKA_TMPDIR"
+}
+
 start() {
     start_kafka
 }
 
 stop() {
-    "$KAFKA_BIN_DIR/kafka-server-stop.sh"
-    rm -rf "$KAFKA_TMPDIR"
+    stop_kafka
 }
 
 script_main "$@"

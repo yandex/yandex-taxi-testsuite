@@ -21,13 +21,21 @@ class KafkaProducer:
             await self.producer.start()
 
     async def send(
-        self, topic: str, key: str, value: str, partition: typing.Optional[int]
+        self,
+        topic: str,
+        key: str,
+        value: str,
+        partition: typing.Optional[int] = None,
     ):
         resp_future = await self.send_async(topic, key, value, partition)
         await resp_future
 
     async def send_async(
-        self, topic: str, key: str, value: str, partition: typing.Optional[int]
+        self,
+        topic: str,
+        key: str,
+        value: str,
+        partition: typing.Optional[int] = None,
     ):
         if not self._enabled:
             raise KafkaDisabledError

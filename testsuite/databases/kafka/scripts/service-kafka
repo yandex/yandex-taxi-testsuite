@@ -67,7 +67,7 @@ start_kafka() {
         --override controller.quorum.voters="1@$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
         --override offsets.topic.num.partitions=1 \
         --override log.dir="$KAFKA_LOGS_DIR" \
-        --override log.dirs="$KAFKA_LOGS_DIR" &
+        --override log.dirs="$KAFKA_LOGS_DIR"
 
     # There is no basic healthcheck mechanism for checking if broker is started.
     # But almost exactly, if broker can create the topic, it is alive.

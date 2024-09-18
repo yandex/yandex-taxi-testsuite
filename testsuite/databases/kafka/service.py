@@ -61,7 +61,7 @@ def create_kafka_service(
 
 
 def get_service_settings(
-    custom_start_topics: dict[str, int] = {},
+    custom_start_topics: typing.Dict[str, int] = {},
 ) -> ServiceSettings:
     return ServiceSettings(
         server_port=utils.getenv_int(

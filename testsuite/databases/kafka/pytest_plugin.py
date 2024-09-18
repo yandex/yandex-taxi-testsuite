@@ -52,7 +52,7 @@ def kafka_consumer(
 
 
 def _parse_custom_topics(custom_topics: str) -> typing.Dict[str, int]:
-    result: dict[str, int] = {}
+    result: typing.Dict[str, int] = {}
 
     for topic_partitions_pair in custom_topics.split(';'):
         topic, partition = topic_partitions_pair.split(':')

@@ -1,3 +1,4 @@
+import typing
 import pytest
 import os
 
@@ -50,7 +51,7 @@ def kafka_consumer(
     event_loop.run_until_complete(consumer.teardown())
 
 
-def _parse_custom_topics(custom_topics: str) -> dict[str, int]:
+def _parse_custom_topics(custom_topics: str) -> typing.Dict[str, int]:
     result: dict[str, int] = {}
 
     for topic_partitions_pair in custom_topics.split(';'):
@@ -61,7 +62,7 @@ def _parse_custom_topics(custom_topics: str) -> dict[str, int]:
 
 
 @pytest.fixture(scope='session')
-def kafka_custom_topics() -> dict[str, int]:
+def kafka_custom_topics() -> typing.Dict[str, int]:
     custom_topics: str = os.environ.get('TESTSUITE_KAFKA_CUSTOM_TOPICS')
     if custom_topics is None:
         return {}

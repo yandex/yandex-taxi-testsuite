@@ -17,10 +17,10 @@ SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
 class ServiceSettings:
     server_port: int
     controller_port: int
-    custom_start_topics: dict[str, int]
+    custom_start_topics: typing.Dict[str, int]
 
 
-def stringify_start_topics(start_topics: dict[str, int]) -> str:
+def stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
     return ';'.join(
         [
             f'{topic}:{partitions_count}'

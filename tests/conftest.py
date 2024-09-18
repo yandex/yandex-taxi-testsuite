@@ -91,7 +91,7 @@ def mongo_schema_directory():
 
 
 @pytest.fixture(scope='session')
-def kafka_custom_topics() -> dict[str, int]:
+def kafka_custom_topics() -> typing.Dict[str, int]:
     return {'Large-Topic': 7}
 
 

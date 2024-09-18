@@ -17,6 +17,9 @@ fi
 if [ "x$KAFKA_HOME" = "x" ]; then
     die "KAFKA_HOME must be set"
 fi
+if [ "x$KAFKA_SERVER_HOST" = "x" ]; then
+    die "KAFKA_SERVER_HOST must be set"
+fi
 if [ "x$KAFKA_SERVER_PORT" = "x" ]; then
     die "KAFKA_SERVER_PORT must be set"
 fi
@@ -47,7 +50,7 @@ start_kafka() {
     echo "Cluster UUID is $(cat $CLUSTER_UUID_FILE)"
 
     echo "Patching server.properties. Setting logs dir to $KAFKA_LOGS_DIR"
-    sed -i 's/log\.dirs=.*/log\.dirs='"$(echo $KAFKA_LOGS_DIR | sed 's/\//\\\//g')"'/' "$KAFKA_CONF_FILE"
+    sed -i 's/log\.dirs=.*/log\.dirs='"$(echo "$KAFKA_LOGS_DIR" | sed 's/\//\\\//g')"'/' "$KAFKA_CONF_FILE"
     echo "Patched server config:\n$(cat "$KAFKA_CONF_FILE" | grep "log\.dirs")"
 
     echo "Formatting logs dir..."
@@ -59,22 +62,24 @@ start_kafka() {
     echo "Running Kafka broker..."
     "$KAFKA_BIN_DIR/kafka-server-start.sh" -daemon "$KAFKA_CONF_FILE" \
         --override auto.create.topics.enable=true \
-        --override listeners=PLAINTEXT://localhost:$KAFKA_SERVER_PORT,CONTROLLER://localhost:$KAFKA_CONTROLLER_PORT \
-        --override advertised.listeners=PLAINTEXT://localhost:$KAFKA_SERVER_PORT \
-        --override controller.quorum.voters=1@localhost:$KAFKA_CONTROLLER_PORT \
+        --override listeners="PLAINTEXT://$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT,CONTROLLER://$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
+        --override advertised.listeners="PLAINTEXT://$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT" \
+        --override controller.quorum.voters="1@$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
         --override offsets.topic.num.partitions=1 \
-        --override log.dir=$KAFKA_LOGS_DIR \
-        --override log.dirs=$KAFKA_LOGS_DIR &
+        --override log.dir="$KAFKA_LOGS_DIR" \
+        --override log.dirs="$KAFKA_LOGS_DIR" &
 
+    # There is no basic healthcheck mechanism for checking if broker is started.
+    # But almost exactly, if broker can create the topic, it is alive.
     echo "Creating test topic to ensure that broker is started..."
     "$KAFKA_BIN_DIR/kafka-topics.sh" \
-        --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
+        --bootstrap-server="$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT" \
         --create --topic test-topic \
         --partitions=1 --replication-factor=1
 
     echo "Deleting test topic..."
     "$KAFKA_BIN_DIR/kafka-topics.sh" \
-        --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
+        --bootstrap-server="$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT" \
         --delete --topic test-topic
 
     for topic_partition in $(echo -n "$KAFKA_START_TOPICS" | tr ';' '\n')
@@ -85,7 +90,7 @@ start_kafka() {
         echo "Creating topic $topic with $partitions_count partitions"
 
         "$KAFKA_BIN_DIR/kafka-topics.sh" \
-            --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
+            --bootstrap-server="$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT" \
             --create --topic $topic \
             --partitions=$partitions_count --replication-factor=1
     done

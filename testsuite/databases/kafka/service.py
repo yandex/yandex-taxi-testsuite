@@ -6,6 +6,7 @@ import typing
 from testsuite.environment import service
 from testsuite.environment import utils
 
+DEFAULT_SERVER_HOST = 'localhost'
 DEFAULT_SERVER_PORT = 9092
 DEFAULT_CONTROLLER_PORT = 9093
 
@@ -17,6 +18,7 @@ SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
 class ServiceSettings:
     """Kafka service start settings"""
 
+    server_host: str
     server_port: int
     controller_port: int
     custom_start_topics: typing.Dict[str, int]
@@ -47,6 +49,7 @@ def create_kafka_service(
         environment={
             'KAFKA_TMPDIR': working_dir,
             'KAFKA_HOME': os.getenv('KAFKA_HOME', '/etc/kafka'),
+            'KAFKA_SERVER_HOST': settings.server_host,
             'KAFKA_SERVER_PORT': str(settings.server_port),
             'KAFKA_CONTROLLER_PORT': str(settings.controller_port),
             'KAFKA_START_TOPICS': _stringify_start_topics(
@@ -66,6 +69,9 @@ def get_service_settings(
     custom_start_topics: typing.Dict[str, int] = {},
 ) -> ServiceSettings:
     return ServiceSettings(
+        server_host=utils.getenv_int(
+            'TESTSUITE_KAFKA_SERVER_HOST', DEFAULT_SERVER_HOST
+        ),
         server_port=utils.getenv_int(
             'TESTSUITE_KAFKA_SERVER_PORT',
             DEFAULT_SERVER_PORT,

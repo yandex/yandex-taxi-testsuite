@@ -29,6 +29,11 @@ KAFKA_HOME
 
 Use to override Kafka binaries dir. Default is ``/etc/kafka``
 
+TESTSUITE_KAFKA_SERVER_HOST
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override Kafka server host. Default is ``localhost``.
+
 TESTSUITE_KAFKA_SERVER_PORT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

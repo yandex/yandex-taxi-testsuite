@@ -1,4 +1,5 @@
 import pytest
+import os
 
 from . import service
 from . import classes
@@ -49,14 +50,33 @@ def kafka_consumer(
     event_loop.run_until_complete(consumer.teardown())
 
 
+def _parse_custom_topics(custom_topics: str) -> dict[str, int]:
+    result: dict[str, int] = {}
+
+    for topic_partitions_pair in custom_topics.split(';'):
+        topic, partition = topic_partitions_pair.split(':')
+        result[topic] = int(partition)
+
+    return result
+
+
+@pytest.fixture(scope='session')
+def kafka_custom_topics() -> dict[str, int]:
+    custom_topics: str = os.environ.get('TESTSUITE_KAFKA_CUSTOM_TOPICS')
+    if custom_topics is None:
+        return {}
+
+    return _parse_custom_topics(custom_topics)
+
+
 @pytest.fixture(scope='session')
 def kafka_disabled(pytestconfig) -> bool:
     return pytestconfig.option.no_kafka
 
 
 @pytest.fixture(scope='session')
-def _kafka_service_settings() -> service.ServiceSettings:
-    return service.get_service_settings()
+def _kafka_service_settings(kafka_custom_topics) -> service.ServiceSettings:
+    return service.get_service_settings(kafka_custom_topics)
 
 
 @pytest.fixture(scope='session')
@@ -65,6 +85,7 @@ def _kafka_service(
     kafka_disabled,
     pytestconfig,
     _kafka_service_settings,
+    kafka_custom_topics,
 ) -> bool:
     if kafka_disabled:
         return False

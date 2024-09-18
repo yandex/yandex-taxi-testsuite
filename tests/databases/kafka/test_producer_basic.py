@@ -25,3 +25,16 @@ async def test_kafka_producer_many_send_async(kafka_producer):
             )
         )
     await asyncio.wait(send_futures)
+
+
+async def test_kafka_producer_large_topic(kafka_producer):
+    TOPIC = 'Large-Topic'
+    PARTITION_COUNT = 7
+
+    for partition in range(PARTITION_COUNT):
+        await kafka_producer.send(
+            TOPIC,
+            f'key-to-{partition}',
+            f'message-to-{partition}',
+            partition=partition,
+        )

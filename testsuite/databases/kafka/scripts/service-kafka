@@ -66,7 +66,7 @@ start_kafka() {
         --override log.dir=$KAFKA_LOGS_DIR \
         --override log.dirs=$KAFKA_LOGS_DIR &
 
-    echo "Creating test topic..."
+    echo "Creating test topic to ensure that broker is started..."
     "$KAFKA_BIN_DIR/kafka-topics.sh" \
         --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
         --create --topic test-topic \
@@ -76,6 +76,19 @@ start_kafka() {
     "$KAFKA_BIN_DIR/kafka-topics.sh" \
         --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
         --delete --topic test-topic
+
+    for topic_partition in $(echo -n "$KAFKA_START_TOPICS" | tr ';' '\n')
+    do
+        topic=$(echo $topic_partition | cut -d ':' -f 1)
+        partitions_count=$(echo $topic_partition | cut -d ':' -f 2)
+
+        echo "Creating topic $topic with $partitions_count partitions"
+
+        "$KAFKA_BIN_DIR/kafka-topics.sh" \
+            --bootstrap-server=localhost:$KAFKA_SERVER_PORT \
+            --create --topic $topic \
+            --partitions=$partitions_count --replication-factor=1
+    done
 }
 
 start() {

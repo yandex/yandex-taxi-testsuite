@@ -2,7 +2,6 @@ import asyncio
 import typing
 import aiokafka
 import logging
-import random
 
 
 class KafkaDisabledError(Exception):
@@ -21,11 +20,15 @@ class KafkaProducer:
             )
             await self.producer.start()
 
-    async def send(self, topic: str, key: str, value: str):
-        resp_future = await self.send_async(topic, key, value)
+    async def send(
+        self, topic: str, key: str, value: str, partition: typing.Optional[int]
+    ):
+        resp_future = await self.send_async(topic, key, value, partition)
         await resp_future
 
-    async def send_async(self, topic: str, key: str, value: str):
+    async def send_async(
+        self, topic: str, key: str, value: str, partition: typing.Optional[int]
+    ):
         if not self._enabled:
             raise KafkaDisabledError
 
@@ -33,6 +36,7 @@ class KafkaProducer:
             topic=topic,
             value=value.encode(),
             key=key.encode(),
+            partition=partition,
         )
 
     async def teardown(self):
@@ -63,7 +67,7 @@ class KafkaConsumer:
     async def start(self):
         if self._enabled:
             self.consumer = aiokafka.AIOKafkaConsumer(
-                group_id=f'Test-group',
+                group_id='Test-group',
                 bootstrap_servers=f'localhost:{self._server_port}',
                 auto_offset_reset='earliest',
                 enable_auto_commit=False,

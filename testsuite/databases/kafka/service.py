@@ -17,6 +17,16 @@ SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
 class ServiceSettings:
     server_port: int
     controller_port: int
+    custom_start_topics: dict[str, int]
+
+
+def stringify_start_topics(start_topics: dict[str, int]) -> str:
+    return ';'.join(
+        [
+            f'{topic}:{partitions_count}'
+            for topic, partitions_count in start_topics.items()
+        ]
+    )
 
 
 def create_kafka_service(
@@ -37,6 +47,9 @@ def create_kafka_service(
             'KAFKA_HOME': os.getenv('KAFKA_HOME', '/etc/kafka'),
             'KAFKA_SERVER_PORT': str(settings.server_port),
             'KAFKA_CONTROLLER_PORT': str(settings.controller_port),
+            'KAFKA_START_TOPICS': stringify_start_topics(
+                settings.custom_start_topics
+            ),
             **(env or {}),
         },
         check_ports=[settings.server_port, settings.controller_port],
@@ -47,7 +60,9 @@ def create_kafka_service(
     )
 
 
-def get_service_settings() -> ServiceSettings:
+def get_service_settings(
+    custom_start_topics: dict[str, int] = {},
+) -> ServiceSettings:
     return ServiceSettings(
         server_port=utils.getenv_int(
             'TESTSUITE_KAFKA_SERVER_PORT',
@@ -57,4 +72,5 @@ def get_service_settings() -> ServiceSettings:
             'TESTSUITE_KAFKA_CONTROLLER_PORT',
             DEFAULT_CONTROLLER_PORT,
         ),
+        custom_start_topics=custom_start_topics,
     )

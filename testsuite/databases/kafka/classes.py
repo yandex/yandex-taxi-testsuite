@@ -9,6 +9,11 @@ class KafkaDisabledError(Exception):
 
 
 class KafkaProducer:
+    """
+    Kafka producer wrapper.
+    The producer instance are created for each test.
+    """
+
     def __init__(self, enabled: bool, server_port: int):
         self._enabled = enabled
         self._server_port = server_port
@@ -27,6 +32,20 @@ class KafkaProducer:
         value: str,
         partition: typing.Optional[int] = None,
     ):
+        """
+        Sends the message (``value``) to ``topic`` by ``key`` and,
+        optionally, to a given ``partition`` and waits until it is delivered.
+        If the call is successfully awaited,
+        message is guaranteed to be delivered.
+
+        :param topic: topic name.
+        :param key: key. Needed to determine message's partition.
+        :param value: message payload. Must be valid UTF-8.
+        :param partition: Optional message partition.
+            If not passed, determined by internal partitioner
+            depends on key's hash.
+        """
+
         resp_future = await self.send_async(topic, key, value, partition)
         await resp_future
 
@@ -37,6 +56,19 @@ class KafkaProducer:
         value: str,
         partition: typing.Optional[int] = None,
     ):
+        """
+        Sends the message (``value``) to ``topic`` by ``key`` and,
+        optionally, to a given ``partition`` and
+        returns the future for message delivery awaiting.
+
+        :param topic: topic name.
+        :param key: key. Needed to determine message's partition.
+        :param value: message payload. Must be valid UTF-8.
+        :param partition: Optional message partition.
+            If not passed, determined by internal partitioner
+            depends on key's hash.
+        """
+
         if not self._enabled:
             raise KafkaDisabledError
 
@@ -52,20 +84,31 @@ class KafkaProducer:
             await self.producer.stop()
 
 
-class KafkaConsumer:
-    class ConsumedMessage:
-        topic: str
-        key: str
-        value: str
-        partition: int
-        offset: int
+class ConsumedMessage:
+    """Wrapper for consumed record."""
 
-        def __init__(self, record: aiokafka.ConsumerRecord):
-            self.topic = record.topic
-            self.key = record.key.decode()
-            self.value = record.value.decode()
-            self.partition = record.partition
-            self.offset = record.offset
+    topic: str
+    key: str
+    value: str
+    partition: int
+    offset: int
+
+    def __init__(self, record: aiokafka.ConsumerRecord):
+        self.topic = record.topic
+        self.key = record.key.decode()
+        self.value = record.value.decode()
+        self.partition = record.partition
+        self.offset = record.offset
+
+
+class KafkaConsumer:
+    """
+    Kafka balanced consumer wrapper.
+    The consumer instance are created for each test.
+    All consumers are created with the same group.id,
+    after each test consumer commits offsets for all consumed messages.
+    This is needed to make tests independent.
+    """
 
     def __init__(self, enabled: bool, server_port: int):
         self._enabled = enabled
@@ -105,6 +148,14 @@ class KafkaConsumer:
     async def receive_one(
         self, topics: typing.List[str], timeout: float = 20.0
     ) -> ConsumedMessage:
+        """
+        Waits until one message are consumed.
+
+        :param topics: list of topics to read messages from.
+        :param timeout: timeout to stop waiting. Default is 20 seconds.
+
+        :returns: :py:class:`ConsumedMessage`
+        """
         if not self._enabled:
             raise KafkaDisabledError
 
@@ -112,7 +163,7 @@ class KafkaConsumer:
 
         async def _do_receive():
             record: aiokafka.ConsumerRecord = await self.consumer.getone()
-            return KafkaConsumer.ConsumedMessage(record)
+            return ConsumedMessage(record)
 
         logging.warning('Waiting for response')
         return await asyncio.wait_for(_do_receive(), timeout=timeout)
@@ -123,6 +174,16 @@ class KafkaConsumer:
         max_batch_size: typing.Optional[int],
         timeout_ms: int = 3000,
     ) -> typing.List[ConsumedMessage]:
+        """
+        Waits until either ``max_batch_size`` messages are consumed or
+        ``timeout_ms`` timeout expired.
+
+        :param topics: list of topics to read messages from.
+        :max_batch_size: maximum number of consumed messages.
+        :param timeout_ms: timeout to stop waiting. Default is 3 seconds.
+
+        :returns: :py:class:`List[ConsumedMessage]`
+        """
         if not self._enabled:
             raise KafkaDisabledError
 
@@ -134,9 +195,7 @@ class KafkaConsumer:
             timeout_ms=timeout_ms, max_records=max_batch_size
         )
 
-        return list(
-            map(KafkaConsumer.ConsumedMessage, sum(records.values(), []))
-        )
+        return list(map(ConsumedMessage, sum(records.values(), [])))
 
     async def teardown(self):
         if self._enabled:

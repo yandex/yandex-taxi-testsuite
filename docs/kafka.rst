@@ -16,8 +16,10 @@ Kafka installation
 Consult official docs at https://kafka.apache.org/quickstart
 
 If you already have Kafka installed and its location differs from
-`/etc/kafka` please specify
+``/etc/kafka`` please specify
 ``KAFKA_HOME`` environment variable accordingly.
+
+Installed Kafka **must** support KRaft_ protocol.
 
 Environment variables
 ---------------------
@@ -25,7 +27,7 @@ Environment variables
 KAFKA_HOME
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use to override Kafka binary dir. Default is ``/etc/kafka``
+Use to override Kafka binaries dir. Default is ``/etc/kafka``
 
 TESTSUITE_KAFKA_SERVER_PORT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,8 +41,17 @@ Use to override Kafka controller port. Default is ``9093``.
 
 TESTSUITE_KAFKA_SERVER_START_TIMEOUT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 By default testsuite will wait for up to 10s for Kafka to start,
 one may customize this timeout via environment variable ``TESTSUITE_KAFKA_SERVER_START_TIMEOUT``.
+
+TESTSUITE_KAFKA_CUSTOM_TOPICS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All topics in tests are created automatically by Kafka broker in test's runtime with **only 1 partition**.
+To create topics with several partition either specify ``TESTSUITE_KAFKA_CUSTOM_TOPICS`` environment
+variable with the ``;`` separated list of topic to partitions count mapping or override the ``kafka_custom_topics`` fixture.
+For example, ``TESTSUITE_KAFKA_CUSTOM_TOPICS=large-topic-1:7;large-topic-2:20``
 
 Customize ports
 ---------------
@@ -52,10 +63,11 @@ environment variables are specified.
 Use external instance
 ---------------------
 
-Usage of external instance is not officially supported for now,
-but if your instance is local you may try setting environment variable
+If your instance is local you may try setting environment variable
 ``TESTSUITE_KAFKA_SERVER_PORT`` and pytest option ``--kafka=1``
 and see if it works.
+
+P.S. Topics creation remains on the user's side.
 
 Usage example
 -------------
@@ -77,6 +89,26 @@ Usage example
 
 .. _Kafka: https://kafka.apache.org/
 .. _aiokafka: https://github.com/aio-libs/aiokafka
+.. _KRaft: https://developer.confluent.io/learn/kraft/
+
+Example integration
+-------------------
+
+.. code-block:: python
+
+  pytest_plugins = [
+      'testsuite.pytest_plugin',
+      'testsuite.databases.kafka.pytest_plugin',
+  ]
+
+  KAFKA_CUSTOM_TOPICS = {
+      'Large-topic-1': 7,
+      'Large-topic-2': 3,
+  }
+
+  @pytest.fixture(scope='session')
+  def kafka_custom_topics():
+      return KAFKA_CUSTOM_TOPICS
 
 Fixtures
 --------
@@ -95,6 +127,12 @@ kafka_consumer
 .. autofunction:: kafka_consumer()
   :noindex:
 
+kafka_custom_topics
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: kafka_custom_topics()
+  :noindex:
+
 
 Classes
 -------
@@ -106,3 +144,6 @@ Classes
 
 .. autoclass:: KafkaConsumer()
   :members: receive_one, receive_batch
+
+.. autoclass:: ConsumedMessage()
+  :members: topic, key, value, partition, offset

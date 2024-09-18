@@ -31,6 +31,11 @@ def pytest_service_register(register_service):
 def kafka_producer(
     _kafka_service, _kafka_service_settings, event_loop
 ) -> classes.KafkaProducer:
+    """
+    Per test Kafka producer instance.
+
+    :returns: :py:class:`testsuite.databases.kafka.classes.KafkaProducer`
+    """
     producer = classes.KafkaProducer(
         enabled=_kafka_service, server_port=_kafka_service_settings.server_port
     )
@@ -43,6 +48,11 @@ def kafka_producer(
 def kafka_consumer(
     _kafka_service, _kafka_service_settings, event_loop
 ) -> classes.KafkaConsumer:
+    """
+    Per test Kafka consumer instance.
+
+    :returns: :py:class:`testsuite.databases.kafka.classes.KafkaConsumer`
+    """
     consumer = classes.KafkaConsumer(
         enabled=_kafka_service, server_port=_kafka_service_settings.server_port
     )
@@ -63,6 +73,10 @@ def _parse_custom_topics(custom_topics: str) -> typing.Dict[str, int]:
 
 @pytest.fixture(scope='session')
 def kafka_custom_topics() -> typing.Dict[str, int]:
+    """
+    Redefine this fixture to pass your custom dictionary of topics' settings.
+    """
+
     custom_topics: str = os.environ.get('TESTSUITE_KAFKA_CUSTOM_TOPICS')
     if custom_topics is None:
         return {}

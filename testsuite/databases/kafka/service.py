@@ -15,12 +15,14 @@ SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
 
 @dataclasses.dataclass(frozen=True)
 class ServiceSettings:
+    """Kafka service start settings"""
+
     server_port: int
     controller_port: int
     custom_start_topics: typing.Dict[str, int]
 
 
-def stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
+def _stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
     return ';'.join(
         [
             f'{topic}:{partitions_count}'
@@ -47,7 +49,7 @@ def create_kafka_service(
             'KAFKA_HOME': os.getenv('KAFKA_HOME', '/etc/kafka'),
             'KAFKA_SERVER_PORT': str(settings.server_port),
             'KAFKA_CONTROLLER_PORT': str(settings.controller_port),
-            'KAFKA_START_TOPICS': stringify_start_topics(
+            'KAFKA_START_TOPICS': _stringify_start_topics(
                 settings.custom_start_topics
             ),
             **(env or {}),

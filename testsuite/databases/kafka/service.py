@@ -33,6 +33,24 @@ def _stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
     )
 
 
+def _parse_custom_topics(custom_topics: str) -> typing.Dict[str, int]:
+    if not custom_topics:
+        return {}
+
+    result: typing.Dict[str, int] = {}
+    for topic_partitions_pair in custom_topics.split(','):
+        topic, partition = topic_partitions_pair.split(':')
+        result[topic] = int(partition)
+
+    return result
+
+
+def try_get_custom_topics() -> typing.Dict[str, int]:
+    return _parse_custom_topics(
+        os.environ.get('TESTSUITE_KAFKA_CUSTOM_TOPICS', '')
+    )
+
+
 def create_kafka_service(
     service_name: str,
     working_dir: str,
@@ -53,7 +71,7 @@ def create_kafka_service(
             'KAFKA_SERVER_PORT': str(settings.server_port),
             'KAFKA_CONTROLLER_PORT': str(settings.controller_port),
             'KAFKA_START_TOPICS': _stringify_start_topics(
-                settings.custom_start_topics
+                settings.custom_start_topics or try_get_custom_topics()
             ),
             **(env or {}),
         },

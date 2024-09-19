@@ -55,8 +55,8 @@ TESTSUITE_KAFKA_CUSTOM_TOPICS
 
 All topics in tests are created automatically by Kafka broker in test's runtime with **only 1 partition**.
 To create topics with several partition either specify ``TESTSUITE_KAFKA_CUSTOM_TOPICS`` environment
-variable with the ``;`` separated list of topic to partitions count mapping or override the ``kafka_custom_topics`` fixture.
-For example, ``TESTSUITE_KAFKA_CUSTOM_TOPICS=large-topic-1:7;large-topic-2:20``
+variable with the ``,`` separated list of topic to partitions count mapping or override the ``kafka_custom_topics`` fixture.
+For example, ``TESTSUITE_KAFKA_CUSTOM_TOPICS=large-topic-1:7,large-topic-2:20``
 
 Customize ports
 ---------------

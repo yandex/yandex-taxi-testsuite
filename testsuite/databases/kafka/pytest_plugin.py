@@ -1,6 +1,5 @@
 import typing
 import pytest
-import os
 
 from . import service
 from . import classes
@@ -61,27 +60,13 @@ def kafka_consumer(
     event_loop.run_until_complete(consumer.teardown())
 
 
-def _parse_custom_topics(custom_topics: str) -> typing.Dict[str, int]:
-    result: typing.Dict[str, int] = {}
-
-    for topic_partitions_pair in custom_topics.split(';'):
-        topic, partition = topic_partitions_pair.split(':')
-        result[topic] = int(partition)
-
-    return result
-
-
 @pytest.fixture(scope='session')
 def kafka_custom_topics() -> typing.Dict[str, int]:
     """
     Redefine this fixture to pass your custom dictionary of topics' settings.
     """
 
-    custom_topics: str = os.environ.get('TESTSUITE_KAFKA_CUSTOM_TOPICS')
-    if custom_topics is None:
-        return {}
-
-    return _parse_custom_topics(custom_topics)
+    return service.try_get_custom_topics()
 
 
 @pytest.fixture(scope='session')

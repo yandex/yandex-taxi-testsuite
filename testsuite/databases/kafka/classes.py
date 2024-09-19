@@ -199,5 +199,6 @@ class KafkaConsumer:
 
     async def teardown(self):
         if self._enabled:
-            await self.consumer.commit()
+            if self._subscribed_topics:
+                await self.consumer.commit()
             await self.consumer.stop()

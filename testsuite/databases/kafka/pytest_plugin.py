@@ -4,6 +4,8 @@ import pytest
 from . import service
 from . import classes
 
+from testsuite.utils import compat
+
 
 def pytest_addoption(parser):
     group = parser.getgroup('kafka')
@@ -26,38 +28,54 @@ def pytest_service_register(register_service):
     register_service('kafka', service.create_kafka_service)
 
 
+@compat.asynccontextmanager
+async def _create_producer(enabled: bool, server_port: int):
+    producer = classes.KafkaProducer(enabled=enabled, server_port=server_port)
+    try:
+        await producer.start()
+        yield producer
+    finally:
+        await producer.teardown()
+
+
 @pytest.fixture
-def kafka_producer(
-    _kafka_service, _kafka_service_settings, event_loop
-) -> classes.KafkaProducer:
+async def kafka_producer(
+    _kafka_service, _kafka_service_settings
+) -> typing.AsyncGenerator[classes.KafkaProducer, None]:
     """
     Per test Kafka producer instance.
 
     :returns: :py:class:`testsuite.databases.kafka.classes.KafkaProducer`
     """
-    producer = classes.KafkaProducer(
-        enabled=_kafka_service, server_port=_kafka_service_settings.server_port
-    )
-    event_loop.run_until_complete(producer.start())
-    yield producer
-    event_loop.run_until_complete(producer.teardown())
+    async with _create_producer(
+        _kafka_service, _kafka_service_settings.server_port
+    ) as producer:
+        yield producer
+
+
+@compat.asynccontextmanager
+async def _create_consumer(enabled: bool, server_port: int):
+    consumer = classes.KafkaConsumer(enabled=enabled, server_port=server_port)
+    try:
+        await consumer.start()
+        yield consumer
+    finally:
+        await consumer.teardown()
 
 
 @pytest.fixture
-def kafka_consumer(
-    _kafka_service, _kafka_service_settings, event_loop
-) -> classes.KafkaConsumer:
+async def kafka_consumer(
+    _kafka_service, _kafka_service_settings
+) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
     """
     Per test Kafka consumer instance.
 
     :returns: :py:class:`testsuite.databases.kafka.classes.KafkaConsumer`
     """
-    consumer = classes.KafkaConsumer(
-        enabled=_kafka_service, server_port=_kafka_service_settings.server_port
-    )
-    event_loop.run_until_complete(consumer.start())
-    yield consumer
-    event_loop.run_until_complete(consumer.teardown())
+    async with _create_consumer(
+        _kafka_service, _kafka_service_settings.server_port
+    ) as consumer:
+        yield consumer
 
 
 @pytest.fixture(scope='session')

@@ -90,11 +90,6 @@ def mongo_schema_directory():
     return pathlib.Path(__file__).parent / 'schemas/mongo'
 
 
-@pytest.fixture(scope='session')
-def kafka_custom_topics() -> typing.Dict[str, int]:
-    return {'Large-Topic': 7}
-
-
 def pytest_register_object_hooks():
     def _custom_object_hook(doc: dict):
         return '<my-custom-obj>'

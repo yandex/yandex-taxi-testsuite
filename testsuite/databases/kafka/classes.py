@@ -146,7 +146,7 @@ class KafkaConsumer:
         self.consumer.commit()
 
     async def receive_one(
-        self, topics: typing.List[str], timeout: float = 20.0
+        self, topics: typing.List[str], timeout: int = 20
     ) -> ConsumedMessage:
         """
         Waits until one message are consumed.
@@ -180,7 +180,7 @@ class KafkaConsumer:
 
         :param topics: list of topics to read messages from.
         :max_batch_size: maximum number of consumed messages.
-        :param timeout: timeout in seconds to stop waiting.
+        :param timeout: timeout to stop waiting. Default is 3 seconds.
 
         :returns: :py:class:`List[ConsumedMessage]`
         """

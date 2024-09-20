@@ -172,7 +172,7 @@ class KafkaConsumer:
         self,
         topics: typing.List[str],
         max_batch_size: typing.Optional[int],
-        timeout_ms: int = 3000,
+        timeout: int = 3,
     ) -> typing.List[ConsumedMessage]:
         """
         Waits until either ``max_batch_size`` messages are consumed or
@@ -180,7 +180,7 @@ class KafkaConsumer:
 
         :param topics: list of topics to read messages from.
         :max_batch_size: maximum number of consumed messages.
-        :param timeout_ms: timeout to stop waiting. Default is 3 seconds.
+        :param timeout: timeout in seconds to stop waiting.
 
         :returns: :py:class:`List[ConsumedMessage]`
         """
@@ -192,7 +192,7 @@ class KafkaConsumer:
         records: typing.Dict[
             aiokafka.TopicPartition, typing.List[aiokafka.ConsumerRecord]
         ] = await self.consumer.getmany(
-            timeout_ms=timeout_ms, max_records=max_batch_size
+            timeout_ms=timeout * 1000, max_records=max_batch_size
         )
 
         return list(map(ConsumedMessage, sum(records.values(), [])))

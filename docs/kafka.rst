@@ -25,7 +25,7 @@ Environment variables
 ---------------------
 
 KAFKA_HOME
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 Use to override Kafka binaries dir. Default is ``/etc/kafka``
 
@@ -45,13 +45,13 @@ TESTSUITE_KAFKA_CONTROLLER_PORT
 Use to override Kafka controller port. Default is ``9100``.
 
 TESTSUITE_KAFKA_SERVER_START_TIMEOUT
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default testsuite will wait for up to 10s for Kafka to start,
 one may customize this timeout via environment variable ``TESTSUITE_KAFKA_SERVER_START_TIMEOUT``.
 
 TESTSUITE_KAFKA_CUSTOM_TOPICS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All topics in tests are created automatically by Kafka broker in test's runtime with **only 1 partition**.
 To create topics with several partition either specify ``TESTSUITE_KAFKA_CUSTOM_TOPICS`` environment

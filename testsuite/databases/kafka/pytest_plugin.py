@@ -38,7 +38,7 @@ async def _create_producer(enabled: bool, server_port: int):
         await producer.teardown()
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 async def kafka_producer(
     _kafka_service, _kafka_service_settings
 ) -> typing.AsyncGenerator[classes.KafkaProducer, None]:
@@ -63,19 +63,25 @@ async def _create_consumer(enabled: bool, server_port: int):
         await consumer.teardown()
 
 
-@pytest.fixture
-async def kafka_consumer(
+@pytest.fixture(scope='session')
+async def _kafka_consumer_client(
     _kafka_service, _kafka_service_settings
 ) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
+    async with _create_consumer(
+        _kafka_service, _kafka_service_settings.server_port
+    ) as consumer:
+        yield consumer
+
+
+@pytest.fixture
+async def kafka_consumer(_kafka_consumer_client):
     """
     Per test Kafka consumer instance.
 
     :returns: :py:class:`testsuite.databases.kafka.classes.KafkaConsumer`
     """
-    async with _create_consumer(
-        _kafka_service, _kafka_service_settings.server_port
-    ) as consumer:
-        yield consumer
+    yield _kafka_consumer_client
+    await _kafka_consumer_client._unsubscribe()
 
 
 @pytest.fixture(scope='session')

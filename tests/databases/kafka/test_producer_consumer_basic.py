@@ -16,7 +16,7 @@ async def test_kafka_producer_consumer_chain(kafka_producer, kafka_consumer):
     assert consumed_message.value == MESSAGE
 
 
-async def test_kafka_producer_consumer_chain_many(
+async def test_kafka_producer_consumer_chain_many_messages(
     kafka_producer, kafka_consumer
 ):
     TOPIC = 'Test-topic-chain'
@@ -33,6 +33,33 @@ async def test_kafka_producer_consumer_chain_many(
     while len(sends_received) < SEND_COUNT:
         consumed_messages = await kafka_consumer.receive_batch(
             topics=[TOPIC], max_batch_size=BATCH_SIZE
+        )
+        logging.info(f'Received batch of {len(consumed_messages)} messages')
+        for message in consumed_messages:
+            sends_received.add(int(message.key.split('-')[-1]))
+
+
+async def test_kafka_producer_consumer_chain_many_topics(
+    kafka_producer, kafka_consumer
+):
+    TOPIC_COUNT = 3
+    TOPICS = [f'Test-topic-chain-{i}' for i in range(TOPIC_COUNT)]
+    SEND_PER_TOPIC_COUNT = 10
+    MESSAGE_COUNT = TOPIC_COUNT * SEND_PER_TOPIC_COUNT
+    BATCH_SIZE = 5
+
+    for i, topic in enumerate(TOPICS):
+        for send in range(SEND_PER_TOPIC_COUNT):
+            send_number = i * SEND_PER_TOPIC_COUNT + send
+            await kafka_producer.send(
+                topic, f'test-key-{send_number}', f'test-message-{send_number}'
+            )
+
+    sends_received: typing.Set[int] = set()
+
+    while len(sends_received) < MESSAGE_COUNT:
+        consumed_messages = await kafka_consumer.receive_batch(
+            topics=TOPICS, max_batch_size=BATCH_SIZE
         )
         logging.info(f'Received batch of {len(consumed_messages)} messages')
         for message in consumed_messages:

@@ -11,7 +11,6 @@ class KafkaDisabledError(Exception):
 class KafkaProducer:
     """
     Kafka producer wrapper.
-    The producer instance are created for each test.
     """
 
     def __init__(self, enabled: bool, server_port: int):
@@ -22,6 +21,7 @@ class KafkaProducer:
         if self._enabled:
             self.producer = aiokafka.AIOKafkaProducer(
                 bootstrap_servers=f'localhost:{self._server_port}',
+                linger_ms=0,  # turn off message buffering
             )
             await self.producer.start()
 
@@ -104,7 +104,6 @@ class ConsumedMessage:
 class KafkaConsumer:
     """
     Kafka balanced consumer wrapper.
-    The consumer instance are created for each test.
     All consumers are created with the same group.id,
     after each test consumer commits offsets for all consumed messages.
     This is needed to make tests independent.
@@ -135,7 +134,7 @@ class KafkaConsumer:
                 to_subscribe.append(topic)
 
         if to_subscribe:
-            logging.warning(f"Subscribing to {to_subscribe}")
+            logging.info(f'Subscribing to {to_subscribe}')
             self.consumer.subscribe(to_subscribe)
             self._subscribed_topics.extend(to_subscribe)
 
@@ -143,7 +142,14 @@ class KafkaConsumer:
         if not self._enabled:
             raise KafkaDisabledError
 
-        self.consumer.commit()
+        if self._subscribed_topics:
+            await self.consumer.commit()
+
+    async def _unsubscribe(self):
+        await self._commit()
+        if self._subscribed_topics:
+            self.consumer.unsubscribe()
+            self._subscribed_topics = []
 
     async def receive_one(
         self, topics: typing.List[str], timeout: int = 20
@@ -199,6 +205,6 @@ class KafkaConsumer:
 
     async def teardown(self):
         if self._enabled:
-            if self._subscribed_topics:
-                await self.consumer.commit()
+            await self._commit()
+            self.consumer.unsubscribe()
             await self.consumer.stop()

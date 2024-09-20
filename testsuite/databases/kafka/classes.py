@@ -79,6 +79,9 @@ class KafkaProducer:
             partition=partition,
         )
 
+    async def _flush(self):
+        await self.producer.flush()
+
     async def teardown(self):
         if self._enabled:
             await self.producer.stop()
@@ -205,6 +208,5 @@ class KafkaConsumer:
 
     async def teardown(self):
         if self._enabled:
-            await self._commit()
-            self.consumer.unsubscribe()
+            await self._unsubscribe()
             await self.consumer.stop()

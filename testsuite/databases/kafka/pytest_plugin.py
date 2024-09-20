@@ -39,18 +39,26 @@ async def _create_producer(enabled: bool, server_port: int):
 
 
 @pytest.fixture(scope='session')
-async def kafka_producer(
+async def _kafka_producer_client(
     _kafka_service, _kafka_service_settings
+) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
+    async with _create_producer(
+        _kafka_service, _kafka_service_settings.server_port
+    ) as producer:
+        yield producer
+
+
+@pytest.fixture
+async def kafka_producer(
+    _kafka_producer_client,
 ) -> typing.AsyncGenerator[classes.KafkaProducer, None]:
     """
     Per test Kafka producer instance.
 
     :returns: :py:class:`testsuite.databases.kafka.classes.KafkaProducer`
     """
-    async with _create_producer(
-        _kafka_service, _kafka_service_settings.server_port
-    ) as producer:
-        yield producer
+    yield _kafka_producer_client
+    await _kafka_producer_client._flush()
 
 
 @compat.asynccontextmanager

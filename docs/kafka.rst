@@ -139,6 +139,12 @@ kafka_custom_topics
 .. autofunction:: kafka_custom_topics()
   :noindex:
 
+kafka_local
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: kafka_local()
+  :noindex:
+
 
 Classes
 -------

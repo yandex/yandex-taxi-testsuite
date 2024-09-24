@@ -1,4 +1,5 @@
 import typing
+
 import pytest
 
 from . import service
@@ -30,10 +31,12 @@ def pytest_service_register(register_service):
 
 @pytest.fixture(scope='session')
 async def _kafka_global_producer(
-    _kafka_service, _kafka_service_settings
+    _kafka_service,
+    _boostrap_servers,
 ) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
     producer = classes.KafkaProducer(
-        enabled=_kafka_service, server_port=_kafka_service_settings.server_port
+        enabled=_kafka_service,
+        boostrap_servers=_boostrap_servers,
     )
     await producer.start()
 
@@ -56,10 +59,12 @@ async def kafka_producer(
 
 @pytest.fixture(scope='session')
 async def _kafka_global_consumer(
-    _kafka_service, _kafka_service_settings
+    _kafka_service,
+    _boostrap_servers,
 ) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
     consumer = classes.KafkaConsumer(
-        enabled=_kafka_service, server_port=_kafka_service_settings.server_port
+        enabled=_kafka_service,
+        boostrap_servers=_boostrap_servers,
     )
     await consumer.start()
 
@@ -88,25 +93,45 @@ def kafka_custom_topics() -> typing.Dict[str, int]:
 
 
 @pytest.fixture(scope='session')
+def kafka_local() -> classes.BoostrapServers:
+    """
+    Override to use custom local cluster boostrap servers.
+    If not empty, no service started.
+    """
+
+    return []
+
+
+@pytest.fixture(scope='session')
 def kafka_disabled(pytestconfig) -> bool:
     return pytestconfig.option.no_kafka
 
 
 @pytest.fixture(scope='session')
-def _kafka_service_settings(kafka_custom_topics) -> service.ServiceSettings:
+def _kafka_service_settings(kafka_custom_topics) -> classes.ServiceSettings:
     return service.get_service_settings(kafka_custom_topics)
+
+
+@pytest.fixture(scope='session')
+def _boostrap_servers(kafka_local, _kafka_service_settings) -> str:
+    if kafka_local:
+        return ','.join(kafka_local)
+
+    server_host = _kafka_service_settings.server_host
+    server_port = _kafka_service_settings.server_port
+    return f'{server_host}:{server_port}'
 
 
 @pytest.fixture(scope='session')
 def _kafka_service(
     ensure_service_started,
+    kafka_local,
     kafka_disabled,
     pytestconfig,
     _kafka_service_settings,
-    kafka_custom_topics,
 ) -> bool:
     if kafka_disabled:
         return False
-    if not pytestconfig.option.kafka:
+    if not kafka_local and not pytestconfig.option.kafka:
         ensure_service_started('kafka', settings=_kafka_service_settings)
     return True

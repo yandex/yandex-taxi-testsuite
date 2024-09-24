@@ -1,7 +1,8 @@
-import dataclasses
 import os
 import pathlib
 import typing
+
+from . import classes
 
 from testsuite.environment import service
 from testsuite.environment import utils
@@ -12,16 +13,6 @@ DEFAULT_CONTROLLER_PORT = 9100
 
 PLUGIN_DIR = pathlib.Path(__file__).parent
 SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
-
-
-@dataclasses.dataclass(frozen=True)
-class ServiceSettings:
-    """Kafka service start settings"""
-
-    server_host: str
-    server_port: int
-    controller_port: int
-    custom_start_topics: typing.Dict[str, int]
 
 
 def _stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
@@ -54,7 +45,7 @@ def try_get_custom_topics() -> typing.Dict[str, int]:
 def create_kafka_service(
     service_name: str,
     working_dir: str,
-    settings: typing.Optional[ServiceSettings] = None,
+    settings: typing.Optional[classes.ServiceSettings] = None,
     env: typing.Optional[typing.Dict[str, str]] = None,
 ):
     if settings is None:
@@ -85,8 +76,8 @@ def create_kafka_service(
 
 def get_service_settings(
     custom_start_topics: typing.Dict[str, int] = {},
-) -> ServiceSettings:
-    return ServiceSettings(
+) -> classes.ServiceSettings:
+    return classes.ServiceSettings(
         server_host=utils.getenv_int(
             'TESTSUITE_KAFKA_SERVER_HOST', DEFAULT_SERVER_HOST
         ),

@@ -1,10 +1,25 @@
 import asyncio
+import dataclasses
 import typing
 import aiokafka
 import logging
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclasses.dataclass(frozen=True)
+class ServiceSettings:
+    """Kafka service start settings"""
+
+    server_host: str
+    server_port: int
+    controller_port: int
+    custom_start_topics: typing.Dict[str, int]
+
+
+"""Kafka boostrap servers URLs list"""
+BoostrapServers = typing.List[str]
 
 
 class KafkaDisabledError(Exception):
@@ -16,14 +31,14 @@ class KafkaProducer:
     Kafka producer wrapper.
     """
 
-    def __init__(self, enabled: bool, server_port: int):
+    def __init__(self, enabled: bool, boostrap_servers: str):
         self._enabled = enabled
-        self._server_port = server_port
+        self._boostrap_servers = boostrap_servers
 
     async def start(self):
         if self._enabled:
             self.producer = aiokafka.AIOKafkaProducer(
-                bootstrap_servers=f'localhost:{self._server_port}',
+                bootstrap_servers=self._boostrap_servers,
                 linger_ms=0,  # turn off message buffering
             )
             await self.producer.start()
@@ -116,16 +131,16 @@ class KafkaConsumer:
     This is needed to make tests independent.
     """
 
-    def __init__(self, enabled: bool, server_port: int):
+    def __init__(self, enabled: bool, boostrap_servers):
         self._enabled = enabled
-        self._server_port = server_port
-        self._subscribed_topics: typing.List[str] = list()
+        self._boostrap_servers = boostrap_servers
+        self._subscribed_topics: typing.List[str] = []
 
     async def start(self):
         if self._enabled:
             self.consumer = aiokafka.AIOKafkaConsumer(
                 group_id='Test-group',
-                bootstrap_servers=f'localhost:{self._server_port}',
+                bootstrap_servers=self._boostrap_servers,
                 auto_offset_reset='earliest',
                 enable_auto_commit=False,
             )

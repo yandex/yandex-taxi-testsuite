@@ -4,6 +4,9 @@ import aiokafka
 import logging
 
 
+logger = logging.getLogger(__name__)
+
+
 class KafkaDisabledError(Exception):
     pass
 
@@ -80,9 +83,10 @@ class KafkaProducer:
         )
 
     async def _flush(self):
+        logger.info('Flusing produced messages')
         await self.producer.flush()
 
-    async def teardown(self):
+    async def aclose(self):
         if self._enabled:
             await self.producer.stop()
 
@@ -137,7 +141,7 @@ class KafkaConsumer:
                 to_subscribe.append(topic)
 
         if to_subscribe:
-            logging.info('Subscribing to [%s]', ','.join(to_subscribe))
+            logger.info('Subscribing to [%s]', ','.join(to_subscribe))
             self.consumer.subscribe(to_subscribe)
             self._subscribed_topics.extend(to_subscribe)
 
@@ -150,7 +154,9 @@ class KafkaConsumer:
 
     async def _unsubscribe(self):
         await self._commit()
+
         if self._subscribed_topics:
+            logger.info('Unsubscribing from all topics')
             self.consumer.unsubscribe()
             self._subscribed_topics = []
 
@@ -205,7 +211,7 @@ class KafkaConsumer:
 
         return list(map(ConsumedMessage, sum(records.values(), [])))
 
-    async def teardown(self):
+    async def aclose(self):
         if self._enabled:
             await self._unsubscribe()
             await self.consumer.stop()

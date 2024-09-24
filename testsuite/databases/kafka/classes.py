@@ -190,7 +190,7 @@ class KafkaConsumer:
     ) -> typing.List[ConsumedMessage]:
         """
         Waits until either ``max_batch_size`` messages are consumed or
-        ``timeout_ms`` timeout expired.
+        ``timeout`` expired.
 
         :param topics: list of topics to read messages from.
         :max_batch_size: maximum number of consumed messages.

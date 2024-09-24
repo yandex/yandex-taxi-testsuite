@@ -18,8 +18,8 @@ class ServiceSettings:
     custom_start_topics: typing.Dict[str, int]
 
 
-"""Kafka boostrap servers URLs list"""
-BoostrapServers = typing.List[str]
+"""Kafka bootstrap servers URLs list"""
+BootstrapServers = typing.List[str]
 
 
 class KafkaDisabledError(Exception):
@@ -31,14 +31,14 @@ class KafkaProducer:
     Kafka producer wrapper.
     """
 
-    def __init__(self, enabled: bool, boostrap_servers: str):
+    def __init__(self, enabled: bool, bootstrap_servers: str):
         self._enabled = enabled
-        self._boostrap_servers = boostrap_servers
+        self._bootstrap_servers = bootstrap_servers
 
     async def start(self):
         if self._enabled:
             self.producer = aiokafka.AIOKafkaProducer(
-                bootstrap_servers=self._boostrap_servers,
+                bootstrap_servers=self._bootstrap_servers,
                 linger_ms=0,  # turn off message buffering
             )
             await self.producer.start()
@@ -131,16 +131,16 @@ class KafkaConsumer:
     This is needed to make tests independent.
     """
 
-    def __init__(self, enabled: bool, boostrap_servers):
+    def __init__(self, enabled: bool, bootstrap_servers):
         self._enabled = enabled
-        self._boostrap_servers = boostrap_servers
+        self._bootstrap_servers = bootstrap_servers
         self._subscribed_topics: typing.List[str] = []
 
     async def start(self):
         if self._enabled:
             self.consumer = aiokafka.AIOKafkaConsumer(
                 group_id='Test-group',
-                bootstrap_servers=self._boostrap_servers,
+                bootstrap_servers=self._bootstrap_servers,
                 auto_offset_reset='earliest',
                 enable_auto_commit=False,
             )

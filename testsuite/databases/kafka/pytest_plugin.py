@@ -32,11 +32,11 @@ def pytest_service_register(register_service):
 @pytest.fixture(scope='session')
 async def _kafka_global_producer(
     _kafka_service,
-    _boostrap_servers,
+    _bootstrap_servers,
 ) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
     producer = classes.KafkaProducer(
         enabled=_kafka_service,
-        boostrap_servers=_boostrap_servers,
+        bootstrap_servers=_bootstrap_servers,
     )
     await producer.start()
 
@@ -60,11 +60,11 @@ async def kafka_producer(
 @pytest.fixture(scope='session')
 async def _kafka_global_consumer(
     _kafka_service,
-    _boostrap_servers,
+    _bootstrap_servers,
 ) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
     consumer = classes.KafkaConsumer(
         enabled=_kafka_service,
-        boostrap_servers=_boostrap_servers,
+        bootstrap_servers=_bootstrap_servers,
     )
     await consumer.start()
 
@@ -93,9 +93,9 @@ def kafka_custom_topics() -> typing.Dict[str, int]:
 
 
 @pytest.fixture(scope='session')
-def kafka_local() -> classes.BoostrapServers:
+def kafka_local() -> classes.BootstrapServers:
     """
-    Override to use custom local cluster boostrap servers.
+    Override to use custom local cluster bootstrap servers.
     If not empty, no service started.
     """
 
@@ -113,7 +113,7 @@ def _kafka_service_settings(kafka_custom_topics) -> classes.ServiceSettings:
 
 
 @pytest.fixture(scope='session')
-def _boostrap_servers(kafka_local, _kafka_service_settings) -> str:
+def _bootstrap_servers(kafka_local, _kafka_service_settings) -> str:
     if kafka_local:
         return ','.join(kafka_local)
 

@@ -155,7 +155,7 @@ class KafkaConsumer:
             self._subscribed_topics = []
 
     async def receive_one(
-        self, topics: typing.List[str], timeout: int = 20
+        self, topics: typing.List[str], timeout: float = 20.0
     ) -> ConsumedMessage:
         """
         Waits until one message are consumed.
@@ -180,7 +180,7 @@ class KafkaConsumer:
         self,
         topics: typing.List[str],
         max_batch_size: typing.Optional[int],
-        timeout: int = 3,
+        timeout: float = 3.0,
     ) -> typing.List[ConsumedMessage]:
         """
         Waits until either ``max_batch_size`` messages are consumed or
@@ -200,7 +200,7 @@ class KafkaConsumer:
         records: typing.Dict[
             aiokafka.TopicPartition, typing.List[aiokafka.ConsumerRecord]
         ] = await self.consumer.getmany(
-            timeout_ms=timeout * 1000, max_records=max_batch_size
+            timeout_ms=int(timeout * 1000), max_records=max_batch_size
         )
 
         return list(map(ConsumedMessage, sum(records.values(), [])))

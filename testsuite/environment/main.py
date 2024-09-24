@@ -19,6 +19,7 @@ DEFAULT_SERVICE_PLUGINS = [
     'testsuite.databases.mysql.pytest_plugin',
     'testsuite.databases.clickhouse.pytest_plugin',
     'testsuite.databases.rabbitmq.pytest_plugin',
+    'testsuite.databases.kafka.pytest_plugin',
 ]
 
 logger = logging.getLogger(__name__)

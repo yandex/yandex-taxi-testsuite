@@ -32,6 +32,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y redis-server clickhouse-common-static=22.3.2.2
     - uses: actions/checkout@v2
+    - name: Install Kafka
+      run: |
+        sudo apt-get install -y default-jre
+
+        curl https://dlcdn.apache.org/kafka/3.8.0/kafka_2.13-3.8.0.tgz -o kafka.tgz
+        sudo mkdir -p /etc/kafka
+        sudo tar xf kafka.tgz --directory=/etc/kafka
+        cd /etc/kafka
+        sudo cp -r kafka_2.13-3.8.0/* ./
+        sudo rm -rf kafka_2.13-3.8.0
     - name: Install RabbitMQ
       run: |
           .github/install-rabbitmq.sh

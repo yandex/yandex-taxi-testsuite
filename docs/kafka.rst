@@ -53,10 +53,11 @@ one may customize this timeout via environment variable ``TESTSUITE_KAFKA_SERVER
 TESTSUITE_KAFKA_CUSTOM_TOPICS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All topics in tests are created automatically by Kafka broker in test's runtime with **only 1 partition**.
-To create topics with several partition either specify ``TESTSUITE_KAFKA_CUSTOM_TOPICS`` environment
+All topics in tests are created automatically by Kafka broker in runtime with **only 1 partition**.
+To create topics with several partitions, either specify ``TESTSUITE_KAFKA_CUSTOM_TOPICS`` environment
 variable with the ``,`` separated list of topic to partitions count mapping or override the ``kafka_custom_topics`` fixture.
 For example, ``TESTSUITE_KAFKA_CUSTOM_TOPICS=large-topic-1:7,large-topic-2:20``
+creates topic ``large-topic-1`` with 7 partitions and ``large-topic-2`` with 20 partitions.
 
 Customize ports
 ---------------

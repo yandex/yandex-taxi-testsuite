@@ -137,7 +137,7 @@ class KafkaConsumer:
                 to_subscribe.append(topic)
 
         if to_subscribe:
-            logging.info(f'Subscribing to {to_subscribe}')
+            logging.info('Subscribing to [%s]', ','.join(to_subscribe))
             self.consumer.subscribe(to_subscribe)
             self._subscribed_topics.extend(to_subscribe)
 
@@ -174,7 +174,6 @@ class KafkaConsumer:
             record: aiokafka.ConsumerRecord = await self.consumer.getone()
             return ConsumedMessage(record)
 
-        logging.warning('Waiting for response')
         return await asyncio.wait_for(_do_receive(), timeout=timeout)
 
     async def receive_batch(

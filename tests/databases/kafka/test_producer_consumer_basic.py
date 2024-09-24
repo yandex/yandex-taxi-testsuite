@@ -34,7 +34,7 @@ async def test_kafka_producer_consumer_chain_many_messages(
         consumed_messages = await kafka_consumer.receive_batch(
             topics=[TOPIC], max_batch_size=BATCH_SIZE
         )
-        logging.info(f'Received batch of {len(consumed_messages)} messages')
+        logging.info('Received batch of %d messages', len(consumed_messages))
         for message in consumed_messages:
             sends_received.add(int(message.key.split('-')[-1]))
 
@@ -61,6 +61,6 @@ async def test_kafka_producer_consumer_chain_many_topics(
         consumed_messages = await kafka_consumer.receive_batch(
             topics=TOPICS, max_batch_size=BATCH_SIZE
         )
-        logging.info(f'Received batch of {len(consumed_messages)} messages')
+        logging.info('Received batch of %d messages', len(consumed_messages))
         for message in consumed_messages:
             sends_received.add(int(message.key.split('-')[-1]))

@@ -78,7 +78,7 @@ def get_service_settings(
     custom_start_topics: typing.Dict[str, int] = {},
 ) -> classes.ServiceSettings:
     return classes.ServiceSettings(
-        server_host=utils.getenv_int(
+        server_host=utils.getenv_str(
             'TESTSUITE_KAFKA_SERVER_HOST', DEFAULT_SERVER_HOST
         ),
         server_port=utils.getenv_int(

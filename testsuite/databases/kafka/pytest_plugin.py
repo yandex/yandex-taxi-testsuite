@@ -33,7 +33,7 @@ def pytest_service_register(register_service):
 async def _kafka_global_producer(
     _kafka_service,
     _bootstrap_servers,
-) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
+) -> typing.AsyncGenerator[classes.KafkaProducer, None]:
     producer = classes.KafkaProducer(
         enabled=_kafka_service,
         bootstrap_servers=_bootstrap_servers,
@@ -73,7 +73,9 @@ async def _kafka_global_consumer(
 
 
 @pytest.fixture
-async def kafka_consumer(_kafka_global_consumer):
+async def kafka_consumer(
+    _kafka_global_consumer
+) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
     """
     Per test Kafka consumer instance.
 

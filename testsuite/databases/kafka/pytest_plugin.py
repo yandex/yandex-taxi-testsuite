@@ -53,7 +53,6 @@ async def kafka_producer(
 
     :returns: :py:class:`testsuite.databases.kafka.classes.KafkaProducer`
     """
-    
     yield _kafka_global_producer
     await _kafka_global_producer._flush()
 
@@ -82,7 +81,6 @@ async def kafka_consumer(
 
     :returns: :py:class:`testsuite.databases.kafka.classes.KafkaConsumer`
     """
-    
     yield _kafka_global_consumer
     await _kafka_global_consumer._unsubscribe()
 

@@ -74,7 +74,7 @@ async def _kafka_global_consumer(
 
 @pytest.fixture
 async def kafka_consumer(
-    _kafka_global_consumer
+    _kafka_global_consumer,
 ) -> typing.AsyncGenerator[classes.KafkaConsumer, None]:
     """
     Per test Kafka consumer instance.

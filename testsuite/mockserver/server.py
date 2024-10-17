@@ -95,6 +95,7 @@ class Session:
     def __init__(
         self,
         *,
+        asyncexc_append,
         tracing_enabled=True,
         trace_id=None,
         http_proxy_enabled=False,
@@ -109,7 +110,7 @@ class Session:
         self.regex_handlers = []
         self.http_proxy_enabled = http_proxy_enabled
         self.mockserver_host = mockserver_host
-        self._errors = []
+        self._asyncexc_append = asyncexc_append
 
     def get_handler(self, path: str) -> typing.Tuple[Handler, RouteParams]:
         handler = self.handlers.get(path)
@@ -158,7 +159,7 @@ class Session:
             handler, kwargs = self._get_handler_for_request(request)
         except exceptions.HandlerNotFoundError as exc:
             if not nofail_404:
-                self._errors.append(exc)
+                self._asyncexc_append(exc)
             return _internal_error(f'Internal server error: {exc!r}')
 
         try:
@@ -172,19 +173,8 @@ class Session:
         except http.MockedError as exc:
             return _mocked_error_response(request, exc.error_code)
         except Exception as exc:
-            self._errors.append(exc)
+            self._asyncexc_append(exc)
             return _internal_error(f'Internal server error: {exc!r}')
-
-    def clear_errors(self):
-        self._errors = []
-
-    def raise_errors_if_any(self):
-        __tracebackhide__ = True
-        for exc in self._errors:
-            raise exceptions.MockServerError(
-                f'There were {len(self._errors)} errors while processing '
-                f'mockserver requests, showing the last one',
-            ) from exc
 
     def register_handler(
         self,
@@ -268,20 +258,23 @@ class Server:
         return self._info
 
     @contextlib.contextmanager
-    def new_session(self, trace_id: typing.Optional[str] = None):
-        session = Session(
+    def new_session(
+        self,
+        *,
+        asyncexc_append,
+        trace_id: typing.Optional[str] = None,
+    ):
+        self.session = Session(
+            asyncexc_append=asyncexc_append,
             tracing_enabled=self._tracing_enabled,
             trace_id=trace_id,
             http_proxy_enabled=self._http_proxy_enabled,
             mockserver_host=self._info.get_host_header(),
         )
-        self.session = session
         try:
-            yield session
+            yield self.session
         finally:
             self.session = None
-            __tracebackhide__ = True
-            session.raise_errors_if_any()
 
     async def handle_request(self, request):
         started = time.perf_counter()

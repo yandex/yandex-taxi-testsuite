@@ -5,6 +5,7 @@ pytest_plugins = [
     'testsuite.environment.pytest_plugin',
     'testsuite.mockserver.pytest_plugin',
     'testsuite.plugins.assertrepr_compare',
+    'testsuite.plugins.asyncexc',
     'testsuite.plugins.common',
     'testsuite.plugins.matching',
     'testsuite.plugins.misc',

@@ -46,15 +46,16 @@ async def test_mockserver_raises_on_unhandled_request_from_other_sources(
         mockserver_info,
         tracing_enabled=False,
     )
-    with mockserver.new_session() as session:
+    errors = []
+    with mockserver.new_session(asyncexc_append=errors.append) as session:
         request = _make_mocked_request(
             'POST',
             '/arbitrary/path',
             headers=http_headers,
         )
         await mockserver._handle_request(request)
-        assert len(session._errors) == 1
-        error = session._errors.pop()
+        assert len(errors) == 1
+        error = errors.pop()
         assert isinstance(error, exceptions.HandlerNotFoundError)
 
 

@@ -39,7 +39,6 @@ async def test_json_handler(
 ):
     @mockserver.json_handler('/foo')
     def _foo_handler(request):
-        assert 1 == 2
         return {'msg': 'hello'}
 
     response = await mockserver_client.get('/foo')

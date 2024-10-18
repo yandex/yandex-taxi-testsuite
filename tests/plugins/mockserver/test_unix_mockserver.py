@@ -11,18 +11,19 @@ from typing import Dict
 
 @pytest.fixture
 def unix_mockserver(
+    asyncexc_append,
     _unix_mockserver: server.Server,
     _mockserver_trace_id: str,
 ):
-    with _unix_mockserver.new_session(_mockserver_trace_id) as session:
+    with _unix_mockserver.new_session(
+        asyncexc_append=asyncexc_append,
+        trace_id=_mockserver_trace_id,
+    ) as session:
         yield server.MockserverFixture(_unix_mockserver, session)
 
 
 @pytest.fixture(scope='session')
-async def _unix_mockserver(
-    pytestconfig,
-    tmp_path_factory,
-):
+async def _unix_mockserver(pytestconfig, tmp_path_factory):
     async with server.create_unix_server(
         tmp_path_factory.mktemp('mockserver') / 'mockserver.socket',
         loop=None,
@@ -45,7 +46,7 @@ async def unix_mockserver_client(
     service_client_options: Dict[str, Any],
 ) -> service_client.Client:
     async with aiohttp.UnixConnector(
-        path=unix_mockserver_info.socket_path
+        path=unix_mockserver_info.socket_path,
     ) as conn:
         async with aiohttp.ClientSession(connector=conn) as session:
             unix_service_client_options = {
@@ -55,9 +56,7 @@ async def unix_mockserver_client(
 
             yield service_client.Client(
                 unix_mockserver.base_url,
-                headers={
-                    'host': str(unix_mockserver_info.socket_path),
-                },
+                headers={'host': str(unix_mockserver_info.socket_path)},
                 **unix_service_client_options,
             )
 

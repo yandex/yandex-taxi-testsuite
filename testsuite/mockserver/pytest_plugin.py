@@ -26,23 +26,6 @@ NOTE: non-default workers always use random port.
 """
 
 
-class MockserverPlugin:
-    def __init__(self):
-        self._invalidators = set()
-
-    def pytest_runtest_call(self, item):
-        for invalidator in self._invalidators:
-            invalidator()
-
-    @contextlib.contextmanager
-    def register_invalidator(self, invalidator):
-        self._invalidators.add(invalidator)
-        try:
-            yield
-        finally:
-            self._invalidators.discard(invalidator)
-
-
 def pytest_addoption(parser):
     group = parser.getgroup('mockserver')
     group.addoption(
@@ -133,14 +116,6 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_configure(config):
-    config.pluginmanager.register(MockserverPlugin(), 'mockserver_plugin')
-    config.addinivalue_line(
-        'markers',
-        'mockserver_nosetup_errors: do not fail on mockserver setup errors',
-    )
-
-
 def pytest_register_object_hooks():
     return {
         '$mockserver': {'$fixture': '_mockserver_hook'},
@@ -150,15 +125,17 @@ def pytest_register_object_hooks():
 
 @pytest.fixture(name='_mockserver_create_session')
 def fixture_mockserver_create_session(
+    asyncexc_append,
     _mockserver_trace_id: str,
-    _mockserver_errors_clear,
 ):
     @contextlib.contextmanager
     def create_session(mockserver):
         __tracebackhide__ = True
-        with mockserver.new_session(_mockserver_trace_id) as session:
-            with _mockserver_errors_clear(session):
-                yield server.MockserverFixture(mockserver, session)
+        with mockserver.new_session(
+            asyncexc_append=asyncexc_append,
+            trace_id=_mockserver_trace_id,
+        ) as session:
+            yield server.MockserverFixture(mockserver, session)
 
     return create_session
 
@@ -317,47 +294,6 @@ def _mockserver_https_hook(mockserver_ssl_info):
         )
 
     return wrapper
-
-
-@pytest.fixture(name='_mockserver_errors_clear')
-def fixture_mockserver_errors_clear(
-    _mockserver_plugin: MockserverPlugin,
-    request,
-    mockserver_nosetup_errors,
-):
-    """
-    Clear mockserver errors at startup.
-
-    Required for backward compatibility with older testsuite versions.
-    """
-    marker = request.node.get_closest_marker('mockserver_nosetup_errors')
-    if marker:
-        warnings.warn(
-            'pytest.mark.mockserver_nosetup_errors is for backward '
-            'compatibility only, please rewrite your code',
-            DeprecationWarning,
-        )
-        mockserver_nosetup_errors = True
-
-    @contextlib.contextmanager
-    def errors_clear(session: server.Session):
-        if not mockserver_nosetup_errors:
-            yield
-            return
-        with _mockserver_plugin.register_invalidator(session.clear_errors):
-            yield
-
-    return errors_clear
-
-
-@pytest.fixture(name='mockserver_nosetup_errors', scope='session')
-def fixture_mockserver_nosetup_errors():
-    return False
-
-
-@pytest.fixture(name='_mockserver_plugin', scope='session')
-def fixture_mockserver_plugin(pytestconfig) -> MockserverPlugin:
-    return pytestconfig.pluginmanager.get_plugin('mockserver_plugin')
 
 
 def _mockserver_info_hook(doc: dict, key=None, mockserver_info=None):

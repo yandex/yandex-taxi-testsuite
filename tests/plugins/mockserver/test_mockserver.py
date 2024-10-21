@@ -81,6 +81,8 @@ async def test_handler(
 async def test_user_error(
     mockserver: fixture_types.MockserverFixture,
     mockserver_client: Client,
+    mockserver_errors_list,
+    mockserver_errors_pop,
 ):
     @mockserver.json_handler('/foo')
     def _foo_handler(request):
@@ -89,16 +91,17 @@ async def test_user_error(
     response = await mockserver_client.get('/foo')
     assert response.status == 500
 
-    session = mockserver._session
-    assert len(session._errors) == 1
+    assert len(mockserver_errors_list) == 1
 
-    error = session._errors.pop()
+    error = mockserver_errors_pop()
     assert isinstance(error, UserError)
 
 
 async def test_nohandler(
     mockserver: fixture_types.MockserverFixture,
     mockserver_client: Client,
+    mockserver_errors_list,
+    mockserver_errors_pop,
 ):
     response = await mockserver_client.get(
         '/foo123',
@@ -106,8 +109,7 @@ async def test_nohandler(
     )
     assert response.status == 500
 
-    session = mockserver._session
-    assert len(session._errors) == 1
+    assert len(mockserver_errors_list) == 1
 
-    error = session._errors.pop()
+    error = mockserver_errors_pop()
     assert isinstance(error, exceptions.HandlerNotFoundError)

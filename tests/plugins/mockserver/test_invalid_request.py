@@ -7,6 +7,7 @@ from testsuite.utils import http
 async def test_mockserver_raises_on_get_with_content(
     mockserver,
     mockserver_client,
+    mockserver_errors_pop,
     chunked: bool,
 ):
     @mockserver.handler('/foo')
@@ -19,6 +20,6 @@ async def test_mockserver_raises_on_get_with_content(
         chunked=chunked,
     )
     assert response.status_code == 500
-    # pylint: disable=protected-access
-    error = mockserver._session._errors.pop()
+
+    error = mockserver_errors_pop()
     assert isinstance(error, http.InvalidRequestError)

@@ -6,8 +6,16 @@ from testsuite.mockserver import exceptions
 from testsuite.mockserver import server
 
 
-def test_session():
-    session = server.Session()
+@pytest.fixture
+def create_session(asyncexc_append):
+    def create_session():
+        return server.Session(asyncexc_append=asyncexc_append)
+
+    return create_session
+
+
+def test_session(create_session):
+    session = create_session()
 
     def handler(request):
         pass
@@ -27,15 +35,15 @@ def test_session():
         session.get_handler('/bar')
 
 
-def test_installer_base_url():
-    session = server.Session()
+def test_installer_base_url(create_session):
+    session = create_session()
     dummy_server = _create_server()
     installer = server.MockserverFixture(dummy_server, session)
     assert installer.base_url == dummy_server.server_info.base_url
 
 
-async def test_installer_handlers():
-    session = server.Session()
+async def test_installer_handlers(create_session):
+    session = create_session()
     dummy_server = _create_server()
     installer = server.MockserverFixture(dummy_server, session)
 
@@ -65,8 +73,14 @@ async def test_installer_handlers():
         ('http://foo/', '/bar', True, 'http://foo/bar'),
     ],
 )
-def test_mockserver_new(base_prefix, prefix, http_proxy_enabled, expected):
-    session = server.Session()
+def test_mockserver_new(
+    create_session,
+    base_prefix,
+    prefix,
+    http_proxy_enabled,
+    expected,
+):
+    session = create_session()
     dummy_server = _create_server(http_proxy_enabled=http_proxy_enabled)
     installer = server.MockserverFixture(
         dummy_server,

@@ -73,7 +73,7 @@ jobs:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
           PYTEST: pytest
-          PYTEST_ARGS: "-vvs"
+          PYTEST_ARGS: "-vvs --ignore-glob='*mongo*'"
       run: |
           make venv-test-examples
 

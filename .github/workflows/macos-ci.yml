@@ -52,19 +52,11 @@ jobs:
     - name: Check PEP8 with black
       run: |
           make venv-check-black
-    - name: Run misc tests
+    - name: Test with pytest
       env:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-vvs --ignore-glob='*databases*' --ignore-glob='*mongo*' --ignore-glob='*test_unix_mockserver*'"
-      run: |
-          make venv-tests
-
-    - name: Run databases tests
-      env:
-          TESTSUITE_ALLOW_ROOT: 1
-          TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-vvs -k databases --ignore-glob='*mongo*'"
+          PYTEST_ARGS: "-vvs --ignore-glob='*mongo*'"
       run: |
           make venv-tests
 
@@ -73,7 +65,7 @@ jobs:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
           PYTEST: pytest
-          PYTEST_ARGS: "-vvs --ignore-glob='*mongo*'"
+          PYTEST_ARGS: "-vvs"
       run: |
           make venv-test-examples
 

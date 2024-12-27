@@ -1,5 +1,6 @@
 import aiohttp
 import pytest
+import platform
 
 from testsuite._internal import fixture_types
 from testsuite.daemons import service_client
@@ -7,6 +8,11 @@ from testsuite.mockserver import classes
 from testsuite.mockserver import server
 from typing import Any
 from typing import Dict
+
+if platform.system() == 'Darwin':
+    _MOCKSERVER_SOCKET = 'socket'
+else:
+    _MOCKSERVER_SOCKET = 'mockserver.socket'
 
 
 @pytest.fixture
@@ -25,7 +31,7 @@ def unix_mockserver(
 @pytest.fixture(scope='session')
 async def _unix_mockserver(pytestconfig, tmp_path_factory):
     async with server.create_unix_server(
-        tmp_path_factory.mktemp('mockserver') / 'mockserver.socket',
+        tmp_path_factory.mktemp('mockserver') / _MOCKSERVER_SOCKET,
         loop=None,
         pytestconfig=pytestconfig,
     ) as result:

@@ -27,7 +27,6 @@ jobs:
       run: |
         brew update
         brew install redis clickhouse rabbitmq postgresql mariadb kafka
-        brew install grep # for Kafka
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

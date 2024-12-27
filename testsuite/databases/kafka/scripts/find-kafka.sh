@@ -4,23 +4,6 @@ MIN_JAVA_VERSION="8"
 MIN_KAFKA_VERSION_MAJOR="3"
 MIN_KAFKA_VERSION_MINOR="3"
 
-find_grep() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      if type ggrep; then
-        export GREP_BINARY=ggrep
-      else
-        echo "Install GNU grep: brew install grep"
-        return 1
-      fi
-    else
-      export GREP_BINARY=grep
-    fi
-    
-    echo "Found grep binary: $GREP_BINARY"
-
-    return 0
-}
-
 check_java() {
     if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ];  then
         _java="$JAVA_HOME/bin/java"
@@ -34,7 +17,7 @@ check_java() {
     fi
 
     if [ "$_java" ]; then
-        version=$("$_java" -version 2>&1 | $GREP_BINARY -oP 'version "?(1\.)?\K\d+')
+        version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d . -f 1)
         echo "Current Java version is $version"
         if [ "$version" -ge $MIN_JAVA_VERSION ]; then
             return 0
@@ -76,7 +59,6 @@ check_kafka() {
     fi
 }
 
-find_grep  || die "grep is not found"
 check_java || die "Java check failed"
 find_kafka || die "Kafka is not found"
 check_kafka || die "Kafka cannot be started"

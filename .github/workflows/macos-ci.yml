@@ -68,6 +68,11 @@ jobs:
           PYTEST_ARGS: "-vvs"
       run: |
           make venv-test-examples
+    
+    - name: Install imghdr
+      if: matrix.python-version == '3.13'
+      run: |
+          pip install standard-imghdr
 
     - name: Build documentation
       run: |

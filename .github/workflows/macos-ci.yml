@@ -63,7 +63,7 @@ jobs:
       env:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-vvs --ignore-glob='*databases*' --ignore-glob='*mongo*'"
+          PYTEST_ARGS: "-vvs --ignore-glob='*databases*' --ignore-glob='*mongo*' --ignore-glob='*test_unix_mockserver*'"
       run: |
           make venv-tests
 

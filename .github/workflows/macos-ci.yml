@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: yandex-taxi-testsuite package tests
+name: yandex-taxi-testsuite package tests (MacOS)
 
 on:
   push:
@@ -24,17 +24,23 @@ jobs:
     - name: Install database dependencies
       run: |
         brew update
-        brew install redis clickhouse rabbitmq postgresql
+        brew install redis clickhouse rabbitmq postgresql mongosh
         brew link postgresql
     - uses: actions/checkout@v2
     - name: Install Kafka
       run: |
+        export JAVA_HOME="$JAVA_HOME_21_X64"
+        echo $JAVA_HOME
+
         curl https://dlcdn.apache.org/kafka/3.8.0/kafka_2.13-3.8.0.tgz -o kafka.tgz
         sudo mkdir -p /etc/kafka
         sudo tar xf kafka.tgz --directory=/etc/kafka
         cd /etc/kafka
         sudo cp -r kafka_2.13-3.8.0/* ./
         sudo rm -rf kafka_2.13-3.8.0
+        
+        brew install grep
+        export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

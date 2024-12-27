@@ -72,9 +72,9 @@ start_kafka() {
     # to override the log.dirs, node.id and  controller.quorum.voters configuration params.
     # Though, manually substitute it in the file.
     echo "Patching server.properties. Setting logs dir to $KAFKA_LOGS_DIR"
-    sed -i 's/log\.dirs=.*/log\.dirs='"$(echo "$KAFKA_LOGS_DIR" | sed 's/\//\\\//g')"'/' "$KAFKA_CONF_FILE"
-    sed -i 's/node\.id=.*/node\.id='"$KAFKA_NODE_ID"'/' "$KAFKA_CONF_FILE"
-    sed -i 's/controller\.quorum\.voters=.*/controller.quorum.voters='"$KAFKA_NODE_ID"'@'"$KAFKA_SERVER_HOST:""$KAFKA_CONTROLLER_PORT"'/' "$KAFKA_CONF_FILE"
+    sed -i.bak 's/log\.dirs=.*/log\.dirs='"$(echo "$KAFKA_LOGS_DIR" | sed 's/\//\\\//g')"'/' "$KAFKA_CONF_FILE"
+    sed -i.bak 's/node\.id=.*/node\.id='"$KAFKA_NODE_ID"'/' "$KAFKA_CONF_FILE"
+    sed -i.bak 's/controller\.quorum\.voters=.*/controller.quorum.voters='"$KAFKA_NODE_ID"'@'"$KAFKA_SERVER_HOST:""$KAFKA_CONTROLLER_PORT"'/' "$KAFKA_CONF_FILE"
     patched_config=$(cat "$KAFKA_CONF_FILE" | grep -E "(log\.dirs|node\.id|controller\.quorum\.voters)")
     echo "Patched server config:\n$patched_config"
 

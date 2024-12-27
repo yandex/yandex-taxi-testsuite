@@ -25,16 +25,11 @@ jobs:
     - name: Install database dependencies
       run: |
         brew update
-        brew install redis clickhouse rabbitmq postgresql mongosh
+        brew install redis clickhouse rabbitmq postgresql mariadb
         brew link postgresql
     - uses: actions/checkout@v2
     - name: Install Kafka
       run: |
-        brew install java
-        export JAVA_HOME=/opt/homebrew/opt/openjdk
-        echo "Java home: $JAVA_HOME"
-        java -version
-
         curl https://dlcdn.apache.org/kafka/3.8.0/kafka_2.13-3.8.0.tgz -o kafka.tgz
         sudo mkdir -p /etc/kafka
         sudo tar xf kafka.tgz --directory=/etc/kafka
@@ -43,8 +38,6 @@ jobs:
         sudo rm -rf kafka_2.13-3.8.0
         
         brew install grep
-        export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
-        which grep
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

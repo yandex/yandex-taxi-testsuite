@@ -1,4 +1,5 @@
 import pathlib
+import platform
 import typing
 
 from testsuite.environment import service
@@ -12,6 +13,11 @@ DEFAULT_RABBITMQ_EPMD_PORT = 8673
 SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
     'scripts/service-rabbitmq',
 )
+
+if platform.system() == 'Darwin':
+    _DEFAULT_BINDIR = '/opt/homebrew/opt/rabbitmq/sbin/'
+else:
+    _DEFAULT_BINDIR = '/usr/lib/rabbitmq/bin/'
 
 
 class ServiceSettings(typing.NamedTuple):
@@ -40,7 +46,7 @@ def create_rabbitmq_service(
             'RABBITMQ_EPMD_PORT': str(settings.epmd_port),
             'RABBITMQ_BINDIR': utils.getenv_str(
                 key='TESTSUITE_RABBITMQ_BINDIR',
-                default='/usr/lib/rabbitmq/bin/',
+                default=_DEFAULT_BINDIR,
             ),
         },
         check_ports=[settings.tcp_port, settings.epmd_port],

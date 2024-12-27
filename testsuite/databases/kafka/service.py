@@ -1,6 +1,7 @@
 import os
 import pathlib
 import typing
+import platform
 
 from . import classes
 
@@ -13,6 +14,11 @@ DEFAULT_CONTROLLER_PORT = 9100
 
 PLUGIN_DIR = pathlib.Path(__file__).parent
 SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
+
+if platform.system() == 'Darwin':
+    _KAFKA_HOME_DEFAULT = '/opt/homebrew/opt/kafka/libexec'
+else:
+    _KAFKA_HOME_DEFAULT = '/etc/kafka'
 
 
 def _stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
@@ -57,7 +63,7 @@ def create_kafka_service(
         working_dir=working_dir,
         environment={
             'KAFKA_TMPDIR': working_dir,
-            'KAFKA_HOME': os.getenv('KAFKA_HOME', '/etc/kafka'),
+            'KAFKA_HOME': os.getenv('KAFKA_HOME', _KAFKA_HOME_DEFAULT),
             'KAFKA_SERVER_HOST': settings.server_host,
             'KAFKA_SERVER_PORT': str(settings.server_port),
             'KAFKA_CONTROLLER_PORT': str(settings.controller_port),

@@ -22,22 +22,13 @@ jobs:
             - '3.12'
             - '3.13'
     steps:
+    - uses: actions/checkout@v2
     - name: Install database dependencies
       run: |
         brew update
-        brew install redis clickhouse rabbitmq postgresql mariadb
+        brew install redis clickhouse rabbitmq postgresql mariadb kafka
+        brew install grep # for Kafka
         brew link postgresql
-    - uses: actions/checkout@v2
-    - name: Install Kafka
-      run: |
-        curl https://dlcdn.apache.org/kafka/3.8.0/kafka_2.13-3.8.0.tgz -o kafka.tgz
-        sudo mkdir -p /etc/kafka
-        sudo tar xf kafka.tgz --directory=/etc/kafka
-        cd /etc/kafka
-        sudo cp -r kafka_2.13-3.8.0/* ./
-        sudo rm -rf kafka_2.13-3.8.0
-        
-        brew install grep
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

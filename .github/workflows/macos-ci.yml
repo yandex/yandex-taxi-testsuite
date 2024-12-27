@@ -20,6 +20,7 @@ jobs:
             - '3.10'
             - '3.11'
             - '3.12'
+            - '3.13'
     steps:
     - name: Install database dependencies
       run: |
@@ -29,8 +30,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install Kafka
       run: |
-        export JAVA_HOME="$JAVA_HOME_21_X64"
-        echo $JAVA_HOME
+        export JAVA_HOME=$JAVA_HOME_21_X64
+        echo "Java home: $JAVA_HOME"
+        echo "Java home: $JAVA_HOME_21_X64"
+        echo "Java home: $JAVA_HOME_17_X64"
 
         curl https://dlcdn.apache.org/kafka/3.8.0/kafka_2.13-3.8.0.tgz -o kafka.tgz
         sudo mkdir -p /etc/kafka
@@ -55,11 +58,19 @@ jobs:
     - name: Check PEP8 with black
       run: |
           make venv-check-black
-    - name: Test with pytest
+    - name: Run misc tests
       env:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-vvs"
+          PYTEST_ARGS: "-vvs --ignore-glob='*databases*' --ignore-glob='*mongo*'"
+      run: |
+          make venv-tests
+
+    - name: Run databases tests
+      env:
+          TESTSUITE_ALLOW_ROOT: 1
+          TESTSUITE_DEBUG: 1
+          PYTEST_ARGS: "-vvs --ignore-glob='*mongo*'"
       run: |
           make venv-tests
 

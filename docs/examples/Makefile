@@ -4,7 +4,6 @@ PYTEST_ARGS ?= -vv
 
 EXAMPLES =					\
 	chat-backend				\
-	chat-storage-mongo			\
 	chat-storage-postgres			\
 	chat-storage-mysql
 

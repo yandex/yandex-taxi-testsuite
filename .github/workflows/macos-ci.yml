@@ -25,8 +25,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install database dependencies
       run: |
+        brew tap mongodb/brew
         brew update
-        brew install redis clickhouse rabbitmq postgresql mariadb kafka
+        brew install redis clickhouse rabbitmq postgresql mariadb kafka mongodb-community
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -45,7 +46,7 @@ jobs:
       env:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-vvs --ignore-glob='*mongo*'"
+          PYTEST_ARGS: "-vvs"
       run: |
           make venv-tests
 

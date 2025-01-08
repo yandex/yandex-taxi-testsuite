@@ -18,6 +18,12 @@ fi
 if [ "x$RABBITMQ_EPMD_PORT" = "x" ]; then
     die "RABBITMQ_EPMD_PORT must be set"
 fi
+if [ "x$RABBITMQ_SERVER" = "x" ]; then
+    die "RABBITMQ_SERVER must be set"
+fi
+if [ "x$RABBITMQ_CTL" = "x" ]; then
+    die "RABBITMQ_CTL must be set"
+fi
 
 RABBITMQ_DATA_DIR=$RABBITMQ_TMPDIR/mnesia
 RABBITMQ_LOG_DIR=$RABBITMQ_TMPDIR/log

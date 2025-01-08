@@ -56,8 +56,8 @@ start_kafka() {
         exit 1
     fi
 
-    mkdir -p $KAFKA_SOURCE_DIR
-    mkdir -p $KAFKA_LOGS_DIR
+    mkdir -p "$KAFKA_SOURCE_DIR"
+    mkdir -p "$KAFKA_LOGS_DIR"
 
     echo "Copying Kafka home to tmp (to patch server configs): $KAFKA_HOME -> $KAFKA_SOURCE_DIR"
     cp -r "$KAFKA_HOME"/* "$KAFKA_SOURCE_DIR/"
@@ -66,7 +66,7 @@ start_kafka() {
     echo "Generating cluster UUID..."
     CLUSTER_UUID_FILE=$KAFKA_TMPDIR/cluster_uuid.txt
     "$KAFKA_BIN_DIR/kafka-storage.sh" random-uuid > "$CLUSTER_UUID_FILE"
-    echo "Cluster UUID is $(cat $CLUSTER_UUID_FILE)"
+    echo "Cluster UUID is $(cat "$CLUSTER_UUID_FILE")"
 
     # For some reasons, kafka-storage.sh does not support --override option
     # to override the log.dirs, node.id and  controller.quorum.voters configuration params.
@@ -80,7 +80,7 @@ start_kafka() {
 
     echo "Formatting logs dir..."
     "$KAFKA_BIN_DIR/kafka-storage.sh" format \
-        --cluster-id $(cat $CLUSTER_UUID_FILE) \
+        --cluster-id $(cat "$CLUSTER_UUID_FILE") \
         --config $KAFKA_CONF_FILE \
         --ignore-formatted
 

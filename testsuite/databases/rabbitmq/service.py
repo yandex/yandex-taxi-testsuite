@@ -14,11 +14,6 @@ SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
     'scripts/service-rabbitmq',
 )
 
-if platform.system() == 'Darwin':
-    _DEFAULT_BINDIR = '/opt/homebrew/opt/rabbitmq/sbin/'
-else:
-    _DEFAULT_BINDIR = '/usr/lib/rabbitmq/bin/'
-
 
 class ServiceSettings(typing.NamedTuple):
     tcp_port: int
@@ -44,10 +39,6 @@ def create_rabbitmq_service(
             'RABBITMQ_TMPDIR': working_dir,
             'RABBITMQ_TCP_PORT': str(settings.tcp_port),
             'RABBITMQ_EPMD_PORT': str(settings.epmd_port),
-            'RABBITMQ_BINDIR': utils.getenv_str(
-                key='TESTSUITE_RABBITMQ_BINDIR',
-                default=_DEFAULT_BINDIR,
-            ),
         },
         check_ports=[settings.tcp_port, settings.epmd_port],
         start_timeout=utils.getenv_float(

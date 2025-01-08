@@ -30,7 +30,7 @@ KAFKA_HOME
 ~~~~~~~~~~
 
 Use to override Kafka binaries dir.
-Default is ``/etc/kafka`` for Linux and `/opt/homebrew/opt/kafka/libexec` for MacOS
+Default is ``/etc/kafka`` for Linux and ``/opt/homebrew/opt/kafka/libexec`` for MacOS
 
 TESTSUITE_KAFKA_SERVER_HOST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

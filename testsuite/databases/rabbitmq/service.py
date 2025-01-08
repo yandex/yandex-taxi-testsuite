@@ -1,5 +1,4 @@
 import pathlib
-import platform
 import typing
 
 from testsuite.environment import service

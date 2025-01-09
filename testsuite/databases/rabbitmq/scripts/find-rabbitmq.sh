@@ -1,18 +1,18 @@
 #!/bin/sh
 
 if [ "$(uname)" = "Darwin" ]; then
-  DEFAULT_PATH="/opt/homebrew/sbin"
+    DEFAULT_PATH="/opt/homebrew/sbin"
 else
-  DEFAULT_PATH="/usr/lib/rabbitmq/bin"
+    DEFAULT_PATH="/usr/lib/rabbitmq/bin"
 fi
 
 find_rabbitmq() {
     RABBITMQ_SERVER=
     for dir in "$TESTSUITE_RABBITMQ_BINDIR" "$DEFAULT_PATH"; do
-      if [ -x "$dir/rabbitmq-server" ]; then
-        RABBITMQ_SERVER="$dir/rabbitmq-server"
-        break
-      fi
+        if [ -x "$dir/rabbitmq-server" ]; then
+          RABBITMQ_SERVER="$dir/rabbitmq-server"
+          break
+        fi
     done
     if [ "x$RABBITMQ_SERVER" = "x" ]; then
         die "No rabbitmq-server script found.
@@ -27,10 +27,10 @@ actual location can be found via inspecting sbin/rabbitmq-server script.
 
     RABBITMQ_CTL=
     for dir in "$TESTSUITE_RABBITMQ_BINDIR" "$DEFAULT_PATH"; do
-      if [ -x "$dir/rabbitmqctl" ]; then
-        RABBITMQ_CTL="$dir/rabbitmqctl"
-        break
-      fi
+        if [ -x "$dir/rabbitmqctl" ]; then
+          RABBITMQ_CTL="$dir/rabbitmqctl"
+          break
+        fi
     done
     if [ "x$RABBITMQ_CTL" = "x" ]; then
         die "No rabbitmqctl script found.

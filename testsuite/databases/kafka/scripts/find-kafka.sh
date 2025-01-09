@@ -5,9 +5,9 @@ MIN_KAFKA_VERSION_MAJOR="3"
 MIN_KAFKA_VERSION_MINOR="3"
 
 if [ "$(uname)" = "Darwin" ]; then
-  DEFAULT_PATH="/opt/homebrew/opt/kafka/libexec"
+    DEFAULT_PATH="/opt/homebrew/opt/kafka/libexec"
 else
-  DEFAULT_PATH="/etc/kafka"
+    DEFAULT_PATH="/etc/kafka"
 fi
 
 check_java() {
@@ -35,14 +35,7 @@ check_java() {
 }
 
 check_home() {
-    if [ ! -x "$1/bin/kafka-run-class.sh" ]; then
-        return 1
-    fi
-    if [ ! -e "$1/config/kraft/server.properties" ]; then
-        return 1
-    fi
-
-    return 0
+    [ -x "$1/bin/kafka-run-class.sh" ] && [ -e "$1/config/kraft/server.properties" ]
 }
 
 find_kafka() {
@@ -57,10 +50,11 @@ find_kafka() {
     fi
 
     echo "
-    Kafka sources not found in KAFKA_HOME and in $DEFAULT_PATH !!!.
-    Please download Kafka from https://kafka.apache.org/downloads,
-    unpack the archive and place path to it in KAFKA_HOME.
-    Note: For MacOS just install KAFKA with 'brew install kafka'"
+Kafka sources not found in KAFKA_HOME and in $DEFAULT_PATH !!!.
+Please download Kafka from https://kafka.apache.org/downloads,
+unpack the archive and place path to it in KAFKA_HOME.
+Note: For MacOS just install KAFKA with 'brew install kafka'
+"
 
     return 1
 }

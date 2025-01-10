@@ -28,7 +28,8 @@ TESTSUITE_RABBITMQ_BINDIR
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use to override rabbitmq binary dir.
-Default is ``/usr/lib/rabbitmq/bin/`` for Linux and ``/opt/homebrew/sbin/``
+Default is ``/usr/lib/rabbitmq/bin/`` for Linux
+and ``/opt/homebrew/sbin/`` for MacOS
 
 TESTSUITE_RABBITMQ_TCP_PORT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -19,6 +19,8 @@ If you already have Kafka installed and its location differs from
 ``/etc/kafka`` please specify
 ``KAFKA_HOME`` environment variable accordingly.
 
+On MacOS just install Kafka with ``brew``: ``brew install kafka``
+
 Installed Kafka **must** support KRaft_ protocol.
 
 Environment variables
@@ -27,7 +29,8 @@ Environment variables
 KAFKA_HOME
 ~~~~~~~~~~
 
-Use to override Kafka binaries dir. Default is ``/etc/kafka``
+Use to override Kafka binaries dir.
+Default is ``/etc/kafka`` for Linux and ``/opt/homebrew/opt/kafka/libexec`` for MacOS
 
 TESTSUITE_KAFKA_SERVER_HOST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -16,8 +16,10 @@ RabbitMQ installation
 Consult official docs at https://www.rabbitmq.com/download.html
 
 If you already have RabbitMQ installed and its location differs from
-`/usr/lib/rabbitmq` please specify 
+`/usr/lib/rabbitmq` please specify
 ``TESTSUITE_RABBITMQ_BINDIR`` environment variable accordingly.
+
+On MacOS just install Rabbitmq with ``brew``: ``brew install rabbitmq``
 
 Environment variables
 ---------------------
@@ -25,7 +27,9 @@ Environment variables
 TESTSUITE_RABBITMQ_BINDIR
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use to override rabbitmq binary dir. Default is ``/usr/lib/rabbitmq/bin/``
+Use to override rabbitmq binary dir.
+Default is ``/usr/lib/rabbitmq/bin/`` for Linux
+and ``/opt/homebrew/sbin/`` for MacOS
 
 TESTSUITE_RABBITMQ_TCP_PORT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,16 +49,16 @@ one may customize this timeout via environment variable ``TESTSUITE_RABBITMQ_SER
 Customize ports
 ---------------
 
-Testsuite may start RabbitMQ with custom ports if 
+Testsuite may start RabbitMQ with custom ports if
 ``TESTSUITE_RABBITMQ_TCP_PORT`` or ``TESTSUITE_RABBITMQ_EPMD_PORT``
 environment variables are specified.
 
 Use external instance
 ---------------------
 
-Usage of external instance is not officially supported for now, 
+Usage of external instance is not officially supported for now,
 but if your instance is local you may try setting environment variable
-``TESTSUITE_RABBITMQ_TCP_PORT`` and pytest option ``--rabbitmq=1`` 
+``TESTSUITE_RABBITMQ_TCP_PORT`` and pytest option ``--rabbitmq=1``
 and see if it works.
 
 Usage example

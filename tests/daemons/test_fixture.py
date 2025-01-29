@@ -29,11 +29,11 @@ async def httpd_scope(
     register_daemon_scope,
     httpd_baseurl,
     httpd_socket,
-    service_spawner,
+    service_spawner_factory,
 ):
     async with register_daemon_scope(
         name=HTTPD_NAME,
-        spawn=service_spawner(
+        spawn=service_spawner_factory(
             [
                 sys.executable,
                 HTTPD_PATH,

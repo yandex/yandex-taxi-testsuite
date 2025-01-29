@@ -86,14 +86,14 @@ create_daemon_scope
    :members: __call__
 
 
-service_spawner
-~~~~~~~~~~~~~~~
+service_spawner_factory
+~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:function:: service_spawner
+.. py:function:: service_spawner_factory
 
-   Returns :py:class:`ServiceSpawnerFixture` instance.
+   Returns :py:class:`ServiceSpawnerFactory` instance.
 
-.. autoclass:: ServiceSpawnerFixture()
+.. autoclass:: ServiceSpawnerFactory()
    :members: __call__
 
 Classes

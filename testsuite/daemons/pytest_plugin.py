@@ -1,4 +1,5 @@
 import contextlib
+import inspect
 import itertools
 import signal
 import subprocess
@@ -41,21 +42,28 @@ class _DaemonScope:
         self._spawn = spawn
 
     async def spawn(self) -> 'DaemonInstance':
-        daemon = await self._spawn()
-        process = await daemon.__aenter__()
-        return DaemonInstance(daemon, process)
+        manager = self._spawn()
+        # For backward compatibility with older spawners
+        if inspect.iscoroutine(manager):
+            warnings.warn(
+                f'Please rewrite your spawner into async context manager {self._spawn}',
+                PendingDeprecationWarning,
+            )
+            manager = await manager
+        process = await manager.__aenter__()
+        return DaemonInstance(manager, process)
 
 
 class DaemonInstance:
     process: Optional[subprocess.Popen]
 
-    def __init__(self, daemon, process) -> None:
+    def __init__(self, owner, process) -> None:
         self.id = uuid.uuid4().hex
-        self._daemon = daemon
+        self._owner = owner
         self.process = process
 
     async def aclose(self) -> None:
-        await self._daemon.__aexit__(None, None, None)
+        await self._owner.__aexit__(None, None, None)
 
 
 class _DaemonStore:
@@ -173,31 +181,32 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
 
         command_args = _build_command_args(args, base_command)
 
+        @compat.asynccontextmanager
         async def spawn():
             if pytestconfig.option.service_wait:
-                return self._fixture_wait_service_started(
+                manager = self._fixture_wait_service_started(
                     args=command_args,
                     health_check=health_check,
                 )
-            if pytestconfig.option.service_disable:
-                return service_daemon.start_dummy_process()
-
-            process = service_daemon.start(
-                args=command_args,
-                env=env,
-                shutdown_signal=shutdown_signal,
-                shutdown_timeout=shutdown_timeout,
-                poll_retries=poll_retries,
-                health_check=health_check,
-                session_factory=self._fixture_service_client_session_factory,
-                subprocess_options=subprocess_options,
-                setup_service=setup_service,
-                subprocess_spawner=subprocess_spawner,
-                stdout_handler=stdout_handler,
-                stderr_handler=stderr_handler,
-            )
-
-            return process
+            elif pytestconfig.option.service_disable:
+                manager = service_daemon.start_dummy_process()
+            else:
+                manager = service_daemon.start(
+                    args=command_args,
+                    env=env,
+                    shutdown_signal=shutdown_signal,
+                    shutdown_timeout=shutdown_timeout,
+                    poll_retries=poll_retries,
+                    health_check=health_check,
+                    session_factory=self._fixture_service_client_session_factory,
+                    subprocess_options=subprocess_options,
+                    setup_service=setup_service,
+                    subprocess_spawner=subprocess_spawner,
+                    stdout_handler=stdout_handler,
+                    stderr_handler=stderr_handler,
+                )
+            async with manager as process:
+                yield process
 
         return spawn
 
@@ -379,7 +388,7 @@ def register_daemon_scope(_global_daemon_store: _DaemonStore):
     Yields daemon scope instance.
 
     :param name: service name
-    :spawn spawn: spawner function
+    :spawn spawn: spawner async contextmanager function
     """
     return _global_daemon_store.scope
 

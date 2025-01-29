@@ -100,12 +100,9 @@ async def service_wait(
             reporter.write_line('')
 
 
+@compat.asynccontextmanager
 async def start_dummy_process():
-    @compat.asynccontextmanager
-    async def _dummy_process():
-        yield None
-
-    return _dummy_process()
+    yield None
 
 
 def make_health_check(

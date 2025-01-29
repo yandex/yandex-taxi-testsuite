@@ -155,11 +155,24 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
         stdout_handler=None,
         stderr_handler=None,
     ):
-        """Creates service spawner.
+        """Creates service spawner async contextmanager function.
 
-        :param args: Service executable arguments list.
-        :param ping_url: Service /ping url used to ensure that service
-            is up and running.
+        :param args: command arguments
+        :param base_command: Arguments to be prepended to ``args``.
+        :param env: Environment variables dictionary.
+        :param poll_retries: Number of tries for service health check
+        :param ping_url: service health check url, service is considered up
+            when 200 received.
+        :param ping_request_timeout: Timeout for ping_url request
+        :param ping_response_codes: HTTP resopnse codes tuple meaning that
+            service is up and running.
+        :param health_check: Async function to check service is running.
+        :param subprocess_options: Custom subprocess options.
+        :param setup_service: Function to be called right after service
+            is started.
+        :param shutdown_signal: Signal used to stop running services.
+        :returns: Return async contextmanager function that might be used
+                  within ``register_daemon_scope`` fixture.
         """
         if check_url:
             warnings.warn(CHECK_URL_DEPRECATION, PendingDeprecationWarning)

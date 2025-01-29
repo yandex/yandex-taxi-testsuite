@@ -89,10 +89,12 @@ create_daemon_scope
 service_spawner
 ~~~~~~~~~~~~~~~
 
-Fixture that creates service spawner.
+.. py:function:: service_spawner
 
-.. autofunction:: service_spawner(args, *, ...)
-   :no-auto-options:
+   Returns :py:class:`ServiceSpawnerFixture` instance.
+
+.. autoclass:: ServiceSpawnerFixture()
+   :members: __call__
 
 Classes
 -------

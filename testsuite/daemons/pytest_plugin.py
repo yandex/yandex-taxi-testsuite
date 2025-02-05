@@ -33,7 +33,6 @@ SHUTDOWN_SIGNALS = {
     'SIGQUIT': signal.SIGQUIT,
     'SIGTERM': signal.SIGTERM,
 }
-CHECK_URL_DEPRECATION = '`check_url` is deprecated, use `ping_url` instead'
 
 
 class _DaemonScope:
@@ -139,7 +138,6 @@ class ServiceSpawnerFactory(fixture_class.Fixture):
     def __call__(
         self,
         args: Sequence[str],
-        check_url: Optional[str] = None,
         *,
         base_command: Optional[Sequence[str]] = None,
         env: Optional[Dict[str, str]] = None,
@@ -175,9 +173,6 @@ class ServiceSpawnerFactory(fixture_class.Fixture):
         :returns: Return asynccontextmanager factory that might be used
                   within ``register_daemon_scope`` fixture.
         """
-        if check_url:
-            warnings.warn(CHECK_URL_DEPRECATION, PendingDeprecationWarning)
-
         pytestconfig = self._fixture_pytestconfig
 
         shutdown_timeout = pytestconfig.option.service_shutdown_timeout
@@ -187,7 +182,7 @@ class ServiceSpawnerFactory(fixture_class.Fixture):
             ]
 
         health_check = service_daemon.make_health_check(
-            ping_url=ping_url or check_url,
+            ping_url=ping_url,
             ping_request_timeout=ping_request_timeout,
             ping_response_codes=ping_response_codes,
             health_check=health_check,
@@ -252,7 +247,6 @@ class CreateDaemonScope(fixture_class.Fixture):
         self,
         *,
         args: Sequence[str],
-        check_url: str = None,
         ping_url: str = None,
         name: Optional[str] = None,
         base_command: Optional[Sequence] = None,
@@ -285,8 +279,6 @@ class CreateDaemonScope(fixture_class.Fixture):
         :returns: Returns internal daemon scope instance to be used with
             ``ensure_daemon_started`` fixture.
         """
-        if check_url:
-            warnings.warn(CHECK_URL_DEPRECATION, PendingDeprecationWarning)
         if name is None:
             name = ' '.join(args)
         return self._fixture__global_daemon_store.scope(
@@ -296,7 +288,7 @@ class CreateDaemonScope(fixture_class.Fixture):
                 base_command=base_command,
                 env=env,
                 poll_retries=poll_retries,
-                ping_url=ping_url or check_url,
+                ping_url=ping_url,
                 ping_request_timeout=ping_request_timeout,
                 ping_response_codes=ping_response_codes,
                 health_check=health_check,

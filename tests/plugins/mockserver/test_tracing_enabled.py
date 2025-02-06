@@ -12,7 +12,7 @@ async def test_mockserver_responds_with_handler_to_current_test(
 ):
     @mockserver.handler('/arbitrary/path')
     def _handler(request):
-        return aiohttp.web.Response(text='arbitrary text', status=200)
+        return mockserver.make_response(response='arbitrary text', status=200)
 
     client = create_service_client(
         mockserver.base_url,
@@ -50,7 +50,7 @@ async def test_mockserver_skips_handler_and_responds_500_to_other_test(
 ):
     @mockserver.handler('/arbitrary/path')
     def _handler(request):
-        return aiohttp.web.Response(text='arbitrary text', status=200)
+        return mockserver.make_response(response='arbitrary text', status=200)
 
     client = create_service_client(
         mockserver.base_url,

@@ -82,7 +82,7 @@ class Handler:
         response = await self.callqueue(*args, **kwargs)
         if not self.json_response:
             return response
-        if isinstance(response, aiohttp.web.Response):
+        if isinstance(response, http.Response):
             return response
         return http.make_response(json=response)
 
@@ -164,11 +164,12 @@ class Session:
 
         try:
             response = await handler(request, **kwargs)
-            if isinstance(response, aiohttp.web.Response):
-                return response
+            if isinstance(response, http.Response):
+                return http.make_aiohttp_response(response)
+            elif isinstance(response, http.MockedError):
+                return _mocked_error_response(request, response.error_code)
             raise exceptions.MockServerError(
-                'aiohttp.web.Response instance is expected '
-                f'{response!r} given',
+                'http.Response instance is expected ' f'{response!r} given',
             )
         except http.MockedError as exc:
             return _mocked_error_response(request, exc.error_code)
@@ -589,7 +590,7 @@ def _create_ssl_context(ssl_info: classes.SslCertInfo) -> ssl.SSLContext:
 
 
 def _internal_error(message: str = 'Internal error') -> aiohttp.web.Response:
-    return http.make_response(message, status=500)
+    return http.make_aiohttp_response(http.make_response(message, status=500))
 
 
 def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
@@ -602,10 +603,12 @@ def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
         raise exceptions.MockServerError(
             f'Service does not support mockserver error of type {error_code}',
         )
-    return http.make_response(
-        response='',
-        status=599,
-        headers={_ERROR_HEADER: error_code},
+    return http.make_aiohttp_response(
+        http.make_response(
+            response='',
+            status=599,
+            headers={_ERROR_HEADER: error_code},
+        )
     )
 
 

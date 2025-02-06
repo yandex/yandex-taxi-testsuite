@@ -188,6 +188,70 @@ async def wrap_request(request: aiohttp.web.BaseRequest) -> Request:
     return Request(request, data)
 
 
+class Response:
+    def __init__(
+        self,
+        body: typing.Union[bytes, bytearray] = None,
+        text: typing.Optional[str] = None,
+        status: int = 200,
+        headers: typing.Mapping[str, str] = None,
+        content_type: typing.Optional[str] = None,
+        charset: typing.Optional[str] = None,
+    ):
+        if body and text:
+            raise RuntimeError(
+                'Response params "body" and "text" can not be used at the same time'
+            )
+
+        self._body = body
+        self._text = text
+        self._status = status
+        self._headers = headers
+        self._content_type = content_type
+        self._charset = charset
+
+    def __repr__(self):
+        return (
+            f'<{self.__class__.__name__} body={self._body} '
+            f'text={self._text} status={self._status} content_type={self._content_type} charset={self._charset}>'
+        )
+
+    @property
+    def body(self) -> typing.Union[bytes, bytearray]:
+        return self._body
+
+    @property
+    def text(self) -> typing.Optional[str]:
+        return self._text
+
+    @property
+    def status(self) -> int:
+        return self._status
+
+    @property
+    def headers(self) -> typing.Mapping[str, str]:
+        return self._headers
+
+    @property
+    def content_type(self) -> typing.Optional[str]:
+        return self._content_type
+
+    @property
+    def charset(self) -> typing.Optional[str]:
+        return self._charset
+
+
+def make_aiohttp_response(response: Response) -> aiohttp.web.Response:
+    return aiohttp.web.Response(
+        body=response.body,
+        text=response.text,
+        status=response.status,
+        headers=response.headers,
+        content_type=response.content_type,
+        charset=response.charset,
+    )
+
+
 class ClientResponse:
     def __init__(
         self,
@@ -295,9 +359,9 @@ def make_response(
     *,
     json=_NoValue,
     form=_NoValue,
-) -> aiohttp.web.Response:
+) -> Response:
     """
-    Create HTTP response object. Returns ``aiohttp.web.Response`` instance.
+    Create HTTP response object. Returns ``Response`` instance.
 
     :param response: response content
     :param status: HTTP status code
@@ -322,7 +386,7 @@ def make_response(
             content_type = 'application/x-www-form-urlencoded'
 
     if isinstance(response, (bytes, bytearray)):
-        return aiohttp.web.Response(
+        return Response(
             body=response,
             status=status,
             headers=headers,
@@ -330,7 +394,7 @@ def make_response(
             charset=charset,
         )
     if isinstance(response, str):
-        return aiohttp.web.Response(
+        return Response(
             text=response,
             status=status,
             headers=headers,
@@ -338,7 +402,7 @@ def make_response(
             charset=charset,
         )
     if response is None:
-        return aiohttp.web.Response(
+        return Response(
             headers=headers,
             status=status,
             content_type=content_type,

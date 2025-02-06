@@ -1,5 +1,6 @@
 # pylint: disable=protected-access
 import aiohttp
+import aiohttp.web
 import pytest
 
 from testsuite.mockserver import exceptions
@@ -113,3 +114,17 @@ async def test_nohandler(
 
     error = mockserver_errors_pop()
     assert isinstance(error, exceptions.HandlerNotFoundError)
+
+
+async def test_aiohttp_response(
+    mockserver: fixture_types.MockserverFixture,
+    mockserver_client: Client,
+):
+    @mockserver.json_handler('/foo')
+    def _foo_handler(request):
+        return aiohttp.web.json_response({'foo': 'bar'})
+
+    response = await mockserver_client.get('/foo')
+
+    assert response.status == 200
+    assert await response.json() == {'foo': 'bar'}

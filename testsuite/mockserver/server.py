@@ -1,4 +1,5 @@
 import contextlib
+import copy
 import itertools
 import logging
 import pathlib
@@ -82,7 +83,7 @@ class Handler:
         response = await self.callqueue(*args, **kwargs)
         if not self.json_response:
             return response
-        if isinstance(response, http.Response):
+        if isinstance(response, (http.Response, aiohttp.web.Response)):
             return response
         return http.make_response(json=response)
 
@@ -166,10 +167,13 @@ class Session:
             response = await handler(request, **kwargs)
             if isinstance(response, http.Response):
                 return http.make_aiohttp_response(response)
+            elif isinstance(response, aiohttp.web.Response):
+                return copy.deepcopy(response)
             elif isinstance(response, http.MockedError):
                 return _mocked_error_response(request, response.error_code)
             raise exceptions.MockServerError(
-                'http.Response instance is expected ' f'{response!r} given',
+                'http.Response or aiohttp.web.Response instance is expected '
+                f'{response!r} given',
             )
         except http.MockedError as exc:
             return _mocked_error_response(request, exc.error_code)

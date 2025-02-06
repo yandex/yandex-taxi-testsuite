@@ -3,25 +3,25 @@ from testsuite.utils import http
 
 
 def test_make_response_basic():
-    response = http.make_response()
-    assert response.text is None
+    response = http.make_response().to_aiohttp()
+    assert response.body is None
     assert response.status == 200
 
-    response = http.make_response('foo')
-    assert response.text == 'foo'
-    assert response.status == 200
-
-    response = http.make_response(b'foo')
+    response = http.make_response('foo').to_aiohttp()
     assert response.body == b'foo'
     assert response.status == 200
 
-    response = http.make_response('error', status=500)
-    assert response.text == 'error'
+    response = http.make_response(b'foo').to_aiohttp()
+    assert response.body == b'foo'
+    assert response.status == 200
+
+    response = http.make_response('error', status=500).to_aiohttp()
+    assert response.body == b'error'
     assert response.status == 500
 
 
 def test_make_response_json():
-    response = http.make_response(json={'foo': 'bar'})
+    response = http.make_response(json={'foo': 'bar'}).to_aiohttp()
     assert response.body == b'{"foo": "bar"}'
     assert response.content_type == 'application/json'
 

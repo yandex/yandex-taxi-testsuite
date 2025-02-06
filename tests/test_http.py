@@ -4,11 +4,11 @@ from testsuite.utils import http
 
 def test_make_response_basic():
     response = http.make_response()
-    assert response.body is None
+    assert response.text is None
     assert response.status == 200
 
     response = http.make_response('foo')
-    assert response.body == b'foo'
+    assert response.text == 'foo'
     assert response.status == 200
 
     response = http.make_response(b'foo')
@@ -16,7 +16,7 @@ def test_make_response_basic():
     assert response.status == 200
 
     response = http.make_response('error', status=500)
-    assert response.body == b'error'
+    assert response.text == 'error'
     assert response.status == 500
 
 

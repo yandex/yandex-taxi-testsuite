@@ -216,40 +216,15 @@ class Response:
             f'text={self._text} status={self._status} content_type={self._content_type} charset={self._charset}>'
         )
 
-    @property
-    def body(self) -> typing.Union[bytes, bytearray]:
-        return self._body
-
-    @property
-    def text(self) -> typing.Optional[str]:
-        return self._text
-
-    @property
-    def status(self) -> int:
-        return self._status
-
-    @property
-    def headers(self) -> typing.Mapping[str, str]:
-        return self._headers
-
-    @property
-    def content_type(self) -> typing.Optional[str]:
-        return self._content_type
-
-    @property
-    def charset(self) -> typing.Optional[str]:
-        return self._charset
-
-
-def make_aiohttp_response(response: Response) -> aiohttp.web.Response:
-    return aiohttp.web.Response(
-        body=response.body,
-        text=response.text,
-        status=response.status,
-        headers=response.headers,
-        content_type=response.content_type,
-        charset=response.charset,
-    )
+    def to_aiohttp(self) -> aiohttp.web.Response:
+        return aiohttp.web.Response(
+            body=self._body,
+            text=self._text,
+            status=self._status,
+            headers=self._headers,
+            content_type=self._content_type,
+            charset=self._charset,
+        )
 
 
 class ClientResponse:

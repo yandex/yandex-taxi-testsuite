@@ -1,5 +1,4 @@
 import contextlib
-import copy
 import itertools
 import logging
 import pathlib
@@ -166,9 +165,9 @@ class Session:
         try:
             response = await handler(request, **kwargs)
             if isinstance(response, http.Response):
-                return http.make_aiohttp_response(response)
+                return response.to_aiohttp()
             elif isinstance(response, aiohttp.web.Response):
-                return copy.deepcopy(response)
+                return response
             elif isinstance(response, http.MockedError):
                 return _mocked_error_response(request, response.error_code)
             raise exceptions.MockServerError(
@@ -594,7 +593,7 @@ def _create_ssl_context(ssl_info: classes.SslCertInfo) -> ssl.SSLContext:
 
 
 def _internal_error(message: str = 'Internal error') -> aiohttp.web.Response:
-    return http.make_aiohttp_response(http.make_response(message, status=500))
+    return http.make_response(message, status=500).to_aiohttp()
 
 
 def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
@@ -607,13 +606,11 @@ def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
         raise exceptions.MockServerError(
             f'Service does not support mockserver error of type {error_code}',
         )
-    return http.make_aiohttp_response(
-        http.make_response(
-            response='',
-            status=599,
-            headers={_ERROR_HEADER: error_code},
-        )
-    )
+    return http.make_response(
+        response='',
+        status=599,
+        headers={_ERROR_HEADER: error_code},
+    ).to_aiohttp()
 
 
 def _create_server_obj(mockserver_info, pytestconfig) -> Server:

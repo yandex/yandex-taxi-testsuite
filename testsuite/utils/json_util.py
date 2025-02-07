@@ -46,5 +46,5 @@ def dumps(obj, *args, **kwargs):
 
 def default(obj):
     if isinstance(obj, datetime.datetime):
-        return obj.replace(tzinifo=None)
+        return obj.replace(tzinfo=None)
     return obj

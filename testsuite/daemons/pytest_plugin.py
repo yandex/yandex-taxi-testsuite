@@ -42,6 +42,13 @@ class _DaemonScope:
 
     async def spawn(self) -> 'DaemonInstance':
         manager = self._spawn()
+        # For backward compatibility with older spawners
+        if inspect.iscoroutine(manager):
+            warnings.warn(
+                f'Please rewrite your spawner into async context manager {self._spawn}',
+                PendingDeprecationWarning,
+            )
+            manager = await manager
         process = await manager.__aenter__()
         return DaemonInstance(manager, process)
 
@@ -213,6 +220,23 @@ class ServiceSpawnerFactory(fixture_class.Fixture):
         return spawn
 
 
+class ServiceSpawnerFixture(fixture_class.Fixture):
+    _fixture_service_spawner_factory: ServiceSpawnerFactory
+
+    def __call__(self, *args, **kwargs):
+        warnings.warn(
+            'service_spawner() fixture is deprecated, '
+            'use  service_spawner_factory()',
+            PendingDeprecationWarning,
+        )
+        factory = self._fixture_service_spawner_factory(*args, **kwargs)
+
+        async def spawner():
+            return factory()
+
+        return spawner
+
+
 class CreateDaemonScope(fixture_class.Fixture):
     """Create daemon scope for daemon with command to start."""
 
@@ -313,6 +337,10 @@ class CreateServiceClientFixture(fixture_class.Fixture):
 
 ensure_daemon_started = fixture_class.create_fixture_factory(
     EnsureDaemonStartedFixture,
+)
+service_spawner = fixture_class.create_fixture_factory(
+    ServiceSpawnerFixture,
+    scope='session',
 )
 service_spawner_factory = fixture_class.create_fixture_factory(
     ServiceSpawnerFactory,

@@ -46,8 +46,8 @@ class KafkaProducer:
     async def send(
         self,
         topic: str,
-        key: str,
-        value: str,
+        key: str | bytes,
+        value: str | bytes,
         partition: typing.Optional[int] = None,
     ):
         """
@@ -70,8 +70,8 @@ class KafkaProducer:
     async def send_async(
         self,
         topic: str,
-        key: str,
-        value: str,
+        key: str | bytes,
+        value: str | bytes,
         partition: typing.Optional[int] = None,
     ):
         """
@@ -92,8 +92,8 @@ class KafkaProducer:
 
         return await self.producer.send(
             topic=topic,
-            value=value.encode(),
-            key=key.encode(),
+            value=value if isinstance(value, bytes) else value.encode(),
+            key=key if isinstance(key, bytes) else key.encode(),
             partition=partition,
         )
 
@@ -110,17 +110,24 @@ class ConsumedMessage:
     """Wrapper for consumed record."""
 
     topic: str
-    key: str
-    value: str
+    key_raw: bytes
+    value_raw: bytes
     partition: int
     offset: int
 
     def __init__(self, record: aiokafka.ConsumerRecord):
         self.topic = record.topic
-        self.key = record.key.decode()
-        self.value = record.value.decode()
+        self.key_raw = record.key
+        self.value_raw = record.value
         self.partition = record.partition
         self.offset = record.offset
+
+    @property
+    def key(self) -> str:
+        return self.key_raw.decode()
+    @property
+    def value(self) -> str:
+        return self.value_raw.decode()
 
 
 class KafkaConsumer:

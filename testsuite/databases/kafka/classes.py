@@ -46,8 +46,8 @@ class KafkaProducer:
     async def send(
         self,
         topic: str,
-        key: str | bytes,
-        value: str | bytes,
+        key: typing.Union[str, bytes],
+        value: typing.Union[str, bytes],
         partition: typing.Optional[int] = None,
     ):
         """
@@ -70,8 +70,8 @@ class KafkaProducer:
     async def send_async(
         self,
         topic: str,
-        key: str | bytes,
-        value: str | bytes,
+        key: typing.Union[str, bytes],
+        value: typing.Union[str, bytes],
         partition: typing.Optional[int] = None,
     ):
         """

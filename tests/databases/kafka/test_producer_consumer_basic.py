@@ -66,7 +66,9 @@ async def test_kafka_producer_consumer_chain_many_topics(
             sends_received.add(int(message.key.split('-')[-1]))
 
 
-async def test_kafka_producer_consumer_chain_bytes(kafka_producer, kafka_consumer):
+async def test_kafka_producer_consumer_chain_bytes(
+    kafka_producer, kafka_consumer
+):
     TOPIC = 'Test-topic-chain'
     KEY = b'test-key'
     MESSAGE = b'test-message'

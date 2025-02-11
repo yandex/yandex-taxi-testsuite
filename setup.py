@@ -13,7 +13,6 @@ setuptools.setup(
         'python-dateutil>=2.7.3',
         'uvloop>=0.12.1',
         'cached-property>=1.5.1',
-        'contextlib2; python_version < "3.7"',
         'dataclasses; python_version < "3.7"',
     ],
     extras_require={

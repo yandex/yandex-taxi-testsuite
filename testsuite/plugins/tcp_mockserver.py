@@ -7,6 +7,7 @@ import pytest
 
 from testsuite.utils import cached_property
 from testsuite.utils import compat
+import contextlib
 from testsuite.utils import net
 
 
@@ -41,7 +42,7 @@ class Mockserver:
         assert self._sockets
         return self._sockets[0].getsockname()[:2]
 
-    @compat.asynccontextmanager
+    @contextlib.asynccontextmanager
     async def open_connection(self, timeout=10.0):
         """Async context manager creates connection to the service.
 
@@ -116,7 +117,7 @@ class ProtocolFactory:
 
 @pytest.fixture(scope='session')
 async def create_tcp_mockserver(loop):
-    @compat.asynccontextmanager
+    @contextlib.asynccontextmanager
     async def create_mockserver(
         *,
         host='localhost',

@@ -16,6 +16,7 @@ import aiohttp.web
 from testsuite.utils import cached_property
 from testsuite.utils import callinfo
 from testsuite.utils import compat
+import contextlib
 from testsuite.utils import http
 from testsuite.utils import net as net_utils
 from testsuite.utils import url_util
@@ -637,7 +638,7 @@ def _create_web_server(server: Server, loop) -> aiohttp.web.Server:
     )
 
 
-@compat.asynccontextmanager
+@contextlib.asynccontextmanager
 async def create_server(
     host: str,
     port: int,
@@ -667,7 +668,7 @@ async def create_server(
         yield server
 
 
-@compat.asynccontextmanager
+@contextlib.asynccontextmanager
 async def create_unix_server(
     socket_path: pathlib.Path,
     loop,

@@ -1,13 +1,12 @@
 import asyncio
 import pathlib
 import socket
-
-from . import compat
+import contextlib
 
 DEFAULT_BACKLOG = 50
 
 
-@compat.asynccontextmanager
+@contextlib.asynccontextmanager
 async def _create_server(factory, *, loop=None, **kwargs):
     if loop is None:
         loop = _get_running_loop()
@@ -46,7 +45,7 @@ def bind_socket(
     return sock
 
 
-@compat.asynccontextmanager
+@contextlib.asynccontextmanager
 async def _create_unix_server(factory, *, loop=None, **kwargs):
     if loop is None:
         loop = _get_running_loop()

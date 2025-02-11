@@ -76,7 +76,7 @@ class _DaemonStore:
             await self._close_daemon(daemon)
         self.cells = {}
 
-    @compat.asynccontextmanager
+    @contextlib.asynccontextmanager
     async def scope(self, name, spawn) -> AsyncGenerator[_DaemonScope, None]:
         scope = _DaemonScope(name, spawn)
         try:
@@ -190,7 +190,7 @@ class ServiceSpawnerFactory(fixture_class.Fixture):
 
         command_args = _build_command_args(args, base_command)
 
-        @compat.asynccontextmanager
+        @contextlib.asynccontextmanager
         async def spawn():
             if pytestconfig.option.service_wait:
                 manager = self._fixture_wait_service_started(
@@ -359,7 +359,7 @@ create_service_client = fixture_class.create_fixture_factory(
 def wait_service_started(pytestconfig, service_client_session_factory):
     reporter = pytestconfig.pluginmanager.getplugin('terminalreporter')
 
-    @compat.asynccontextmanager
+    @contextlib.asynccontextmanager
     async def waiter(*, args, health_check):
         await service_daemon.service_wait(
             args=args,

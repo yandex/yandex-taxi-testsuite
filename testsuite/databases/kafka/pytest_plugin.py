@@ -6,6 +6,7 @@ from . import service
 from . import classes
 
 from testsuite.utils import compat
+import contextlib
 
 
 def pytest_addoption(parser):

@@ -3,6 +3,11 @@
 # Development requirements
 flake8
 black
+mypy
+types-PyMySQL
+types-PyYAML
+types-psycopg2
+types-python-dateutil
 
 # For releases
 build

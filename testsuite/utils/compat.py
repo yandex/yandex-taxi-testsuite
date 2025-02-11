@@ -3,7 +3,8 @@ import contextlib
 
 # Required for python3.6 compatibility
 if not hasattr(contextlib, 'asynccontextmanager'):
-    import contextlib2  # pylint: disable=import-error
+    # pylint: disable=import-error 
+    import contextlib2  # type: ignore
 
     asynccontextmanager = contextlib2.asynccontextmanager
 else:

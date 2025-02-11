@@ -60,6 +60,9 @@ jobs:
     - name: Check PEP8 with black
       run: |
           make venv-check-black
+    - name: Check with MyPy
+      run: |
+          make venv-check-mypy
     - name: Test with pytest
       env:
           TESTSUITE_ALLOW_ROOT: 1

@@ -125,6 +125,7 @@ class ConsumedMessage:
     @property
     def key(self) -> str:
         return self.key_raw.decode()
+
     @property
     def value(self) -> str:
         return self.value_raw.decode()

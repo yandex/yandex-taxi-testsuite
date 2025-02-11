@@ -108,7 +108,7 @@ def test_deletion_func(testpoint):
     with pytest.raises(KeyError):
         del testpoint[foo_point]
 
-    @testpoint('foo')
+    @testpoint('foo')  # type: ignore[no-redef]
     @testpoint('bar')
     def foo_point(data): ...
 

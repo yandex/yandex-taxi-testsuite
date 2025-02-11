@@ -2,3 +2,6 @@
 line-length = 80
 target-version = ['py37']
 skip-string-normalization = true
+
+[tool.mypy]
+check_untyped_defs = true

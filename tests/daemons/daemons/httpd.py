@@ -17,7 +17,7 @@ class ExternalSocketHTTPServer(socketserver.TCPServer):
     def server_bind(self):
         # Socket is already bound
         host, port = self.server_address[:2]
-        self.server_name = socket.getfqdn(host)
+        self.server_name = socket.getfqdn(host)  # type: ignore[arg-type]
         self.server_port = port
 
 
@@ -47,7 +47,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
     ):
         self.send_response(status_code)
         self.send_header('Content-Type', content_type)
-        self.send_header('Content-Length', len(data))
+        self.send_header('Content-Length', str(len(data)))
         self.end_headers()
         self.wfile.write(data)
 
@@ -102,6 +102,7 @@ def server_main():
     )
     args = parser.parse_args()
 
+    httpd: socketserver.TCPServer
     if args.server_fd is not None:
         httpd = ExternalSocketHTTPServer(
             socket.socket(fileno=args.server_fd),

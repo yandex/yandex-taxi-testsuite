@@ -1,6 +1,7 @@
 # pylint: disable=protected-access
 import aiohttp.test_utils
 import pytest
+import typing
 
 from testsuite.mockserver import exceptions
 from testsuite.mockserver import server
@@ -46,7 +47,7 @@ async def test_mockserver_raises_on_unhandled_request_from_other_sources(
         mockserver_info,
         tracing_enabled=False,
     )
-    errors = []
+    errors: typing.List[exceptions.MockServerError] = []
     with mockserver.new_session(asyncexc_append=errors.append) as session:
         request = _make_mocked_request(
             'POST',

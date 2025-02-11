@@ -8,7 +8,7 @@ import pytest
 class FixtureMetaclass(type):
     def __new__(mcs, name, bases, attrs):
         if bases:
-            annotations: typing.Dict = {}
+            annotations = {}
             for base in bases:
                 annotations.update(getattr(base, '__annotations__', {}))
             annotations.update(attrs.get('__annotations__', {}))

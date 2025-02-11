@@ -560,7 +560,7 @@ def _cached_stat_path():
 
 @pytest.fixture(scope='session')
 def _path_entries_cache(_cached_stat_path):
-    entries_cache: typing.Dict[typing.Tuple, typing.Any] = {}
+    entries_cache = {}
 
     def get(*parts):
         result = entries_cache.get(parts)

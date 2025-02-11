@@ -51,8 +51,14 @@ class MockserverInfo:
     def get_host_header(self) -> str:
         if self.socket_path:
             return str(self.socket_path)
+
+        if not self.host and not self.port:
+            raise RuntimeError(
+                'either host and port or socket_path must be set in mockserver info'
+            )
+
         if self.port == 80:
-            return self.host
+            return str(self.host)
         return f'{self.host}:{self.port}'
 
 

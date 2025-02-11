@@ -1,6 +1,7 @@
 import collections
 import dataclasses
 import hashlib
+import typing
 import itertools
 import logging
 import pathlib
@@ -63,7 +64,7 @@ class PgShard:
 
 @dataclasses.dataclass(frozen=True)
 class PgShardedDatabase:
-    service_name: str
+    service_name: typing.Optional[str]
     dbname: str
     shards: List[PgShard]
 

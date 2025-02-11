@@ -5,6 +5,7 @@ Handle excpetions in background coroutines.
 """
 
 import pytest
+import typing
 
 
 class BackgroundExceptionError(Exception):
@@ -13,7 +14,7 @@ class BackgroundExceptionError(Exception):
 
 @pytest.fixture
 def _asyncexc():
-    errors = []
+    errors: typing.List[Exception] = []
     try:
         yield errors
     finally:

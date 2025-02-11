@@ -68,7 +68,7 @@ def _get_free_port_range_based(
 
 @pytest.fixture(scope='session')
 def _testsuite_socket_cleanup():
-    sock_list = []
+    sock_list: typing.List[socket.socket] = []
     try:
         yield sock_list.append
     finally:

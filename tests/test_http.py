@@ -28,20 +28,24 @@ def test_make_response_json():
 
 async def test_multipart_form_data(mockserver):
     with aiohttp.MultipartWriter('form-data') as data:
-        payload = aiohttp.payload.StringPayload('some_app_id')
-        payload.set_content_disposition('form-data', name='application_id')
-        data.append_payload(payload)
+        string_payload = aiohttp.payload.StringPayload('some_app_id')
+        string_payload.set_content_disposition(
+            'form-data', name='application_id'
+        )
+        data.append_payload(string_payload)
 
-        payload = aiohttp.payload.BytesPayload(
+        bytes_payload = aiohttp.payload.BytesPayload(
             b'image_data',
             headers={'Content-Type': 'image/jpeg'},
         )
-        payload.set_content_disposition('form-data', name='passport_photo')
-        data.append_payload(payload)
+        bytes_payload.set_content_disposition(
+            'form-data', name='passport_photo'
+        )
+        data.append_payload(bytes_payload)
 
-        payload = aiohttp.payload.StringPayload('42')
-        payload.set_content_disposition('form-data', name='page_number')
-        data.append_payload(payload)
+        string_payload = aiohttp.payload.StringPayload('42')
+        string_payload.set_content_disposition('form-data', name='page_number')
+        data.append_payload(string_payload)
 
     headers = {
         'Content-Type': 'multipart/form-data; boundary=' + data.boundary,

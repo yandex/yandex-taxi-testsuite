@@ -226,7 +226,7 @@ def _redis_cluster_store(
         yield
         return
 
-    redis_db = redisdb.RedisCluster(
+    redis_db = redisdb.RedisCluster(  # type: ignore[abstract]
         host=redis_cluster_nodes[0]['host'],
         port=redis_cluster_nodes[0]['port'],
     )

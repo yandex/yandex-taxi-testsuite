@@ -247,7 +247,7 @@ class CreateDaemonScope(fixture_class.Fixture):
         self,
         *,
         args: Sequence[str],
-        ping_url: str = None,
+        ping_url: Optional[str] = None,
         name: Optional[str] = None,
         base_command: Optional[Sequence] = None,
         env: Optional[Dict[str, str]] = None,

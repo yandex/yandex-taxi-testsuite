@@ -8,7 +8,7 @@ import pytest
 class FixtureMetaclass(type):
     def __new__(mcs, name, bases, attrs):
         if bases:
-            annotations = {}
+            annotations: typing.Dict = {}
             for base in bases:
                 annotations.update(getattr(base, '__annotations__', {}))
             annotations.update(attrs.get('__annotations__', {}))
@@ -77,6 +77,6 @@ def _classname_to_fixture(string: str) -> str:
         raise RuntimeError('Empty class name given')
     return string[0].lower() + re.sub(
         r'[A-Z]',
-        lambda matched: '_' + matched.group(0).lower(),
+        lambda matched: '_' + matched.group(0).lower(),  # type: ignore[operator]
         string[1:],
     )

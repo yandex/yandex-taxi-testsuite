@@ -141,7 +141,7 @@ class Request:
                         payload = int(payload)
                     except ValueError:
                         pass
-                    self._form[name] = payload
+                    self._form[name] = payload  # type: ignore[index]
 
             else:
                 self._form = {}
@@ -191,10 +191,10 @@ async def wrap_request(request: aiohttp.web.BaseRequest) -> Request:
 class Response:
     def __init__(
         self,
-        body: typing.Union[bytes, bytearray] = None,
+        body: typing.Optional[typing.Union[bytes, bytearray]] = None,
         text: typing.Optional[str] = None,
         status: int = 200,
-        headers: typing.Mapping[str, str] = None,
+        headers: typing.Optional[typing.Mapping[str, str]] = None,
         content_type: typing.Optional[str] = None,
         charset: typing.Optional[str] = None,
     ):
@@ -212,7 +212,7 @@ class Response:
 
     def __repr__(self):
         return (
-            f'<{self.__class__.__name__} body={self._body} '
+            f'<{self.__class__.__name__} body={self._body!r} '
             f'text={self._text} status={self._status} content_type={self._content_type} charset={self._charset}>'
         )
 
@@ -244,7 +244,7 @@ class ClientResponse:
     def __repr__(self):
         return (
             f'<{self.__class__.__name__} method={self._response.method} '
-            f'url={self._response.url} status={self.status} content={self.content}>'
+            f'url={self._response.url} status={self.status} content={self.content!r}>'
         )
 
     @property
@@ -310,7 +310,7 @@ class ClientResponse:
             return
         self._response.release()
         raise HttpResponseError(
-            url=self._response.request_info.url,
+            url=str(self._response.request_info.url),
             status=self._response.status,
         )
 
@@ -326,9 +326,9 @@ async def wrap_client_response(
 
 
 def make_response(
-    response: typing.Union[str, bytes, bytearray] = None,
+    response: typing.Optional[typing.Union[str, bytes, bytearray]] = None,
     status: int = 200,
-    headers: typing.Mapping[str, str] = None,
+    headers: typing.Optional[typing.Mapping[str, str]] = None,
     content_type: typing.Optional[str] = None,
     charset: typing.Optional[str] = None,
     *,

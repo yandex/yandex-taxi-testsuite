@@ -64,7 +64,9 @@ class ConnectionWrapper:
         self._conninfo = conninfo
         self._conn: typing.Optional[psycopg2.extensions.connection] = None
         self._tables: typing.Optional[typing.List[str]] = None
-        self._truncate_thread = None
+        self._truncate_thread: typing.Optional[
+            concurrent.futures.Future[None]
+        ] = None
         self._executer = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
     def initialize(self, cleanup_exclude_tables: typing.FrozenSet[str]):

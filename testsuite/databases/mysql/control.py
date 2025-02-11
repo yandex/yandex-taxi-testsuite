@@ -64,11 +64,12 @@ class ConnectionWrapper:
                 cursor.execute(query)
                 tables = cursor.fetchall()
                 return [table for (table,) in tables]
+        return None
 
     def apply_queries(
         self,
         queries: typing.List[MysqlQuery],
-        keep_tables: typing.List[str] = None,
+        keep_tables: typing.Optional[typing.List[str]] = None,
         truncate_non_empty: bool = False,
     ) -> None:
         if not keep_tables:
@@ -80,14 +81,14 @@ class ConnectionWrapper:
                 tables = self._tables
 
             if tables:
-                truncate_sql = []
+                truncate_table_sql = []
                 for table in tables:
                     if table not in keep_tables:
-                        truncate_sql.append(f'truncate table {table};')
-                truncate_sql = ' '.join(truncate_sql)
+                        truncate_table_sql.append(f'truncate table {table};')
+                truncate_tables_sql = ' '.join(truncate_table_sql)
                 cursor.execute(
                     'set foreign_key_checks=0;'
-                    f'{truncate_sql}'
+                    f'{truncate_tables_sql}'
                     'set foreign_key_checks=1;',
                 )
             for query in queries:
@@ -132,7 +133,7 @@ class ConnectionCache:
             host=conninfo.hostname,
             port=conninfo.port,
             user=conninfo.user,
-            password=conninfo.password,
+            password=conninfo.password or "",
             database=conninfo.dbname,
             client_flag=pymysql.constants.CLIENT.MULTI_STATEMENTS,
         )
@@ -148,7 +149,7 @@ class DatabasesState:
         self._verbose = verbose
         self._migrations_run = set()
         self._initialized = set()
-        self._tables = dict()
+        self._tables: typing.Dict[str, typing.List[str]] = dict()
 
     def get_connection(self, dbname: str, create_db: bool = True):
         if dbname not in self._initialized:

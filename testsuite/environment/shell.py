@@ -24,10 +24,10 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
         for line in stream:
             try:
                 decoded = line.decode('utf-8')
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as err:
                 logger.error(
                     'Failed to decode subprocess output',
-                    with_exc=True,
+                    exc_info=err,
                 )
                 continue
             decoded = decoded.rstrip('\r\n')

@@ -151,7 +151,7 @@ class Session:
 
     async def handle_request(
         self,
-        request: aiohttp.web.BaseRequest,
+        request: MockserverRequest,
         nofail_404: bool,
     ):
         __tracebackhide__ = True
@@ -314,7 +314,7 @@ class Server:
             fields['exc_info'] = str(exc)
         logger.log(log_level, 'Mockserver request', extra={'tskv': fields})
 
-    async def _handle_request(self, request: aiohttp.web.BaseRequest):
+    async def _handle_request(self, request: MockserverRequest):
         trace_id = request.headers.get(self.trace_id_header)
         nofail = self._nofail
         if self.tracing_enabled and not _is_from_client_fixture(trace_id):
@@ -374,12 +374,12 @@ class MockserverFixture:
         return self._server.server_info.base_url
 
     @property
-    def host(self) -> str:
+    def host(self) -> typing.Optional[str]:
         """Mockserver hostname."""
         return self._server.server_info.host
 
     @property
-    def port(self) -> int:
+    def port(self) -> typing.Optional[int]:
         """Mockserver port."""
         return self._server.server_info.port
 
@@ -717,11 +717,13 @@ def generate_trace_id() -> str:
     return _TRACE_ID_PREFIX + uuid.uuid4().hex
 
 
-def _is_from_client_fixture(trace_id: str) -> bool:
+def _is_from_client_fixture(trace_id: typing.Optional[str]) -> bool:
     return trace_id is not None and trace_id.startswith(_TRACE_ID_PREFIX)
 
 
-def _is_other_test(trace_id: str, current_trace_id: str) -> bool:
+def _is_other_test(
+    trace_id: typing.Optional[str], current_trace_id: str
+) -> bool:
     return trace_id != current_trace_id and _is_from_client_fixture(trace_id)
 
 

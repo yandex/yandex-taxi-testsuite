@@ -11,6 +11,8 @@ from typing import AsyncGenerator
 from typing import Dict
 from typing import Sequence
 
+from testsuite.utils import compat
+
 SIGNAL_ERRORS: Dict[int, str] = {
     signal.SIGSEGV: (
         'Service crashed with {signal_name} signal (segmentation fault)'

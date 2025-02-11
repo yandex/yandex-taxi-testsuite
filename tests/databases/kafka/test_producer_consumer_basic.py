@@ -64,3 +64,17 @@ async def test_kafka_producer_consumer_chain_many_topics(
         logging.info('Received batch of %d messages', len(consumed_messages))
         for message in consumed_messages:
             sends_received.add(int(message.key.split('-')[-1]))
+
+
+async def test_kafka_producer_consumer_chain_bytes(kafka_producer, kafka_consumer):
+    TOPIC = 'Test-topic-chain'
+    KEY = b'test-key'
+    MESSAGE = b'test-message'
+
+    await kafka_producer.send(TOPIC, KEY, MESSAGE)
+
+    consumed_message = await kafka_consumer.receive_one([TOPIC])
+
+    assert consumed_message.topic == TOPIC
+    assert consumed_message.key_raw == KEY
+    assert consumed_message.value_raw == MESSAGE

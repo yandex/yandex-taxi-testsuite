@@ -4,6 +4,8 @@ import os
 import signal
 import subprocess
 import time
+import contextlib
+import aiohttp
 from typing import AsyncGenerator
 from typing import Awaitable
 from typing import Callable
@@ -13,12 +15,9 @@ from typing import Sequence
 from typing import Tuple
 from typing import Any
 
-import aiohttp
-
 from testsuite.daemons import spawn
 from testsuite.daemons.spawn import __tracebackhide__
 from testsuite.utils import compat
-import contextlib
 
 
 POLL_RETRIES = 2000

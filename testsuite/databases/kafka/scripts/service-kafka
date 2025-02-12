@@ -46,14 +46,26 @@ start_kafka() {
     # In such keys, unexpectedly, testsuite server
     # may start interfact with launched one without any errors.
     # To avoid such cases, do not let the ports be binded by another applications at all.
-    if netstat --listening --tcp --numeric | awk '{print $4}' | grep $KAFKA_SERVER_PORT; then
-        echo "Maybe Kafka server is already running on the $KAFKA_SERVER_PORT port."
-        echo "Choose another port: specify TESTSUITE_KAFKA_SERVER_PORT environment variable."
-        exit 1
-    elif netstat --listening --tcp --numeric | awk '{print $4}' | grep $KAFKA_CONTROLLER_PORT; then
-        echo "Maybe Kafka controller is already running on the $KAFKA_CONTROLLER_PORT port."
-        echo "Choose another port: specify TESTSUITE_KAFKA_CONTROLLER_PORT environment variable."
-        exit 1
+    if [ "$(uname)" = "Darwin" ]; then
+        if netstat -p tcp -n | awk '{print $4}' | grep "\.$KAFKA_SERVER_PORT"; then
+            echo "Maybe Kafka server is already running on the $KAFKA_SERVER_PORT port."
+            echo "Choose another port: specify TESTSUITE_KAFKA_SERVER_PORT environment variable."
+            exit 1
+        elif netstat -p tcp -n | awk '{print $4}' | grep "\.$KAFKA_CONTROLLER_PORT"; then
+            echo "Maybe Kafka controller is already running on the $KAFKA_CONTROLLER_PORT port."
+            echo "Choose another port: specify TESTSUITE_KAFKA_CONTROLLER_PORT environment variable."
+            exit 1
+        fi
+    else
+        if netstat --listening --tcp --numeric | awk '{print $4}' | grep ":$KAFKA_SERVER_PORT"; then
+            echo "Maybe Kafka server is already running on the $KAFKA_SERVER_PORT port."
+            echo "Choose another port: specify TESTSUITE_KAFKA_SERVER_PORT environment variable."
+            exit 1
+        elif netstat --listening --tcp --numeric | awk '{print $4}' | grep ":$KAFKA_CONTROLLER_PORT"; then
+            echo "Maybe Kafka controller is already running on the $KAFKA_CONTROLLER_PORT port."
+            echo "Choose another port: specify TESTSUITE_KAFKA_CONTROLLER_PORT environment variable."
+            exit 1
+        fi
     fi
 
     mkdir -p "$KAFKA_SOURCE_DIR"
@@ -109,7 +121,7 @@ start_kafka() {
         --bootstrap-server="$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT" \
         --delete --topic test-topic
 
-    for topic_partition in $(echo -n "$KAFKA_START_TOPICS" | tr ';' '\n')
+    for topic_partition in $(echo "$KAFKA_START_TOPICS" | tr ';' '\n')
     do
         topic=$(echo $topic_partition | cut -d ':' -f 1)
         partitions_count=$(echo $topic_partition | cut -d ':' -f 2)

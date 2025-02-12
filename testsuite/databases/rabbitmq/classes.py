@@ -128,8 +128,8 @@ class Control:
         if self._enabled:
             await self._client.teardown()
 
-    def get_channel(self) -> Channel:
+    async def get_channel(self) -> Channel:
         if not self._enabled:
             raise RabbitMqDisabledError
 
-        return self._client.get_channel()
+        return await self._client.get_channel()

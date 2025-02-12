@@ -1,5 +1,6 @@
 import collections.abc
 import operator
+import typing
 import re
 
 import dateutil.parser
@@ -177,7 +178,7 @@ class Not:
 
 
 class Comparator:
-    op = operator.eq
+    op: typing.Callable[[typing.Any, typing.Any], bool] = operator.eq
 
     def __init__(self, value):
         self.value = value

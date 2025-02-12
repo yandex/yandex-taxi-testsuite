@@ -2,6 +2,7 @@
 
 import datetime
 import itertools
+import typing
 
 ENTRIES_SEP = '\t'
 KV_SEP = '='
@@ -19,6 +20,8 @@ def dict_to_tskv(dct, tskv_format='', add_header=True):
 def items_to_tskv(items, tskv_format='', add_header=True):
     """Return items to string in TSKV format."""
     data_segments = map(_format_pair, items)
+
+    segments: typing.Union[map, itertools.chain]
     if add_header:
         segments = itertools.chain(
             ('tskv', _format_pair(('tskv_format', tskv_format))),
@@ -26,6 +29,7 @@ def items_to_tskv(items, tskv_format='', add_header=True):
         )
     else:
         segments = data_segments
+
     return ENTRIES_SEP.join(segments)
 
 

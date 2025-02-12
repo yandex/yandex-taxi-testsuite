@@ -3,6 +3,19 @@
 # Development requirements
 flake8
 black
+mypy
+
+# MyPy requirements
+types-PyMySQL
+types-PyYAML
+types-psycopg2
+types-python-dateutil
+types-Pygments
+types-colorama
+types-pexpect
+types-pyOpenSSL
+types-requests
+types-setuptools
 
 # For releases
 build

@@ -25,6 +25,8 @@ linters:
 # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
 	flake8 $(PY_DIRS) --count --exit-zero --max-complexity=10 --max-line-length=79 --statistics
 
+check-mypy:
+	mypy testsuite tests
 
 check-black:
 	black --check --diff .
@@ -34,6 +36,7 @@ black:
 
 venv-linters:
 venv-tests:
+venv-check-mypy:
 venv-check-black:
 venv-black:
 venv-start-release:

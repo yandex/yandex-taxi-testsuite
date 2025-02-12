@@ -204,6 +204,6 @@ def _resolve_hostname(hostname: str) -> str:
         except socket.error:
             continue
         if result:
-            return result[0][4][0]
+            return result[0][4][0]  # type: ignore[return-value]
     warnings.warn(f'Failed to resolve hostname {hostname}')
     return hostname

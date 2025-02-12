@@ -115,7 +115,7 @@ def pytest_service_register(register_service):
 
 
 @pytest.fixture(scope='session')
-def pgsql_cleanup_exclude_tables():
+def pgsql_cleanup_exclude_tables() -> typing.FrozenSet[str]:
     return frozenset()
 
 
@@ -220,6 +220,7 @@ def _pgsql(
     _pgsql_service,
     _pgsql_control,
     pgsql_local,
+    pgsql_cleanup_exclude_tables,
     pgsql_disabled: bool,
     pgsql_parallelization_enabled: bool,
 ) -> typing.Dict[str, control.ConnectionWrapper]:
@@ -266,7 +267,7 @@ def _pgsql_apply_queries(
                 'mark.pgsql.directories',
             )
         for query in queries:
-            queries_str = []
+            queries_str: typing.Iterable = []
             if isinstance(query, str):
                 queries_str = [query]
             elif isinstance(query, (list, tuple)):

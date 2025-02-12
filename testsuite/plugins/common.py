@@ -147,7 +147,7 @@ class OpenFileFixture(fixture_class.Fixture):
                 f'Only read-only modes are supported.',
             )
         return open(
-            self._fixture_get_file_path(filename),
+            self._fixture_get_file_path(filename),  # type: ignore[arg-type]
             mode=mode,
             buffering=buffering,
             encoding=encoding,
@@ -177,7 +177,7 @@ class LoadFixture(fixture_class.Fixture):
         errors=None,
         *,
         missing_ok=False,
-    ) -> typing.Union[bytes, str]:
+    ) -> typing.Optional[typing.Union[bytes, str]]:
         """Load static text file.
 
         :param filename: static file name part.
@@ -374,7 +374,7 @@ def get_all_static_file_paths(
     def _get_file_paths() -> typing.List[pathlib.Path]:
         if static_dir not in _file_paths_cache:
             _file_paths_cache[static_dir] = [
-                path for path in static_dir.rglob('') if path.is_file
+                path for path in static_dir.rglob('') if path.is_file()
             ]
         return _file_paths_cache[static_dir]
 
@@ -471,12 +471,16 @@ def load_json_defaults():
 @pytest.fixture(scope='session')
 def _cached_stat_path():
     path_type = type(pathlib.Path())
-    stat_cache = {}
-    glob_cache = {}
-    content_cache = {}
-    iterdir_cache = {}
+    stat_cache: typing.Dict[
+        str, typing.Tuple[bool, typing.Union[FileNotFoundError, typing.Any]]
+    ] = {}
+    glob_cache: typing.Dict[typing.Any, typing.Tuple] = {}
+    content_cache: typing.Dict[
+        typing.Any, typing.Union[typing.Tuple, str, bytes]
+    ] = {}
+    iterdir_cache: typing.Dict[str, typing.Tuple] = {}
 
-    class CachedStatPath(path_type):
+    class CachedStatPath(path_type):  # type: ignore[valid-type]
         def stat(self, *, follow_symlinks=True):
             key = str(self)
             if key in stat_cache:

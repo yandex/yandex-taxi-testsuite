@@ -2,3 +2,7 @@
 line-length = 80
 target-version = ['py37']
 skip-string-normalization = true
+
+[tool.mypy]
+check_untyped_defs = true
+disable_error_code = ['misc', 'union-attr', 'has-type', 'import-untyped', 'var-annotated']

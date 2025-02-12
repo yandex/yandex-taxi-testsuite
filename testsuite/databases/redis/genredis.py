@@ -235,7 +235,7 @@ def redis_version() -> typing.Tuple[int, ...]:
 def generate_cluster_redis_configs(
     output_path: pathlib.Path,
     host: str,
-    cluster_ports: [int],
+    cluster_ports: typing.Tuple[int, ...],
 ) -> None:
     protected_mode_no = ''
     if redis_version() >= (3, 2, 0):
@@ -312,7 +312,6 @@ def main():
         slave1_port=args.slave1_port,
         slave2_port=args.slave2_port,
         sentinel_port=args.sentinel_port,
-        cluster_ports=args.cluster_port,
     )
     generate_cluster_redis_configs(
         output_path=args.output,

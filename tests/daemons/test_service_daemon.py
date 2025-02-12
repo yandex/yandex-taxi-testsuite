@@ -127,7 +127,10 @@ async def test_ping_health_checker(mockserver):
 
 @pytest.mark.parametrize('status,expected', [(False, False), (True, True)])
 async def test_run_health_check(status, expected):
-    class Process:
+    class Process(subprocess.Popen):
+        def __init__(self):
+            pass
+
         def poll(self):
             return None
 
@@ -146,10 +149,11 @@ async def test_run_health_check(status, expected):
 
 
 async def test_run_health_check_process_exited():
-    class Process:
-        args = ('binary',)
-        pid = 0
-        returncode = 123
+    class Process(subprocess.Popen):
+        def __init__(self):
+            self.args = ('binary',)
+            self.pid = 0
+            self.returncode = 123
 
         def poll(self):
             return self.returncode
@@ -167,7 +171,10 @@ async def test_run_health_check_process_exited():
 
 
 async def test_poll_failed():
-    class Process:
+    class Process(subprocess.Popen):
+        def __init__(self):
+            pass
+
         def poll(self):
             return None
 

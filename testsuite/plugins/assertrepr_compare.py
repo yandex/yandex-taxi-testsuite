@@ -37,10 +37,10 @@ TYPES = (dict,) + SET_TYPES + SEQUENCE_TYPES
 class ReprKeyMaker:
     def __init__(
         self,
-        dict_key_format='[%r]',
-        dict_keys_connector='',
-        sequence_key_format='[%s]',
-        sequence_keys_connector='',
+        dict_key_format: str = '[%r]',
+        dict_keys_connector: str = '',
+        sequence_key_format: str = '[%s]',
+        sequence_keys_connector: str = '',
     ):
         self.dict_key_format = dict_key_format
         self.dict_keys_connector = dict_keys_connector
@@ -48,7 +48,7 @@ class ReprKeyMaker:
         self.sequence_keys_connector = sequence_keys_connector
 
     def make(self, key):
-        parts = []
+        parts: typing.List[str] = []
         for sub_key in key:
             if isinstance(sub_key, int):
                 connector = self.sequence_keys_connector
@@ -105,6 +105,7 @@ class Comparator:
 
         parent_type = type_left
         is_set = isinstance(left, SET_TYPES)
+        keys: typing.Union[typing.Sequence[typing.Any], typing.Set[typing.Any]]
         if isinstance(left, SEQUENCE_TYPES):
             keys = range(max(len(left), len(right)))
             left = dict(enumerate(left))
@@ -190,7 +191,9 @@ def _compare_pair(
     def _group_by_type(cmp_result):
         total_records = 0
         default_dict = {'parts': [], 'extra_count': 0}
-        groups = collections.defaultdict(lambda: copy.deepcopy(default_dict))
+        groups: typing.Dict[typing.Any, typing.Dict] = collections.defaultdict(
+            lambda: copy.deepcopy(default_dict)
+        )
         records_limit_exceeded = False
         for key, failed_cmp_info, repr_lines in cmp_result:
             cmp_type = failed_cmp_info.cmp_type

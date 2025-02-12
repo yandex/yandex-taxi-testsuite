@@ -1,5 +1,6 @@
 import pymongo
 import pytest
+import typing
 
 
 SORT_STR_TO_PYMONGO = {
@@ -91,6 +92,7 @@ def _get_kwargs_for_shard_func(sharding):
 
     for key, value in sharding.items():
         if key == 'key':
+            sharding_key: typing.Dict[str, typing.Any]
             if isinstance(value, str):
                 sharding_key = {value: 1}
             elif isinstance(value, list):

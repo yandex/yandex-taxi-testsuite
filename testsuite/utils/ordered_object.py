@@ -17,7 +17,7 @@ def assert_eq(first_source, second_source, paths):
 
 def _order(source, paths):
     if isinstance(source, list):
-        result = [_order(value, paths) for value in source]
+        return [_order(value, paths) for value in source]
     elif isinstance(source, dict):
         source_copy = copy.copy(source)
         for path in sorted(paths, reverse=True):
@@ -31,11 +31,9 @@ def _order(source, paths):
                     source_copy[head] = sorted(value, key=_sort_key)
             else:
                 source_copy[head] = _order(value, [head_tail[1]])
-        result = source_copy
-    else:
-        result = source
+        return source_copy
 
-    return result
+    return source
 
 
 def _sort_key(value):

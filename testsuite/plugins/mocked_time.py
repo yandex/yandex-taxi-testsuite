@@ -24,7 +24,7 @@ class DisabledUsageError(BaseError):
 
 class MockedTime:
     def __init__(self, time: datetime.datetime, *, is_enabled: bool):
-        self._now = time
+        self._now: datetime.datetime = time
         self._is_enabled = is_enabled
 
     def sleep(self, delta: float) -> None:
@@ -41,7 +41,7 @@ class MockedTime:
         self, tz: typing.Optional[datetime.tzinfo] = None
     ) -> datetime.datetime:
         """:returns: current value of mock time"""
-        now = None
+        now: datetime.datetime
         if self._is_enabled:
             now = self._now
         else:

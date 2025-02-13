@@ -37,6 +37,7 @@ def pytest_configure(config):
 def pytest_service_register(register_service):
     register_service('redis', service.create_redis_service)
     register_service('redis-cluster', service.create_cluster_redis_service)
+    register_service('redis-standalone', service.create_standalone_redis_service)
 
 
 @pytest.fixture(scope='session')
@@ -58,6 +59,17 @@ def redis_cluster_service(
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started(
             'redis-cluster', settings=_redis_cluster_service_settings
+        )
+
+
+@pytest.fixture(scope='session')
+async def redis_standalone_service(
+    ensure_service_started,
+    _redis_standalone_service_settings
+):
+    if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
+        ensure_service_started(
+            'redis-standalone', settings=_redis_standalone_service_settings
         )
 
 
@@ -177,6 +189,16 @@ def redis_cluster_nodes(_redis_cluster_service_settings):
 
 
 @pytest.fixture(scope='session')
+def redis_standalone_node(_redis_standalone_service_settings):
+    return [
+        {
+            'host': _redis_standalone_service_settings.host,
+            'port': _redis_standalone_service_settings.port,
+        },
+    ]
+
+
+@pytest.fixture(scope='session')
 def redis_cluster_replicas(_redis_cluster_service_settings):
     return _redis_cluster_service_settings.cluster_replicas
 
@@ -189,6 +211,11 @@ def _redis_service_settings():
 @pytest.fixture(scope='session')
 def _redis_cluster_service_settings():
     return service.get_cluster_service_settings()
+
+
+@pytest.fixture(scope='session')
+def _redis_standalone_service_settings():
+    return service.get_standalone_service_settings()
 
 
 def _json_object_hook(dct):
@@ -232,6 +259,27 @@ def _redis_cluster_store(
     )
 
     yield redis_db
+
+
+@pytest.fixture
+def redis_standalone_store(
+    pytestconfig,
+    redis_standalone_service,
+    redis_standalone_node
+):
+    if pytestconfig.option.no_redis:
+        yield
+        return
+
+    redis_db = redisdb.StrictRedis(
+        host=redis_standalone_node['host'],
+        port=redis_standalone_node['port'],
+    )
+
+    try:
+        yield redis_db
+    finally:
+        redis_db.flushall()
 
 
 @pytest.fixture

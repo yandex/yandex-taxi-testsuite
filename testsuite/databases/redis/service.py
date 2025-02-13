@@ -14,12 +14,16 @@ DEFAULT_SENTINEL_PORT = 26379
 DEFAULT_SLAVE_PORTS = (16380, 16390, 16381)
 DEFAULT_CLUSTER_PORTS = (17380, 17381, 17382, 17383, 17384, 17385)
 DEFAULT_CLUSTER_REPLICAS = 1
+DEFAULT_STANDALONE_PORT = 7000
 
 SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
     'scripts/service-redis',
 )
 CLUSTER_SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
     'scripts/service-cluster-redis',
+)
+STANDALONE_SERVICE_SCRIPT_PATH = pathlib.Path(__file__).parent.joinpath(
+    'scripts/service-standalone-redis',
 )
 
 
@@ -65,6 +69,11 @@ class ClusterServiceSettings(typing.NamedTuple):
             )
 
 
+class StandaloneServiceSettings(typing.NamedTuple):
+    host: str
+    port: int
+
+
 def get_service_settings():
     return ServiceSettings(
         host=_get_hostname(),
@@ -96,6 +105,15 @@ def get_cluster_service_settings():
         ),
     )
 
+
+def get_standalone_service_settings():
+    return StandaloneServiceSettings(
+        host=service._get_hostname(),
+        port=utils.getenv_int(
+            key='TESTSUITE_REDIS_STANDALONE_PORT',
+            default=DEFAULT_STANDALONE_PORT,
+        )
+    )
 
 def create_redis_service(
     service_name,
@@ -179,6 +197,44 @@ def create_cluster_redis_service(
         },
         check_host=settings.host,
         check_ports=check_ports,
+        prestart_hook=prestart_hook,
+    )
+
+
+def create_standalone_redis_service(
+    service_name,
+    working_dir,
+    settings: typing.Optional[StandaloneServiceSettings] = None,
+    env=None,
+):
+    if settings is None:
+        settings = get_standalone_service_settings()
+    configs_dir = pathlib.Path(working_dir).joinpath('configs')
+    input_file = genredis._redis_config_directory() / genredis.MASTER_TPL_FILENAME
+    output_file = configs_dir.joinpath(f"{service_name}.conf")
+
+    logging.debug(f"Config file for redis standalone is '{output_file}'")
+
+    def prestart_hook():
+        configs_dir.mkdir(parents=True, exist_ok=True)
+        protected_mode_no = ''
+        if genredis.redis_version() >= (3, 2, 0):
+            protected_mode_no = 'protected-mode no'
+
+        genredis._generate_redis_config(
+            input_file, output_file, protected_mode_no, settings.host, settings.port
+        )
+
+    return ScriptService(
+        service_name=service_name,
+        script_path=str(STANDALONE_SERVICE_SCRIPT_PATH),
+        working_dir=working_dir,
+        environment={
+            'REDIS_CONFIG_FILE': output_file,
+            **(env or {}),
+        },
+        check_host=settings.host,
+        check_ports=[settings.port],
         prestart_hook=prestart_hook,
     )
 

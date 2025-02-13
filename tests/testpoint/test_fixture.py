@@ -87,8 +87,7 @@ async def test_not_handled(
 
 def test_deletion_by_name(testpoint):
     @testpoint('foo')
-    def foo_point(data):
-        ...
+    def foo_point(data): ...
 
     assert 'foo' in testpoint
     del testpoint['foo']
@@ -101,8 +100,7 @@ def test_deletion_by_name(testpoint):
 
 def test_deletion_func(testpoint):
     @testpoint('foo')
-    def foo_point(data):
-        ...
+    def foo_point(data): ...
 
     del testpoint[foo_point]
     assert 'foo' not in testpoint
@@ -112,8 +110,7 @@ def test_deletion_func(testpoint):
 
     @testpoint('foo')  # type: ignore[no-redef]
     @testpoint('bar')
-    def foo_point(data):
-        ...
+    def foo_point(data): ...
 
     del testpoint[foo_point]
     assert 'foo' not in testpoint

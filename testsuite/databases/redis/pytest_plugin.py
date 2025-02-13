@@ -37,7 +37,9 @@ def pytest_configure(config):
 def pytest_service_register(register_service):
     register_service('redis', service.create_redis_service)
     register_service('redis-cluster', service.create_cluster_redis_service)
-    register_service('redis-standalone', service.create_standalone_redis_service)
+    register_service(
+        'redis-standalone', service.create_standalone_redis_service
+    )
 
 
 @pytest.fixture(scope='session')
@@ -52,9 +54,7 @@ def redis_service(
 
 @pytest.fixture(scope='session')
 def redis_cluster_service(
-    pytestconfig,
-    ensure_service_started,
-    _redis_cluster_service_settings,
+    pytestconfig, ensure_service_started, _redis_cluster_service_settings
 ):
     if not pytestconfig.option.no_redis and not pytestconfig.option.redis_host:
         ensure_service_started(
@@ -191,12 +191,10 @@ def redis_cluster_nodes(_redis_cluster_service_settings):
 
 @pytest.fixture(scope='session')
 def redis_standalone_node(_redis_standalone_service_settings):
-    return [
-        {
-            'host': _redis_standalone_service_settings.host,
-            'port': _redis_standalone_service_settings.port,
-        },
-    ]
+    return {
+        'host': _redis_standalone_service_settings.host,
+        'port': _redis_standalone_service_settings.port,
+    }
 
 
 @pytest.fixture(scope='session')
@@ -264,9 +262,7 @@ def _redis_cluster_store(
 
 @pytest.fixture
 def redis_standalone_store(
-    pytestconfig,
-    redis_standalone_service,
-    redis_standalone_node
+    pytestconfig, redis_standalone_service, redis_standalone_node
 ):
     if pytestconfig.option.no_redis:
         yield

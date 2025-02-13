@@ -112,8 +112,9 @@ def get_standalone_service_settings():
         port=utils.getenv_int(
             key='TESTSUITE_REDIS_STANDALONE_PORT',
             default=DEFAULT_STANDALONE_PORT,
-        )
+        ),
     )
+
 
 def create_redis_service(
     service_name,
@@ -210,7 +211,9 @@ def create_standalone_redis_service(
     if settings is None:
         settings = get_standalone_service_settings()
     configs_dir = pathlib.Path(working_dir).joinpath('configs')
-    input_file = genredis._redis_config_directory() / genredis.MASTER_TPL_FILENAME
+    input_file = (
+        genredis._redis_config_directory() / genredis.MASTER_TPL_FILENAME
+    )
     output_file = configs_dir.joinpath(f"{service_name}.conf")
 
     def prestart_hook():
@@ -220,7 +223,11 @@ def create_standalone_redis_service(
             protected_mode_no = 'protected-mode no'
 
         genredis._generate_redis_config(
-            input_file, output_file, protected_mode_no, settings.host, settings.port
+            input_file,
+            output_file,
+            protected_mode_no,
+            settings.host,
+            settings.port
         )
 
     return service.ScriptService(

@@ -32,6 +32,10 @@ def pytest_configure(config):
         'markers',
         'redis_cluster_store: per-test redis cluster initialization',
     )
+    config.addinivalue_line(
+        'markers',
+        'redis_standalone_store: per-test standalone redis initialization',
+    )
 
 
 def pytest_service_register(register_service):

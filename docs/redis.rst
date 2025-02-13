@@ -32,6 +32,11 @@ TESTSUITE_REDIS_CLUSTER_REPLICAS
 
 Use to override number of replicas per master in redis cluster. Default is ``1``.
 
+TESTSUITE_REDIS_STANDALONE_PORT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use to override standalone server port. Default is ``7000``.
+
 
 Fixtures
 --------
@@ -39,7 +44,7 @@ Fixtures
 redis_store
 ~~~~~~~~~~~
 
-Provide access to non cluster redis via same interface as redis.StrictRedis().
+Provide access to non cluster redis with sentinels via same interface as redis.StrictRedis().
 
 .. code-block:: python
 
@@ -76,6 +81,27 @@ Provide access to cluster redis via same interface as redis.RedisCluster().
       assert redis_cluster_store.get('somekey') == b'somedata'
 
 
+redis_standalone_store
+~~~~~~~~~~~~~~~~~~~~~~
+
+Provide access to standalone redis (no slaves or sentinels, only single master)
+via same interface as redis.StrictRedis().
+
+.. code-block:: python
+
+  import pytest
+
+  pytest_plugins = [
+      'testsuite.pytest_plugin',
+      'testsuite.databases.redis.pytest_plugin',
+  ]
+
+
+  def test_redis_basic(redis_standalone_store):
+      redis_standalone_store.set('somekey', 'somedata')
+      assert redis_standalone_store.get('somekey') == b'somedata'
+
+
 redis_cluster_nodes
 ~~~~~~~~~~~~~~~~~~~
 
@@ -86,6 +112,12 @@ redis_cluster_replicas
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Gives the number of replicas per primary node in redis cluster.
+
+
+redis_standalone_node
+~~~~~~~~~~~~~~~~~~~~~~
+
+Returns a dictionary with 'host' and 'port' values of the standalone redis.
 
 
 Marks
@@ -143,3 +175,11 @@ Specify custom per-test data for ``redis_cluster_store`` fixture
   @pytest.mark.redis_cluster_store(file='use_redis_store_file')
   def test_redis_store_file(redis_cluster_store):
       assert redis_cluster_store.get('foo') == b'store'
+
+
+
+pytest.mark.redis_standalone_store
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Specify custom per-test data for ``redis_standalone_store`` fixture. See above
+for a usage example.

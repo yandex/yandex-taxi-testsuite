@@ -4,7 +4,7 @@ import redis
 from testsuite.databases.redis import service
 
 
-def test_standalone_config(redis_standalone_store: redisdb.StrictRedis):
+def test_standalone_config(redis_standalone_store: redis.StrictRedis):
     masters = redis_standalone_store.sentinel_masters()
     assert len(masters) == 1
 

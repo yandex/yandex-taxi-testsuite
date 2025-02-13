@@ -2,8 +2,8 @@
 
 . "$TESTSUITE_LIB_UTILS"
 
-if [ "x$REDIS_CONFIG_FILE" = "x" ]; then
-    die "REDIS_CONFIG_FILE must be set"
+if [ "x$REDIS_CONFIGS_DIR" = "x" ]; then
+    die "REDIS_CONFIGS_DIR must be set"
 fi
 
 REDIS_SERVER=$(which redis-server)
@@ -14,10 +14,9 @@ fi
 
 start() {
 
-    echo "Starting redis ($REDIS_ROLE) with config '$REDIS_CONFIG_FILE'..."
+    echo "Starting redis ($REDIS_ROLE) with config '$REDIS_CONFIGS_DIR/redis_master0.conf'..."
     pidfile="$(get_pidfile $REDIS_ROLE)"
-    $REDIS_SERVER $REDIS_CONFIG_FILE \
-                    --pidfile $pidfile || {
+    $REDIS_SERVER $REDIS_CONFIGS_DIR/redis_master0.conf --pidfile $pidfile || {
         die "Failed to start redis ($REDIS_ROLE) server"
     }
 }

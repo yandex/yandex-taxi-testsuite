@@ -226,7 +226,7 @@ def create_standalone_redis_service(
         script_path=str(STANDALONE_SERVICE_SCRIPT_PATH),
         working_dir=working_dir,
         environment={
-            'REDIS_CONFIG_FILE': output_file,
+            'REDIS_CONFIGS_DIR': str(configs_dir),
             **(env or {}),
         },
         check_host=settings.host,

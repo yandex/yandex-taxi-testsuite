@@ -213,8 +213,6 @@ def create_standalone_redis_service(
     input_file = genredis._redis_config_directory() / genredis.MASTER_TPL_FILENAME
     output_file = configs_dir.joinpath(f"{service_name}.conf")
 
-    logging.debug(f"Config file for redis standalone is '{output_file}'")
-
     def prestart_hook():
         configs_dir.mkdir(parents=True, exist_ok=True)
         protected_mode_no = ''
@@ -225,7 +223,7 @@ def create_standalone_redis_service(
             input_file, output_file, protected_mode_no, settings.host, settings.port
         )
 
-    return ScriptService(
+    return service.ScriptService(
         service_name=service_name,
         script_path=str(STANDALONE_SERVICE_SCRIPT_PATH),
         working_dir=working_dir,

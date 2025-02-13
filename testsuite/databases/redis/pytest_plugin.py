@@ -64,6 +64,7 @@ def redis_cluster_service(
 
 @pytest.fixture(scope='session')
 async def redis_standalone_service(
+    pytestconfig,
     ensure_service_started,
     _redis_standalone_service_settings
 ):

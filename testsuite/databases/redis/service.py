@@ -227,7 +227,7 @@ def create_standalone_redis_service(
             output_file,
             protected_mode_no,
             settings.host,
-            settings.port
+            settings.port,
         )
 
     return service.ScriptService(

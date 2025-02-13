@@ -250,6 +250,31 @@ def generate_cluster_redis_configs(
     )
 
 
+def generate_standalone_redis_config(
+    output_path: pathlib.Path,
+    host: str,
+    port: int,
+) -> None:
+    protected_mode_no = ''
+    if genredis.redis_version() >= (3, 2, 0):
+        protected_mode_no = 'protected-mode no'
+
+    input_file = _redis_config_directory() / genredis.MASTER_TPL_FILENAME
+    output_file = _construct_output_filename(
+        output_path,
+        MASTER_TPL_FILENAME,
+        0,
+    )
+
+    _generate_redis_config(
+        input_file,
+        output_file,
+        protected_mode_no,
+        settings.host,
+        settings.port,
+    )
+
+
 def generate_redis_configs(
     output_path: pathlib.Path,
     host: str,

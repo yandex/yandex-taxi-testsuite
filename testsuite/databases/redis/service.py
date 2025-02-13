@@ -108,7 +108,7 @@ def get_cluster_service_settings():
 
 def get_standalone_service_settings():
     return StandaloneServiceSettings(
-        host=service._get_hostname(),
+        host=_get_hostname(),
         port=utils.getenv_int(
             key='TESTSUITE_REDIS_STANDALONE_PORT',
             default=DEFAULT_STANDALONE_PORT,
@@ -211,23 +211,14 @@ def create_standalone_redis_service(
     if settings is None:
         settings = get_standalone_service_settings()
     configs_dir = pathlib.Path(working_dir).joinpath('configs')
-    input_file = (
-        genredis._redis_config_directory() / genredis.MASTER_TPL_FILENAME
-    )
-    output_file = configs_dir.joinpath(f"{service_name}.conf")
 
     def prestart_hook():
         configs_dir.mkdir(parents=True, exist_ok=True)
-        protected_mode_no = ''
-        if genredis.redis_version() >= (3, 2, 0):
-            protected_mode_no = 'protected-mode no'
-
-        genredis._generate_redis_config(
-            input_file,
-            output_file,
-            protected_mode_no,
-            settings.host,
-            settings.port,
+        settings.validate()
+        genredis.generate_standalone_redis_config(
+            output_path=configs_dir,
+            host=settings.host,
+            port=settings.port,
         )
 
     return service.ScriptService(

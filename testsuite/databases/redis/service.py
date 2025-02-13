@@ -214,7 +214,6 @@ def create_standalone_redis_service(
 
     def prestart_hook():
         configs_dir.mkdir(parents=True, exist_ok=True)
-        settings.validate()
         genredis.generate_standalone_redis_config(
             output_path=configs_dir,
             host=settings.host,

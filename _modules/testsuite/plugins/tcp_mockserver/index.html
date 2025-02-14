@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.plugins.tcp_mockserver &#8212; yandex-taxi-testsuite 0.2.7 documentation</title>
+    <title>testsuite.plugins.tcp_mockserver &#8212; yandex-taxi-testsuite 0.2.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -36,14 +36,12 @@
   <h1>Source code for testsuite.plugins.tcp_mockserver</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">typing</span>
 
 <span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">compat</span>
-<span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">cached_property</span><span class="p">,</span> <span class="n">compat</span><span class="p">,</span> <span class="n">net</span>
 
 
 <div class="viewcode-block" id="Mockserver"><a class="viewcode-back" href="../../../../tcp_mockserver/#testsuite.plugins.tcp_mockserver.Mockserver">[docs]</a><span class="k">class</span> <span class="nc">Mockserver</span><span class="p">:</span>
@@ -77,7 +75,7 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sockets</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sockets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Mockserver.open_connection"><a class="viewcode-back" href="../../../../tcp_mockserver/#testsuite.plugins.tcp_mockserver.Mockserver.open_connection">[docs]</a>    <span class="nd">@compat</span><span class="o">.</span><span class="n">asynccontextmanager</span>
+<div class="viewcode-block" id="Mockserver.open_connection"><a class="viewcode-back" href="../../../../tcp_mockserver/#testsuite.plugins.tcp_mockserver.Mockserver.open_connection">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">asynccontextmanager</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">open_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Async context manager creates connection to the service.</span>
 
@@ -152,7 +150,7 @@
 
 <div class="viewcode-block" id="create_tcp_mockserver"><a class="viewcode-back" href="../../../../tcp_mockserver/#testsuite.plugins.tcp_mockserver.create_tcp_mockserver">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">create_tcp_mockserver</span><span class="p">(</span><span class="n">loop</span><span class="p">):</span>
-    <span class="nd">@compat</span><span class="o">.</span><span class="n">asynccontextmanager</span>
+    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">asynccontextmanager</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create_mockserver</span><span class="p">(</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span>

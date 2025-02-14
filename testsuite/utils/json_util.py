@@ -38,13 +38,4 @@ def dumps(obj, *args, **kwargs):
     kwargs['sort_keys'] = kwargs.get('sort_keys', True)
     kwargs['indent'] = kwargs.get('indent', 2)
     kwargs['separators'] = kwargs.get('separators', (',', ': '))
-
-    if 'default' not in kwargs:
-        kwargs['default'] = default
     return json.dumps(obj, *args, **kwargs)
-
-
-def default(obj):
-    if isinstance(obj, datetime.datetime):
-        return obj.replace(tzinfo=None)
-    return obj

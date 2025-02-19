@@ -264,7 +264,10 @@ def _redis_cluster_store(
 
 @pytest.fixture
 def redis_standalone_store(
-    pytestconfig, redis_standalone_service, redis_standalone_node
+    pytestconfig,
+    redis_standalone_service,
+    redis_standalone_node,
+    _redis_execute_commands_from_file,
 ):
     if pytestconfig.option.no_redis:
         yield
@@ -276,6 +279,7 @@ def redis_standalone_store(
     )
 
     try:
+        _redis_execute_commands_from_file('redis_standalone_store', redis_db)
         yield redis_db
     finally:
         redis_db.flushall()

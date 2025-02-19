@@ -30,5 +30,8 @@ def test_sentinel_config(
 
 
 def test_sentinel_rw(redis_store: redis.StrictRedis):
-    assert redis_store.set('foo', b'bar')
-    assert redis_store.get('foo') == b'bar'
+    assert redis_store.set('foo_sentinel', b'bar')
+    assert redis_store.get('foo_sentinel') == b'bar'
+
+    assert redis_store.get('foo_cluster') is None
+    assert redis_store.get('foo_standalone') is None

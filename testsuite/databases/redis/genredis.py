@@ -259,11 +259,7 @@ def generate_standalone_redis_config(
         protected_mode_no = 'protected-mode no'
 
     input_file = _redis_config_directory() / MASTER_TPL_FILENAME
-    output_file = _construct_output_filename(
-        output_path,
-        MASTER_TPL_FILENAME,
-        0,
-    )
+    output_file = output_path / 'test_standalone_master0.conf'
 
     _generate_redis_config(
         input_file,

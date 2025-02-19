@@ -38,6 +38,7 @@ setuptools.setup(
             'configs/*.tpl',
             'scripts/service-redis',
             'scripts/service-cluster-redis',
+            'scripts/service-standalone-redis',
         ],
         'testsuite.databases.mysql': [
             'scripts/mysql-helper',

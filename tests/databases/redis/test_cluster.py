@@ -21,8 +21,8 @@ def test_cluster_rw(redis_cluster_store: redis.RedisCluster):
 
 
 def test_cluster_replicas(redis_cluster_store: redis.RedisCluster):
-    # redis_cluster_store.get_replicas() does not work on MacOS.
-    # Using a more generic `get_node_from_key` approach:
+    assert redis_cluster_store.get_replicas(), 'No replicas in cluster'
+
     primary = redis_cluster_store.get_node_from_key(f'key', replica=False)
     assert primary, 'No primary for node'
 

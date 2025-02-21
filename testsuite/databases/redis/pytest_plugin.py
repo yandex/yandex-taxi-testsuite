@@ -255,9 +255,10 @@ def _redis_cluster_store(
         return
 
     redis_db = redisdb.RedisCluster(  # type: ignore[abstract]
-        host=redis_cluster_nodes[0]['host'],
-        port=redis_cluster_nodes[0]['port'],
-        decode_responses=True,  # required for Python3
+        startup_nodes=[
+            redisdb.cluster.ClusterNode(x['host'], x['port'])
+            for x in redis_cluster_nodes
+        ],
     )
 
     yield redis_db

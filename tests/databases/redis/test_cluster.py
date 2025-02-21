@@ -21,10 +21,12 @@ def test_cluster_rw(redis_cluster_store: redis.RedisCluster):
 
 
 def test_cluster_replicas(redis_cluster_store: redis.RedisCluster):
-    assert redis_cluster_store.get_replicas(), 'No replicas in cluster'
+    cluster_nodes = redis_cluster_store.cluster_nodes()
+
+    assert redis_cluster_store.get_replicas(), f'No replicas. {cluster_nodes}'
 
     primary = redis_cluster_store.get_node_from_key(f'key', replica=False)
-    assert primary, 'No primary for node'
+    assert primary, f'No primary for node. Nodes: {cluster_nodes}'
 
     replica = redis_cluster_store.get_node_from_key(f'key', replica=True)
-    assert replica, 'No replica for node'
+    assert replica, f'No replica for node. Nodes: {cluster_nodes}'

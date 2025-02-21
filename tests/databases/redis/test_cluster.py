@@ -7,12 +7,21 @@ from testsuite.databases.redis import service
 def test_cluster_config(
     redis_cluster_store: redis.RedisCluster,
     _redis_cluster_service_settings: service.ClusterServiceSettings,
+    redis_cluster_replicas: int,
 ):
     cluster_nodes = redis_cluster_store.cluster_nodes()
 
+    replicas = 0
+    masters = 0
     for node, info in cluster_nodes.items():
         port = int(node.rsplit(':', maxsplit=1)[-1])
         assert port in _redis_cluster_service_settings.cluster_ports
+        if 'slave' in info or 'replica' in info:
+            replicas += 1
+        else:
+            masters += 1
+
+    assert replicas == masters * redis_cluster_replicas
 
 
 def test_cluster_rw(redis_cluster_store: redis.RedisCluster):
@@ -23,7 +32,10 @@ def test_cluster_rw(redis_cluster_store: redis.RedisCluster):
 def test_cluster_replicas(redis_cluster_store: redis.RedisCluster):
     cluster_nodes = redis_cluster_store.cluster_nodes()
 
-    assert redis_cluster_store.get_replicas(), f'No replicas. {cluster_nodes}'
+    assert redis_cluster_store.get_replicas(), (
+        f'No replicas. {cluster_nodes}. '
+        f'redis_cluster_store: {redis_cluster_store.nodes_manager.nodes_cache}'
+    )
 
     primary = redis_cluster_store.get_node_from_key(f'key', replica=False)
     assert primary, f'No primary for node. Nodes: {cluster_nodes}'

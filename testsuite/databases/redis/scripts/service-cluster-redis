@@ -42,12 +42,12 @@ wait_for_redis_nodes_election() {
             CURRENT_MASTERS_COUNT=$(echo "$CURRENT_NODES_REPONSE" | grep 'master' | wc -l)
             CURRENT_REPLICAS_COUNT=$(echo "$CURRENT_NODES_REPONSE" | grep 'slave\|replica' | wc -l)
             EXPECTED_REPLICAS_COUNT=$(expr $CURRENT_MASTERS_COUNT \* $REDIS_CLUSTER_REPLICAS)
-            if [ "x$EXPECTED_REPLICAS_COUNT" != "x$CURRENT_REPLICAS_COUNT" ]; then
+            if [ $EXPECTED_REPLICAS_COUNT -ne $CURRENT_REPLICAS_COUNT ]; then
                 break
             fi
         done
 
-        if [ "x$EXPECTED_REPLICAS_COUNT" = "x$CURRENT_REPLICAS_COUNT" ]; then
+        if [ $EXPECTED_REPLICAS_COUNT -eq $CURRENT_REPLICAS_COUNT ]; then
             return
         fi
 

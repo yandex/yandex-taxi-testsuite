@@ -18,3 +18,7 @@ def test_cluster_config(
 def test_cluster_rw(redis_cluster_store: redis.RedisCluster):
     assert redis_cluster_store.set('foo_cluster', b'bar')
     assert redis_cluster_store.get('foo_cluster') == b'bar'
+
+
+def test_cluster_replicas(redis_cluster_store: redis.RedisCluster):
+    assert redis_cluster_store.get_replicas(), "No replicas in cluster"

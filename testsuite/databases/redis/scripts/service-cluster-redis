@@ -10,7 +10,7 @@
 
 REDIS_DATADIR="$REDIS_TMPDIR/data"
 REDIS_LOGSDIR="$REDIS_TMPDIR/logs"
-REDIS_SLEEP_WORKAROUND_SECONDS=${REDIS_SLEEP_WORKAROUND_SECONDS:=3}
+REDIS_SLEEP_WORKAROUND_SECONDS=${REDIS_SLEEP_WORKAROUND_SECONDS:=15}
 
 REDIS_SERVER=$(find_binary_or_die redis-server)
 REDIS_CLI=$(find_binary_or_die redis-cli)
@@ -29,6 +29,33 @@ wait_redis_ready() {
         sleep 1
     done
     die "Failed to connect to redis instance on port $HOST:$PORT"
+}
+
+wait_for_redis_nodes_election() {
+    local CURRENT_REPLICAS_COUNT=0
+    local EXPECTED_REPLICAS_COUNT=999
+    local CURRENT_NODES_REPONSE=
+    local CURRENT_MASTERS_COUNT=
+    for i in $(seq 1 ${REDIS_SLEEP_WORKAROUND_SECONDS}); do
+        for port in ${REDIS_CLUSTER_PORTS}; do
+            CURRENT_NODES_REPONSE=$($REDIS_CLI -h $REDIS_HOST -p $port CLUSTER NODES)
+            CURRENT_MASTERS_COUNT=$(echo "$CURRENT_NODES_REPONSE" | grep 'master' | wc -l)
+            CURRENT_REPLICAS_COUNT=$(echo "$CURRENT_NODES_REPONSE" | grep 'slave\|replica' | wc -l)
+            EXPECTED_REPLICAS_COUNT=$(expr $CURRENT_MASTERS_COUNT \* $REDIS_CLUSTER_REPLICAS)
+            if [ "x$EXPECTED_REPLICAS_COUNT" != "x$CURRENT_REPLICAS_COUNT" ]; then
+                break
+            fi
+        done
+
+        if [ "x$EXPECTED_REPLICAS_COUNT" = "x$CURRENT_REPLICAS_COUNT" ]; then
+            return
+        fi
+
+        sleep 1
+    done
+
+    die "Failed to start redis cluster in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds. \
+        Try increasing the REDIS_SLEEP_WORKAROUND_SECONDS."
 }
 
 start() {
@@ -54,6 +81,9 @@ start() {
             dump_log_stderr "$logfile"
             die "Failed to start redis ($port) server"
         }
+    done
+
+    for port in ${REDIS_CLUSTER_PORTS}; do
         wait_redis_ready $REDIS_HOST $port
         REDIS_INSTS="$REDIS_INSTS $REDIS_HOST:$port"
     done
@@ -63,9 +93,10 @@ start() {
         --cluster-replicas $REDIS_CLUSTER_REPLICAS \
         --cluster-yes || \
         die "Failed to create a redis cluster"
-    echo "Created redis cluster ..."
 
-    sleep $REDIS_SLEEP_WORKAROUND_SECONDS
+    wait_for_redis_nodes_election
+
+    echo "Created redis cluster ..."
 }
 
 stop() {

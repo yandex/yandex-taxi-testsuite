@@ -16,7 +16,8 @@ def test_cluster_config(
     for node, info in cluster_nodes.items():
         port = int(node.rsplit(':', maxsplit=1)[-1])
         assert port in _redis_cluster_service_settings.cluster_ports
-        if 'slave' in info or 'replica' in info:
+        info_string = str(info)
+        if 'slave' in info_string or 'replica' in info_string:
             replicas += 1
         else:
             masters += 1

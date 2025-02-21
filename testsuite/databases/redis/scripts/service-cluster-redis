@@ -50,7 +50,7 @@ wait_for_redis_nodes_election() {
 
         if [ "$EXPECTED_REPLICAS_COUNT" -eq "$CURRENT_REPLICAS_COUNT" ]; then
             echo "!!!!!!!!!!!!! RETURN '$EXPECTED_REPLICAS_COUNT' == '$CURRENT_REPLICAS_COUNT'"
-            return
+            exit 42
         fi
 
         echo "!!!!!!!!!!!!! SLEEP '$EXPECTED_REPLICAS_COUNT' ? '$CURRENT_REPLICAS_COUNT'"

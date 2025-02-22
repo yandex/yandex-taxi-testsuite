@@ -26,6 +26,9 @@ class LoadYamlError(BaseError):
     """Yaml file load or parse failure error."""
 
 
+__tracebackhide__ = (BaseError, FileNotFoundError)
+
+
 class GetSearchPathesFixture(fixture_class.Fixture):
     """Generates sequence of pathes for static files."""
 

@@ -31,7 +31,7 @@ wait_redis_ready() {
     die "Failed to connect to redis instance on port $HOST:$PORT"
 }
 
-wait_for_redis_nodes_election() {
+wait_redis_nodes_election() {
     local CURRENT_REPLICAS_COUNT=0
     local EXPECTED_REPLICAS_COUNT=999
     local CURRENT_NODES_REPONSE=
@@ -56,6 +56,64 @@ wait_for_redis_nodes_election() {
 
     die "Failed to start redis cluster in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds. \
         Try increasing the REDIS_SLEEP_WORKAROUND_SECONDS."
+}
+
+check_cluster_slots_response_has_all_the_ports() {
+    local PORT=$1
+    local CHECK_STATUS='BAD'
+    local MATCHED_HOST='NO'
+    local CURRENT_REDIS_SLOTS=''
+
+    CURRENT_REDIS_SLOTS=$($REDIS_CLI -h $REDIS_HOST -p $PORT CLUSTER SLOTS)
+    for CLUSTER_NODE_PORT in ${REDIS_CLUSTER_PORTS}; do
+        CHECK_STATUS='BAD'
+
+        MATCHED_HOST='NO'
+        for LINE in ${CURRENT_REDIS_SLOTS}; do
+            if [ "x$LINE" = "x$REDIS_HOST" ]; then
+                MATCHED_HOST='YES'
+            elif [ "x$MATCHED_HOST" = "xYES" ] && [ "x$LINE" = "x$CLUSTER_NODE_PORT" ]; then
+                MATCHED_HOST='NO'
+                CHECK_STATUS='OK'
+                break
+            else
+                MATCHED_HOST='NO'
+            fi
+        done
+
+        if [ "x$CHECK_STATUS" = "xBAD" ]; then
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+wait_redis_nodes_slots_update() {
+    local CHECK_STATUS='BAD'
+
+    for i in $(seq 1 ${REDIS_SLEEP_WORKAROUND_SECONDS}); do
+        CHECK_STATUS='OK'
+        for PORT in ${REDIS_CLUSTER_PORTS}; do
+            if check_cluster_slots_response_has_all_the_ports $PORT; then
+                continue
+            else
+                CHECK_STATUS='BAD'
+                break
+            fi
+        done
+
+        if [ "x$CHECK_STATUS" = "xOK" ]; then
+            return
+        fi
+
+        sleep 1
+    done
+
+
+    die "Failed to start redis cluster in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds \
+        due to CLUSTER SLOTS incomplete output. Try increasing the \
+        REDIS_SLEEP_WORKAROUND_SECONDS."
 }
 
 start() {
@@ -94,7 +152,8 @@ start() {
         --cluster-yes || \
         die "Failed to create a redis cluster"
 
-    wait_for_redis_nodes_election
+    wait_redis_nodes_election
+    wait_redis_nodes_slots_update
 
     echo "Created redis cluster ..."
 }

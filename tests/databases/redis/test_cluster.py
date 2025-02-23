@@ -1,5 +1,3 @@
-import platform
-
 import pytest
 import redis
 
@@ -33,10 +31,6 @@ def test_cluster_rw(redis_cluster_store: redis.RedisCluster):
     assert redis_cluster_store.get('foo_cluster') == b'bar'
 
 
-@pytest.mark.skipif(
-    platform.system() == 'Darwin',
-    reason='TODO: get_replicas() does not work on MacOS',
-)
 def test_cluster_replicas(redis_cluster_store: redis.RedisCluster):
     cluster_nodes = redis_cluster_store.cluster_nodes()
 

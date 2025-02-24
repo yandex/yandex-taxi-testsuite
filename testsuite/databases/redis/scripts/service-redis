@@ -21,20 +21,38 @@ REDIS_LOGSDIR=$REDIS_TMPDIR/logs
 [ -z "$REDIS_SENTINEL_PORT" ] && die "REDIS_SENTINEL_PORT must be set"
 
 wait_redis_startup() {
-    local MASTERS=
     local SLAVES=
+    local STATUS='OK'
+    local KEY=
     for i in $(seq -${REDIS_SLEEP_WORKAROUND_SECONDS} ${REDIS_SLEEP_WORKAROUND_SECONDS}); do
-        MASTERS=$($REDIS_CLI -h $REDIS_SENTINEL_HOST -p $REDIS_SENTINEL_PORT SENTINEL masters)
         SLAVES=$(
           $REDIS_CLI -h $REDIS_SENTINEL_HOST -p $REDIS_SENTINEL_PORT SENTINEL slaves test_master0
           $REDIS_CLI -h $REDIS_SENTINEL_HOST -p $REDIS_SENTINEL_PORT SENTINEL slaves test_master1
         )
 
-        if [ -z "$MASTERS" ] || (echo "$SLAVES" | grep -q "disconnected\|'err'"); then
-            sleep 0.5
-        else
+        STATUS='OK'
+        KEY=''
+        for line in ${SLAVES}; do
+            if [ "x$line" = "xflags" ]; then
+                KEY='flags'
+            elif [ "x$line" = "xmaster-link-status" ]; then
+                KEY='master-link-status'
+            elif [ "x$KEY" = "xflags" ] && (echo "$line" | grep -q "disconnected"); then
+                STATUS='FAIL'
+                break
+            elif [ "x$KEY" = "xmaster-link-status" ] && (echo "$line" | grep -q "err"); then
+                STATUS='FAIL'
+                break
+            else
+                KEY=''
+            fi
+        done
+
+        if [ "x$STATUS" = "xOK" ]; then
             return
         fi
+
+        sleep 0.5
     done
 
     die "Redis instances failed to negotiate in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds. \

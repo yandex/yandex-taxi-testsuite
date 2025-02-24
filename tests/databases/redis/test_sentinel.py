@@ -17,6 +17,7 @@ def test_sentinel_config(
         assert not master['is_slave']
         assert not master['is_sentinel']
         assert not master['is_disconnected']
+        assert 'disconnected' not in str(master['flags'])
 
         for slave in redis_sentinel.sentinel_slaves(shard):
             assert slave['port'] in _redis_service_settings.slave_ports
@@ -24,6 +25,8 @@ def test_sentinel_config(
             assert not slave['is_master']
             assert not slave['is_sentinel']
             assert not slave['is_disconnected']
+            assert 'disconnected' not in str(slave['flags'])
+            assert slave['master-link-status'] == 'ok'
             total_slaves += 1
 
     assert total_slaves == len(_redis_service_settings.slave_ports)

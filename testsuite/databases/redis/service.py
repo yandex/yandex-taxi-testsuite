@@ -151,6 +151,8 @@ def create_redis_service(
         environment={
             'REDIS_TMPDIR': working_dir,
             'REDIS_CONFIGS_DIR': str(configs_dir),
+            'REDIS_SENTINEL_PORT': str(settings.sentinel_port),
+            'REDIS_SENTINEL_HOST': settings.host,
             **(env or {}),
         },
         check_host=settings.host,

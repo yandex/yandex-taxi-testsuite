@@ -37,7 +37,7 @@ wait_redis_startup() {
         fi
     done
 
-    die "Redis instances failed to star in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds. \
+    die "Redis instances failed to negotiate in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds. \
         Try increasing the REDIS_SLEEP_WORKAROUND_SECONDS."
 }
 
@@ -75,7 +75,7 @@ start() {
         die "Failed to start redis sentinel server"
     }
 
-    #wait_redis_startup
+    wait_redis_startup
 }
 
 stop() {

@@ -33,7 +33,10 @@ setuptools.setup(
     packages=setuptools.find_packages(include=['testsuite', 'testsuite.*']),
     package_data={
         'testsuite.environment': ['scripts/*.sh'],
-        'testsuite.databases.mongo': ['scripts/service-mongo'],
+        'testsuite.databases.mongo': [
+            'scripts/service-mongo',
+            'scripts/service-mongo-legacy',
+        ],
         'testsuite.databases.redis': [
             'configs/*.tpl',
             'scripts/service-redis',

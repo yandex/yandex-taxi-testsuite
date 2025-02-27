@@ -1,0 +1,129 @@
+#!/bin/bash
+
+. $TESTSUITE_LIB_UTILS
+
+MONGO=$(which mongo)
+MONGOD=$(which mongod)
+MONGOS=$(which mongos)
+
+MONGO_ARGS="--nounixsocket"
+MONGOS_ARGS=""
+
+if [ "x$MONGO" = "x" ]; then
+    die "No mongo binary found"
+fi
+if [ "x$MONGOD" = "x" ]; then
+    die "No mongod binary found"
+fi
+if [ "x$MONGOS" = "x" ]; then
+    die "No mongos binary found"
+fi
+if [ "x$MONGOS_PORT" = "x" ]; then
+    die "MONGOS_PORT must be set"
+fi
+if [ "x$CONFIG_SERVER_PORT" = "x" ]; then
+    die "CONFIG_SERVER_PORT must be set"
+fi
+if [ "x$SHARD_PORT" = "x" ]; then
+    die "SHARD_PORT must be set"
+fi
+if [ "x$MONGO_IPV4_ONLY" = "x" ]; then
+    MONGO_ARGS="$MONGO_ARGS --ipv6"
+fi
+if [ "$MONGO_BIND_IP_ALL" = "1" ]; then
+    MONGOS_ARGS="$MONGOS_ARGS --bind_ip_all"
+fi
+
+# Use ramdisk for mongo if available
+RAMDISK=/mnt/ramdisk/$USER
+if mkdir -p $RAMDISK 2> /dev/null; then
+    MONGO_TMPDIR=$RAMDISK/_mongo${WORKER_SUFFIX_PATH}
+fi
+
+if [ "x$MONGO_TMPDIR" = "x" ]; then
+    die "MONGO_TMPDIR must be set or RAM-disk must be enabled"
+fi
+
+MONGO_SHARD0_DIR=$MONGO_TMPDIR/taxi-shrd0
+MONGOS_DIR=$MONGO_TMPDIR/taxi-mongos
+CONFIG_SERVER_DIR=$MONGO_TMPDIR/taxi-cfg
+
+MONGO_SHARD0_PID_FILE="$(get_pidfile taxi-shrd0/mongo-shard)"
+MONGOS_PID_FILE="$(get_pidfile taxi-mongos/mongos)"
+CONFIG_SERVER_PID_FILE="$(get_pidfile taxi-cfg/mongo-cfg)"
+
+MONGOD_CONFIG_SERVER_LOG_FILE=$CONFIG_SERVER_DIR/mongo-cfg.log
+MONGOD_CONFIG_SERVER_ARGS="$MONGO_ARGS --configsvr --port $CONFIG_SERVER_PORT
+            --replSet crs0 --dbpath $CONFIG_SERVER_DIR --fork
+            --pidfilepath $CONFIG_SERVER_PID_FILE
+            --logpath $MONGOD_CONFIG_SERVER_LOG_FILE"
+
+MONGOD_SHARD_SERVER_LOG_FILE=$MONGO_SHARD0_DIR/mongod-shrd.log
+MONGOD_SHARD_SERVER_ARGS="$MONGO_ARGS --shardsvr --port $SHARD_PORT
+            --dbpath $MONGO_SHARD0_DIR --fork
+            --pidfilepath $MONGO_SHARD0_PID_FILE
+            --logpath $MONGOD_SHARD_SERVER_LOG_FILE"
+
+MONGOS_LOG_FILE=$MONGOS_DIR/mongos.log
+MONGOS_ARGS="$MONGO_ARGS --configdb crs0/localhost:$CONFIG_SERVER_PORT
+            --port $MONGOS_PORT
+            --fork --pidfilepath $MONGOS_PID_FILE
+            --logpath $MONGOS_LOG_FILE $MONGOS_ARGS"
+
+
+start_sharded_cluster() {
+    mkdir -p $MONGO_SHARD0_DIR
+    mkdir -p $MONGOS_DIR
+    mkdir -p $CONFIG_SERVER_DIR
+
+    echo "Mongo data directory: $MONGO_TMPDIR"
+
+    echo "Starting sharded cluster's config server at $CONFIG_SERVER_DIR..."
+    $MONGOD $MONGOD_CONFIG_SERVER_ARGS || {
+        print_log $MONGOD_CONFIG_SERVER_LOG_FILE
+        exit 1
+    }
+
+    sleep 1
+
+    echo "Initiating a replica set..."
+    $MONGO --port $CONFIG_SERVER_PORT --eval 'rs.initiate({_id: "crs0", configsvr: true, members: [{_id: 0, host: "localhost:'"$CONFIG_SERVER_PORT"'"}]})'
+
+    echo "Starting shard at $MONGO_SHARD0_DIR..."
+    $MONGOD $MONGOD_SHARD_SERVER_ARGS || {
+        print_log $MONGOD_SHARD_SERVER_LOG_FILE
+        exit 1
+    }
+
+    echo "Starting mongos..."
+    $MONGOS $MONGOS_ARGS || {
+        print_log $MONGOS_LOG_FILE
+        exit 1
+    }
+
+    echo "Adding shard..."
+    $MONGO --port $MONGOS_PORT --eval 'sh.addShard("localhost:'"$SHARD_PORT"'")'
+}
+
+start() {
+    (ulimit_files && start_sharded_cluster)
+}
+
+stop() {
+    stop_daemon $MONGOD $CONFIG_SERVER_PID_FILE
+    stop_daemon $MONGOD $MONGO_SHARD0_PID_FILE
+    stop_daemon $MONGOS $MONGOS_PID_FILE
+    rm -rf $MONGO_TMPDIR
+}
+
+print_log() {
+    local logfile=$1
+    if [ -f $logfile ]; then
+        echo "Log output from $logfile:"
+        cat $logfile
+    else
+        echo "Log file not found at $logfile"
+    fi
+}
+
+script_main "$@"

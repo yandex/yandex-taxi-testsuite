@@ -2,6 +2,12 @@
 
 . "$TESTSUITE_LIB_UTILS"
 
+
+if [ "x$TESTSUITE_MONGO_LEGACY" != "x" ]; then
+    echo "Legacy mongo requested"
+    exec "${0}-legacy" "$@"
+fi
+
 MONGO=$(which mongo || which mongosh)
 MONGOD=$(which mongod)
 MONGOS=$(which mongos)

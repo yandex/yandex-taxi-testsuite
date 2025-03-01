@@ -55,7 +55,7 @@ Out-of-the-box testsuite supports the following databases:
 
 * PostgreSQL
 * MongoDB
-* Redis
+* Redis/Valkey
 * MySQL/MariaDB 10+
 * ClickHouse
 * RabbitMQ
@@ -70,7 +70,7 @@ Principle of operation
 
 Testsuite sets up the environment for the service being tested:
 
-* Testsuite starts any required databases (postgresql, mongo, redis).
+* Testsuite starts any required databases (postgresql, mongo, redis/valkey).
 * Before each test, testsuite fills the database with test data.
 * Testsuite starts its own web server (mockserver), which mimics (mocks)
   microservices other than the one being tested.

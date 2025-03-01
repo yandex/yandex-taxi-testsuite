@@ -52,6 +52,16 @@ jobs:
       run: |
           make venv-tests
 
+    - name: Rerun redis tests with Valkey
+      env:
+          TESTSUITE_ALLOW_ROOT: 1
+          TESTSUITE_DEBUG: 1
+          PYTEST_ARGS: "-k redis -vvs"
+      run: |
+        brew remove redis
+        brew install valkey
+        make venv-tests
+
     - name: Run examples tests
       env:
           TESTSUITE_ALLOW_ROOT: 1

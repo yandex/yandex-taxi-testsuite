@@ -98,6 +98,13 @@ def pytest_addoption(parser):
     )
 
 
+def pytest_report_header(config):
+    conninfo = _get_connection_info(config)
+    return [
+        f'PostgreSQL: {conninfo.get_uri()}'
+    ]
+
+
 def pytest_configure(config):
     config.addinivalue_line(
         'markers',
@@ -402,11 +409,11 @@ def _pgsql_service(
 
 
 @pytest.fixture(scope='session')
-def _pgsql_control(pytestconfig, _pgsql_conninfo, pgsql_disabled: bool):
+def _pgsql_control(pytestconfig, pgsql_disabled: bool):
     if pgsql_disabled:
         return {}
     instance = control.PgControl(
-        _pgsql_conninfo,
+        _get_connection_info(pytestconfig),
         verbose=pytestconfig.option.verbose,
         skip_applied_schemas=(
             pytestconfig.option.postgresql_keep_existing_db
@@ -427,7 +434,12 @@ def _pgsql_conninfo(
     request,
     _pgsql_service_settings,
 ) -> connection.PgConnectionInfo:
-    connstr = request.config.option.postgresql
+    return _get_connection_info(request.config)
+
+
+def _get_connection_info(config):
+    connstr = config.option.postgresql
     if connstr:
         return connection.parse_connection_string(connstr)
-    return _pgsql_service_settings.get_conninfo()
+    settings = service.get_service_settings()
+    return settings.get_conninfo()

@@ -100,9 +100,7 @@ def pytest_addoption(parser):
 
 def pytest_report_header(config):
     conninfo = _get_connection_info(config)
-    return [
-        f'PostgreSQL: {conninfo.get_uri()}'
-    ]
+    return [f'PostgreSQL: {conninfo.get_uri()}']
 
 
 def pytest_configure(config):

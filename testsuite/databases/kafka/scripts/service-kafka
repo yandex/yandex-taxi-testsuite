@@ -162,7 +162,7 @@ stop_kafka() {
                 for i in `seq 10`; do
                     if kill -s TERM $pid; then
                         echo "Retrying kill $pid after 0.1s..."
-                        sleep 0.1
+                        sleep 1
                     else
                         echo "Broker killed after $i tries"
                         break

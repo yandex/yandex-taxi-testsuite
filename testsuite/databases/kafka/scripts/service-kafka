@@ -159,7 +159,10 @@ stop_kafka() {
             echo "Current candidate node.id: $NID"
             if [ "$NID" = "$KAFKA_NODE_ID" ]; then
                 echo "Killing broker: $pid"
-                kill -s TERM $pid
+                while kill -s TERM $pid 2>/dev/null; do
+                    echo "Waiting until broker $pid stopped..."
+                    sleep 1
+                done
             fi
         else
             echo "Skipping $pid"

@@ -160,7 +160,7 @@ stop_kafka() {
             if [ "$NID" = "$KAFKA_NODE_ID" ]; then
                 echo "Killing broker: $pid"
                 for i in `seq 10`; do
-                    if kill -s TERM $pid; then
+                    if kill -s TERM $pid 2>/dev/null; then
                         echo "Retrying kill $pid after 1s..."
                         sleep 1
                     else

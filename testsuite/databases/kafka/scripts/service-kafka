@@ -168,6 +168,7 @@ stop_kafka() {
                         break
                     fi
                 done
+                kill -s KILL $pid 2>/dev/null
             fi
         else
             echo "Skipping $pid"

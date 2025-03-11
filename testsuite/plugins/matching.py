@@ -22,6 +22,17 @@ def _match_unordered_list(doc: dict):
     return matching.unordered_list(items, key=key)
 
 
+def _match_list_of(doc):
+    return matching.ListOf(item=doc.get('item', matching.any_value))
+
+
+def _match_dict_of(doc):
+    return matching.DictOf(
+        key=doc.get('key', matching.any_value),
+        value=doc.get('value', matching.any_value),
+    )
+
+
 def pytest_register_matching_hooks():
     return {
         'any-value': matching.any_value,
@@ -42,7 +53,14 @@ def pytest_register_matching_hooks():
         'objectid-string': matching.objectid_string,
         'datetime-string': matching.datetime_string,
         'regex': _default_regex_match,
+        # dictionaries
+        'any-dict': matching.any_dict,
+        'dict-of': _match_dict_of,
         'partial-dict': _default_partial_dict_match,
+        # lists
+        'any-list': matching.any_list,
+        'list-of': _match_list_of,
+        'unordered-list': _match_unordered_list,
         'unordered_list': _match_unordered_list,
     }
 

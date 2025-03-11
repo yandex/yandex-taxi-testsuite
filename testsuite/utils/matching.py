@@ -6,6 +6,14 @@ import typing
 import dateutil.parser
 
 
+class BaseError(Exception):
+    pass
+
+
+class NoValueCapturedError(BaseError):
+    pass
+
+
 class Any:
     """Matches any value."""
 
@@ -309,6 +317,131 @@ class UnorderedList:
         return sorted(other, key=self.key) == self.value
 
 
+class AnyList:
+    """Value is a list.
+
+    Example:
+
+    .. code-block:: python
+
+       assert ['foo', 'bar']  == matching.any_dict
+    """
+
+    def __repr__(self):
+        return '<AnyList>'
+
+    def __eq__(self, other):
+        return isinstance(other, list)
+
+
+class AnyDict:
+    """Value is a dictionary.
+
+    Example:
+
+    .. code-block:: python
+
+       assert {'foo': 'bar'} == matching.any_dict
+    """
+
+    def __repr__(self):
+        return '<AnyDict>'
+
+    def __eq__(self, other):
+        return isinstance(other, dict)
+
+
+class ListOf:
+    """Value is a list of values.
+
+    Example:
+
+    .. code-block:: python
+
+       assert ['foo', 'bar']  == matching.ListOf(matching.any_string)
+       assert [1, 2]  != matching.ListOf(matching.any_string)
+    """
+
+    def __init__(self, item):
+        self.item = item
+
+    def __repr__(self):
+        return f'<ListOf item={self.item}>'
+
+    def __eq__(self, other):
+        if not isinstance(other, list):
+            return False
+        for item in other:
+            if self.item != item:
+                return False
+        return True
+
+
+class DictOf:
+    """Value is a dictionary of (key, value) pairs.
+
+    Example:
+
+    .. code-block:: python
+
+       pred = matching.DictOf(key=matching.any_string, value=matching.any_string)
+       assert pred == {'foo': 'bar'}
+       assert pred != {'foo': 1}
+       assert pred != {1: 'bar'}
+    """
+
+    def __init__(self, key=Any(), value=Any()):
+        self.key = key
+        self.value = value
+
+    def __repr__(self):
+        return f'<DictOf key={self.key} value={self.value}>'
+
+    def __eq__(self, other):
+        if not isinstance(other, dict):
+            return False
+        for key, value in other.items():
+            if self.key != key:
+                return False
+            if self.value != value:
+                return False
+        return True
+
+
+class Capture:
+    """Capture matched value(s).
+
+    Example:
+
+    .. code-block:: python
+
+       capture_foo = matching.Capture()
+       pattern = {'foo': capture_foo}
+       assert pattern == {'foo': 'bar'}
+       assert capture_foo.value == 'bar'
+       assert capture_foo.values_list == ['bar']
+    """
+    def __init__(self, value=Any()):
+        self._value = value
+        self._captured = []
+
+    @property
+    def value(self):
+        if self._captured:
+            return self._captured[0]
+        raise NoValueCapturedError(f'No value captured for value {self._value}')
+
+    @property
+    def values_list(self):
+        return self._captured
+
+    def __eq__(self, other):
+        if self._value != other:
+            return False
+        self._captured.append(other)
+        return True
+
+
 def unordered_list(sequence, *, key=None):
     """Unordered list comparison.
 
@@ -347,3 +480,6 @@ any_string = AnyString()
 datetime_string = DatetimeString()
 objectid_string = ObjectIdString()
 uuid_string = UuidString()
+
+any_dict = AnyDict()
+any_list = AnyList()

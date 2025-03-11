@@ -154,6 +154,39 @@ def test_substitute_with_matching(object_hook, json_input, expected_result):
 @pytest.mark.parametrize(
     'json_input,expected_result',
     [
+        ({'$match': 'any-dict'}, []),
+        (
+            {
+                '$match': {
+                    'type': 'dict-of',
+                    'key': {'$match': {'type': 'any-string'}},
+                    'value': {'$match': {'type': 'any-string'}},
+                }
+            },
+            {'foo': 1},
+        ),
+        ({'$match': 'any-list'}, {}),
+        (
+            {
+                '$match': {
+                    'type': 'list-of',
+                    'item': {'$match': {'type': 'any-string'}},
+                }
+            },
+            ['foo', 2],
+        ),
+    ],
+)
+def test_substitute_with_matching_failure(
+    object_hook, json_input, expected_result
+):
+    result = json_util.substitute(json_input, object_hook=object_hook)
+    assert result != expected_result
+
+
+@pytest.mark.parametrize(
+    'json_input,expected_result',
+    [
         ({'$match': {'type': 'unordered_list', 'items': [3, 2, 1]}}, [1, 2, 3]),
         (
             {

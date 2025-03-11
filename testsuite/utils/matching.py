@@ -421,6 +421,7 @@ class Capture:
        assert capture_foo.value == 'bar'
        assert capture_foo.values_list == ['bar']
     """
+
     def __init__(self, value=Any()):
         self._value = value
         self._captured = []

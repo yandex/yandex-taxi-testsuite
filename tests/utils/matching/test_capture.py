@@ -19,6 +19,7 @@ def test_capture_multiple():
     assert capture_foo.value == 'bar'
     assert capture_foo.values_list == ['bar', 'baz']
 
+
 def test_capture_failure():
     capture_foo = matching.Capture(matching.any_string)
     pattern = {'foo': capture_foo}

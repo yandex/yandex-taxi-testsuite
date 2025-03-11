@@ -139,13 +139,43 @@ Not
 
 .. autoclass:: Not
 
-Partial dict
-------------
+Dict matching
+-------------
+
+Any dict
+~~~~~~~~
+
+.. autoclass:: AnyDict
+
+Dict of
+~~~~~~~
+
+.. autoclass:: DictOf
+
+Partial matching
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: PartialDict
 
+List matching
+-------------
+
+Any list
+~~~~~~~~
+
+.. autoclass:: AnyList
+
+List of
+~~~~~~~
+
+.. autoclass:: ListOf
 
 Unordered list
---------------
+~~~~~~~~~~~~~~
 
 .. autofunction:: unordered_list
+
+Value captuing
+--------------
+
+.. autoclass:: Capture

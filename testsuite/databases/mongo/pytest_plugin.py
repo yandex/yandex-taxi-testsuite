@@ -151,6 +151,11 @@ def pytest_addoption(parser):
     )
 
 
+def pytest_report_header(config):
+    conninfo = _get_connection_info(config)
+    return [f'Mongo: {conninfo.get_uri()}']
+
+
 def pytest_service_register(register_service):
     register_service('mongo', service.create_mongo_service)
 
@@ -201,14 +206,8 @@ def mongo_extra_connections() -> typing.Tuple[str, ...]:
 @pytest.fixture(scope='session')
 def mongo_connection_info(
     pytestconfig,
-    _mongo_service_settings,
 ) -> connection.ConnectionInfo:
-    # External mongo instance
-    if pytestconfig.option.mongo:
-        return connection.parse_connection_uri(pytestconfig.option.mongo)
-    connection_info = _mongo_service_settings.get_connection_info()
-    retry_writes = pytestconfig.getini('mongo-retry-writes')
-    return dataclasses.replace(connection_info, retry_writes=retry_writes)
+    return _get_connection_info(pytestconfig)
 
 
 @pytest.fixture
@@ -464,3 +463,13 @@ def _is_nested_path(parent: pathlib.Path, nested: pathlib.Path) -> bool:
 
 def _mongo_object_hook(doc):
     return json_util.object_hook(doc, JSON_OPTIONS)
+
+
+def _get_connection_info(config):
+    # External mongo instance
+    if config.option.mongo:
+        return connection.parse_connection_uri(config.option.mongo)
+    service_settings = service.get_service_settings()
+    connection_info = service_settings.get_connection_info()
+    retry_writes = config.getini('mongo-retry-writes')
+    return dataclasses.replace(connection_info, retry_writes=retry_writes)

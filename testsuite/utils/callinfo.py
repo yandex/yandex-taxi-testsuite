@@ -2,7 +2,7 @@ import asyncio
 import inspect
 import typing
 
-from testsuite.utils import cached_property
+from testsuite.utils import cached_property, traceback
 
 
 class BaseError(Exception):
@@ -22,6 +22,8 @@ class CallQueueTimeoutError(CallQueueError):
 
 
 CheckerType = typing.Callable[[str], None]
+
+__tracebackhide__ = traceback.hide(BaseError)
 
 
 class AsyncCallQueue:
@@ -91,7 +93,6 @@ class AsyncCallQueue:
         try:
             return self._get_callinfo(*self._queue.get_nowait())
         except asyncio.queues.QueueEmpty:
-            __tracebackhide__ = True
             raise CallQueueEmptyError(
                 f'No calls for {self._name}() left in the queue',
             ) from None
@@ -110,7 +111,6 @@ class AsyncCallQueue:
             item = await asyncio.wait_for(self._queue.get(), timeout=timeout)
             return self._get_callinfo(*item)
         except asyncio.TimeoutError:
-            __tracebackhide__ = True
             raise CallQueueTimeoutError(
                 f'Timeout while waiting for {self._name}() to be called',
             ) from None

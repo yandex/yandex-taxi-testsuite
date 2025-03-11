@@ -1,3 +1,6 @@
+from testsuite.utils import traceback
+
+
 class BaseError(Exception):
     pass
 
@@ -10,5 +13,4 @@ class NameCannotBeShortend(BaseError):
     pass
 
 
-def __tracebackhide__(excinfo):
-    return excinfo.errisinstance(BaseError)
+__tracebackhide__ = traceback.hide(BaseError)

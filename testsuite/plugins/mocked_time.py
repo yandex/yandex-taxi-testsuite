@@ -5,6 +5,7 @@ import dateutil.parser
 import pytest
 
 from testsuite import utils
+from testsuite.utils import traceback
 
 MOCK_TIME_DISABLED_MESSAGE = (
     'Mock time is disabled. Use @pytest.mark.now to enable mock '
@@ -22,6 +23,9 @@ class DisabledUsageError(BaseError):
     """Raised when attempting to use a disabled feature"""
 
 
+__tracebackhide__ = traceback.hide(BaseError)
+
+
 class MockedTime:
     def __init__(self, time: datetime.datetime, *, is_enabled: bool):
         self._now: datetime.datetime = time
@@ -33,7 +37,6 @@ class MockedTime:
         :param delta: increase value in seconds
         """
         if not self._is_enabled:
-            __tracebackhide__ = True
             raise DisabledUsageError(MOCK_TIME_DISABLED_MESSAGE)
         self._now += datetime.timedelta(seconds=delta)
 
@@ -55,7 +58,6 @@ class MockedTime:
     def set(self, time: datetime.datetime):
         """Set mock time value"""
         if not self._is_enabled:
-            __tracebackhide__ = True
             raise DisabledUsageError(MOCK_TIME_DISABLED_MESSAGE)
         self._now = utils.to_utc(time)
 

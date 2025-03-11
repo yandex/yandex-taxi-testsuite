@@ -5,6 +5,7 @@ import time
 import typing
 
 from testsuite import annotations
+from testsuite.utils import traceback
 
 from . import shell, utils
 
@@ -15,6 +16,17 @@ _TESTSUITE_LIB_UTILS = pathlib.Path(__file__).parent.joinpath(
 )
 COMMAND_START = 'start'
 COMMAND_STOP = 'stop'
+
+
+class BaseError(Exception):
+    pass
+
+
+class ServiceFailedToStartError(BaseError):
+    pass
+
+
+__tracebackhide__ = traceback.hide(BaseError)
 
 
 class ScriptService:
@@ -48,10 +60,8 @@ class ScriptService:
             logger.info('Starting %s service...', self._service_name)
         self._command(COMMAND_START, verbose)
         if not self._wait_for_ports():
-            __tracebackhide__ = True
-            raise RuntimeError(
-                'Service %s failed to start within %f seconds.'
-                % (self._service_name, self._start_timeout),
+            raise ServiceFailedToStartError(
+                f'Service {self._service_name} failed to start within {self._start_timeout} seconds.'
             )
         if verbose:
             logger.info('Service %s started.', self._service_name)

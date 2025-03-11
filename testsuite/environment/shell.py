@@ -4,6 +4,8 @@ import subprocess
 import threading
 import typing
 
+from testsuite.utils import traceback
+
 logger = logging.getLogger(__name__)
 
 
@@ -13,6 +15,9 @@ class BaseError(Exception):
 
 class SubprocessFailed(BaseError):
     pass
+
+
+__tracebackhide__ = traceback.hide(BaseError)
 
 
 def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
@@ -72,7 +77,6 @@ def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
             )
 
     if exit_code != 0:
-        __tracebackhide__ = True
         raise SubprocessFailed(
             f'Subprocess {ident} exited with code {exit_code}\n'
             f'... args={process.args!r}'

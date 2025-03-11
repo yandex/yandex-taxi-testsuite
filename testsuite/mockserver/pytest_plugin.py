@@ -8,6 +8,7 @@ from testsuite import annotations
 from testsuite.utils import colors
 
 from . import classes, exceptions, server
+from .exceptions import __tracebackhide__
 
 MOCKSERVER_DEFAULT_PORT = 9999
 MOCKSERVER_SSL_DEFAULT_PORT = 9998
@@ -128,7 +129,6 @@ def fixture_mockserver_create_session(
 ):
     @contextlib.contextmanager
     def create_session(mockserver):
-        __tracebackhide__ = True
         with mockserver.new_session(
             asyncexc_append=asyncexc_append,
             trace_id=_mockserver_trace_id,

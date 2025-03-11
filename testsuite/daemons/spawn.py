@@ -9,7 +9,7 @@ import sys
 import time
 from typing import AsyncGenerator, Dict, Sequence
 
-from testsuite.utils import compat
+from testsuite.utils import compat, traceback
 
 SIGNAL_ERRORS: Dict[int, str] = {
     signal.SIGSEGV: (
@@ -215,5 +215,4 @@ def _setup_process() -> None:
         _LIBC.prctl(_PR_SET_PDEATHSIG, signal.SIGKILL)
 
 
-def __tracebackhide__(excinfo):
-    return excinfo.errisinstance(BaseError)
+__tracebackhide__ = traceback.hide(BaseError)

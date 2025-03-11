@@ -14,10 +14,18 @@ import aiohttp.web
 import yarl
 
 from testsuite import utils
-from testsuite.utils import cached_property, callinfo, compat, http, url_util
+from testsuite.utils import (
+    cached_property,
+    callinfo,
+    compat,
+    http,
+    traceback,
+    url_util,
+)
 from testsuite.utils import net as net_utils
 
 from . import classes, exceptions, magicargs
+from .exceptions import __tracebackhide__
 
 DEFAULT_TRACE_ID_HEADER = 'X-YaTraceId'
 DEFAULT_SPAN_ID_HEADER = 'X-YaSpanId'
@@ -117,7 +125,6 @@ class Session:
         for prefix, handler in reversed(self.prefix_handlers):
             if path.startswith(prefix):
                 return handler, {}
-        __tracebackhide__ = True
         raise exceptions.HandlerNotFoundError(
             self._get_handler_not_found_message(path),
         )
@@ -148,7 +155,6 @@ class Session:
         request: MockserverRequest,
         nofail_404: bool,
     ):
-        __tracebackhide__ = True
         try:
             handler, kwargs = self._get_handler_for_request(request)
         except exceptions.HandlerNotFoundError as exc:
@@ -201,7 +207,6 @@ class Session:
         self,
         request: MockserverRequest,
     ) -> typing.Tuple[Handler, RouteParams]:
-        __tracebackhide__ = True
         path = request.original_path
         if self.http_proxy_enabled:
             host = request.headers.get('host')

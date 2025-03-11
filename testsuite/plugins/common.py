@@ -7,7 +7,7 @@ import pytest
 
 from testsuite import annotations
 from testsuite._internal import fixture_class
-from testsuite.utils import cached_property, json_util, yaml_util
+from testsuite.utils import cached_property, json_util, traceback, yaml_util
 
 
 class BaseError(Exception):
@@ -26,7 +26,7 @@ class LoadYamlError(BaseError):
     """Yaml file load or parse failure error."""
 
 
-__tracebackhide__ = (BaseError, FileNotFoundError)
+__tracebackhide__ = traceback.hide(BaseError, FileNotFoundError)
 
 
 class GetSearchPathesFixture(fixture_class.Fixture):

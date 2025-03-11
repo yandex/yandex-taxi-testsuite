@@ -8,9 +8,18 @@ import typing
 
 import pytest
 
+from testsuite.utils import traceback
 
-class BackgroundExceptionError(Exception):
+
+class BaseError(Exception):
     pass
+
+
+class BackgroundExceptionError(BaseError):
+    pass
+
+
+__tracebackhide__ = traceback.hide(BaseError)
 
 
 @pytest.fixture
@@ -19,7 +28,6 @@ def _asyncexc():
     try:
         yield errors
     finally:
-        __tracebackhide__ = True
         _raise_if_any(errors)
 
 
@@ -34,7 +42,6 @@ def asyncexc_check(_asyncexc):
     """Raise in case there are background exceptions."""
 
     def check():
-        __tracebackhide__ = True
         _raise_if_any(_asyncexc)
 
     return check
@@ -45,7 +52,6 @@ def _raise_if_any(errors):
         return
     errors = _clear_and_copy(errors)
     for exc in errors:
-        __tracebackhide__ = True
         raise BackgroundExceptionError(
             f'There were {len(errors)} background exceptions'
             f', showing the first one',

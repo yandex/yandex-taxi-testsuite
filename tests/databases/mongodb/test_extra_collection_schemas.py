@@ -4,10 +4,8 @@ import pytest
 
 
 @pytest.fixture(scope='session')
-def mongo_schema_extra_directories():
-    return [
-        pathlib.Path(__file__).parent.parent.parent / 'schemas/mongo_extra',
-    ]
+def mongo_schema_extra_directories(schemas_directory):
+    return [schemas_directory / 'mongo_extra']
 
 
 def test_extra_collection_is_accessible(mongodb):

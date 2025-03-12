@@ -85,11 +85,6 @@ def create_service_client(
     return _create_service_client
 
 
-@pytest.fixture(scope='session')
-def mongo_schema_directory():
-    return pathlib.Path(__file__).parent / 'schemas/mongo'
-
-
 def pytest_register_object_hooks():
     def _custom_object_hook(doc: dict):
         return '<my-custom-obj>'

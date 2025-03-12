@@ -25,6 +25,14 @@ def pytest_configure(config):
     )
 
 
+def pytest_report_header(config):
+    settings = service.get_service_settings()
+    return [
+        f'Kafka server: {settings.server_host}:{settings.server_port}',
+        f'Kafka controller: {settings.server_host}:{settings.controller_port}',
+    ]
+
+
 def pytest_service_register(register_service):
     register_service('kafka', service.create_kafka_service)
 

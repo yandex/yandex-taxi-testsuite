@@ -21,6 +21,16 @@ class ServiceSettings:
 """Kafka bootstrap servers URLs list"""
 BootstrapServers = typing.List[str]
 
+"""Kafka message header"""
+Header = typing.Tuple[str, bytes]
+
+"""
+    Kafka headers sequence.
+    The order is taken into account.
+    Duplicate keys are allowed.
+"""
+Headers = typing.Sequence[Header]
+
 
 class KafkaDisabledError(Exception):
     pass
@@ -49,6 +59,7 @@ class KafkaProducer:
         key: typing.Union[str, bytes],
         value: typing.Union[str, bytes],
         partition: typing.Optional[int] = None,
+        headers: typing.Optional[Headers] = None,
     ):
         """
         Sends the message (``value``) to ``topic`` by ``key`` and,
@@ -64,7 +75,9 @@ class KafkaProducer:
             depends on key's hash.
         """
 
-        resp_future = await self.send_async(topic, key, value, partition)
+        resp_future = await self.send_async(
+            topic, key, value, partition, headers
+        )
         await resp_future
 
     async def send_async(
@@ -73,6 +86,7 @@ class KafkaProducer:
         key: typing.Union[str, bytes],
         value: typing.Union[str, bytes],
         partition: typing.Optional[int] = None,
+        headers: typing.Optional[Headers] = None,
     ):
         """
         Sends the message (``value``) to ``topic`` by ``key`` and,
@@ -95,6 +109,7 @@ class KafkaProducer:
             value=value if isinstance(value, bytes) else value.encode(),
             key=key if isinstance(key, bytes) else key.encode(),
             partition=partition,
+            headers=headers,
         )
 
     async def _flush(self):
@@ -114,6 +129,7 @@ class ConsumedMessage:
     value_raw: bytes
     partition: int
     offset: int
+    headers_raw: Headers
 
     def __init__(self, record: aiokafka.ConsumerRecord):
         self.topic = record.topic
@@ -121,6 +137,7 @@ class ConsumedMessage:
         self.value_raw = record.value
         self.partition = record.partition
         self.offset = record.offset
+        self.headers_raw = record.headers
 
     @property
     def key(self) -> str:
@@ -129,6 +146,10 @@ class ConsumedMessage:
     @property
     def value(self) -> str:
         return self.value_raw.decode()
+
+    @property
+    def headers(self) -> list[Header]:
+        return list(self.headers_raw)
 
 
 class KafkaConsumer:

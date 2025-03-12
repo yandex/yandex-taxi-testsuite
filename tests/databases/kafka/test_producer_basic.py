@@ -5,6 +5,15 @@ async def test_kafka_producer_basic(kafka_producer):
     await kafka_producer.send('Test-topic', 'test-key', 'test-message')
 
 
+async def test_kafka_producer_headers(kafka_producer):
+    await kafka_producer.send(
+        'Test-topic',
+        'test-key',
+        'test-message',
+        headers=[('key-1', b'value-1'), ('key-2', b'value-2')],
+    )
+
+
 async def test_kafka_producer_many_sends(kafka_producer):
     TOPIC = 'Test-topic'
     SEND_COUNT = 10

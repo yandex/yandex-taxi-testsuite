@@ -16,6 +16,44 @@ async def test_kafka_producer_consumer_chain(kafka_producer, kafka_consumer):
     assert consumed_message.value == MESSAGE
 
 
+async def test_kafka_producer_consumer_chain_headers(
+    kafka_producer, kafka_consumer
+):
+    TOPIC = 'Test-topic-chain'
+    KEY = 'test-key'
+    MESSAGE = 'test-message'
+    HEADERS = [
+        ('key-1', b'value-1'),
+        ('key-1', b'value-2'),
+        ('key-2', b'value-3'),
+    ]
+
+    await kafka_producer.send(TOPIC, KEY, MESSAGE, headers=HEADERS)
+
+    consumed_message = await kafka_consumer.receive_one([TOPIC])
+
+    assert consumed_message.topic == TOPIC
+    assert consumed_message.key == KEY
+    assert consumed_message.value == MESSAGE
+    assert consumed_message.headers == HEADERS
+
+
+async def test_kafka_producer_consumer_chain_bytes(
+    kafka_producer, kafka_consumer
+):
+    TOPIC = 'Test-topic-chain'
+    KEY = b'test-key'
+    MESSAGE = b'test-message'
+
+    await kafka_producer.send(TOPIC, KEY, MESSAGE)
+
+    consumed_message = await kafka_consumer.receive_one([TOPIC])
+
+    assert consumed_message.topic == TOPIC
+    assert consumed_message.key_raw == KEY
+    assert consumed_message.value_raw == MESSAGE
+
+
 async def test_kafka_producer_consumer_chain_many_messages(
     kafka_producer, kafka_consumer
 ):
@@ -64,19 +102,3 @@ async def test_kafka_producer_consumer_chain_many_topics(
         logging.info('Received batch of %d messages', len(consumed_messages))
         for message in consumed_messages:
             sends_received.add(int(message.key.split('-')[-1]))
-
-
-async def test_kafka_producer_consumer_chain_bytes(
-    kafka_producer, kafka_consumer
-):
-    TOPIC = 'Test-topic-chain'
-    KEY = b'test-key'
-    MESSAGE = b'test-message'
-
-    await kafka_producer.send(TOPIC, KEY, MESSAGE)
-
-    consumed_message = await kafka_consumer.receive_one([TOPIC])
-
-    assert consumed_message.topic == TOPIC
-    assert consumed_message.key_raw == KEY
-    assert consumed_message.value_raw == MESSAGE

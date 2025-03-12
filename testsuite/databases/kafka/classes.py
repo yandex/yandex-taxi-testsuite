@@ -148,7 +148,7 @@ class ConsumedMessage:
         return self.value_raw.decode()
 
     @property
-    def headers(self) -> list[Header]:
+    def headers(self) -> typing.List[Header]:
         return list(self.headers_raw)
 
 

@@ -1,6 +1,6 @@
 import pytest
 
-from testsuite.utils import matching
+from testsuite import matching
 
 
 def _default_regex_match(doc: dict):

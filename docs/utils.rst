@@ -35,7 +35,7 @@ synchronized queue.
 Matching
 ========
 
-.. currentmodule:: testsuite.utils.matching
+.. currentmodule:: testsuite.matching
 
 Testsuite provides utility to perform inexact pattern matching.
 This might be useful when comparing objects.
@@ -48,7 +48,7 @@ Here is example assertion on `order/create` handle response when you do not need
 
 .. code-block:: python
 
-   from testsuite.utils import matching
+   from testsuite import matching
 
    def test_order_create(...):
        response = await client.post('/order/create')

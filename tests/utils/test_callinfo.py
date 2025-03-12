@@ -5,7 +5,8 @@ import sys
 
 import pytest
 
-from testsuite.utils import callinfo, matching
+from testsuite import matching
+from testsuite.utils import callinfo
 
 python37_or_higher = pytest.mark.skipif(
     sys.version_info < (3, 7),

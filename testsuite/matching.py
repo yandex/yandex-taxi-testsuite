@@ -1,4 +1,5 @@
 import collections.abc
+import itertools
 import operator
 import re
 import typing
@@ -12,6 +13,9 @@ class BaseError(Exception):
 
 class NoValueCapturedError(BaseError):
     pass
+
+
+_Sentinel = object()
 
 
 class Any:
@@ -309,6 +313,8 @@ class PartialDict(collections.abc.Mapping):
        })
     """
 
+    __testsuite_types__ = (dict,)
+
     def __init__(self, *args, **kwargs):
         self._dict = dict(*args, **kwargs)
 
@@ -340,6 +346,11 @@ class PartialDict(collections.abc.Mapping):
     def __testsuite_visit__(self, visit):
         return PartialDict(visit(self._dict))
 
+    def __testsuite_resolve_value__(self, other):
+        if not isinstance(other, collections.abc.Mapping):
+            return self
+        return {**other, **self._dict}
+
 
 class UnorderedList:
     def __init__(self, sequence, key):
@@ -358,6 +369,39 @@ class UnorderedList:
 
     def __testsuite_visit__(self, visit):
         return UnorderedList(visit(self._value), self._key)
+
+    def __testsuite_resolve_value__(self, other):
+        if not isinstance(other, list):
+            return self
+
+        sort_key = self._key or (lambda x: x)
+        other_sorted = sorted(
+            enumerate(other), key=lambda x: (sort_key(x[1]), x[0])
+        )
+
+        idx_seq = itertools.count(len(other_sorted))
+        it_self = iter(self._value)
+
+        def doit():
+            item_self = next(it_self, _Sentinel)
+            for idx_other, item_other in other_sorted:
+                if item_self is _Sentinel:
+                    return
+                while sort_key(item_other) > sort_key(item_self):
+                    yield next(idx_seq), item_self
+                    item_self = next(it_self, _Sentinel)
+                    if item_self is _Sentinel:
+                        return
+                if sort_key(item_other) < sort_key(item_self):
+                    continue
+                if item_other == item_self:
+                    yield idx_other, item_other
+                else:
+                    yield next(idx_seq), item_self
+                item_self = next(it_self, _Sentinel)
+            yield from zip(idx_seq, it_self)
+
+        return [item for _, item in sorted(doit(), key=operator.itemgetter(0))]
 
 
 class AnyList:

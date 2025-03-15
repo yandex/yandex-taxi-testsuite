@@ -11,6 +11,7 @@ def _pytest_asyncio_legacy():
     return version.parse(pytest_asyncio.__version__) < PYTEST_ASYNCIO_VERSION
 
 
+# type: ignore
 if _pytest_asyncio_legacy():
     from .plugin_legacy import *
 else:

@@ -10,7 +10,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture(scope='session')
-def event_loop():
+async def event_loop():
     """
     One event loop for all tests.
     """

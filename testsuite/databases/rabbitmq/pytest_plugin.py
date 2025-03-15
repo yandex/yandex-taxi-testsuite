@@ -1,5 +1,3 @@
-import asyncio
-
 import pytest
 
 from . import classes, service
@@ -32,7 +30,7 @@ def rabbitmq(_rabbitmq_connection) -> classes.Control:
 
 
 @pytest.fixture(scope='session')
-def _rabbitmq_connection(
+async def _rabbitmq_connection(
     _rabbitmq_service,
     _rabbitmq_service_settings,
 ) -> classes.Control:
@@ -42,7 +40,7 @@ def _rabbitmq_connection(
         conn_info=_rabbitmq_service_settings.get_connection_info(),
     )
     yield control
-    event_loop.run_until_complete(control.teardown())
+    await control.teardown()
 
 
 @pytest.fixture(scope='session')

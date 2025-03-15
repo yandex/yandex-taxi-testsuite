@@ -18,6 +18,7 @@ from typing import (
 
 import aiohttp
 import pytest
+import pytest_asyncio
 
 from testsuite import annotations
 from testsuite._internal import fixture_class, fixture_types
@@ -421,16 +422,14 @@ def register_daemon_scope(_global_daemon_store: _DaemonStore):
 
 @pytest.fixture(scope='session')
 def service_client_session_factory(
-    event_loop,
 ) -> service_daemon.ClientSessionFactory:
     def make_session(**kwargs):
-        kwargs.setdefault('loop', event_loop)
         return aiohttp.ClientSession(**kwargs)
 
     return make_session
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def service_client_session(
     service_client_session_factory,
 ) -> annotations.AsyncYieldFixture[aiohttp.ClientSession]:

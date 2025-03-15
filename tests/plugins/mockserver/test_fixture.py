@@ -5,6 +5,7 @@ from testsuite.daemons import service_client
 async def test_handler(
     mockserver: fixture_types.MockserverFixture,
     mockserver_client: service_client.Client,
+    event_loop,
 ):
     @mockserver.handler('/test')
     def _test(request: fixture_types.MockserverRequest):

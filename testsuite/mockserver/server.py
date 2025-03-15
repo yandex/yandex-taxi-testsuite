@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import itertools
 import logging
@@ -636,12 +637,15 @@ def _create_web_server(server: Server, loop) -> aiohttp.web.Server:
 
 @contextlib.asynccontextmanager
 async def create_server(
+    *,
     host: str,
     port: int,
-    loop,
     pytestconfig,
     ssl_info: typing.Optional[classes.SslCertInfo],
+    loop=None,
 ) -> typing.AsyncGenerator[Server, None]:
+    if loop is None:
+        loop = asyncio.get_running_loop()
     ssl_context: typing.Optional[ssl.SSLContext]
     if ssl_info:
         ssl_context = _create_ssl_context(ssl_info)
@@ -667,9 +671,12 @@ async def create_server(
 @contextlib.asynccontextmanager
 async def create_unix_server(
     socket_path: pathlib.Path,
-    loop,
+    *,
     pytestconfig,
+    loop=None,
 ) -> typing.AsyncGenerator[Server, None]:
+    if loop is None:
+        loop = asyncio.get_running_loop()
     async with net_utils.create_unix_server(
         lambda: web_server(),
         path=socket_path,

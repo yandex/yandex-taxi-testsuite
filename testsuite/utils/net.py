@@ -9,7 +9,7 @@ DEFAULT_BACKLOG = 50
 @contextlib.asynccontextmanager
 async def _create_server(factory, *, loop=None, **kwargs):
     if loop is None:
-        loop = _get_running_loop()
+        loop = asyncio.get_running_loop()
     server = await loop.create_server(factory, **kwargs)
     try:
         yield server
@@ -48,7 +48,7 @@ def bind_socket(
 @contextlib.asynccontextmanager
 async def _create_unix_server(factory, *, loop=None, **kwargs):
     if loop is None:
-        loop = _get_running_loop()
+        loop = asyncio.get_running_loop()
     server = await loop.create_unix_server(factory, **kwargs)
     try:
         yield server
@@ -68,9 +68,3 @@ def create_unix_server(
     return _create_unix_server(
         factory, loop=loop, path=path, sock=sock, **kwargs
     )
-
-
-if hasattr(asyncio, 'get_running_loop'):
-    _get_running_loop = asyncio.get_running_loop
-else:
-    _get_running_loop = asyncio.get_event_loop

@@ -31,7 +31,6 @@ def unix_mockserver(
 async def _unix_mockserver(pytestconfig, tmp_path_factory):
     async with server.create_unix_server(
         tmp_path_factory.mktemp('mockserver') / _MOCKSERVER_SOCKET,
-        loop=None,
         pytestconfig=pytestconfig,
     ) as result:
         yield result

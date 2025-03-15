@@ -33,8 +33,8 @@ def rabbitmq(_rabbitmq_connection) -> classes.Control:
 def _rabbitmq_connection(
     _rabbitmq_service,
     _rabbitmq_service_settings,
-    event_loop,
 ) -> classes.Control:
+    event_loop = asyncio.get_running_loop()
     control = classes.Control(
         enabled=_rabbitmq_service,
         conn_info=_rabbitmq_service_settings.get_connection_info(),

@@ -12,7 +12,6 @@ setuptools.setup(
         'pytest-asyncio',
         'pytest>=4.5.0',
         'python-dateutil>=2.7.3',
-        'uvloop>=0.12.1',
         'cached-property>=1.5.1',
     ],
     extras_require={

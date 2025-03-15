@@ -1,7 +1,6 @@
 import asyncio
 
 import pytest
-import uvloop
 
 
 def pytest_configure(config):
@@ -17,11 +16,6 @@ def pytest_collection_modifyitems(items):
         mark = item.get_closest_marker('asyncio')
         if mark:
             mark.kwargs.setdefault('loop_scope', 'session')
-
-
-@pytest.fixture(scope='session')
-def event_loop_policy(request):
-    return uvloop.EventLoopPolicy()
 
 
 @pytest.fixture(scope='session')

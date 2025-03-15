@@ -421,8 +421,7 @@ def register_daemon_scope(_global_daemon_store: _DaemonStore):
 
 
 @pytest.fixture(scope='session')
-def service_client_session_factory(
-) -> service_daemon.ClientSessionFactory:
+def service_client_session_factory() -> service_daemon.ClientSessionFactory:
     def make_session(**kwargs):
         return aiohttp.ClientSession(**kwargs)
 

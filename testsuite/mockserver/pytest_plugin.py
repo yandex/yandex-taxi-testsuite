@@ -217,10 +217,7 @@ def _mockserver_getport(pytestconfig, worker_id):
     return getport
 
 
-import pytest_asyncio
-
-
-@pytest_asyncio.fixture(scope='session')
+@pytest.fixture(scope='session')
 async def _mockserver(
     pytestconfig,
     _mockserver_getport,
@@ -245,7 +242,7 @@ async def _mockserver(
             yield result
 
 
-@pytest_asyncio.fixture(scope='session')
+@pytest.fixture(scope='session')
 async def _mockserver_ssl(
     pytestconfig,
     mockserver_ssl_cert,

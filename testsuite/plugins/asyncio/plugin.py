@@ -24,5 +24,5 @@ def event_loop():
 
 
 @pytest.fixture(scope='session')
-def loop():
-    return asyncio.get_running_loop()
+def loop(event_loop):
+    return event_loop

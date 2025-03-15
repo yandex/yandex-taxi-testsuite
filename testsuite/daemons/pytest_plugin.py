@@ -18,7 +18,6 @@ from typing import (
 
 import aiohttp
 import pytest
-import pytest_asyncio
 
 from testsuite import annotations
 from testsuite._internal import fixture_class, fixture_types
@@ -428,7 +427,7 @@ def service_client_session_factory() -> service_daemon.ClientSessionFactory:
     return make_session
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def service_client_session(
     service_client_session_factory,
 ) -> annotations.AsyncYieldFixture[aiohttp.ClientSession]:

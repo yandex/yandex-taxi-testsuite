@@ -1,6 +1,9 @@
 import asyncio
+import warnings
 
 import pytest
+
+from . import warnings as asyncio_warnings
 
 
 def pytest_configure(config):
@@ -20,6 +23,10 @@ def pytest_collection_modifyitems(items):
 
 @pytest.fixture(scope='session')
 async def event_loop():
+    warnings.warn(
+        asyncio_warnings.LOOP_DEPRECATION_MESSAGE,
+        pytest.PytestDeprecationWarning,
+    )
     return asyncio.get_running_loop()
 
 

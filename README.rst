@@ -16,7 +16,9 @@ precondition setup and result assertions.
 Installation
 ------------
 
-Installation using pip_::
+Installation using pip_:
+
+.. code-block:: sh
 
    pip3 install yandex-taxi-testsuite
 
@@ -41,12 +43,6 @@ Installation using pip_::
 
    # testsuite with kafka support
    pip3 install yandex-taxi-testsuite[kafka]
-
-You can also include testsuite into your project as submodule, e.g.::
-
-  mkdir -p submodules
-  git submodule add git@github.com:yandex/yandex-taxi-testsuite.git submodules/testsuite
-
 
 Supported databases
 -------------------
@@ -103,17 +99,86 @@ Documentation
 For full documentation, including installation, tutorials,
 please see https://yandex.github.io/yandex-taxi-testsuite/.
 
-
 Running testsuite
 -----------------
 
-self-tests::
+self-tests:
+
+.. code-block:: sh
 
    pytest3 ./tests
 
-tests of example services::
+tests of example services:
+
+.. code-block:: sh
 
    cd docs/examples && make
+
+Development
+-----------
+
+Setup virtual env
+~~~~~~~~~~~~~~~~~
+
+In order to test your modifications it's useful to run testsuite inside
+virtualenv. Use the following command to create developer's venv:
+
+.. code-block:: sh
+
+   make setup-dev-venv
+
+Virtualenv will be created in `.venv-dev` directory.
+
+Code format and linters
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Auto format source code:
+
+.. code-block:: sh
+
+   make venv-format
+
+Run linters:
+
+.. code-block:: sh
+
+   make venv-check-linters
+   make venv-check-mypy
+
+You can also add pre-commit hook which will run ruff and linters for you:
+
+.. code-block:: sh
+
+   make install-pre-commit-hooks
+
+Running tests
+~~~~~~~~~~~~~
+
+You can run tests using Makefile:
+
+.. code-block:: sh
+
+   make venv-tests
+
+Or directly using pytest:
+
+.. code-block:: sh
+
+   make setup-dev-venv                  # Setup virtual env first
+   . .venv-dev/bin/activate             # Activate virtualenv
+   pytest -vv tests/plugins/mockserver  # Finally run pytest
+
+Building documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: sh
+
+   make build-docs
+
+Contributing
+~~~~~~~~~~~~
+
+Create pull request on github.
 
 .. _Yandex.Taxi: https://taxi.yandex.com/company/
 .. _pytest: https://pytest.org/

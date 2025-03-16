@@ -99,3 +99,10 @@ publish-gh-pages: build-docs-dirhtml
 
 clean:
 	rm -rf dist $(VENV_DEV_PATH) $(VENV_DOCS_PATH) docs/_build
+
+
+install-pre-commit-hooks: .git/hooks/pre-commit
+
+.git/hooks/pre-commit:
+	rm -f $@
+	ln -s $(PWD)/tools/pre-commit.sh $@

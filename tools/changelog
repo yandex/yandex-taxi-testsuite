@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+
+import argparse
+import pathlib
+import sys
+
+
+CHANGELOG_PATH = pathlib.Path('docs/changelog.rst')
+CHANGELOG_HEADER = [
+    'Changelog', '---------', '',
+]
+
+
+class Error(Exception):
+    pass
+
+
+def rst_title(string):
+    return [string, '~' * len(string)]
+
+
+def format_changelog_entry(lines):
+    return [
+        '',
+        *(line for line in lines if line.strip()),
+        '',
+    ]
+
+def parse_changelog():
+    lines = CHANGELOG_PATH.read_text().splitlines()
+    if lines[:3] != CHANGELOG_HEADER:
+        raise Error('Broken changelog header')
+    header_end = len(CHANGELOG_HEADER)
+    index = 0
+    for index, line in enumerate(lines[header_end:]):
+        if line.startswith('~'):
+            break
+    new_end = max(header_end, header_end + index - 1)
+    new_version_lines = lines[header_end: new_end]
+    old_versions = lines[new_end:]
+    return CHANGELOG_HEADER, new_version_lines, old_versions
+
+
+def command_check(args):
+    header, new, old = parse_changelog()
+    if all(not line.strip() for line in new):
+        raise Error('no changelog entries found')
+
+
+def command_version(args):
+    header, new, old = parse_changelog()
+    new = format_changelog_entry(new)
+    new = [*rst_title(args.version), *new]
+    changelog = '\n'.join([*header, *new, *old, ''])
+    CHANGELOG_PATH.write_text(changelog)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.set_defaults(handler=None)
+
+    subparsers = parser.add_subparsers(metavar='command', required=True)
+    command_parser = subparsers.add_parser(
+        'check',
+        help='Check that there are changelog items',
+    )
+    command_parser.set_defaults(handler=command_check)
+
+    command_parser = subparsers.add_parser(
+        'version',
+        help='Create new version entry in changelog',
+    )
+    command_parser.set_defaults(handler=command_version)
+    command_parser.add_argument('version')
+
+    args = parser.parse_args()
+    try:
+        args.handler(args)
+    except Error as exc:
+        print(f'ERROR: {exc}')
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

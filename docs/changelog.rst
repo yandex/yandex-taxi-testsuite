@@ -1,6 +1,9 @@
 Changelog
 ---------
 
+0.2.21
+~~~~~~
+
 - Add changelog
 
 0.2.16
@@ -33,3 +36,4 @@ Changelog
 - redis: wait for replicas and master negotiation in sentinel configuration
 - redis: use CLUSTER NODES and CLUSTER SLOTS information to wait for cluster startup
 - hide redundant tracebacks
+

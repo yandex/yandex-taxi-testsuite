@@ -7,7 +7,9 @@ import sys
 
 CHANGELOG_PATH = pathlib.Path('docs/changelog.rst')
 CHANGELOG_HEADER = [
-    'Changelog', '---------', '',
+    'Changelog',
+    '---------',
+    '',
 ]
 
 
@@ -26,6 +28,7 @@ def format_changelog_entry(lines):
         '',
     ]
 
+
 def parse_changelog():
     lines = CHANGELOG_PATH.read_text().splitlines()
     if lines[:3] != CHANGELOG_HEADER:
@@ -36,7 +39,7 @@ def parse_changelog():
         if line.startswith('~'):
             break
     new_end = max(header_end, header_end + index - 1)
-    new_version_lines = lines[header_end: new_end]
+    new_version_lines = lines[header_end:new_end]
     old_versions = lines[new_end:]
     return CHANGELOG_HEADER, new_version_lines, old_versions
 

@@ -2,6 +2,7 @@ Changelog
 ---------
 
 - Add changelog
+- matching: specify capture matching rule inside pattern
 
 0.2.16
 ~~~~~~

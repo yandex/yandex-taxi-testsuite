@@ -415,16 +415,27 @@ class Capture:
 
     .. code-block:: python
 
-       capture_foo = matching.Capture()
+       # You can define matching rule out of pattern
+       capture_foo = matching.Capture(matching.any_string)
        pattern = {'foo': capture_foo}
+       assert pattern == {'foo': 'bar'}
+       assert capture_foo.value == 'bar'
+       assert capture_foo.values_list == ['bar']
+
+       # Or do it later
+       capture_foo = matching.Capture()
+       pattern = {'foo': capture_foo(matching.any_string)}
        assert pattern == {'foo': 'bar'}
        assert capture_foo.value == 'bar'
        assert capture_foo.values_list == ['bar']
     """
 
-    def __init__(self, value=Any()):
+    def __init__(self, value=Any(), _link_captured=None):
         self._value = value
-        self._captured = []
+        if _link_captured is None:
+            self._captured = []
+        else:
+            self._captured = _link_captured
 
     @property
     def value(self):
@@ -441,6 +452,9 @@ class Capture:
             return False
         self._captured.append(other)
         return True
+
+    def __call__(self, value):
+        return Capture(value, _link_captured=self._captured)
 
 
 def unordered_list(sequence, *, key=None):

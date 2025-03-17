@@ -27,3 +27,11 @@ def test_capture_failure():
     with pytest.raises(matching.NoValueCapturedError):
         capture_foo.value
     assert capture_foo.values_list == []
+
+
+def test_capture_linked():
+    capture_foo = matching.Capture()
+    assert {'foo': 'bar'} == {'foo': capture_foo(matching.any_string)}
+
+    assert capture_foo.value == 'bar'
+    assert capture_foo.values_list == ['bar']

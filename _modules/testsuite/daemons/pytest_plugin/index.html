@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.daemons.pytest_plugin &#8212; yandex-taxi-testsuite 0.2.14 documentation</title>
+    <title>testsuite.daemons.pytest_plugin &#8212; yandex-taxi-testsuite 0.2.17 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
@@ -456,11 +456,8 @@
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">service_client_session_factory</span><span class="p">(</span>
-    <span class="n">event_loop</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">ClientSessionFactory</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">service_client_session_factory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">service_daemon</span><span class="o">.</span><span class="n">ClientSessionFactory</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">make_session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;loop&#39;</span><span class="p">,</span> <span class="n">event_loop</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">make_session</span>

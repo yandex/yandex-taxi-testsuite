@@ -15,8 +15,6 @@ fi
 
 OLD_PACKAGE_VERSION=$(awk '/^version = /{print $3}' setup.cfg)
 
-./tools/changelog check
-
 $EDITOR setup.cfg || die "Not edited"
 
 PACKAGE_VERSION=$(awk '/^version = /{print $3}' setup.cfg)
@@ -25,7 +23,8 @@ if [ "$OLD_PACKAGE_VERSION" = "$PACKAGE_VERSION" ]; then
     die "Version has not changed"
 fi
 
-./tools/changelog version "$PACKAGE_VERSION"
+git log "v${OLD_PACKAGE_VERSION}...HEAD" --format="COMMIT: %H%n%s%n%b" |
+    ./tools/changelog new-entry "$PACKAGE_VERSION"
 
 git commit -m "Version bump $PACKAGE_VERSION" setup.cfg docs/changelog.rst ||
     die "Commit failed"

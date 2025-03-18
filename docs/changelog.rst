@@ -5,6 +5,7 @@ Changelog
 ~~~~~~
 
 - Add changelog
+- ci: update ubuntu image from outdated 20.04 to 22.04
 - matching: matching now is available as `testsuite.matching`
 - matching: specify capture matching rule inside pattern
 

@@ -225,6 +225,14 @@ def test_getfullargspec():
     assert callinfo.getfullargspec(maurice).args == ['a', 'b', 'c']
 
 
+def test_getfullargspec_staticmethod():
+    @staticmethod
+    def foo(a, b, c):
+        pass
+
+    assert callinfo.getfullargspec(foo).args == ['a', 'b', 'c']
+
+
 async def test_acallqueue_flush():
     @callinfo.acallqueue
     async def method(arg):
@@ -262,3 +270,47 @@ async def test_timeout():
 
     with pytest.raises(callinfo.CallQueueTimeoutError):
         await method.wait_call(timeout=0.001)
+
+
+def test_acallqueue_func():
+    def func():
+        pass
+
+    queue = callinfo.acallqueue(func)
+    assert queue.func is func
+
+
+def test_acallqueue_double():
+    def func(): ...
+
+    queue1 = callinfo.acallqueue(func)
+    queue2 = callinfo.acallqueue(queue1)
+
+    assert queue1 is queue2
+
+
+async def test_acallqueue_checker():
+    class Error(Exception): ...
+
+    def func(): ...
+
+    def checker(caller: str):
+        raise Error(f'call is not allowed: {caller}')
+
+    queue = callinfo.acallqueue(func, checker=checker)
+
+    with pytest.raises(Error) as exc:
+        assert queue.has_calls == 0
+    assert str(exc.value) == 'call is not allowed: has_calls'
+
+    with pytest.raises(Error) as exc:
+        assert queue.times_called == 0
+    assert str(exc.value) == 'call is not allowed: times_called'
+
+    with pytest.raises(Error) as exc:
+        assert queue.next_call()
+    assert str(exc.value) == 'call is not allowed: next_call'
+
+    with pytest.raises(Error) as exc:
+        assert await queue.wait_call()
+    assert str(exc.value) == 'call is not allowed: wait_call'

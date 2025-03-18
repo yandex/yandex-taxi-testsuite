@@ -1,6 +1,8 @@
 Changelog
 ---------
 
+- acallqueue: add func property
+
 0.2.17
 ~~~~~~
 

@@ -44,6 +44,11 @@ class AsyncCallQueue:
         self._name = func.__name__
         self._checker = checker
 
+    @property
+    def func(self):
+        """Returns underlying function."""
+        return self._func
+
     @cached_property
     def _is_coro(self):
         return inspect.iscoroutinefunction(self._func)

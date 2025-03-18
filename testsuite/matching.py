@@ -27,14 +27,18 @@ class Any:
 class AnyString:
     """Matches any string."""
 
+    __testsuite_types__ = (str,)
+
     def __repr__(self):
         return '<AnyString>'
 
     def __eq__(self, other):
-        return isinstance(other, str)
+        if isinstance(other, str):
+            return True
+        return any(issubclass(type, str) for type in _resolve_types(other))
 
 
-class RegexString(AnyString):
+class RegexString:
     """Match string with regular expression.
 
     .. code-block:: python
@@ -45,6 +49,8 @@ class RegexString(AnyString):
        }
     """
 
+    __testsuite_types__ = (str,)
+
     def __init__(self, pattern):
         self._pattern = re.compile(pattern)
 
@@ -52,9 +58,11 @@ class RegexString(AnyString):
         return f'<{self.__class__.__name__} pattern={self._pattern!r}>'
 
     def __eq__(self, other):
-        if not super().__eq__(other):
-            return False
-        return self._pattern.match(other) is not None
+        if isinstance(other, str):
+            return self._pattern.match(other) is not None
+        if isinstance(other, RegexString):
+            return other._pattern == self._pattern
+        return False
 
 
 class UuidString(RegexString):
@@ -71,21 +79,22 @@ class ObjectIdString(RegexString):
         super().__init__('^[0-9a-f]{24}$')
 
 
-class DatetimeString(AnyString):
+class DatetimeString:
     """Matches datetime string in any format."""
+
+    __testsuite_types__ = (str,)
 
     def __repr__(self):
         return '<DatetimeString>'
 
     def __eq__(self, other):
-        if not super().__eq__(other):
-            return False
-
-        try:
-            dateutil.parser.parse(other)
-            return True
-        except ValueError:
-            return False
+        if isinstance(other, str):
+            try:
+                dateutil.parser.parse(other)
+                return True
+            except ValueError:
+                return False
+        return isinstance(other, DatetimeString)
 
 
 class IsInstance:
@@ -105,17 +114,21 @@ class IsInstance:
     """
 
     def __init__(self, types):
-        self.types = types
+        self._types = types
 
     def __repr__(self):
-        if isinstance(self.types, (list, tuple)):
-            type_names = [t.__name__ for t in self.types]
+        if isinstance(self._types, (list, tuple)):
+            type_names = [t.__name__ for t in self._types]
         else:
-            type_names = [self.types.__name__]
-        return f'<of-type {", ".join(type_names)}>'
+            type_names = [self._types.__name__]
+        return f'<IsInstance {", ".join(type_names)}>'
 
     def __eq__(self, other):
-        return isinstance(other, self.types)
+        if isinstance(other, self._types):
+            return True
+        if isinstance(other, IsInstance):
+            return self._types == other._types
+        return False
 
 
 class And:
@@ -128,17 +141,22 @@ class And:
     """
 
     def __init__(self, *conditions):
-        self.conditions = conditions
+        self._conditions = conditions
 
     def __repr__(self):
-        conditions = [repr(cond) for cond in self.conditions]
-        return f'<And {" ".join(conditions)}>'
+        conditions = [repr(cond) for cond in self._conditions]
+        return f'<And {", ".join(conditions)}>'
 
     def __eq__(self, other):
-        for condition in self.conditions:
+        if isinstance(other, And):
+            return self._conditions == other._conditions
+        for condition in self._conditions:
             if condition != other:
                 return False
         return True
+
+    def __testsuite_visit__(self, visit):
+        return And(*[visit(condition) for condition in self._conditions])
 
 
 class Or:
@@ -151,17 +169,22 @@ class Or:
     """
 
     def __init__(self, *conditions):
-        self.conditions = conditions
+        self._conditions = conditions
 
     def __repr__(self):
-        conditions = [repr(cond) for cond in self.conditions]
-        return f'<Or {" ".join(conditions)}>'
+        conditions = [repr(cond) for cond in self._conditions]
+        return f'<Or {", ".join(conditions)}>'
 
     def __eq__(self, other):
-        for condition in self.conditions:
+        if isinstance(other, Or):
+            return self._conditions == other._conditions
+        for condition in self._conditions:
             if condition == other:
                 return True
         return False
+
+    def __testsuite_visit__(self, visit):
+        return Or(*[visit(condition) for condition in self._conditions])
 
 
 class Not:
@@ -176,29 +199,39 @@ class Not:
     """
 
     def __init__(self, condition):
-        self.condition = condition
+        self._condition = condition
 
     def __repr__(self):
-        return f'<Not {self.condition!r}>'
+        return f'<Not {self._condition!r}>'
 
     def __eq__(self, other):
-        return self.condition != other
+        if isinstance(other, Not):
+            return self._condition == other._condition
+        return self._condition != other
+
+    def __testsuite_visit__(self, visit):
+        return Not(visit(self._condition))
 
 
 class Comparator:
     op: typing.Callable[[typing.Any, typing.Any], bool] = operator.eq
 
     def __init__(self, value):
-        self.value = value
+        self._value = value
 
     def __repr__(self):
-        return f'<{self.op.__name__} {self.value}>'
+        return f'<{self.op.__name__} {self._value}>'
 
     def __eq__(self, other):
+        if isinstance(other, Comparator):
+            return self.op == other.op and self._value == other._value
         try:
-            return self.op(other, self.value)
+            return self.op(other, self._value)
         except TypeError:
             return False
+
+    def __testsuite_visit__(self, visit):
+        return self.__class__(visit(self._value))
 
 
 class Gt(Comparator):
@@ -304,17 +337,27 @@ class PartialDict(collections.abc.Mapping):
 
         return True
 
+    def __testsuite_visit__(self, visit):
+        return PartialDict(visit(self._dict))
+
 
 class UnorderedList:
     def __init__(self, sequence, key):
-        self.value = sorted(sequence, key=key)
-        self.key = key
+        self._value = sorted(sequence, key=key)
+        self._key = key
 
     def __repr__(self):
-        return f'<UnorderedList: {self.value}>'
+        return f'<UnorderedList: {self._value}>'
 
     def __eq__(self, other):
-        return sorted(other, key=self.key) == self.value
+        if isinstance(other, list):
+            return sorted(other, key=self._key) == self._value
+        if isinstance(other, UnorderedList):
+            return self._value == other._value and self._key == other._key
+        return False
+
+    def __testsuite_visit__(self, visit):
+        return UnorderedList(visit(self._value), self._key)
 
 
 class AnyList:
@@ -331,7 +374,38 @@ class AnyList:
         return '<AnyList>'
 
     def __eq__(self, other):
-        return isinstance(other, list)
+        return isinstance(other, (list, AnyList))
+
+
+class ListOf:
+    """Value is a list of values.
+
+    Example:
+
+    .. code-block:: python
+
+       assert ['foo', 'bar']  == matching.ListOf(matching.any_string)
+       assert [1, 2]  != matching.ListOf(matching.any_string)
+    """
+
+    def __init__(self, value=Any()):
+        self._value = value
+
+    def __repr__(self):
+        return f'<ListOf value={self._value}>'
+
+    def __eq__(self, other):
+        if isinstance(other, list):
+            for value in other:
+                if self._value != value:
+                    return False
+            return True
+        if isinstance(other, ListOf):
+            return self._value == other._value
+        return False
+
+    def __testsuite_visit__(self, visit):
+        return ListOf(visit(self._value))
 
 
 class AnyDict:
@@ -348,33 +422,7 @@ class AnyDict:
         return '<AnyDict>'
 
     def __eq__(self, other):
-        return isinstance(other, dict)
-
-
-class ListOf:
-    """Value is a list of values.
-
-    Example:
-
-    .. code-block:: python
-
-       assert ['foo', 'bar']  == matching.ListOf(matching.any_string)
-       assert [1, 2]  != matching.ListOf(matching.any_string)
-    """
-
-    def __init__(self, item):
-        self.item = item
-
-    def __repr__(self):
-        return f'<ListOf item={self.item}>'
-
-    def __eq__(self, other):
-        if not isinstance(other, list):
-            return False
-        for item in other:
-            if self.item != item:
-                return False
-        return True
+        return isinstance(other, (dict, AnyDict))
 
 
 class DictOf:
@@ -391,21 +439,26 @@ class DictOf:
     """
 
     def __init__(self, key=Any(), value=Any()):
-        self.key = key
-        self.value = value
+        self._key = key
+        self._value = value
 
     def __repr__(self):
-        return f'<DictOf key={self.key} value={self.value}>'
+        return f'<DictOf key={self._key} value={self._value}>'
 
     def __eq__(self, other):
-        if not isinstance(other, dict):
-            return False
-        for key, value in other.items():
-            if self.key != key:
-                return False
-            if self.value != value:
-                return False
-        return True
+        if isinstance(other, dict):
+            for key, value in other.items():
+                if self._key != key:
+                    return False
+                if self._value != value:
+                    return False
+            return True
+        if isinstance(other, DictOf):
+            return self._key == other._key and self._value == other._value
+        return False
+
+    def __testsuite_visit__(self, visit):
+        return DictOf(visit(self._key), visit(self._value))
 
 
 class Capture:
@@ -456,6 +509,9 @@ class Capture:
     def __call__(self, value):
         return Capture(value, _link_captured=self._captured)
 
+    def __testsuite_visit__(self, visit):
+        return Capture(visit(self._value), self._captured)
+
 
 def unordered_list(sequence, *, key=None):
     """Unordered list comparison.
@@ -476,6 +532,43 @@ def unordered_list(sequence, *, key=None):
        assert [3, 2, 1] == matching.unordered_list([1, 2, 3])
     """
     return UnorderedList(sequence, key)
+
+
+class _ObjectTransform:
+    def visit(self, value):
+        if isinstance(value, dict):
+            return self.visit_dict(value)
+        if isinstance(value, list):
+            return self.visit_list(value)
+        visit = getattr(value, '__testsuite_visit__', None)
+        if visit:
+            return visit(self.visit)
+        return value
+
+    def visit_dict(self, value):
+        return {key: self.visit(value) for key, value in value.items()}
+
+    def visit_list(self, value):
+        return [self.visit(item) for item in value]
+
+
+def recursive_partial_dict(*args, **kwargs):
+    class Transform(_ObjectTransform):
+        def visit(self, value):
+            if isinstance(value, PartialDict):
+                return value
+            return super().visit(value)
+
+        def visit_dict(self, value):
+            value = super().visit_dict(value)
+            return PartialDict(value)
+
+    root = dict(*args, **kwargs)
+    return Transform().visit(root)
+
+
+def _resolve_types(value):
+    return getattr(value, '__testsuite_types__', ())
 
 
 any_value = Any()

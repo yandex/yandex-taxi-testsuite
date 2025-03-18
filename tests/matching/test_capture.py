@@ -64,3 +64,23 @@ def test_deep_capture():
 
     assert capture_foo.value == 'foo'
     assert capture_foo.values_list == ['foo', 'bar', 'maurice']
+
+
+def test_visit():
+    capture = matching.Capture({'foo': 'bar'})
+
+    visited = []
+
+    def visitor(value):
+        visited.append(value)
+        return value.copy()
+
+    copy = capture.__testsuite_visit__(visitor)
+
+    assert len(visited) == 1
+    assert visited[0] is capture._value
+
+    assert capture is not copy
+    assert copy._value is not capture._value
+    assert copy._value == capture._value
+    assert copy._captured is capture._captured

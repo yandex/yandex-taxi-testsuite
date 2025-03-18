@@ -23,7 +23,7 @@ def _match_unordered_list(doc: dict):
 
 
 def _match_list_of(doc):
-    return matching.ListOf(item=doc.get('item', matching.any_value))
+    return matching.ListOf(value=doc.get('item', matching.any_value))
 
 
 def _match_dict_of(doc):

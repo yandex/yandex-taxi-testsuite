@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -26,11 +26,16 @@ jobs:
     steps:
     - name: Install database dependencies
       run: |
+        curl -fsSL https://pgp.mongodb.com/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+        echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | \
+          sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 8919F6BD2B48D754
         echo "deb https://packages.clickhouse.com/deb stable main" | sudo tee \
           /etc/apt/sources.list.d/clickhouse.list
+
         sudo apt-get update
-        sudo apt-get install -y redis-server clickhouse-common-static=22.3.2.2
+        sudo apt-get install -y redis-server clickhouse-common-static=22.3.2.2 mongodb-org
     - uses: actions/checkout@v2
     - name: Install Kafka
       run: |

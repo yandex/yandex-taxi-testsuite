@@ -459,7 +459,7 @@ def service_client_options(
 
 
 @pytest.fixture(scope='session')
-async def _global_daemon_store(loop):
+async def _global_daemon_store():
     store = _DaemonStore()
     async with compat.aclosing(store):
         yield store

@@ -46,8 +46,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_removed_in',
     'sphinxcontrib_trio',
-    # Third-party extensions:
-    'sphinxcontrib.asyncio',
 ]
 
 intersphinx_mapping = {

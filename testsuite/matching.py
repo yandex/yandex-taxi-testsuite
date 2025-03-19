@@ -291,12 +291,12 @@ class Le(Comparator):
 
 
 class PartialDict(collections.abc.Mapping):
-    """Partial dictionary comparison.
+    """Partial dictionary matching.
 
-    Sometimes you only need to check dictionary subset ignoring all
-    other keys. :py:class:`PartialDict` is there for this purpose.
+    It might be useful to only check specific keys of a dictionary.
+    :py:class:`PartialDict` serves to solve this task.
 
-    `PartialDict` is wrapper around regular `dict()` when instantiated
+    :py:class:`PartialDict` is wrapper around regular `dict()` when instantiated
     all arguments are passed as is to internal dict object.
 
     Example:
@@ -553,6 +553,24 @@ class _ObjectTransform:
 
 
 def recursive_partial_dict(*args, **kwargs):
+    """Creates recursive partial dict.
+
+    Traverse input dict and create `PartialDict` for nested dicts.
+    Supports visiting `testsuite.matching` predicates. Skips inner
+    :py:class:`PartialDict` nodes in order to allow user to customize
+    behavior.
+
+l    Example:
+
+    .. code-block:: python
+
+       assert {
+           'foo': {'bar': 123, 'extra'}, 'extra'
+       } == matching.recursive_partial_dict({
+                'foo: {'bar': 123}
+            })
+    """
+
     class Transform(_ObjectTransform):
         def visit(self, value):
             if isinstance(value, PartialDict):

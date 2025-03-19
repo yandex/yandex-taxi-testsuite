@@ -152,10 +152,15 @@ Dict of
 
 .. autoclass:: DictOf
 
-Partial matching
-~~~~~~~~~~~~~~~~
+Partial dict matching
+~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: PartialDict
+
+Recusive partial dict matching
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: recursive_partial_dict
 
 List matching
 -------------

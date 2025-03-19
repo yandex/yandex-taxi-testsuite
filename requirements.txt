@@ -2,7 +2,7 @@
 
 # Development requirements
 ruff
-mypy
+mypy>=1.11.0
 
 # MyPy requirements
 types-PyMySQL

@@ -59,7 +59,9 @@ def parse_changelog():
 def command_new_entry(args):
     new = parse_commits(sys.stdin)
     header, old = parse_changelog()
-    changelog = '\n'.join([*header, *rst_title(args.version), *new, *old, ''])
+    changelog = '\n'.join([
+        *header, *rst_title(args.version), 'TODO: remove me before saving', *new, *old, ''
+    ])
     CHANGELOG_PATH.write_text(changelog)
 
 

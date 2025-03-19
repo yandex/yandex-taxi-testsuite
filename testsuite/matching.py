@@ -555,20 +555,20 @@ class _ObjectTransform:
 def recursive_partial_dict(*args, **kwargs):
     """Creates recursive partial dict.
 
-    Traverse input dict and create `PartialDict` for nested dicts.
-    Supports visiting `testsuite.matching` predicates. Skips inner
-    :py:class:`PartialDict` nodes in order to allow user to customize
-    behavior.
+        Traverse input dict and create `PartialDict` for nested dicts.
+        Supports visiting `testsuite.matching` predicates. Skips inner
+        :py:class:`PartialDict` nodes in order to allow user to customize
+        behavior.
 
-l    Example:
+    l    Example:
 
-    .. code-block:: python
+        .. code-block:: python
 
-       assert {
-           'foo': {'bar': 123, 'extra'}, 'extra'
-       } == matching.recursive_partial_dict({
-                'foo: {'bar': 123}
-            })
+           assert {
+               'foo': {'bar': 123, 'extra'}, 'extra'
+           } == matching.recursive_partial_dict({
+                    'foo: {'bar': 123}
+                })
     """
 
     class Transform(_ObjectTransform):

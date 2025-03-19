@@ -1,21 +1,18 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Overview &#8212; yandex-taxi-testsuite 0.2.17 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Overview &#8212; yandex-taxi-testsuite 0.2.18 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css?v=51489a46" />
+    <script src="../_static/documentation_options.js?v=a9cc7ada"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex/" />
     <link rel="search" title="Search" href="../search/" />
     <link rel="next" title="API reference" href="../reference/" />
@@ -23,8 +20,9 @@
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -37,9 +35,9 @@
           <div class="body" role="main">
             
   <section id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
+<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h1>
 <section id="what-is-testsuite">
-<h2>What is testsuite<a class="headerlink" href="#what-is-testsuite" title="Permalink to this heading">¶</a></h2>
+<h2>What is testsuite<a class="headerlink" href="#what-is-testsuite" title="Link to this heading">¶</a></h2>
 <p>Testsuite is a microservice-oriented test framework written in Python based on
 <a class="reference external" href="https://pytest.org/">pytest</a>.</p>
 <p>Testsuite is written and supported by <a class="reference external" href="https://taxi.yandex.com/company/">Yandex.Taxi</a>, and is used to test
@@ -50,7 +48,7 @@ black box, when the service is tested through http calls.</p>
 precondition setup and result assertions.</p>
 </section>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
 <p>Installation using <a class="reference external" href="https://pypi.org/project/yandex-taxi-testsuite/">pip</a>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>yandex-taxi-testsuite
 
@@ -79,7 +77,7 @@ pip3<span class="w"> </span>install<span class="w"> </span>yandex-taxi-testsuite
 </div>
 </section>
 <section id="supported-databases">
-<h2>Supported databases<a class="headerlink" href="#supported-databases" title="Permalink to this heading">¶</a></h2>
+<h2>Supported databases<a class="headerlink" href="#supported-databases" title="Link to this heading">¶</a></h2>
 <p>Out-of-the-box testsuite supports the following databases:</p>
 <ul class="simple">
 <li><p>PostgreSQL</p></li>
@@ -91,11 +89,11 @@ pip3<span class="w"> </span>install<span class="w"> </span>yandex-taxi-testsuite
 </ul>
 </section>
 <section id="supported-operating-systems">
-<h2>Supported operating systems<a class="headerlink" href="#supported-operating-systems" title="Permalink to this heading">¶</a></h2>
+<h2>Supported operating systems<a class="headerlink" href="#supported-operating-systems" title="Link to this heading">¶</a></h2>
 <p>Testsuite runs on GNU/Linux and macOS operating systems.</p>
 </section>
 <section id="principle-of-operation">
-<h2>Principle of operation<a class="headerlink" href="#principle-of-operation" title="Permalink to this heading">¶</a></h2>
+<h2>Principle of operation<a class="headerlink" href="#principle-of-operation" title="Link to this heading">¶</a></h2>
 <p>Testsuite sets up the environment for the service being tested:</p>
 <ul class="simple">
 <li><p>Testsuite starts any required databases (postgresql, mongo, redis).</p></li>
@@ -115,17 +113,17 @@ as well as the order of calls and the data that was sent and received.</p>
 the service sent to the test with the testpoint mechanism.</p>
 </section>
 <section id="source-code">
-<h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this heading">¶</a></h2>
+<h2>Source code<a class="headerlink" href="#source-code" title="Link to this heading">¶</a></h2>
 <p>Testsuite open-source edition code is available
 <a class="reference external" href="https://github.com/yandex/yandex-taxi-testsuite">here</a>.</p>
 </section>
 <section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h2>
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
 <p>For full documentation, including installation, tutorials,
 please see <a class="reference external" href="https://yandex.github.io/yandex-taxi-testsuite/">https://yandex.github.io/yandex-taxi-testsuite/</a>.</p>
 </section>
 <section id="running-testsuite">
-<h2>Running testsuite<a class="headerlink" href="#running-testsuite" title="Permalink to this heading">¶</a></h2>
+<h2>Running testsuite<a class="headerlink" href="#running-testsuite" title="Link to this heading">¶</a></h2>
 <p>self-tests:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pytest3<span class="w"> </span>./tests
 </pre></div>
@@ -136,9 +134,9 @@ please see <a class="reference external" href="https://yandex.github.io/yandex-t
 </div>
 </section>
 <section id="development">
-<h2>Development<a class="headerlink" href="#development" title="Permalink to this heading">¶</a></h2>
+<h2>Development<a class="headerlink" href="#development" title="Link to this heading">¶</a></h2>
 <section id="setup-virtual-env">
-<h3>Setup virtual env<a class="headerlink" href="#setup-virtual-env" title="Permalink to this heading">¶</a></h3>
+<h3>Setup virtual env<a class="headerlink" href="#setup-virtual-env" title="Link to this heading">¶</a></h3>
 <p>In order to test your modifications it’s useful to run testsuite inside
 virtualenv. Use the following command to create developer’s venv:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>setup-dev-venv
@@ -147,7 +145,7 @@ virtualenv. Use the following command to create developer’s venv:</p>
 <p>Virtualenv will be created in <cite>.venv-dev</cite> directory.</p>
 </section>
 <section id="code-format-and-linters">
-<h3>Code format and linters<a class="headerlink" href="#code-format-and-linters" title="Permalink to this heading">¶</a></h3>
+<h3>Code format and linters<a class="headerlink" href="#code-format-and-linters" title="Link to this heading">¶</a></h3>
 <p>Auto format source code:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>venv-format
 </pre></div>
@@ -163,7 +161,7 @@ make<span class="w"> </span>venv-check-mypy
 </div>
 </section>
 <section id="running-tests">
-<h3>Running tests<a class="headerlink" href="#running-tests" title="Permalink to this heading">¶</a></h3>
+<h3>Running tests<a class="headerlink" href="#running-tests" title="Link to this heading">¶</a></h3>
 <p>You can run tests using Makefile:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>venv-tests
 </pre></div>
@@ -176,13 +174,13 @@ pytest<span class="w"> </span>-vv<span class="w"> </span>tests/plugins/mockserve
 </div>
 </section>
 <section id="building-documentation">
-<h3>Building documentation<a class="headerlink" href="#building-documentation" title="Permalink to this heading">¶</a></h3>
+<h3>Building documentation<a class="headerlink" href="#building-documentation" title="Link to this heading">¶</a></h3>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>build-docs
 </pre></div>
 </div>
 </section>
 <section id="contributing">
-<h3>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">¶</a></h3>
+<h3>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fork project</p></li>
 <li><p>Write code in your own branch</p></li>
@@ -194,44 +192,54 @@ pytest<span class="w"> </span>-vv<span class="w"> </span>tests/plugins/mockserve
 </section>
 </section>
 <section id="id1">
-<h2>Changelog<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<h2>Changelog<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <section id="id2">
-<h3>0.2.17<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<h3>0.2.18<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Remove loop fixture usage (#157)</p></li>
+<li><p>Add badges to README.rst (#154)</p></li>
+<li><p>Recursive partial dict (#150)</p></li>
+<li><p>deps: update packages versions (#153)</p></li>
+<li><p>acallqueue: add func property (#151)</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>0.2.17<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Add changelog</p></li>
 <li><p>matching: matching now is available as <cite>testsuite.matching</cite></p></li>
 <li><p>matching: specify capture matching rule inside pattern</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>0.2.16<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<section id="id4">
+<h3>0.2.16<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>pytest-asyncio 0.25 support while keeping compatibility with 0.21.x</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>0.2.15<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<section id="id5">
+<h3>0.2.15<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>mongo: add mongo uri header</p></li>
 <li><p>kafka: implement message headers</p></li>
 <li><p>introduce traceback.hide</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>0.2.14<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<section id="id6">
+<h3>0.2.14<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>matching: add any_list, ListOf, any_dict, DictOf and Capture</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>0.2.13<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<section id="id7">
+<h3>0.2.13<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>kafka: wait until broker is stopped</p></li>
 <li><p>Update AUTHORS file</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>0.2.21<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<section id="id8">
+<h3>0.2.21<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>redis: wait for replicas and master negotiation in sentinel configuration</p></li>
 <li><p>redis: use CLUSTER NODES and CLUSTER SLOTS information to wait for cluster startup</p></li>
@@ -246,11 +254,11 @@ pytest<span class="w"> </span>-vv<span class="w"> </span>tests/plugins/mockserve
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../">
-    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    <img class="logo" src="../_static/logo.png" alt="Logo" />
     
   </a>
 </p>
@@ -262,7 +270,16 @@ pytest<span class="w"> </span>-vv<span class="w"> </span>tests/plugins/mockserve
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-testsuite">What is testsuite</a></li>
@@ -292,16 +309,6 @@ pytest<span class="w"> </span>-vv<span class="w"> </span>tests/plugins/mockserve
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../search/" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -315,11 +322,11 @@ pytest<span class="w"> </span>-vv<span class="w"> </span>tests/plugins/mockserve
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2025, Yandex LLC.
+      &#169;2020-2025, Yandex LLC.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/intro.rst.txt"

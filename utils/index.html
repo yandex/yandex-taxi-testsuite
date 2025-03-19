@@ -1,21 +1,18 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Utils &#8212; yandex-taxi-testsuite 0.2.17 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Utils &#8212; yandex-taxi-testsuite 0.2.18 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css?v=51489a46" />
+    <script src="../_static/documentation_options.js?v=a9cc7ada"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex/" />
     <link rel="search" title="Search" href="../search/" />
     <link rel="next" title="Tcp mockserver" href="../tcp_mockserver/" />
@@ -23,8 +20,9 @@
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -37,13 +35,13 @@
           <div class="body" role="main">
             
   <section id="utils">
-<h1>Utils<a class="headerlink" href="#utils" title="Permalink to this heading">¶</a></h1>
+<h1>Utils<a class="headerlink" href="#utils" title="Link to this heading">¶</a></h1>
 <section id="asynccallqueue">
-<span id="id1"></span><h2>AsyncCallQueue<a class="headerlink" href="#asynccallqueue" title="Permalink to this heading">¶</a></h2>
+<span id="id1"></span><h2>AsyncCallQueue<a class="headerlink" href="#asynccallqueue" title="Link to this heading">¶</a></h2>
 <p>Async callqueue wrapper. Stores information about each function call to
 synchronized queue.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@callinfo</span><span class="o">.</span><span class="n">acallqueue</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 
 <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
@@ -58,39 +56,45 @@ synchronized queue.</p>
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.callinfo.AsyncCallQueue">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.callinfo.</span></span><span class="sig-name descname"><span class="pre">AsyncCallQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.callinfo.</span></span><span class="sig-name descname"><span class="pre">AsyncCallQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue" title="Link to this definition">¶</a></dt>
 <dd><p>Function wrapper that puts information about function call into async
 queue.</p>
 <p>This class provides methods to wait/check function underlying function
 calls.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="testsuite.utils.callinfo.AsyncCallQueue.flush">
-<span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.flush"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.flush" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.flush"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.flush" title="Link to this definition">¶</a></dt>
 <dd><p>Clear call queue.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="testsuite.utils.callinfo.AsyncCallQueue.func">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">func</span></span><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.func" title="Link to this definition">¶</a></dt>
+<dd><p>Returns underlying function.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="testsuite.utils.callinfo.AsyncCallQueue.has_calls">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_calls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.has_calls" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_calls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.has_calls" title="Link to this definition">¶</a></dt>
 <dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if call queue is not empty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="testsuite.utils.callinfo.AsyncCallQueue.next_call">
-<span class="sig-name descname"><span class="pre">next_call</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.next_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.next_call" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">next_call</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.next_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.next_call" title="Link to this definition">¶</a></dt>
 <dd><p>Pops call from queue and return its arguments dict.</p>
 <p>Raises <code class="docutils literal notranslate"><span class="pre">CallQueueError</span></code> if queue is empty</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="testsuite.utils.callinfo.AsyncCallQueue.times_called">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">times_called</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.times_called" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">times_called</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.times_called" title="Link to this definition">¶</a></dt>
 <dd><p>Returns call queue length.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="testsuite.utils.callinfo.AsyncCallQueue.wait_call">
-<em class="property"><span class="pre">coroutine</span> </em><span class="sig-name descname"><span class="pre">wait_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.wait_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.wait_call" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">await</span> </em><span class="sig-name descname"><span class="pre">wait_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#AsyncCallQueue.wait_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.AsyncCallQueue.wait_call" title="Link to this definition">¶</a></dt>
 <dd><p>Wait for fucntion to be called. Pops call from queue. Blocks if
 it’s empty.</p>
 <dl class="field-list simple">
@@ -106,7 +110,7 @@ seconds.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="testsuite.utils.callinfo.acallqueue">
-<span class="sig-prename descclassname"><span class="pre">testsuite.utils.callinfo.</span></span><span class="sig-name descname"><span class="pre">acallqueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#testsuite.utils.callinfo.AsyncCallQueue" title="testsuite.utils.callinfo.AsyncCallQueue"><span class="pre">AsyncCallQueue</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#acallqueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.acallqueue" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">testsuite.utils.callinfo.</span></span><span class="sig-name descname"><span class="pre">acallqueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">checker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#testsuite.utils.callinfo.AsyncCallQueue" title="testsuite.utils.callinfo.AsyncCallQueue"><span class="pre">AsyncCallQueue</span></a></span></span><a class="reference internal" href="../_modules/testsuite/utils/callinfo/#acallqueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.callinfo.acallqueue" title="Link to this definition">¶</a></dt>
 <dd><p>Turn function into async call queue.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -122,16 +126,16 @@ callqueue is possible</p></li>
 </section>
 </section>
 <section id="matching">
-<h1>Matching<a class="headerlink" href="#matching" title="Permalink to this heading">¶</a></h1>
+<h1>Matching<a class="headerlink" href="#matching" title="Link to this heading">¶</a></h1>
 <p>Testsuite provides utility to perform inexact pattern matching.
 This might be useful when comparing objects.
 For instance when checking HTTP handle response.
 Special objects with custom <cite>__eq__()</cite> method are used for pattern matching.
 You can use them instead of explicit value when comparing objects.</p>
 <p>Here is example assertion on <cite>order/create</cite> handle response when you do not need to know exact order id returned by handle.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">testsuite.utils</span> <span class="kn">import</span> <span class="n">matching</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">testsuite.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">matching</span>
 
-<span class="k">def</span> <span class="nf">test_order_create</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_order_create</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
     <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/order/create&#39;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
 
@@ -142,12 +146,12 @@ You can use them instead of explicit value when comparing objects.</p>
 </pre></div>
 </div>
 <section id="string-matching">
-<h2>String matching<a class="headerlink" href="#string-matching" title="Permalink to this heading">¶</a></h2>
+<h2>String matching<a class="headerlink" href="#string-matching" title="Link to this heading">¶</a></h2>
 <section id="regular-expressions">
-<h3>Regular expressions<a class="headerlink" href="#regular-expressions" title="Permalink to this heading">¶</a></h3>
+<h3>Regular expressions<a class="headerlink" href="#regular-expressions" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.RegexString">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">RegexString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#RegexString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.RegexString" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">RegexString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#RegexString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.RegexString" title="Link to this definition">¶</a></dt>
 <dd><p>Match string with regular expression.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="o">==</span> <span class="p">{</span>
    <span class="s1">&#39;order_id&#39;</span><span class="p">:</span> <span class="n">matching</span><span class="o">.</span><span class="n">RegexString</span><span class="p">(</span><span class="s1">&#39;^[0-9a-f]*$&#39;</span><span class="p">),</span>
@@ -159,7 +163,7 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="predicates">
-<h3>Predicates<a class="headerlink" href="#predicates" title="Permalink to this heading">¶</a></h3>
+<h3>Predicates<a class="headerlink" href="#predicates" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">any_string</span></code>, matches any string</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">datetime_string</span></code>, matches any datetime string using <cite>dateutil.parser</cite></p></li>
@@ -169,12 +173,12 @@ You can use them instead of explicit value when comparing objects.</p>
 </section>
 </section>
 <section id="integer-matching">
-<h2>Integer matching<a class="headerlink" href="#integer-matching" title="Permalink to this heading">¶</a></h2>
+<h2>Integer matching<a class="headerlink" href="#integer-matching" title="Link to this heading">¶</a></h2>
 <section id="gt">
-<h3>Gt<a class="headerlink" href="#gt" title="Permalink to this heading">¶</a></h3>
+<h3>Gt<a class="headerlink" href="#gt" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.Gt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Gt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Gt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Gt" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Gt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Gt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Gt" title="Link to this definition">¶</a></dt>
 <dd><p>Value is greater than.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Value must be &gt; 10</span>
@@ -185,10 +189,10 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="ge">
-<h3>Ge<a class="headerlink" href="#ge" title="Permalink to this heading">¶</a></h3>
+<h3>Ge<a class="headerlink" href="#ge" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.Ge">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Ge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Ge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Ge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Ge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Ge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Ge" title="Link to this definition">¶</a></dt>
 <dd><p>Value is greater or equal.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Value must be &gt;= 10</span>
@@ -199,10 +203,10 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="lt">
-<h3>Lt<a class="headerlink" href="#lt" title="Permalink to this heading">¶</a></h3>
+<h3>Lt<a class="headerlink" href="#lt" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.Lt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Lt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Lt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Lt" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Lt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Lt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Lt" title="Link to this definition">¶</a></dt>
 <dd><p>Value is less than.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Value must be &lt; 10</span>
@@ -213,10 +217,10 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="le">
-<h3>Le<a class="headerlink" href="#le" title="Permalink to this heading">¶</a></h3>
+<h3>Le<a class="headerlink" href="#le" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.Le">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Le</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Le"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Le" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Le</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Le"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Le" title="Link to this definition">¶</a></dt>
 <dd><p>Value is less or equal.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Value must be &lt;= 10</span>
@@ -227,7 +231,7 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="id2">
-<h3>Predicates<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<h3>Predicates<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">any_float</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">any_integer</span></code></p></li>
@@ -245,10 +249,10 @@ You can use them instead of explicit value when comparing objects.</p>
 </section>
 </section>
 <section id="type-matching">
-<h2>Type matching<a class="headerlink" href="#type-matching" title="Permalink to this heading">¶</a></h2>
+<h2>Type matching<a class="headerlink" href="#type-matching" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.IsInstance">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">IsInstance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#IsInstance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.IsInstance" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">IsInstance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#IsInstance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.IsInstance" title="Link to this definition">¶</a></dt>
 <dd><p>Match value by its type.</p>
 <p>Use this class when you only need to check value type.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="o">==</span> <span class="p">{</span>
@@ -264,12 +268,12 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="logical-matching">
-<h2>Logical matching<a class="headerlink" href="#logical-matching" title="Permalink to this heading">¶</a></h2>
+<h2>Logical matching<a class="headerlink" href="#logical-matching" title="Link to this heading">¶</a></h2>
 <section id="and">
-<h3>And<a class="headerlink" href="#and" title="Permalink to this heading">¶</a></h3>
+<h3>And<a class="headerlink" href="#and" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.And">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">And</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#And"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.And" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">And</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#And"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.And" title="Link to this definition">¶</a></dt>
 <dd><p>Logical AND on conditions.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># match integer is in range [10, 100)</span>
 <span class="k">assert</span> <span class="n">num</span> <span class="o">==</span> <span class="n">matching</span><span class="o">.</span><span class="n">And</span><span class="p">([</span><span class="n">matching</span><span class="o">.</span><span class="n">Ge</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">matching</span><span class="o">.</span><span class="n">Lt</span><span class="p">(</span><span class="mi">100</span><span class="p">)])</span>
@@ -279,10 +283,10 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="or">
-<h3>Or<a class="headerlink" href="#or" title="Permalink to this heading">¶</a></h3>
+<h3>Or<a class="headerlink" href="#or" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.Or">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Or</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Or"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Or" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Or</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Or"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Or" title="Link to this definition">¶</a></dt>
 <dd><p>Logical OR on conditions.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># match integers abs(num) &gt;= 10</span>
 <span class="k">assert</span> <span class="n">num</span> <span class="o">==</span> <span class="n">matching</span><span class="o">.</span><span class="n">Or</span><span class="p">([</span><span class="n">matching</span><span class="o">.</span><span class="n">Ge</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">matching</span><span class="o">.</span><span class="n">Le</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">)])</span>
@@ -292,10 +296,10 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="not">
-<h3>Not<a class="headerlink" href="#not" title="Permalink to this heading">¶</a></h3>
+<h3>Not<a class="headerlink" href="#not" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.Not">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Not</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Not"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Not" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Not</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Not"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Not" title="Link to this definition">¶</a></dt>
 <dd><p>Condition inversion.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># check value is not 1</span>
@@ -307,12 +311,12 @@ You can use them instead of explicit value when comparing objects.</p>
 </section>
 </section>
 <section id="dict-matching">
-<h2>Dict matching<a class="headerlink" href="#dict-matching" title="Permalink to this heading">¶</a></h2>
+<h2>Dict matching<a class="headerlink" href="#dict-matching" title="Link to this heading">¶</a></h2>
 <section id="any-dict">
-<h3>Any dict<a class="headerlink" href="#any-dict" title="Permalink to this heading">¶</a></h3>
+<h3>Any dict<a class="headerlink" href="#any-dict" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.AnyDict">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">AnyDict</span></span><a class="reference internal" href="../_modules/testsuite/matching/#AnyDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.AnyDict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">AnyDict</span></span><a class="reference internal" href="../_modules/testsuite/matching/#AnyDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.AnyDict" title="Link to this definition">¶</a></dt>
 <dd><p>Value is a dictionary.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="p">{</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">}</span> <span class="o">==</span> <span class="n">matching</span><span class="o">.</span><span class="n">any_dict</span>
@@ -322,10 +326,10 @@ You can use them instead of explicit value when comparing objects.</p>
 
 </section>
 <section id="dict-of">
-<h3>Dict of<a class="headerlink" href="#dict-of" title="Permalink to this heading">¶</a></h3>
+<h3>Dict of<a class="headerlink" href="#dict-of" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.DictOf">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">DictOf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key=&lt;Any&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value=&lt;Any&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#DictOf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.DictOf" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">DictOf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key=&lt;Any&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value=&lt;Any&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#DictOf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.DictOf" title="Link to this definition">¶</a></dt>
 <dd><p>Value is a dictionary of (key, value) pairs.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pred</span> <span class="o">=</span> <span class="n">matching</span><span class="o">.</span><span class="n">DictOf</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">matching</span><span class="o">.</span><span class="n">any_string</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">matching</span><span class="o">.</span><span class="n">any_string</span><span class="p">)</span>
@@ -337,15 +341,15 @@ You can use them instead of explicit value when comparing objects.</p>
 </dd></dl>
 
 </section>
-<section id="partial-matching">
-<h3>Partial matching<a class="headerlink" href="#partial-matching" title="Permalink to this heading">¶</a></h3>
+<section id="partial-dict-matching">
+<h3>Partial dict matching<a class="headerlink" href="#partial-dict-matching" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.PartialDict">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">PartialDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#PartialDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.PartialDict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Partial dictionary comparison.</p>
-<p>Sometimes you only need to check dictionary subset ignoring all
-other keys. <a class="reference internal" href="#testsuite.utils.matching.PartialDict" title="testsuite.utils.matching.PartialDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">PartialDict</span></code></a> is there for this purpose.</p>
-<p><cite>PartialDict</cite> is wrapper around regular <cite>dict()</cite> when instantiated
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">PartialDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#PartialDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.PartialDict" title="Link to this definition">¶</a></dt>
+<dd><p>Partial dictionary matching.</p>
+<p>It might be useful to only check specific keys of a dictionary.
+<a class="reference internal" href="#testsuite.utils.matching.PartialDict" title="testsuite.utils.matching.PartialDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">PartialDict</span></code></a> serves to solve this task.</p>
+<p><a class="reference internal" href="#testsuite.utils.matching.PartialDict" title="testsuite.utils.matching.PartialDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">PartialDict</span></code></a> is wrapper around regular <cite>dict()</cite> when instantiated
 all arguments are passed as is to internal dict object.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="p">{</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span> <span class="o">==</span> <span class="n">matching</span><span class="o">.</span><span class="n">PartialDict</span><span class="p">({</span>
@@ -357,14 +361,39 @@ all arguments are passed as is to internal dict object.</p>
 </dd></dl>
 
 </section>
+<section id="recusive-partial-dict-matching">
+<h3>Recusive partial dict matching<a class="headerlink" href="#recusive-partial-dict-matching" title="Link to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="testsuite.utils.matching.recursive_partial_dict">
+<span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">recursive_partial_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#recursive_partial_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.recursive_partial_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Creates recursive partial dict.</p>
+<blockquote>
+<div><p>Traverse input dict and create <cite>PartialDict</cite> for nested dicts.
+Supports visiting <cite>testsuite.matching</cite> predicates. Skips inner
+<a class="reference internal" href="#testsuite.utils.matching.PartialDict" title="testsuite.utils.matching.PartialDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">PartialDict</span></code></a> nodes in order to allow user to customize
+behavior.</p>
+</div></blockquote>
+<p>l    Example:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="p">{</span>
+    <span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s1">&#39;extra&#39;</span><span class="p">},</span> <span class="s1">&#39;extra&#39;</span>
+<span class="p">}</span> <span class="o">==</span> <span class="n">matching</span><span class="o">.</span><span class="n">recursive_partial_dict</span><span class="p">({</span>
+         <span class="s1">&#39;foo: {&#39;</span><span class="n">bar</span><span class="s1">&#39;: 123}</span>
+     <span class="p">})</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+</section>
 </section>
 <section id="list-matching">
-<h2>List matching<a class="headerlink" href="#list-matching" title="Permalink to this heading">¶</a></h2>
+<h2>List matching<a class="headerlink" href="#list-matching" title="Link to this heading">¶</a></h2>
 <section id="any-list">
-<h3>Any list<a class="headerlink" href="#any-list" title="Permalink to this heading">¶</a></h3>
+<h3>Any list<a class="headerlink" href="#any-list" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.AnyList">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">AnyList</span></span><a class="reference internal" href="../_modules/testsuite/matching/#AnyList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.AnyList" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">AnyList</span></span><a class="reference internal" href="../_modules/testsuite/matching/#AnyList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.AnyList" title="Link to this definition">¶</a></dt>
 <dd><p>Value is a list.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]</span>  <span class="o">==</span> <span class="n">matching</span><span class="o">.</span><span class="n">any_dict</span>
@@ -374,10 +403,10 @@ all arguments are passed as is to internal dict object.</p>
 
 </section>
 <section id="list-of">
-<h3>List of<a class="headerlink" href="#list-of" title="Permalink to this heading">¶</a></h3>
+<h3>List of<a class="headerlink" href="#list-of" title="Link to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.ListOf">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">ListOf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#ListOf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.ListOf" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">ListOf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value=&lt;Any&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#ListOf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.ListOf" title="Link to this definition">¶</a></dt>
 <dd><p>Value is a list of values.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]</span>  <span class="o">==</span> <span class="n">matching</span><span class="o">.</span><span class="n">ListOf</span><span class="p">(</span><span class="n">matching</span><span class="o">.</span><span class="n">any_string</span><span class="p">)</span>
@@ -388,10 +417,10 @@ all arguments are passed as is to internal dict object.</p>
 
 </section>
 <section id="unordered-list">
-<h3>Unordered list<a class="headerlink" href="#unordered-list" title="Permalink to this heading">¶</a></h3>
+<h3>Unordered list<a class="headerlink" href="#unordered-list" title="Link to this heading">¶</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="testsuite.utils.matching.unordered_list">
-<span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">unordered_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#unordered_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.unordered_list" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">unordered_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#unordered_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.unordered_list" title="Link to this definition">¶</a></dt>
 <dd><p>Unordered list comparison.</p>
 <p>You may want to compare lists without respect to order. For instance,
 when your service is serializing std::unordered_map to array.</p>
@@ -414,10 +443,10 @@ comparison.</p>
 </section>
 </section>
 <section id="value-captuing">
-<h2>Value captuing<a class="headerlink" href="#value-captuing" title="Permalink to this heading">¶</a></h2>
+<h2>Value captuing<a class="headerlink" href="#value-captuing" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.utils.matching.Capture">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Capture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value=&lt;Any&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_link_captured=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Capture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Capture" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.utils.matching.</span></span><span class="sig-name descname"><span class="pre">Capture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value=&lt;Any&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_link_captured=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/matching/#Capture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.utils.matching.Capture" title="Link to this definition">¶</a></dt>
 <dd><p>Capture matched value(s).</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># You can define matching rule out of pattern</span>
@@ -445,11 +474,11 @@ comparison.</p>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../">
-    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    <img class="logo" src="../_static/logo.png" alt="Logo" />
     
   </a>
 </p>
@@ -461,7 +490,16 @@ comparison.</p>
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
@@ -491,16 +529,6 @@ comparison.</p>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../search/" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -514,11 +542,11 @@ comparison.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2025, Yandex LLC.
+      &#169;2020-2025, Yandex LLC.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/utils.rst.txt"

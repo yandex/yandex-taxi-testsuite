@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.2.18
+~~~~~~
+
+- Remove loop fixture usage (#157)
+- Add badges to README.rst (#154)
+- Recursive partial dict (#150)
+- deps: update packages versions (#153)
+- acallqueue: add func property (#151)
+
 0.2.17
 ~~~~~~
 

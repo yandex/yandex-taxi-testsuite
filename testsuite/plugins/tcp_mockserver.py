@@ -88,18 +88,16 @@ class Mockserver:
 
 
 class ProtocolFactory:
-    def __init__(self, loop):
-        self.loop = loop
+    def __init__(self):
         self.client_handler = None
 
     def __call__(self):
         if self.client_handler is None:
             pytest.fail('No client handler attached')
-        reader = asyncio.StreamReader(loop=self.loop)
+        reader = asyncio.StreamReader()
         protocol = asyncio.StreamReaderProtocol(
             reader,
             self.client_handler,
-            loop=self.loop,
         )
         return protocol
 
@@ -113,7 +111,7 @@ class ProtocolFactory:
 
 
 @pytest.fixture(scope='session')
-async def create_tcp_mockserver(loop):
+async def create_tcp_mockserver():
     @contextlib.asynccontextmanager
     async def create_mockserver(
         *,
@@ -122,10 +120,9 @@ async def create_tcp_mockserver(loop):
         sock=None,
         **kwargs,
     ):
-        factory = ProtocolFactory(loop=loop)
+        factory = ProtocolFactory()
         async with net.create_tcp_server(
             factory,
-            loop=loop,
             host=host,
             port=port,
             sock=sock,

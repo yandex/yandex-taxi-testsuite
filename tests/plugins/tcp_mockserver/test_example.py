@@ -13,7 +13,7 @@ async def _tcp_mockserver(create_tcp_mockserver):
 
 
 @pytest.fixture
-def tcp_mockserver(_tcp_mockserver):
+async def tcp_mockserver(_tcp_mockserver):
     """
     Returns per-test mockserver interface.
     """

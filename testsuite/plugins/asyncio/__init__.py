@@ -1,18 +1,19 @@
+import asyncio
+
+import pytest
 from packaging import version
 
-PYTEST_ASYNCIO_VERSION = version.parse('0.22')
+
+def pytest_configure(config):
+    # Force default asyncio mode
+    config.option.asyncio_mode = 'auto'
+    # Force fixtures to use session loop
+    config.inicfg['asyncio_default_fixture_loop_scope'] = 'session'
 
 
-def _pytest_asyncio_legacy():
-    try:
-        import pytest_asyncio
-    except ImportError:
-        return True
-    return version.parse(pytest_asyncio.__version__) < PYTEST_ASYNCIO_VERSION
-
-
-# type: ignore
-if _pytest_asyncio_legacy():
-    from .plugin_legacy import *
-else:
-    from .plugin import *
+def pytest_collection_modifyitems(items):
+    """Force tests to use session asyncio loop."""
+    for item in items:
+        mark = item.get_closest_marker('asyncio')
+        if mark:
+            mark.kwargs.setdefault('loop_scope', 'session')

@@ -1,11 +1,13 @@
 Yandex Taxi Testsuite
 =====================
-.. |PyPI version fury.io| image:: https://badge.fury.io/py/yandex-taxi-testsuite.svg
-   :target: https://pypi.python.org/pypi/yandex-taxi-testsuite
-.. |Tests Ubuntu| image:: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/ci.yml/badge.svg?branch=develop
-   :target: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/ci.yml?branch=develop
-.. |Tests MacOS| image:: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/macos-ci.yml/badge.svg?branch=develop
-   :target: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/macos-ci.yml?branch=develop
+
+.. image:: https://badge.fury.io/py/yandex-taxi-testsuite.svg
+    :target: https://pypi.python.org/pypi/yandex-taxi-testsuite
+.. image:: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/ci.yml/badge.svg?branch=develop
+    :target: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/ci.yml?branch=develop
+.. image:: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/macos-ci.yml/badge.svg?branch=develop
+    :target: https://github.com/yandex/yandex-taxi-testsuite/actions/workflows/macos-ci.yml?branch=develop
+
 
 What is testsuite
 -----------------

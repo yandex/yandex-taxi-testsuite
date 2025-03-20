@@ -1,3 +1,5 @@
+import testsuite
+
 # Common testsuite plugins
 pytest_plugins = [
     'testsuite.plugins.asyncio',
@@ -17,3 +19,8 @@ pytest_plugins = [
     'testsuite.plugins.testpoint',
     'testsuite.plugins.verify_file_paths',
 ]
+
+
+
+def pytest_report_header(config):
+    return [f'yandex-taxi-testsuite: version {testsuite.__version__}']

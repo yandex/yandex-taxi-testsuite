@@ -21,6 +21,5 @@ pytest_plugins = [
 ]
 
 
-
 def pytest_report_header(config):
     return [f'yandex-taxi-testsuite: version {testsuite.__version__}']

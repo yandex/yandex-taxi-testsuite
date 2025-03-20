@@ -33,8 +33,14 @@ if grep -q '^TODO: remove' docs/changelog.rst; then
     die "docs/changelog.rst: please remove sentinel"
 fi
 
-git commit -m "Version bump $PACKAGE_VERSION" setup.cfg docs/changelog.rst ||
-    die "Commit failed"
+cat > testsuite/_version.py <<EOF
+__version__ = '${PACKAGE_VERSION}'
+EOF
+
+git commit -m "Version bump $PACKAGE_VERSION"   \
+    setup.cfg                                   \
+    docs/changelog.rst                          \
+    testsuite/_version.py || die "Commit failed"
 
 git show
 

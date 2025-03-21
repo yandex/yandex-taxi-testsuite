@@ -11,7 +11,18 @@ PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
 
 TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
 
+TEST_CASES=$(filter-out __%__,$(patsubst tests/%/,%,$(shell ls --color=never -d tests/*/)))
+TEST_DATABASE_CASES=$(filter-out __%__,$(patsubst tests/databases/%/,%,$(shell ls --color=never -d tests/databases/*/)))
+
 .PHONY: tests
+
+$(foreach case,$(TEST_CASES),test-$(case)): test-%:
+	python3 -m pytest -v tests/$* $(PYTEST_ARGS)
+
+$(foreach case,$(TEST_DATABASE_CASES),test-databases-$(case)): test-databases-%:
+	python3 -m pytest -v tests/databases/$* $(PYTEST_ARGS)
+
+test-core: $(addprefix test-,$(filter-out databases,$(TEST_CASES)))
 
 tests:
 	python3 -m pytest -v tests/ $(PYTEST_ARGS)
@@ -41,7 +52,11 @@ venv-format:
 venv-start-release:
 venv-release-upload-testpypi:
 venv-release-upload-pypi:
+venv-test-core:
 
+$(foreach case,$(TEST_CASES),venv-test-$(case)): venv-test-%:
+
+$(foreach case,$(TEST_DATABASE_CASES),venv-test-databases-$(case)): venv-test-databases-%:
 
 venv-%: setup-dev-venv
 	(. $(VENV_DEV_PATH)/bin/activate && $(MAKE) $*)

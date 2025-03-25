@@ -3,6 +3,10 @@ import pytest
 from testsuite.plugins import common
 
 
+def test_foo(loop):
+    pass
+
+
 def test_when_loading_invalid_yaml_then_error_specifies_file(load_yaml):
     with pytest.raises(common.LoadYamlError) as err:
         load_yaml('invalid.yaml')

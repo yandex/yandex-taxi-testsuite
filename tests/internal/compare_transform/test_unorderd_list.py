@@ -14,7 +14,8 @@ def test_basic():
     assert right_mapped == [4, 2, 1]
     assert comparator.errors == {
         'left': [
-            'dict length does not match len(left)=2, len(right)=3',
-            "extra keys on the right: 'bar'",
-        ]
+            'list length does not match: len(left)=4 len(right)=3',
+        ],
+        'left[1]': ['3 != 2'],
+        'left[2]': ['2 != 1'],
     }

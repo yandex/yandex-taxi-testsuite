@@ -9,6 +9,8 @@ import py
 
 from testsuite.utils import matching
 
+from . import assertrepr_compare_experimental
+
 # pylint: disable=unidiomatic-typecheck
 
 CMP_SIMPLE_DIFF = 0
@@ -147,7 +149,7 @@ def pytest_addoption(parser):
     group = parser.getgroup('common')
     group.addoption(
         '--assert-mode',
-        choices=['default', 'combine', 'analyze'],
+        choices=['default', 'combine', 'analyze', 'experimental'],
         default='combine',
         help='Assertion representation mode, combined by default',
     )
@@ -157,6 +159,13 @@ def pytest_addoption(parser):
         default=None,
         help='Depth of assertions, use 0 for simple print different items',
     )
+
+
+def pytest_configure(config):
+    if config.option.assert_mode == 'experimental':
+        config.pluginmanager.register(
+            assertrepr_compare_experimental.AssertionPlugin()
+        )
 
 
 # pylint: disable=invalid-name

@@ -1,3 +1,4 @@
+# type: ignore
 import pytest
 
 from testsuite.plugins import assertrepr_compare

@@ -12,17 +12,6 @@ def test_eq():
     assert mapped_right == {'foo': 'bar'}
 
 
-def test_reversed():
-    comparator = compare_transform.CompareTransform()
-    mapped_left, mapped_right = comparator.visit(
-        matching.DictOf(matching.any_string, matching.any_string),
-        {'foo': 'bar'},
-    )
-    assert not comparator.errors
-    assert mapped_left == {'foo': 'bar'}
-    assert mapped_right == {'foo': 'bar'}
-
-
 def test_value_nq():
     comparator = compare_transform.CompareTransform()
     comparator.visit(
@@ -30,6 +19,17 @@ def test_value_nq():
         matching.DictOf(matching.any_string, matching.any_integer),
     )
     assert comparator.errors == {'left["foo"]': ["'bar' != <IsInstance int>"]}
+
+
+def test_value_nq_reversed():
+    comparator = compare_transform.CompareTransform()
+    left_mapped, right_mapped = comparator.visit(
+        matching.DictOf(matching.any_string, matching.any_integer),
+        {'foo': 'bar'},
+    )
+    left_mapped = {'foo': matching.any_integer}
+    right_mapped = {'foo': 'bar'}
+    assert comparator.errors == {'left["foo"]': ["<IsInstance int> != 'bar'"]}
 
 
 def test_key_nq():

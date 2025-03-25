@@ -17,8 +17,9 @@ class AssertMode(enum.Enum):
 
 
 class AssertionPlugin:
-    def __init__(self):
+    def __init__(self, assert_mode):
         self._disabled = False
+        self._assert_mode = assert_mode
 
     @contextlib.contextmanager
     def disabled(self):
@@ -60,7 +61,7 @@ class AssertionPlugin:
                 for error in errors:
                     print(f' - {error}', file=output)
 
-        if config.option.assert_mode == AssertMode.COMBINE:
+        if self._assert_mode == AssertMode.COMBINE:
             print('pytest default:\n', file=output)
             for items in pytest_result:
                 for item in items:
@@ -70,7 +71,9 @@ class AssertionPlugin:
 
 def pytest_configure(config: pytest.Config):
     if config.option.assert_mode != AssertMode.DEFAULT:
-        config.pluginmanager.register(AssertionPlugin())
+        config.pluginmanager.register(
+            AssertionPlugin(config.option.assert_mode)
+        )
 
 
 def pytest_addoption(parser: pytest.Parser):

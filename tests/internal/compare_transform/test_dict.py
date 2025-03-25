@@ -1,6 +1,3 @@
-import pytest
-
-from testsuite import matching
 from testsuite._internal import compare_transform
 
 

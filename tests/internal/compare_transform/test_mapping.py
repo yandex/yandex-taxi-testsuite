@@ -39,21 +39,21 @@ def test_eq(left, right):
     comparator = compare_transform.CompareTransform()
 
     # compare left and right
-    mapped_right = comparator.visit(left, right)
+    _, mapped_right = comparator.visit(left, right)
     assert not comparator.errors
-    assert left == mapped_right
+    assert left == _, mapped_right
 
     # compare right and left
-    mapped_left = comparator.visit(right, left)
+    _, mapped_left = comparator.visit(right, left)
     assert not comparator.errors
     assert mapped_left == right
 
     # compare left and left
-    mapped_left = comparator.visit(left, left)
+    _, mapped_left = comparator.visit(left, left)
     assert not comparator.errors
     assert mapped_left == left
 
     # compare right and right
-    mapped_right = comparator.visit(right, right)
+    _, mapped_right = comparator.visit(right, right)
     assert not comparator.errors
-    assert mapped_right == right
+    assert _, mapped_right == right

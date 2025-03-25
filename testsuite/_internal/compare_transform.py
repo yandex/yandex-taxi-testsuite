@@ -22,9 +22,13 @@ class CompareTransform:
         path = ''.join(self.path)
         self.errors[path].append(msg)
 
-    def visit(self, left: typing.Any, right: typing.Any) -> typing.Any:
+    def visit(
+        self, left: typing.Any, right: typing.Any
+    ) -> typing.Tuple[typing.Any, typing.Any]:
         if left == right:
-            return left
+            return left, left
+
+        left, right = _resolve_value(left, right, self.report_error)
         if isinstance(left, ListOrTuple):
             return self.visit_list(left, right)
         elif isinstance(left, dict):
@@ -33,19 +37,18 @@ class CompareTransform:
             return self.visit_set(left, right)
 
         self.report_error(f'{left!r} != {right!r}')
-        return right
+        return left, right
 
     def visit_list(
         self,
         left: typing.Union[list, tuple],
         right: typing.Any,
-    ) -> typing.List:
-        left, right = _resolve_value(left, right)
+    ) -> typing.Tuple:
         if not isinstance(right, list):
             self.report_error(
-                f'type mismatch expected: {type(left)}, got: {type(right)}',
+                f'type mismatch, list expected got: {right}',
             )
-            return right
+            return left, right
         left_len = len(left)
         right_len = len(right)
         if left_len != right_len:
@@ -54,21 +57,27 @@ class CompareTransform:
             )
 
         result = []
-        left_items, right_items = _resolve_value(left, right)
         for idx, (item_left, item_right) in enumerate(
-            zip(left_items, right_items),
+            zip(left, right),
         ):
             with self.push(f'[{idx}]'):
-                result.append(self.visit(item_left, item_right))
-        return result
+                # TODO: map left as well
+                __, right_mapped = self.visit(item_left, item_right)
+                result.append(right_mapped)
+        if left_len > right_len:
+            for idx, item in enumerate(left[right_len:], right_len):
+                self.report_error(f'[{idx}]: extra item on the left: {item!r}')
+        elif right_len > left_len:
+            for idx, item in enumerate(right[left_len:], left_len):
+                self.report_error(f'[{idx}]: extra item on the right: {item!r}')
+        return left, result
 
-    def visit_dict(self, left: typing.Dict, right: typing.Any) -> typing.Dict:
-        left, right = _resolve_value(left, right)
+    def visit_dict(self, left: typing.Dict, right: typing.Any) -> typing.Tuple:
         if not isinstance(right, dict):
             self.report_error(
                 f'dict expected on the right, got {type(right)} instead'
             )
-            return right
+            return left, right
         left_len = len(left)
         right_len = len(right)
         if left_len != right_len:
@@ -93,34 +102,36 @@ class CompareTransform:
             result[key] = right[key]
         for key in common_keys:
             with self.push(f'["{key}"]'):
-                result[key] = self.visit(left[key], right[key])
-        return result
+                # TODO: map left as well
+                _, right_mapped = self.visit(left[key], right[key])
+                result[key] = right_mapped
+        return left, result
 
     def visit_set(
         self,
         left: typing.Union[set, frozenset],
         right: typing.Any,
-    ) -> typing.Set:
+    ) -> typing.Tuple:
         if not isinstance(right, SetTypes):
-            self.report_error(f'type mismatch, set expected: {left} != {right}')
-            return right
-        left_len = len(left)
-        right_len = len(right)
-        if len(left) != len(right):
             self.report_error(
-                f'set length does not match: len(left)={left_len}, len(right)={right_len}',
+                f'type mismatch, set expected got: {right}',
             )
+            return left, right
         common_keys = left & right
         left_only = left - common_keys
         right_only = right - common_keys
         result = common_keys.copy()
         if left_only:
-            self.report_error(f'extra keys on the left: {left_only}')
+            self.report_error(
+                f'extra items on the left: {_format_keys(left_only)}',
+            )
         if right_only:
-            self.report_error(f'extra item on the right: {right_only}')
+            self.report_error(
+                f'extra items on the right: {_format_keys(right_only)}',
+            )
         for key in right_only:
             result.add(key)
-        return set(result)
+        return left, set(result)
 
     @contextlib.contextmanager
     def push(self, path: str):
@@ -131,30 +142,12 @@ class CompareTransform:
             self.path.pop(-1)
 
 
-def _resolve_length(obj):
-    if hasattr(obj, '__testsuite_len__'):
-        return obj.__testsuite_len__()
-    return len(obj)
-
-
-def _resolve_value(left, right):
+def _resolve_value(left, right, reporter):
     if hasattr(left, '__testsuite_resolve_value__'):
-        return left.__testsuite_resolve_value__(right), right
+        return left.__testsuite_resolve_value__(right, reporter), right
     if hasattr(right, '__testsuite_resolve_value__'):
-        return left, right.__testsuite_resolve_value__(left)
+        return left, right.__testsuite_resolve_value__(left, reporter)
     return left, right
-
-
-def _match_types(left_types, right_types):
-    if not isinstance(left_types, tuple):
-        left_types = (left_types,)
-    if not isinstance(right_types, tuple):
-        right_types = (right_types,)
-    for left_type in left_types:
-        for right_type in right_types:
-            if issubclass(right_type, left_type):
-                return True
-    return False
 
 
 def _format_keys(keys):

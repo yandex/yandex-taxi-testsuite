@@ -346,7 +346,7 @@ class PartialDict(collections.abc.Mapping):
     def __testsuite_visit__(self, visit):
         return PartialDict(visit(self._dict))
 
-    def __testsuite_resolve_value__(self, other):
+    def __testsuite_resolve_value__(self, other, report_error):
         if not isinstance(other, collections.abc.Mapping):
             return self
         return {**other, **self._dict}
@@ -370,7 +370,7 @@ class UnorderedList:
     def __testsuite_visit__(self, visit):
         return UnorderedList(visit(self._value), self._key)
 
-    def __testsuite_resolve_value__(self, other):
+    def __testsuite_resolve_value__(self, other, report_error):
         if not isinstance(other, list):
             return self
 
@@ -503,6 +503,19 @@ class DictOf:
 
     def __testsuite_visit__(self, visit):
         return DictOf(visit(self._key), visit(self._value))
+
+    def __testsuite_resolve_value__(self, other, report_error):
+        if not isinstance(other, collections.abc.Mapping):
+            return self
+
+        result = {}
+        for key, value in other.items():
+            if key != self._key:
+                report_error(
+                    f'{key!r}: dict keys must match {self._key} expression',
+                )
+            result[key] = self._value
+        return result
 
 
 class Capture:

@@ -6,7 +6,7 @@ from testsuite._internal import compare_transform
 
 def test_basic():
     comparator = compare_transform.CompareTransform()
-    right_mapped = comparator.visit(
+    _, right_mapped = comparator.visit(
         {'foo': 'bar', 'extra': 123},
         matching.PartialDict(foo='bar', bar=123),
     )

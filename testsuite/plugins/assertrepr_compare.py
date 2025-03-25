@@ -164,7 +164,9 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     if config.option.assert_mode == 'experimental':
         config.pluginmanager.register(
-            assertrepr_compare_experimental.AssertionPlugin()
+            assertrepr_compare_experimental.AssertionPlugin(
+                assertrepr_compare_experimental.AssertMode.COMBINE
+            )
         )
 
 

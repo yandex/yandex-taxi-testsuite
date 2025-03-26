@@ -24,7 +24,7 @@ jobs:
               uses: ./.github/actions/setup-python
               with:
                   python-version: ${{ matrix.python-version }}
-                  with-databases: postgresql-binary
+                  with-databases: mongodb,postgresql-binary,redis,mysql,clickhouse,rabbitmq,kafka
             - name: Lint with Ruff
               run: |
                   source ./.venv/bin/activate && make check-linters

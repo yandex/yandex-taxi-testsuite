@@ -12,9 +12,7 @@ jobs:
             fail-fast: true
             matrix:
                 python-version:
-                    - "3.7"
                     - "3.10"
-                    - "3.12"
                     - "3.13"
                 os-version:
                     - "macos-14"

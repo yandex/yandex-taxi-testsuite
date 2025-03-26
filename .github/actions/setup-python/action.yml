@@ -2,22 +2,30 @@ name: Setup Python With Deps
 description: Setup python version, install required dependencies
 
 inputs:
-  python-version:
-    required: true
-    description: Python Version
+    python-version:
+        required: true
+        description: Python Version
+    dependencies-mode:
+        required: true
+        description: Mode (full/core) of installed dependencies
 
 runs:
-  using: "composite"
-  steps:
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ inputs.python-version }}
-    - name: Install Python Dependencies
-      shell: bash
-      run: |
-        python -m pip install --upgrade pip virtualenv
-        python -m venv .venv
-        .venv/bin/pip install -r requirements-core.txt
-        .venv/bin/pip install -r requirements-dev.txt
-        .venv/bin/pip install -r docs/requirements.txt
+    using: "composite"
+    steps:
+        - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+              python-version: ${{ inputs.python-version }}
+        - name: Install Core Python Dependencies
+          shell: bash
+          run: |
+              python -m pip install --upgrade pip virtualenv
+              python -m venv .venv
+              .venv/bin/pip install -r requirements-core.txt
+              .venv/bin/pip install -r requirements-dev.txt
+              .venv/bin/pip install -r docs/requirements.txt
+        - name: Install Full Python Dependencies
+          if: ${{ ! input.dependencies-mode == 'full' }}
+          shell: bash
+          run: |
+              .venv/bin/pip install -r requirements.txt

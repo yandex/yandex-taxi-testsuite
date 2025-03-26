@@ -38,10 +38,11 @@ class AsyncCallQueue:
         self,
         func: typing.Callable,
         *,
+        name=None,
         checker: typing.Optional[CheckerType] = None,
     ):
         self._func = func
-        self._name = func.__name__
+        self._name = name or func.__name__
         self._checker = checker
 
     @property
@@ -179,4 +180,13 @@ def acallqueue(
         return func
     if isinstance(func, staticmethod):
         func = func.__func__
-    return AsyncCallQueue(func, checker=checker)
+    name = None
+    if hasattr(func, '__name__'):
+        name = func.__name__
+    elif hasattr(func, '__call__'):
+        # instance with __call__() method
+        name = func.__class__.__name__
+        func = func.__call__
+    else:
+        raise RuntimeError(f'Unsupported func {func!r} given')
+    return AsyncCallQueue(func, name=name, checker=checker)

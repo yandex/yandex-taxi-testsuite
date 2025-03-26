@@ -290,6 +290,26 @@ def test_acallqueue_double():
     assert queue1 is queue2
 
 
+async def test_acallqueue_call_method():
+    class Foo:
+        def __call__(self):
+            return 123
+
+    queue = callinfo.acallqueue(Foo())
+    result = await queue()
+    assert result == 123
+
+
+async def test_acallqueue_acall_method():
+    class Foo:
+        async def __call__(self):
+            return 123
+
+    queue = callinfo.acallqueue(Foo())
+    result = await queue()
+    assert result == 123
+
+
 async def test_acallqueue_checker():
     class Error(Exception): ...
 

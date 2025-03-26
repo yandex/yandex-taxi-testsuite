@@ -24,7 +24,7 @@ runs:
               .venv/bin/pip install -r requirements-dev.txt
               .venv/bin/pip install -r docs/requirements.txt
         - name: Install Database Python Dependencies
-          if: inputs.with-databases != ""
+          if: inputs.with-databases != ''
           shell: bash
           run: |
               .venv/bin/pip install .[${{ inputs.with-databases }}]

@@ -184,7 +184,6 @@ def acallqueue(
     if hasattr(func, '__name__'):
         name = func.__name__
     elif hasattr(func, '__call__'):
-        # instance with __call__() method
         name = func.__class__.__name__
         func = func.__call__
     else:

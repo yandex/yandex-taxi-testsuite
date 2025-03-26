@@ -1,4 +1,4 @@
 -r requirements-core.txt
 -r requirements-dev.txt
 
-.[mongodb,postgresql,redis,mysql,clickhouse,rabbitmq,kafka]
+.[mongodb,postgresql-binary,redis,mysql,clickhouse,rabbitmq,kafka]

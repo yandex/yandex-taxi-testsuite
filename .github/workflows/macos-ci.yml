@@ -4,55 +4,55 @@
 name: (MacOS) testsuite tests
 
 on:
-  push:
-    branches: [develop]
-  pull_request:
-    branches: [develop]
+    push:
+        branches: [develop]
+    pull_request:
+        branches: [develop]
 
 jobs:
-  build:
-    runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install database dependencies
-        run: |
-          brew tap mongodb/brew
-          brew update
-          brew install redis clickhouse rabbitmq postgresql mariadb kafka mongodb-community
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install python dependencies
-        run: |
-          brew install pytest virtualenv
-          make setup-dev-venv
-      - name: Test with pytest
-        env:
-          TESTSUITE_ALLOW_ROOT: 1
-          TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-vvs"
-        run: |
-          make venv-tests
+    build:
+        runs-on: macos-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                python-version:
+                    - "3.10"
+                    - "3.11"
+                    - "3.12"
+                    - "3.13"
+        steps:
+            - uses: actions/checkout@v2
+            - name: Install database dependencies
+              run: |
+                  brew tap mongodb/brew
+                  brew update
+                  brew install redis clickhouse rabbitmq postgresql mariadb kafka mongodb-community
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Install python dependencies
+              run: |
+                  brew install pytest virtualenv
+                  make setup-dev-venv
+            - name: Test with pytest
+              env:
+                  TESTSUITE_ALLOW_ROOT: 1
+                  TESTSUITE_DEBUG: 1
+                  PYTEST_ARGS: "-vvs"
+              run: |
+                  make venv-tests
 
-      - name: Run examples tests
-        env:
-          TESTSUITE_ALLOW_ROOT: 1
-          TESTSUITE_DEBUG: 1
-          PYTEST: pytest
-          PYTEST_ARGS: "-vvs"
-        run: |
-          make venv-test-examples
+            - name: Run examples tests
+              env:
+                  TESTSUITE_ALLOW_ROOT: 1
+                  TESTSUITE_DEBUG: 1
+                  PYTEST: pytest
+                  PYTEST_ARGS: "-vvs"
+              run: |
+                  make venv-test-examples
 
-      - name: Build documentation
-        if: matrix.python-version != '3.13'
-        run: |
-          make build-docs
+            - name: Build documentation
+              if: matrix.python-version != '3.13'
+              run: |
+                  make build-docs

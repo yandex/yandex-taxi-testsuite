@@ -28,10 +28,10 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - name: Lint with Ruff
               run: |
-                  ./venv/bin/activate && make check-linters
+                  source ./venv/bin/activate && make check-linters
             - name: Check formatting with Ruff
               run: |
-                  ./venv/bin/activate && make check-format
+                  source ./venv/bin/activate && make check-format
             - name: Check with MyPy
               run: |
-                  ./venv/bin/activate && make check-mypy
+                  source ./venv/bin/activate && make check-mypy

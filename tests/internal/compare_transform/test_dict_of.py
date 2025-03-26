@@ -18,7 +18,7 @@ def test_value_nq():
         {'foo': 'bar'},
         matching.DictOf(matching.any_string, matching.any_integer),
     )
-    assert comparator.errors == {'left["foo"]': ["'bar' != <IsInstance int>"]}
+    assert comparator.errors == {"left['foo']": ["'bar' != <IsInstance int>"]}
 
 
 def test_value_nq_reversed():
@@ -29,7 +29,7 @@ def test_value_nq_reversed():
     )
     left_mapped = {'foo': matching.any_integer}
     right_mapped = {'foo': 'bar'}
-    assert comparator.errors == {'left["foo"]': ["<IsInstance int> != 'bar'"]}
+    assert comparator.errors == {"left['foo']": ["<IsInstance int> != 'bar'"]}
 
 
 def test_key_nq():
@@ -40,5 +40,5 @@ def test_key_nq():
         matching.DictOf(matching.any_integer, matching.any_string),
     )
     assert comparator.errors == {
-        'left': ["'foo': dict keys must match <IsInstance int> expression"]
+        "left['foo']": ['dict key must match <IsInstance int> expression']
     }

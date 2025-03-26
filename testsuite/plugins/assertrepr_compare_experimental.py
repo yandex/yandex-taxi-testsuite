@@ -3,6 +3,7 @@ import contextlib
 import enum
 import io
 import itertools
+import logging
 import typing
 
 import pytest
@@ -41,7 +42,11 @@ class AssertionPlugin:
             return None
 
         comparator = compare_transform.CompareTransform()
-        mapped_right = comparator.visit(left, right)
+        try:
+            mapped_right = comparator.visit(left, right)
+        except Exception:
+            logging.exception('testsuite assertrepr_compare failed:')
+            return None
 
         with self.disabled():
             pytest_result = config.hook.pytest_assertrepr_compare(

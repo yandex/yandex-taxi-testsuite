@@ -11,7 +11,7 @@ def test_type_mismatch():
     comparator = compare_transform.CompareTransform()
     comparator.visit([1, 2, 3], 1234)
     assert comparator.errors == {
-        'left': ['type mismatch, list expected got: 1234']
+        'left': ['list expected on the right got 1234 instead'],
     }
 
 

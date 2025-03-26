@@ -18,3 +18,18 @@ def test_basic():
             "extra keys on the right: 'bar'",
         ]
     }
+
+
+def test_match_error():
+    comparator = compare_transform.CompareTransform()
+    _, right = comparator.visit(
+        matching.PartialDict(foo='bar', bar=123),
+        123,
+    )
+
+    assert right == 123
+    assert comparator.errors == {
+        'left': [
+            "<PartialDict {'foo': 'bar', 'bar': 123}> != 123",
+        ]
+    }

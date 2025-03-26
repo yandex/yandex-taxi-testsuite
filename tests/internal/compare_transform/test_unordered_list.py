@@ -1,3 +1,5 @@
+import pytest
+
 from testsuite import matching
 from testsuite._internal import compare_transform
 
@@ -18,3 +20,43 @@ def test_basic():
         'left[1]': ['3 != 2'],
         'left[2]': ['2 != 1'],
     }
+
+
+def test_match_error():
+    comparator = compare_transform.CompareTransform()
+    comparator.visit(
+        matching.unordered_list([1, 2, 4]),
+        42,
+    )
+    assert comparator.errors == {
+        'left': [
+            '<UnorderedList: [1, 2, 4]> != 42',
+        ],
+    }
+
+
+@pytest.mark.parametrize(
+    ('left', 'right', 'expected'),
+    [
+        ([3, 2, 1], matching.unordered_list([1, 2, 4, 5, 6]), [2, 1, 4, 5, 6]),
+        ([3, 2, 1], matching.unordered_list([1, 2]), [2, 1]),
+        ([3, 2, 1], matching.unordered_list([0, 1]), [1, 0]),
+        ([3, 2, 1], matching.unordered_list([0]), [0]),
+    ],
+)
+def test_order_restore(left, right, expected):
+    comparator = compare_transform.CompareTransform()
+    _, right_mapped = comparator.visit(
+        left,
+        right,
+    )
+
+    assert right_mapped == expected
+
+
+def test_same_key():
+    comparator = compare_transform.CompareTransform()
+    _, right_mapped = comparator.visit(
+        [0], matching.unordered_list([1], key=lambda x: 1)
+    )
+    assert right_mapped == [1]

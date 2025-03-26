@@ -4,7 +4,7 @@ from testsuite._internal import compare_transform
 def test_value_neq():
     comparator = compare_transform.CompareTransform()
     comparator.visit({'foo': 'bar'}, {'foo': 123})
-    assert comparator.errors == {'left["foo"]': ["'bar' != 123"]}
+    assert comparator.errors == {"left['foo']": ["'bar' != 123"]}
 
 
 def test_length_neq():
@@ -22,7 +22,7 @@ def test_type_neq():
     comparator = compare_transform.CompareTransform()
     comparator.visit({'foo': 'bar'}, 123)
     assert comparator.errors == {
-        'left': ["dict expected on the right, got <class 'int'> instead"]
+        'left': ['dict expected on the right, got 123 instead']
     }
 
 

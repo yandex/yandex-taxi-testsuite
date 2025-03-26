@@ -399,6 +399,8 @@ class UnorderedList:
                 else:
                     yield next(idx_seq), item_self
                 item_self = next(it_self, _Sentinel)
+            if item_self is not _Sentinel:
+                yield next(idx_seq), item_self
             yield from zip(idx_seq, it_self)
 
         return [item for _, item in sorted(doit(), key=operator.itemgetter(0))]
@@ -419,6 +421,11 @@ class AnyList:
 
     def __eq__(self, other):
         return isinstance(other, (list, AnyList))
+
+    def __testsuite_resolve_value__(self, other, report_error):
+        if not isinstance(other, list):
+            return self
+        return other
 
 
 class ListOf:
@@ -451,6 +458,11 @@ class ListOf:
     def __testsuite_visit__(self, visit):
         return ListOf(visit(self._value))
 
+    def __testsuite_resolve_value__(self, other, report_error):
+        if not isinstance(other, list):
+            return self
+        return [self._value] * len(other)
+
 
 class AnyDict:
     """Value is a dictionary.
@@ -467,6 +479,11 @@ class AnyDict:
 
     def __eq__(self, other):
         return isinstance(other, (dict, AnyDict))
+
+    def __testsuite_resolve_value__(self, other, report_error):
+        if not isinstance(other, list):
+            return self
+        return other
 
 
 class DictOf:
@@ -512,7 +529,8 @@ class DictOf:
         for key, value in other.items():
             if key != self._key:
                 report_error(
-                    f'{key!r}: dict keys must match {self._key} expression',
+                    f'dict key must match {self._key} expression',
+                    path=f'[{key!r}]',
                 )
             result[key] = self._value
         return result
@@ -568,6 +586,9 @@ class Capture:
 
     def __testsuite_visit__(self, visit):
         return Capture(visit(self._value), self._captured)
+
+    def __testsuite_resolve_value__(self, other, report_error):
+        return _resolve_value(self._value, other, report_error)
 
 
 def unordered_list(sequence, *, key=None):
@@ -644,6 +665,12 @@ def recursive_partial_dict(*args, **kwargs):
 
 def _resolve_types(value):
     return getattr(value, '__testsuite_types__', ())
+
+
+def _resolve_value(obj, other, report_error):
+    if hasattr(obj, '__testsuite_resolve_value__'):
+        return obj.__testsuite_resolve_value__(other, report_error)
+    return obj
 
 
 any_value = Any()

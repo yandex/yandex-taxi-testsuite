@@ -1,14 +1,13 @@
 name: Setup Python With Deps
 description: Setup python version, install required dependencies
-
 inputs:
     python-version:
         required: true
         description: Python Version
-    dependencies-mode:
+    with-databases:
         required: true
-        description: Mode (full/core) of installed dependencies
-
+        default: ""
+        description: List of comma separated databases
 runs:
     using: "composite"
     steps:
@@ -24,8 +23,8 @@ runs:
               .venv/bin/pip install -r requirements-core.txt
               .venv/bin/pip install -r requirements-dev.txt
               .venv/bin/pip install -r docs/requirements.txt
-        - name: Install Full Python Dependencies
-          if: inputs.dependencies-mode == 'full'
+        - name: Install Database Python Dependencies
+          if: inputs.with-databases != ""
           shell: bash
           run: |
-              .venv/bin/pip install -r requirements.txt
+              .venv/bin/pip install .[${{ inputs.with-databases }}]

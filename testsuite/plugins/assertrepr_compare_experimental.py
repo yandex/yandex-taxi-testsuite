@@ -6,6 +6,8 @@ import itertools
 import logging
 import typing
 
+import pytest
+
 from testsuite._internal import compare_transform
 
 

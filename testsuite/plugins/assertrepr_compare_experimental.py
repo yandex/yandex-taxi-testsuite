@@ -6,9 +6,6 @@ import itertools
 import logging
 import typing
 
-import pytest
-import pytest.config
-
 from testsuite._internal import compare_transform
 
 
@@ -34,7 +31,7 @@ class AssertionPlugin:
 
     def pytest_assertrepr_compare(
         self,
-        config: pytest.config.Config,
+        config,
         op: str,
         left: typing.Any,
         right: typing.Any,
@@ -75,7 +72,7 @@ class AssertionPlugin:
         return output.getvalue().splitlines()
 
 
-def pytest_configure(config: pytest.config.Config):
+def pytest_configure(config):
     if config.option.assert_mode != AssertMode.DEFAULT:
         config.pluginmanager.register(
             AssertionPlugin(config.option.assert_mode)

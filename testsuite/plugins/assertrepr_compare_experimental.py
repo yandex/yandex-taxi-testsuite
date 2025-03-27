@@ -7,6 +7,7 @@ import logging
 import typing
 
 import pytest
+import pytest.config
 
 from testsuite._internal import compare_transform
 

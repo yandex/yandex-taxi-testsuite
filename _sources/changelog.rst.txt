@@ -1,6 +1,24 @@
 Changelog
 ---------
 
+0.2.20
+~~~~~~
+
+- acallqueue: support callable instances (#166)
+- fix assertrepr_compare_experimental.py: replace pytest.Config with pytest.config.Config (#167)
+
+0.2.19
+~~~~~~
+
+- matching: full support for reprcompare (#165)
+- add makefile tarets to run databases tests separetly and add split requirements (#162)
+- Matching assertrepr (#163)
+- New experimental assertrepr_compare plugin (#143)
+- Depreacte event_loop and loop fixtures (#145)
+- add testsuite.__version__ (#161)
+- asyncio-legacy: do not close event loop (#160)
+- ci: update outdated ubuntu runner (#158)
+
 0.2.18
 ~~~~~~
 

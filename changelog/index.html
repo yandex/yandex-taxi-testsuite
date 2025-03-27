@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; yandex-taxi-testsuite 0.2.18 documentation</title>
+    <title>Changelog &#8212; yandex-taxi-testsuite 0.2.20 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css?v=51489a46" />
-    <script src="../_static/documentation_options.js?v=a9cc7ada"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script src="../_static/documentation_options.js?v=e31cdd81"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex/" />
@@ -35,7 +35,27 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
 <section id="id1">
-<h2>0.2.18<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2>0.2.20<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>acallqueue: support callable instances (#166)</p></li>
+<li><p>fix assertrepr_compare_experimental.py: replace pytest.Config with pytest.config.Config (#167)</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>0.2.19<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>matching: full support for reprcompare (#165)</p></li>
+<li><p>add makefile tarets to run databases tests separetly and add split requirements (#162)</p></li>
+<li><p>Matching assertrepr (#163)</p></li>
+<li><p>New experimental assertrepr_compare plugin (#143)</p></li>
+<li><p>Depreacte event_loop and loop fixtures (#145)</p></li>
+<li><p>add testsuite.__version__ (#161)</p></li>
+<li><p>asyncio-legacy: do not close event loop (#160)</p></li>
+<li><p>ci: update outdated ubuntu runner (#158)</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>0.2.18<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Remove loop fixture usage (#157)</p></li>
 <li><p>Add badges to README.rst (#154)</p></li>
@@ -44,43 +64,43 @@
 <li><p>acallqueue: add func property (#151)</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>0.2.17<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="id4">
+<h2>0.2.17<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add changelog</p></li>
 <li><p>matching: matching now is available as <cite>testsuite.matching</cite></p></li>
 <li><p>matching: specify capture matching rule inside pattern</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>0.2.16<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h2>0.2.16<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>pytest-asyncio 0.25 support while keeping compatibility with 0.21.x</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>0.2.15<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h2>0.2.15<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>mongo: add mongo uri header</p></li>
 <li><p>kafka: implement message headers</p></li>
 <li><p>introduce traceback.hide</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>0.2.14<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<h2>0.2.14<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>matching: add any_list, ListOf, any_dict, DictOf and Capture</p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>0.2.13<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<section id="id8">
+<h2>0.2.13<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>kafka: wait until broker is stopped</p></li>
 <li><p>Update AUTHORS file</p></li>
 </ul>
 </section>
-<section id="id7">
-<h2>0.2.21<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<section id="id9">
+<h2>0.2.21<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>redis: wait for replicas and master negotiation in sentinel configuration</p></li>
 <li><p>redis: use CLUSTER NODES and CLUSTER SLOTS information to wait for cluster startup</p></li>

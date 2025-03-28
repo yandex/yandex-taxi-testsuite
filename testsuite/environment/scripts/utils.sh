@@ -99,7 +99,11 @@ dump_log_stderr() {
 }
 
 find_binary() {
-    which "$1" 2> /dev/null
+    which "$1"
+}
+
+choose_binaries() {
+  which "$1" || which "$2"
 }
 
 find_binary_or_die() {
@@ -107,4 +111,12 @@ find_binary_or_die() {
     local binary=$(find_binary $binary_name)
     [ -z "$binary" ] && die "No $binary_name binary found"
     echo $binary
+}
+
+choose_binaries_or_die() {
+  local first_binary_name="$1"
+  local second_binary_name="$2"
+  local binary=$(choose_binaries $first_binary_name $second_binary_name)
+  [ -z "$binary" ] && die "No $binary_name binary found"
+  echo $binary
 }

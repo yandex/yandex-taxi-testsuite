@@ -12,8 +12,8 @@ REDIS_DATADIR="$REDIS_TMPDIR/data"
 REDIS_LOGSDIR="$REDIS_TMPDIR/logs"
 REDIS_SLEEP_WORKAROUND_SECONDS=${REDIS_SLEEP_WORKAROUND_SECONDS:=15}
 
-REDIS_SERVER=$(find_binary_or_die redis-server)
-REDIS_CLI=$(find_binary_or_die redis-cli)
+REDIS_SERVER=$(choose_binaries_or_die valkey-server redis-server)
+REDIS_CLI=$(choose_binaries_or_die valkey-cli redis-cli)
 
 REDIS_INSTS=
 

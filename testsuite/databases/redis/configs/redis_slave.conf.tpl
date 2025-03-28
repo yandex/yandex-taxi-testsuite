@@ -1,5 +1,5 @@
 daemonize yes
-${protected_mode_no}
+protected-mode no
 port ${port}
 tcp-backlog 511
 bind ${host}

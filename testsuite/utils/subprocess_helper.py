@@ -4,8 +4,7 @@ import typing
 
 def sh(
     *args: str,
-    nostderr: bool = True,
-    shell: bool = False
+    nostderr: bool = True
 ) -> str:  # pylint: disable=invalid-name
     stderr: typing.Optional[int]
     if nostderr:
@@ -18,6 +17,5 @@ def sh(
         stderr=stderr,
         encoding='utf-8',
         check=True,
-        shell=shell,
     )
     return proc.stdout.strip()

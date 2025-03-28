@@ -66,6 +66,7 @@ jobs:
           TESTSUITE_DEBUG: 1
           PYTEST_ARGS: "-k redis -vvs"
         run: |
+          brew uninstall redis
           brew install valkey
           make venv-tests
       - name: Build documentation

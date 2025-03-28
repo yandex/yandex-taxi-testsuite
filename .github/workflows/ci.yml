@@ -98,6 +98,7 @@ jobs:
           TESTSUITE_DEBUG: 1
           PYTEST_ARGS: "-k redis -vvs"
         run: |
+          sudo apt remove -y redis-server
           sudo apt install -y valkey-server
           make venv-tests
       - name: Build documentation

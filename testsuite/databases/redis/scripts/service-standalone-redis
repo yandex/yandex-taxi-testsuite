@@ -6,7 +6,7 @@ if [ "x$REDIS_CONFIGS_DIR" = "x" ]; then
     die "REDIS_CONFIGS_DIR must be set"
 fi
 
-REDIS_SERVER=$(which redis-server)
+REDIS_SERVER=$(choose_binaries_or_die valkey-server redis-server)
 REDIS_ROLE="standalone"
 if [ "x$REDIS_SERVER" = "x" ]; then
     die "No redis-server binary found"
@@ -27,4 +27,3 @@ stop() {
 }
 
 script_main "$@"
-

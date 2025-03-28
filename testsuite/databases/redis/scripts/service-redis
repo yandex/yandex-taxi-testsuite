@@ -9,8 +9,8 @@ if [ "x$REDIS_CONFIGS_DIR" = "x" ]; then
     die "REDIS_CONFIGS_DIR must be set"
 fi
 
-REDIS_SERVER=$(find_binary_or_die redis-server)
-REDIS_CLI=$(find_binary_or_die redis-cli)
+REDIS_SERVER=$(choose_binaries_or_die valkey-server redis-server)
+REDIS_CLI=$(choose_binaries_or_die valkey-cli redis-cli)
 REDIS_ROLES="master0 master1 slave0 slave1 slave2"
 REDIS_SENTINEL_CONF=$REDIS_CONFIGS_DIR/redis_sentinel.conf
 REDIS_SLEEP_WORKAROUND_SECONDS=${REDIS_SLEEP_WORKAROUND_SECONDS:=15}

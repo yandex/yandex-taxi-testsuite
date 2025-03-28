@@ -6,8 +6,6 @@ import itertools
 import logging
 import typing
 
-import pytest
-
 from testsuite._internal import compare_transform
 
 
@@ -81,7 +79,7 @@ def pytest_configure(config):
         )
 
 
-def pytest_addoption(parser: pytest.Parser):
+def pytest_addoption(parser):
     """
     :param parser: pytest's argument parser
     """

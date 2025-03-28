@@ -62,7 +62,7 @@ Out-of-the-box testsuite supports the following databases:
 
 * PostgreSQL
 * MongoDB
-* Redis
+* Redis/Valkey
 * MySQL/MariaDB 10+
 * ClickHouse
 * RabbitMQ

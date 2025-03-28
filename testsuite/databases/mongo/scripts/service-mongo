@@ -2,22 +2,13 @@
 
 . "$TESTSUITE_LIB_UTILS"
 
-MONGO=$(which mongo || which mongosh)
-MONGOD=$(which mongod)
-MONGOS=$(which mongos)
+MONGO=$(choose_binaries_or_die mongo mongosh)
+MONGOD=$(find_binary_or_die mongod)
+MONGOS=$(find_binary_or_die mongos)
 
 MONGO_ARGS="--nounixsocket"
 MONGOS_ARGS=""
 
-if [ "x$MONGO" = "x" ]; then
-    die "No mongo or mongosh binary found"
-fi
-if [ "x$MONGOD" = "x" ]; then
-    die "No mongod binary found"
-fi
-if [ "x$MONGOS" = "x" ]; then
-    die "No mongos binary found"
-fi
 if [ "x$MONGOS_PORT" = "x" ]; then
     die "MONGOS_PORT must be set"
 fi

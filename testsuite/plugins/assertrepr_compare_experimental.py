@@ -33,7 +33,7 @@ class AssertionPlugin:
 
     def pytest_assertrepr_compare(
         self,
-        config,
+        config: pytest.Config,
         op: str,
         left: typing.Any,
         right: typing.Any,
@@ -74,7 +74,7 @@ class AssertionPlugin:
         return output.getvalue().splitlines()
 
 
-def pytest_configure(config):
+def pytest_configure(config: pytest.Config):
     if config.option.assert_mode != AssertMode.DEFAULT:
         config.pluginmanager.register(
             AssertionPlugin(config.option.assert_mode)

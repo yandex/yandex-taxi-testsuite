@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import pathlib
-import typing
 
 from testsuite.environment import service, utils
 

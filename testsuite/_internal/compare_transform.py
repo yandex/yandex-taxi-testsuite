@@ -4,11 +4,7 @@ import collections
 import contextlib
 import typing
 
-import py.io
-
-from testsuite import matching
-
-from .saferepr import saferepr
+from py.io import saferepr
 
 SetTypes = (set, frozenset)
 

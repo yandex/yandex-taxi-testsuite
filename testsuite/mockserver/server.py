@@ -20,15 +20,12 @@ from testsuite import utils
 from testsuite.utils import (
     cached_property,
     callinfo,
-    compat,
     http,
-    traceback,
     url_util,
 )
 from testsuite.utils import net as net_utils
 
 from . import classes, exceptions, magicargs
-from .exceptions import __tracebackhide__
 
 DEFAULT_TRACE_ID_HEADER = 'X-YaTraceId'
 DEFAULT_SPAN_ID_HEADER = 'X-YaSpanId'

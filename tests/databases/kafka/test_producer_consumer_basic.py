@@ -1,5 +1,4 @@
 import logging
-import typing
 
 
 async def test_kafka_producer_consumer_chain(kafka_producer, kafka_consumer):

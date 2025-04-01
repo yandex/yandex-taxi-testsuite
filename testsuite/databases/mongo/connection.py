@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import typing
 import urllib.parse
 
 _BOOL_TO_STR = {True: 'true', False: 'false'}

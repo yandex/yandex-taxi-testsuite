@@ -1,6 +1,3 @@
-import contextlib
-import errno
-import itertools
 import platform
 import socket
 import typing

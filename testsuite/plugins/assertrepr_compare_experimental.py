@@ -1,8 +1,6 @@
-import collections
 import contextlib
 import enum
 import io
-import itertools
 import logging
 import typing
 

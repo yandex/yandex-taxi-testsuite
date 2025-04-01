@@ -4,8 +4,6 @@ Async exceptions handler.
 Handle excpetions in background coroutines.
 """
 
-import typing
-
 import pytest
 
 from testsuite.utils import traceback

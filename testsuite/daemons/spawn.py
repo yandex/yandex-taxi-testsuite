@@ -8,7 +8,6 @@ import subprocess
 import sys
 import time
 from collections.abc import AsyncGenerator, Sequence
-from typing import Dict
 
 from testsuite.utils import compat, traceback
 

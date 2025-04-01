@@ -7,7 +7,6 @@ import pathlib
 import pprint
 import random
 import re
-import typing
 
 import pymongo
 import pymongo.collection

@@ -3,7 +3,6 @@ from __future__ import annotations
 import dataclasses
 import logging
 import pathlib
-import typing
 
 import clickhouse_driver
 

@@ -1,4 +1,3 @@
-import contextlib
 import typing
 
 import pytest

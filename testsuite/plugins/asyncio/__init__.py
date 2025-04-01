@@ -1,7 +1,8 @@
 import asyncio
 import warnings
 
-import pytest_aiohttp
+import pytest
+import pytest_aiohttp  # noqa: F401
 from packaging import version
 
 PYTEST_ASYNCIO_VERSION = version.parse('0.22')

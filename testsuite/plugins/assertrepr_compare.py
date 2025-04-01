@@ -3,7 +3,6 @@ import collections
 import copy
 import operator
 import pprint
-import typing
 
 import py
 

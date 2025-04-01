@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import subprocess
-import typing
 
 
 def sh(*args: str, nostderr: bool = True) -> str:  # pylint: disable=invalid-name

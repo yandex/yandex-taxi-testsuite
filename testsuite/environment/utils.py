@@ -1,7 +1,6 @@
 import os
 import socket
 import time
-import typing
 
 DOCKERTEST_WORKER = os.getenv('DOCKERTEST_WORKER', '')
 

@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 import contextlib
-import typing
-import warnings
 
 import pytest
 
 from testsuite import type_annotations
-from testsuite.utils import colors
 
 from . import classes, exceptions, server
-from .exceptions import __tracebackhide__
 
 MOCKSERVER_DEFAULT_PORT = 9999
 MOCKSERVER_SSL_DEFAULT_PORT = 9998

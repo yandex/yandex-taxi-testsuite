@@ -1,6 +1,6 @@
 import datetime
 
-from .cached_property import cached_property
+from .cached_property import cached_property  # noqa: F401
 
 UTC = datetime.timezone.utc
 

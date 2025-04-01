@@ -1,5 +1,5 @@
 import platform
-from typing import Any, Dict
+from typing import Any
 
 import aiohttp
 import pytest

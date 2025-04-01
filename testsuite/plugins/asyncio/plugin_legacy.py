@@ -11,8 +11,12 @@ def pytest_configure(config):
 @pytest.fixture(scope='session')
 def event_loop():
     """
-    One event loop for all tests.
+    Overrides pytest-asyncio internal `event_loop` fixture. Should not be
+    used explicitly.
+
+    Required for compatibility with pytest-asyncio 0.21.x
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     yield loop
+    loop.close()

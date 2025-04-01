@@ -1,7 +1,7 @@
 Redis
 =====
 
-Testsuite provides basic support for redis.
+Testsuite provides basic support for redis and valkey.
 
 
 Environment variables

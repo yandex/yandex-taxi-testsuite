@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.2.21
+~~~~~~
+
+- asyncio legacy: close event loop (#173)
+- Note valkey in docs (#172)
+- Add Valkey support (#169)
+- Revert "fix assertrepr_compare_experimental.py: replace pytest.Config with pytest.config.Config" (#170)
+
 0.2.20
 ~~~~~~
 

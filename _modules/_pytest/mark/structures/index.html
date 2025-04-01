@@ -1,27 +1,25 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>_pytest.mark.structures &#8212; yandex-taxi-testsuite 0.1.36 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
-    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <title>_pytest.mark.structures &#8212; yandex-taxi-testsuite 0.2.21 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css?v=51489a46" />
+    <script src="../../../../_static/documentation_options.js?v=f1dae19b"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../genindex/" />
     <link rel="search" title="Search" href="../../../../search/" />
    
   <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -34,54 +32,55 @@
           <div class="body" role="main">
             
   <h1>Source code for _pytest.mark.structures</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">collections.abc</span>
-<span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Collection</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">MutableMapping</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NamedTuple</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">overload</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Set</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span></span><span class="c1"># mypy: allow-untyped-defs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">.._code</span> <span class="kn">import</span> <span class="n">getfslineno</span>
-<span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">ascii_escaped</span>
-<span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">final</span>
-<span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">NOTSET</span>
-<span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">NotSetType</span>
-<span class="kn">from</span> <span class="nn">_pytest.config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">_pytest.deprecated</span> <span class="kn">import</span> <span class="n">check_ispytest</span>
-<span class="kn">from</span> <span class="nn">_pytest.outcomes</span> <span class="kn">import</span> <span class="n">fail</span>
-<span class="kn">from</span> <span class="nn">_pytest.warning_types</span> <span class="kn">import</span> <span class="n">PytestUnknownMarkWarning</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections.abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">final</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">MutableMapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._code</span><span class="w"> </span><span class="kn">import</span> <span class="n">getfslineno</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">ascii_escaped</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">NOTSET</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotSetType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">_pytest.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">_pytest.deprecated</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_ispytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">_pytest.deprecated</span><span class="w"> </span><span class="kn">import</span> <span class="n">MARKED_FIXTURE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">_pytest.outcomes</span><span class="w"> </span><span class="kn">import</span> <span class="n">fail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">_pytest.scope</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ScopeName</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">_pytest.warning_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PytestUnknownMarkWarning</span>
+
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..nodes</span> <span class="kn">import</span> <span class="n">Node</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span>
 
 
 <span class="n">EMPTY_PARAMETERSET_OPTION</span> <span class="o">=</span> <span class="s2">&quot;empty_parameter_set_mark&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">istestfunc</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">istestfunc</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;lambda&gt;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;&lt;lambda&gt;&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">get_empty_parameterset_mark</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_empty_parameterset_mark</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">argnames</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">func</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MarkDecorator&quot;</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..nodes</span> <span class="kn">import</span> <span class="n">Collector</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collector</span>
 
     <span class="n">fs</span><span class="p">,</span> <span class="n">lineno</span> <span class="o">=</span> <span class="n">getfslineno</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;got empty parameter set </span><span class="si">%r</span><span class="s2">, function </span><span class="si">%s</span><span class="s2"> at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
@@ -107,18 +106,18 @@
     <span class="k">return</span> <span class="n">mark</span>
 
 
-<span class="k">class</span> <span class="nc">ParameterSet</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-    <span class="n">values</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">object</span><span class="p">,</span> <span class="n">NotSetType</span><span class="p">]]</span>
-    <span class="n">marks</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="s2">&quot;MarkDecorator&quot;</span><span class="p">,</span> <span class="s2">&quot;Mark&quot;</span><span class="p">]]</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParameterSet</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span> <span class="o">|</span> <span class="n">NotSetType</span><span class="p">]</span>
+    <span class="n">marks</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">MarkDecorator</span> <span class="o">|</span> <span class="n">Mark</span><span class="p">]</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">param</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">param</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="o">*</span><span class="n">values</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-        <span class="n">marks</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;MarkDecorator&quot;</span><span class="p">,</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="s2">&quot;MarkDecorator&quot;</span><span class="p">,</span> <span class="s2">&quot;Mark&quot;</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">(),</span>
-        <span class="nb">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ParameterSet&quot;</span><span class="p">:</span>
+        <span class="n">marks</span><span class="p">:</span> <span class="n">MarkDecorator</span> <span class="o">|</span> <span class="n">Collection</span><span class="p">[</span><span class="n">MarkDecorator</span> <span class="o">|</span> <span class="n">Mark</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParameterSet</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">marks</span><span class="p">,</span> <span class="n">MarkDecorator</span><span class="p">):</span>
             <span class="n">marks</span> <span class="o">=</span> <span class="p">(</span><span class="n">marks</span><span class="p">,)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -131,11 +130,11 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">marks</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">extract_from</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_from</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">parameterset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;ParameterSet&quot;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">object</span><span class="p">],</span>
+        <span class="n">parameterset</span><span class="p">:</span> <span class="n">ParameterSet</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="nb">object</span><span class="p">,</span>
         <span class="n">force_tuple</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ParameterSet&quot;</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParameterSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract from an object or objects.</span>
 
 <span class="sd">        :param parameterset:</span>
@@ -146,7 +145,6 @@
 <span class="sd">            Enforce tuple wrapping so single argument tuple values</span>
 <span class="sd">            don&#39;t get decomposed and break tests.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameterset</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">parameterset</span>
         <span class="k">if</span> <span class="n">force_tuple</span><span class="p">:</span>
@@ -160,12 +158,12 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">parameterset</span><span class="p">,</span> <span class="n">marks</span><span class="o">=</span><span class="p">[],</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_parse_parametrize_args</span><span class="p">(</span>
-        <span class="n">argnames</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-        <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="s2">&quot;ParameterSet&quot;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">object</span><span class="p">]],</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_parametrize_args</span><span class="p">(</span>
+        <span class="n">argnames</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParameterSet</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="nb">object</span><span class="p">],</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argnames</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">argnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">argnames</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
             <span class="n">force_tuple</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">argnames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
@@ -174,23 +172,23 @@
         <span class="k">return</span> <span class="n">argnames</span><span class="p">,</span> <span class="n">force_tuple</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_parse_parametrize_parameters</span><span class="p">(</span>
-        <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="s2">&quot;ParameterSet&quot;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">object</span><span class="p">]],</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_parametrize_parameters</span><span class="p">(</span>
+        <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParameterSet</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="nb">object</span><span class="p">],</span>
         <span class="n">force_tuple</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ParameterSet&quot;</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParameterSet</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">ParameterSet</span><span class="o">.</span><span class="n">extract_from</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">force_tuple</span><span class="o">=</span><span class="n">force_tuple</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">argvalues</span>
         <span class="p">]</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_for_parametrize</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_for_parametrize</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">argnames</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-        <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="s2">&quot;ParameterSet&quot;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">object</span><span class="p">]],</span>
+        <span class="n">argnames</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParameterSet</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="nb">object</span><span class="p">],</span>
         <span class="n">func</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
         <span class="n">nodeid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ParameterSet&quot;</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParameterSet</span><span class="p">]]:</span>
         <span class="n">argnames</span><span class="p">,</span> <span class="n">force_tuple</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_parametrize_args</span><span class="p">(</span><span class="n">argnames</span><span class="p">,</span> <span class="n">argvalues</span><span class="p">)</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_parametrize_parameters</span><span class="p">(</span><span class="n">argvalues</span><span class="p">,</span> <span class="n">force_tuple</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">argvalues</span>
@@ -227,30 +225,30 @@
 
 <span class="nd">@final</span>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Mark</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Mark</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A pytest mark.&quot;&quot;&quot;</span>
 
     <span class="c1">#: Name of the mark.</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="c1">#: Positional arguments of the mark decorator.</span>
-    <span class="n">args</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="c1">#: Keyword arguments of the mark decorator.</span>
     <span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
     <span class="c1">#: Source Mark for ids with parametrize Marks.</span>
-    <span class="n">_param_ids_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;Mark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_param_ids_from</span><span class="p">:</span> <span class="n">Mark</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="c1">#: Resolved/generated ids with parametrize Marks.</span>
-    <span class="n">_param_ids_generated</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span>
+    <span class="n">_param_ids_generated</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">args</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
         <span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-        <span class="n">param_ids_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;Mark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">param_ids_generated</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">param_ids_from</span><span class="p">:</span> <span class="n">Mark</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">param_ids_generated</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">_ispytest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -263,10 +261,10 @@
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_param_ids_from&quot;</span><span class="p">,</span> <span class="n">param_ids_from</span><span class="p">)</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_param_ids_generated&quot;</span><span class="p">,</span> <span class="n">param_ids_generated</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_has_param_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_has_param_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;ids&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">combined_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Mark&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Mark&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">combined_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Mark</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mark</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new Mark which is a combination of this</span>
 <span class="sd">        Mark and another Mark.</span>
 
@@ -278,7 +276,7 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
 
         <span class="c1"># Remember source of ids with parametrize Marks.</span>
-        <span class="n">param_ids_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mark</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">param_ids_from</span><span class="p">:</span> <span class="n">Mark</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;parametrize&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">_has_param_ids</span><span class="p">():</span>
                 <span class="n">param_ids_from</span> <span class="o">=</span> <span class="n">other</span>
@@ -301,13 +299,13 @@
 
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">MarkDecorator</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MarkDecorator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A decorator for applying a mark on test functions and classes.</span>
 
 <span class="sd">    ``MarkDecorators`` are created with ``pytest.mark``::</span>
 
-<span class="sd">        mark1 = pytest.mark.NAME              # Simple MarkDecorator</span>
-<span class="sd">        mark2 = pytest.mark.NAME(name1=value) # Parametrized MarkDecorator</span>
+<span class="sd">        mark1 = pytest.mark.NAME  # Simple MarkDecorator</span>
+<span class="sd">        mark2 = pytest.mark.NAME(name1=value)  # Parametrized MarkDecorator</span>
 
 <span class="sd">    and can then be applied as decorators to test functions::</span>
 
@@ -338,32 +336,32 @@
 
     <span class="n">mark</span><span class="p">:</span> <span class="n">Mark</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mark</span><span class="p">:</span> <span class="n">Mark</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_ispytest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mark</span><span class="p">:</span> <span class="n">Mark</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_ispytest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;:meta private:&quot;&quot;&quot;</span>
         <span class="n">check_ispytest</span><span class="p">(</span><span class="n">_ispytest</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mark</span> <span class="o">=</span> <span class="n">mark</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alias for mark.name.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">name</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alias for mark.args.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">args</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alias for mark.kwargs.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">kwargs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">markname</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">markname</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;:meta private:&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># for backward-compat (2.4.1 had this attr)</span>
 
-    <span class="k">def</span> <span class="nf">with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MarkDecorator&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a MarkDecorator with extra arguments added.</span>
 
 <span class="sd">        Unlike calling the MarkDecorator, with_args() can be used even</span>
@@ -376,29 +374,29 @@
     <span class="c1"># return type. Not much we can do about that. Thankfully mypy picks</span>
     <span class="c1"># the first match so it works out even if we break the rules.</span>
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Markable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Markable</span><span class="p">:</span>  <span class="c1"># type: ignore[misc]</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Markable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Markable</span><span class="p">:</span>  <span class="c1"># type: ignore[overload-overlap]</span>
         <span class="k">pass</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MarkDecorator&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Call the MarkDecorator.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">args</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">func</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">is_class</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">istestfunc</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_class</span><span class="p">):</span>
-                <span class="n">store_mark</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark</span><span class="p">)</span>
+                <span class="n">store_mark</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">func</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_unpacked_marks</span><span class="p">(</span>
-    <span class="n">obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">object</span><span class="p">,</span> <span class="nb">type</span><span class="p">],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unpacked_marks</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span> <span class="o">|</span> <span class="nb">type</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">consider_mro</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mark</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Mark</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Obtain the unpacked marks that are stored on an object.</span>
 
 <span class="sd">    If obj is a class and consider_mro is true, return marks applied to</span>
@@ -409,7 +407,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">consider_mro</span><span class="p">:</span>
             <span class="n">mark_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pytestmark&quot;</span><span class="p">,</span> <span class="p">[])]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">mark_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pytestmark&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">]</span>
+            <span class="n">mark_lists</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">x</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pytestmark&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">)</span>
+            <span class="p">]</span>
         <span class="n">mark_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">mark_lists</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -425,8 +425,8 @@
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">normalize_mark_list</span><span class="p">(</span><span class="n">mark_list</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">normalize_mark_list</span><span class="p">(</span>
-    <span class="n">mark_list</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Mark</span><span class="p">,</span> <span class="n">MarkDecorator</span><span class="p">]]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_mark_list</span><span class="p">(</span>
+    <span class="n">mark_list</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Mark</span> <span class="o">|</span> <span class="n">MarkDecorator</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Mark</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalize an iterable of Mark or MarkDecorator objects into a list of marks</span>
@@ -438,16 +438,22 @@
     <span class="k">for</span> <span class="n">mark</span> <span class="ow">in</span> <span class="n">mark_list</span><span class="p">:</span>
         <span class="n">mark_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mark</span><span class="p">,</span> <span class="s2">&quot;mark&quot;</span><span class="p">,</span> <span class="n">mark</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mark_obj</span><span class="p">,</span> <span class="n">Mark</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">mark_obj</span><span class="p">)</span><span class="si">}</span><span class="s2"> instead of Mark&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">mark_obj</span><span class="si">!r}</span><span class="s2"> instead of Mark&quot;</span><span class="p">)</span>
         <span class="k">yield</span> <span class="n">mark_obj</span>
 
 
-<span class="k">def</span> <span class="nf">store_mark</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">mark</span><span class="p">:</span> <span class="n">Mark</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">store_mark</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">mark</span><span class="p">:</span> <span class="n">Mark</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Store a Mark on an object.</span>
 
 <span class="sd">    This is used to implement the Mark declarations/decorators correctly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mark</span><span class="p">,</span> <span class="n">Mark</span><span class="p">),</span> <span class="n">mark</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..fixtures</span><span class="w"> </span><span class="kn">import</span> <span class="n">getfixturemarker</span>
+
+    <span class="k">if</span> <span class="n">getfixturemarker</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">MARKED_FIXTURE</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span><span class="p">)</span>
+
     <span class="c1"># Always reassign name to avoid updating pytestmark in a reference that</span>
     <span class="c1"># was only borrowed.</span>
     <span class="n">obj</span><span class="o">.</span><span class="n">pytestmark</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">get_unpacked_marks</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">consider_mro</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">mark</span><span class="p">]</span>
@@ -456,71 +462,61 @@
 <span class="c1"># Typing for builtin pytest marks. This is cheating; it gives builtin marks</span>
 <span class="c1"># special privilege, and breaks modularity. But practicality beats purity...</span>
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">_pytest.scope</span> <span class="kn">import</span> <span class="n">_ScopeName</span>
 
-    <span class="k">class</span> <span class="nc">_SkipMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
-        <span class="nd">@overload</span>  <span class="c1"># type: ignore[override,misc,no-overload-impl]</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Markable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Markable</span><span class="p">:</span>
-            <span class="o">...</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">_SkipMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
+        <span class="nd">@overload</span>  <span class="c1"># type: ignore[override,no-overload-impl]</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Markable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Markable</span><span class="p">:</span> <span class="o">...</span>
 
         <span class="nd">@overload</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MarkDecorator&quot;</span><span class="p">:</span>
-            <span class="o">...</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">class</span> <span class="nc">_SkipifMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">_SkipifMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">condition</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">conditions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
+            <span class="n">condition</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">conditions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">,</span>
             <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
-            <span class="o">...</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">class</span> <span class="nc">_XfailMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
-        <span class="nd">@overload</span>  <span class="c1"># type: ignore[override,misc,no-overload-impl]</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Markable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Markable</span><span class="p">:</span>
-            <span class="o">...</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">_XfailMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
+        <span class="nd">@overload</span>  <span class="c1"># type: ignore[override,no-overload-impl]</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Markable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Markable</span><span class="p">:</span> <span class="o">...</span>
 
         <span class="nd">@overload</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">condition</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">conditions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
+            <span class="n">condition</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">conditions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">,</span>
             <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
             <span class="n">run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-            <span class="n">raises</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+            <span class="n">raises</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
             <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
-            <span class="o">...</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">class</span> <span class="nc">_ParametrizeMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">_ParametrizeMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">argnames</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-            <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">ParameterSet</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">object</span><span class="p">]],</span>
+            <span class="n">argnames</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+            <span class="n">argvalues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParameterSet</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="nb">object</span><span class="p">],</span>
             <span class="o">*</span><span class="p">,</span>
-            <span class="n">indirect</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-            <span class="n">ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
-                <span class="n">Union</span><span class="p">[</span>
-                    <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]],</span>
-                    <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]],</span>
-                <span class="p">]</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-            <span class="n">scope</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_ScopeName</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
+            <span class="n">indirect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+            <span class="n">ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">]</span>
+            <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">object</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+            <span class="n">scope</span><span class="p">:</span> <span class="n">_ScopeName</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">_UsefixturesMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">fixtures</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
             <span class="o">...</span>
 
-    <span class="k">class</span> <span class="nc">_UsefixturesMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">fixtures</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
-            <span class="o">...</span>
-
-    <span class="k">class</span> <span class="nc">_FilterwarningsMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">filters</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">_FilterwarningsMarkDecorator</span><span class="p">(</span><span class="n">MarkDecorator</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">filters</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
             <span class="o">...</span>
 
 
 <span class="nd">@final</span>
-<span class="k">class</span> <span class="nc">MarkGenerator</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MarkGenerator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory for :class:`MarkDecorator` objects - exposed as</span>
 <span class="sd">    a ``pytest.mark`` singleton instance.</span>
 
@@ -528,9 +524,10 @@
 
 <span class="sd">         import pytest</span>
 
+
 <span class="sd">         @pytest.mark.slowtest</span>
 <span class="sd">         def test_function():</span>
-<span class="sd">            pass</span>
+<span class="sd">             pass</span>
 
 <span class="sd">    applies a &#39;slowtest&#39; :class:`Mark` on ``test_function``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -544,12 +541,12 @@
         <span class="n">usefixtures</span><span class="p">:</span> <span class="n">_UsefixturesMarkDecorator</span>
         <span class="n">filterwarnings</span><span class="p">:</span> <span class="n">_FilterwarningsMarkDecorator</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_ispytest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_ispytest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">check_ispytest</span><span class="p">(</span><span class="n">_ispytest</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkDecorator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a new :class:`MarkDecorator` with the given name.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Marker name must NOT start with underscore&quot;</span><span class="p">)</span>
@@ -581,9 +578,9 @@
                     <span class="n">fail</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; mark, did you mean &#39;parametrize&#39;?&quot;</span><span class="p">)</span>
 
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;Unknown pytest.mark.</span><span class="si">%s</span><span class="s2"> - is this a typo?  You can register &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unknown pytest.mark.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> - is this a typo?  You can register &quot;</span>
                     <span class="s2">&quot;custom marks to avoid this warning - for details, see &quot;</span>
-                    <span class="s2">&quot;https://docs.pytest.org/en/stable/how-to/mark.html&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;https://docs.pytest.org/en/stable/how-to/mark.html&quot;</span><span class="p">,</span>
                     <span class="n">PytestUnknownMarkWarning</span><span class="p">,</span>
                     <span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -595,15 +592,15 @@
 
 
 <span class="nd">@final</span>
-<span class="k">class</span> <span class="nc">NodeKeywords</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NodeKeywords</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_markers&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="s2">&quot;Node&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -611,31 +608,31 @@
                 <span class="k">raise</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">keywords</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="c1"># Note: we could&#39;ve avoided explicitly implementing some of the methods</span>
     <span class="c1"># below and use the collections.abc fallback, but that would be slow.</span>
 
-    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span>
             <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">keywords</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">other</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot delete key in keywords dict&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="c1"># Doesn&#39;t need to be fast.</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -644,11 +641,11 @@
                 <span class="k">if</span> <span class="n">keyword</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_markers</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">keyword</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="c1"># Doesn&#39;t need to be fast.</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;NodeKeywords for node </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
 </pre></div>
 
@@ -656,11 +653,11 @@
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../../../../">
-    <img class="logo" src="../../../../_static/logo.png" alt="Logo"/>
+    <img class="logo" src="../../../../_static/logo.png" alt="Logo" />
     
   </a>
 </p>
@@ -672,7 +669,16 @@
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search/" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../intro/">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/">API reference</a></li>
@@ -690,16 +696,6 @@
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search/" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -713,11 +709,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020-2024, Yandex LLC.
+      &#169;2020-2025, Yandex LLC.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
     </div>
 

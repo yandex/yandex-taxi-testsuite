@@ -47,7 +47,7 @@ def unix_mockserver_info(
 async def unix_mockserver_client(
     unix_mockserver: fixture_types.MockserverFixture,
     unix_mockserver_info: classes.MockserverInfo,
-    service_client_options: Dict[str, Any],
+    service_client_options: dict[str, Any],
 ) -> service_client.Client:
     async with aiohttp.UnixConnector(
         path=str(unix_mockserver_info.socket_path),

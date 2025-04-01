@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pathlib
 import ssl
 import typing
@@ -72,7 +74,7 @@ def create_service_client(
     def _create_service_client(
         base_url: str,
         *,
-        headers: typing.Optional[typing.Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         **kwargs,
     ):
         options = {**service_client_options, **kwargs}

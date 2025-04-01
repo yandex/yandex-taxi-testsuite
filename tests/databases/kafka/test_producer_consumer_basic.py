@@ -66,7 +66,7 @@ async def test_kafka_producer_consumer_chain_many_messages(
             TOPIC, f'test-key-{send}', f'test-message-{send}'
         )
 
-    sends_received: typing.Set[int] = set()
+    sends_received: set[int] = set()
 
     while len(sends_received) < SEND_COUNT:
         consumed_messages = await kafka_consumer.receive_batch(
@@ -93,7 +93,7 @@ async def test_kafka_producer_consumer_chain_many_topics(
                 topic, f'test-key-{send_number}', f'test-message-{send_number}'
             )
 
-    sends_received: typing.Set[int] = set()
+    sends_received: set[int] = set()
 
     while len(sends_received) < MESSAGE_COUNT:
         consumed_messages = await kafka_consumer.receive_batch(

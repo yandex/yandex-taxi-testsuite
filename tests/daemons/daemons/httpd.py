@@ -22,7 +22,7 @@ class ExternalSocketHTTPServer(socketserver.TCPServer):
 
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
-    _GET_methods: typing.Dict[str, typing.Callable] = {}
+    _GET_methods: dict[str, typing.Callable] = {}
 
     def do_GET(self):
         if self.path not in self._GET_methods:

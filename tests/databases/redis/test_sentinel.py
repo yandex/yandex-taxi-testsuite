@@ -1,4 +1,3 @@
-import pytest
 import redis
 
 from testsuite.databases.redis import service

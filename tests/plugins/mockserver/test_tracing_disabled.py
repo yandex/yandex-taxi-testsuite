@@ -1,5 +1,4 @@
 # pylint: disable=protected-access
-import typing
 
 import aiohttp.test_utils
 import pytest

@@ -23,8 +23,7 @@ from testsuite import type_annotations
 from testsuite._internal import fixture_class, fixture_types
 from testsuite.utils import compat
 
-from . import service_client, service_daemon, spawn
-from .spawn import __tracebackhide__
+from . import service_client, service_daemon
 
 SHUTDOWN_SIGNALS = {
     'SIGINT': signal.SIGINT,

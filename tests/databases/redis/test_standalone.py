@@ -1,7 +1,4 @@
-import pytest
 import redis
-
-from testsuite.databases.redis import service
 
 
 def test_standalone_rw(redis_standalone_store: redis.RedisCluster):

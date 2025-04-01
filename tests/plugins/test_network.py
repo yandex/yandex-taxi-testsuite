@@ -1,7 +1,5 @@
 import pytest
 
-from testsuite.plugins import network
-
 
 @pytest.mark.nofilldb
 @pytest.mark.parametrize(

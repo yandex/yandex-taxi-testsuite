@@ -1,8 +1,6 @@
-import aiohttp.web
 import pytest
 
 from testsuite.mockserver import (
-    exceptions,
     server,  # pylint: disable=protected-access
 )
 

@@ -5,7 +5,7 @@ import typing
 
 import pytest
 
-from testsuite.utils import cached_property, compat, net
+from testsuite.utils import cached_property, net
 
 
 class Mockserver:

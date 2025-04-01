@@ -6,10 +6,6 @@ import typing
 
 import py.io
 
-from testsuite import matching
-
-from .saferepr import saferepr
-
 SetTypes = (set, frozenset)
 
 
@@ -39,7 +35,7 @@ class CompareTransform:
         elif isinstance(left, SetTypes):
             return self.visit_set(left, right)
 
-        self.report_error(f'{saferepr(left)} != {saferepr(right)}')
+        self.report_error(f'{py.io.saferepr(left)} != {py.io.saferepr(right)}')
         return left, right
 
     def visit_list(
@@ -49,7 +45,7 @@ class CompareTransform:
     ) -> tuple:
         if not isinstance(right, list):
             self.report_error(
-                f'list expected on the right got {saferepr(right)} instead',
+                f'list expected on the right got {py.io.saferepr(right)} instead',
             )
             return left, right
         left_len = len(left)
@@ -71,13 +67,13 @@ class CompareTransform:
         if left_len > right_len:
             for idx, item in enumerate(left[right_len:], right_len):
                 self.report_error(
-                    f'[{idx}]: extra item on the left: {saferepr(item)}'
+                    f'[{idx}]: extra item on the left: {py.io.saferepr(item)}'
                 )
                 left_result.append(item)
         elif right_len > left_len:
             for idx, item in enumerate(right[left_len:], left_len):
                 self.report_error(
-                    f'[{idx}]: extra item on the right: {saferepr(item)}'
+                    f'[{idx}]: extra item on the right: {py.io.saferepr(item)}'
                 )
                 right_result.append(item)
         return left_result, right_result
@@ -85,7 +81,7 @@ class CompareTransform:
     def visit_dict(self, left: dict, right: typing.Any) -> tuple:
         if not isinstance(right, dict):
             self.report_error(
-                f'dict expected on the right, got {saferepr(right)} instead'
+                f'dict expected on the right, got {py.io.saferepr(right)} instead'
             )
             return left, right
         left_len = len(left)
@@ -129,7 +125,7 @@ class CompareTransform:
     ) -> tuple:
         if not isinstance(right, SetTypes):
             self.report_error(
-                f'set expected on the right got {saferepr(right)} instead',
+                f'set expected on the right got {py.io.saferepr(right)} instead',
             )
             return left, right
         common_keys = left & right

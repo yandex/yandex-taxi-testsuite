@@ -1,5 +1,4 @@
 import json
-import warnings
 
 import pytest
 import redis as redisdb

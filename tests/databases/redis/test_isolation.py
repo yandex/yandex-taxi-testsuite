@@ -1,8 +1,6 @@
 import pytest
 import redis
 
-from testsuite.databases.redis import service
-
 
 @pytest.mark.redis_standalone_store(['set', 'standalone_key', 'standalone'])
 @pytest.mark.redis_cluster_store(['set', 'cluster_key', 'cluster'])

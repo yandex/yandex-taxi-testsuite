@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import pathlib
 import typing
@@ -14,7 +16,7 @@ PLUGIN_DIR = pathlib.Path(__file__).parent
 SERVICE_SCRIPT_DIR = PLUGIN_DIR.joinpath('scripts/service-kafka')
 
 
-def _stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
+def _stringify_start_topics(start_topics: dict[str, int]) -> str:
     return ';'.join(
         [
             f'{topic}:{partitions_count}'
@@ -23,11 +25,11 @@ def _stringify_start_topics(start_topics: typing.Dict[str, int]) -> str:
     )
 
 
-def _parse_custom_topics(custom_topics: str) -> typing.Dict[str, int]:
+def _parse_custom_topics(custom_topics: str) -> dict[str, int]:
     if not custom_topics:
         return {}
 
-    result: typing.Dict[str, int] = {}
+    result: dict[str, int] = {}
     for topic_partitions_pair in custom_topics.split(','):
         topic, partition = topic_partitions_pair.split(':')
         result[topic] = int(partition)
@@ -35,7 +37,7 @@ def _parse_custom_topics(custom_topics: str) -> typing.Dict[str, int]:
     return result
 
 
-def try_get_custom_topics() -> typing.Dict[str, int]:
+def try_get_custom_topics() -> dict[str, int]:
     return _parse_custom_topics(
         os.environ.get('TESTSUITE_KAFKA_CUSTOM_TOPICS', '')
     )
@@ -44,8 +46,8 @@ def try_get_custom_topics() -> typing.Dict[str, int]:
 def create_kafka_service(
     service_name: str,
     working_dir: str,
-    settings: typing.Optional[classes.ServiceSettings] = None,
-    env: typing.Optional[typing.Dict[str, str]] = None,
+    settings: classes.ServiceSettings | None = None,
+    env: dict[str, str] | None = None,
 ):
     if settings is None:
         settings = get_service_settings()
@@ -73,7 +75,7 @@ def create_kafka_service(
 
 
 def get_service_settings(
-    custom_start_topics: typing.Dict[str, int] = {},
+    custom_start_topics: dict[str, int] = {},
 ) -> classes.ServiceSettings:
     return classes.ServiceSettings(
         server_host=utils.getenv_str(

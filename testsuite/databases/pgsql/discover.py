@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections
 import dataclasses
 import hashlib
@@ -5,7 +7,8 @@ import itertools
 import logging
 import pathlib
 import typing
-from typing import DefaultDict, Dict, Iterable, List, Optional
+from collections.abc import Iterable
+from typing import DefaultDict, Dict, List, Optional
 
 from . import exceptions, utils
 
@@ -24,14 +27,14 @@ class ShardName:
 @dataclasses.dataclass
 class ShardFiles:
     name: ShardName
-    files: Optional[List[pathlib.Path]] = None
-    pg_migrations: Optional[List[pathlib.Path]] = None
+    files: list[pathlib.Path] | None = None
+    pg_migrations: list[pathlib.Path] | None = None
 
 
 @dataclasses.dataclass
 class ShardFileInfo:
-    files: List[pathlib.Path]
-    pg_migrations: List[pathlib.Path]
+    files: list[pathlib.Path]
+    pg_migrations: list[pathlib.Path]
 
     def extend(self, other: ShardFiles) -> None:
         if other.files:
@@ -40,7 +43,7 @@ class ShardFileInfo:
             self.pg_migrations.extend(other.pg_migrations)
 
 
-ShardPathesDict = Dict[int, ShardFileInfo]
+ShardPathesDict = dict[int, ShardFileInfo]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -48,8 +51,8 @@ class PgShard:
     shard_id: int
     pretty_name: str
     dbname: str
-    files: List[pathlib.Path]
-    migrations: List[pathlib.Path]
+    files: list[pathlib.Path]
+    migrations: list[pathlib.Path]
 
     def get_schema_hash(self) -> str:
         return utils.get_files_hash(
@@ -59,15 +62,15 @@ class PgShard:
 
 @dataclasses.dataclass(frozen=True)
 class PgShardedDatabase:
-    service_name: typing.Optional[str]
+    service_name: str | None
     dbname: str
-    shards: List[PgShard]
+    shards: list[PgShard]
 
 
 def find_schemas(
-    service_name: Optional[str],
-    schema_dirs: List[pathlib.Path],
-) -> Dict[str, PgShardedDatabase]:
+    service_name: str | None,
+    schema_dirs: list[pathlib.Path],
+) -> dict[str, PgShardedDatabase]:
     """Read database schemas from directories ``schema_dirs``. ::
 
      |- schema_path/
@@ -80,7 +83,7 @@ def find_schemas(
     :returns: :py:class:`Dict[str, PgShardedDatabase]` where key is
               database name as stored in :py:attr:`PgShard.dbname`
     """
-    result: Dict[str, PgShardedDatabase] = {}
+    result: dict[str, PgShardedDatabase] = {}
     for path in schema_dirs:
         if not path.is_dir():
             continue
@@ -94,9 +97,9 @@ def find_schemas(
 
 
 def _find_databases_schemas(
-    service_name: Optional[str],
+    service_name: str | None,
     schema_path: pathlib.Path,
-) -> Dict[str, PgShardedDatabase]:
+) -> dict[str, PgShardedDatabase]:
     logger.debug('Looking up for PostgreSQL schemas at %s', schema_path)
     shard_files_map = _build_shard_files_map(schema_path)
     result = {}
@@ -140,7 +143,7 @@ def _find_shard_files(schema_path: pathlib.Path) -> Iterable[ShardFiles]:
             yield shard_files
 
 
-def _get_shard_schema_files(path: pathlib.Path) -> Optional[ShardFiles]:
+def _get_shard_schema_files(path: pathlib.Path) -> ShardFiles | None:
     shard_name = _parse_shard_name(path.stem)
     if path.is_file():
         if path.suffix == '.sql':
@@ -169,10 +172,10 @@ def _raise_if_invalid_shards(dbname: str, shards: ShardPathesDict) -> None:
 
 def _create_pgshard(
     dbname: str,
-    service_name: Optional[str] = None,
+    service_name: str | None = None,
     shard_id: int = SINGLE_SHARD,
-    files: Optional[List[pathlib.Path]] = None,
-    migrations: Optional[List[pathlib.Path]] = None,
+    files: list[pathlib.Path] | None = None,
+    migrations: list[pathlib.Path] | None = None,
 ) -> PgShard:
     if files is None:
         files = []
@@ -198,7 +201,7 @@ def _create_pgshard(
 _names_used = {}
 
 
-def _database_name(service_name: Optional[str], dbname: str, shard_id: int):
+def _database_name(service_name: str | None, dbname: str, shard_id: int):
     dbkey = (service_name, dbname)
     suffix = ''
     if shard_id != SINGLE_SHARD:

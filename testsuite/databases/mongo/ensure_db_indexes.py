@@ -64,7 +64,7 @@ def _ensure_index(index, collection):
         collection.create_index(arg, **kwargs)
     except pymongo.errors.OperationFailure as exc:
         pytest.fail(
-            'ensure_index() failed for %s: %s' % (collection.name, exc),
+            'ensure_index() failed for {}: {}'.format(collection.name, exc),
         )
 
 
@@ -92,7 +92,7 @@ def _get_kwargs_for_shard_func(sharding):
 
     for key, value in sharding.items():
         if key == 'key':
-            sharding_key: typing.Dict[str, typing.Any]
+            sharding_key: dict[str, typing.Any]
             if isinstance(value, str):
                 sharding_key = {value: 1}
             elif isinstance(value, list):
@@ -100,7 +100,7 @@ def _get_kwargs_for_shard_func(sharding):
                 for obj in value:
                     sharding_key[obj['name']] = SORT_STR_TO_PYMONGO[obj['type']]
             else:
-                raise ValueError('Cannot handle key: %r' % (value,))
+                raise ValueError('Cannot handle key: {!r}'.format(value))
             kwargs['key'] = sharding_key
         else:
             kwargs[key] = value

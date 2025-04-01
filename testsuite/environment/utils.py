@@ -87,8 +87,8 @@ def getenv_float(key: str, default: float) -> float:
 
 def getenv_ints(
     key: str,
-    default: typing.Tuple[int, ...],
-) -> typing.Tuple[int, ...]:
+    default: tuple[int, ...],
+) -> tuple[int, ...]:
     env_value = os.getenv(key, None)
     if env_value is None:
         return default

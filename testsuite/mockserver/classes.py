@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import dataclasses
 import pathlib
 import typing
 
 import aiohttp.web
 
-from testsuite import annotations
+from testsuite import type_annotations
 from testsuite.utils import callinfo, http, url_util
 
 GenericRequestHandler = typing.Callable[
     ...,
-    annotations.MaybeAsyncResult[aiohttp.web.Response],
+    type_annotations.MaybeAsyncResult[aiohttp.web.Response],
 ]
 GenericRequestDecorator = typing.Callable[
     [GenericRequestHandler],
@@ -17,8 +19,8 @@ GenericRequestDecorator = typing.Callable[
 ]
 JsonRequestHandler = typing.Callable[
     ...,
-    annotations.MaybeAsyncResult[
-        typing.Union[aiohttp.web.Response, annotations.JsonAnyOptional]
+    type_annotations.MaybeAsyncResult[
+        typing.Union[aiohttp.web.Response, type_annotations.JsonAnyOptional]
     ],
 ]
 JsonRequestDecorator = typing.Callable[
@@ -36,11 +38,11 @@ class SslCertInfo:
 
 @dataclasses.dataclass(frozen=True)
 class MockserverInfo:
-    host: typing.Optional[str]
-    port: typing.Optional[int]
+    host: str | None
+    port: int | None
     base_url: str
-    ssl: typing.Optional[SslCertInfo]
-    socket_path: typing.Optional[pathlib.Path] = None
+    ssl: SslCertInfo | None
+    socket_path: pathlib.Path | None = None
 
     def url(self, path: str) -> str:
         """Concats ``base_url`` and provided ``path``."""

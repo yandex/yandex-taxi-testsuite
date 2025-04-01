@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pathlib
 import typing
 
@@ -35,7 +37,7 @@ def get_service_settings():
 def create_pgsql_service(
     service_name,
     working_dir,
-    settings: typing.Optional[ServiceSettings] = None,
+    settings: ServiceSettings | None = None,
     env=None,
 ):
     if settings is None:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 import pathlib
 import string
@@ -89,7 +91,7 @@ def _generate_redis_config(
     output_file: pathlib.Path,
     host: str,
     port: int,
-    master_port: typing.Optional[int] = None,
+    master_port: int | None = None,
 ) -> None:
     config_tpl = input_file.read_text()
     config_body = string.Template(config_tpl).substitute(
@@ -145,9 +147,9 @@ def _generate_slave(
 def _generate_sentinel(
     host: str,
     sentinel_port: int,
-    ports: typing.List[int],
+    ports: list[int],
     output_path: pathlib.Path,
-    params: typing.List,
+    params: list,
 ) -> None:
     input_file = _redis_config_directory() / SENTINEL_TPL_FILENAME
     lines = ['daemonize yes', 'port %d' % sentinel_port, '']
@@ -203,7 +205,7 @@ def _redis_config_directory() -> pathlib.Path:
 def generate_cluster_redis_configs(
     output_path: pathlib.Path,
     host: str,
-    cluster_ports: typing.Tuple[int, ...],
+    cluster_ports: tuple[int, ...],
 ) -> None:
     _generate_cluster_node(
         host,

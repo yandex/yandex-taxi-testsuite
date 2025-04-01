@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import typing
 import urllib.parse
@@ -12,13 +14,13 @@ class ConnectionInfo:
 
     host: str
     port: int
-    dbname: typing.Optional[str] = None
-    retry_writes: typing.Optional[bool] = None
+    dbname: str | None = None
+    retry_writes: bool | None = None
 
     def get_uri(
         self,
-        dbname: typing.Optional[str] = None,
-        retry_writes: typing.Optional[bool] = None,
+        dbname: str | None = None,
+        retry_writes: bool | None = None,
     ) -> str:
         """Get mongodb connection uri"""
         if dbname is None:
@@ -49,9 +51,9 @@ def parse_connection_uri(uri: str) -> ConnectionInfo:
 
 
 def _get_boolean_param(
-    parsed_query: typing.Dict[str, typing.List[str]],
+    parsed_query: dict[str, list[str]],
     key: str,
-) -> typing.Optional[bool]:
+) -> bool | None:
     values = parsed_query.get(key, None)
     if not values or not values[0]:
         return None

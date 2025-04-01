@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 from testsuite import utils
@@ -41,7 +43,7 @@ class AppliedSchemaHashes:
         self._create_db()
         self._create_schema_table()
 
-    def get_hash(self, dbname: str) -> typing.Optional[str]:
+    def get_hash(self, dbname: str) -> str | None:
         """Get hash of schema applied to a database"""
         return self._hash_by_dbname.get(dbname, None)
 
@@ -59,7 +61,7 @@ class AppliedSchemaHashes:
                 )
 
     @utils.cached_property
-    def _hash_by_dbname(self) -> typing.Dict[str, str]:
+    def _hash_by_dbname(self) -> dict[str, str]:
         with self._pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(SELECT_DB_HASH_TEMPLATE)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 import aiohttp.web
@@ -76,7 +78,7 @@ class MagicArgsHandler:
 
     def __init__(self, func: typing.Callable, *, raw_request: bool) -> None:
         signature = callinfo.getfullargspec(func)
-        self.magic_args: typing.List = []
+        self.magic_args: list = []
         self.raw_request = raw_request
         if signature.args:
             self.has_request = True
@@ -91,7 +93,7 @@ class MagicArgsHandler:
             for arg in signature.kwonlyargs:
                 self._handle_arg(arg)
 
-    def _infer_request_type(self, request_type: typing.Type) -> None:
+    def _infer_request_type(self, request_type: type) -> None:
         if request_type is aiohttp.web.BaseRequest:
             self.raw_request = True
         elif request_type is http.Request:
@@ -104,9 +106,9 @@ class MagicArgsHandler:
     async def build_args(
         self,
         request: aiohttp.web.BaseRequest,
-        orig_kwargs: typing.Dict[str, object],
-    ) -> typing.Tuple:
-        wrapped_request: typing.Optional[http.Request]
+        orig_kwargs: dict[str, object],
+    ) -> tuple:
+        wrapped_request: http.Request | None
         if self.has_request and not self.raw_request:
             wrapped_request = await http.wrap_request(request)
         else:
@@ -123,7 +125,7 @@ class MagicArgsHandler:
             else:
                 kwargs[arg] = handler(request)
 
-        args: typing.Tuple
+        args: tuple
         if self.has_request:
             if self.raw_request:
                 args = (request,)

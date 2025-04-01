@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import inspect
 import re
 import typing
@@ -25,8 +27,8 @@ class FixtureMetaclass(type):
 
 
 class Fixture(metaclass=FixtureMetaclass):
-    __fixtures__: typing.Dict[str, str]
-    __fixture_types__: typing.Dict[str, typing.Any]
+    __fixtures__: dict[str, str]
+    __fixture_types__: dict[str, typing.Any]
 
     def __init__(self, **kwargs):
         for attr, argname in self.__fixtures__.items():
@@ -40,7 +42,7 @@ class Fixture(metaclass=FixtureMetaclass):
 def create_fixture_factory(
     fixture_class,
     *,
-    name: typing.Optional[str] = None,
+    name: str | None = None,
     scope='function',
 ) -> typing.Callable:
     def factory(**kwargs):

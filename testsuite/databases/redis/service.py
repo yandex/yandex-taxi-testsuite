@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import pathlib
 import socket
@@ -36,9 +38,9 @@ class NotEnoughPorts(BaseError):
 
 class ServiceSettings(typing.NamedTuple):
     host: str
-    master_ports: typing.Tuple[int, ...]
+    master_ports: tuple[int, ...]
     sentinel_port: int
-    slave_ports: typing.Tuple[int, ...]
+    slave_ports: tuple[int, ...]
 
     def validate(self):
         if len(self.master_ports) != len(DEFAULT_MASTER_PORTS):
@@ -53,7 +55,7 @@ class ServiceSettings(typing.NamedTuple):
 
 class ClusterServiceSettings(typing.NamedTuple):
     host: str
-    cluster_ports: typing.Tuple[int, ...]
+    cluster_ports: tuple[int, ...]
     cluster_replicas: int
 
     def validate(self):
@@ -118,7 +120,7 @@ def get_standalone_service_settings():
 def create_redis_service(
     service_name,
     working_dir,
-    settings: typing.Optional[ServiceSettings] = None,
+    settings: ServiceSettings | None = None,
     env=None,
 ):
     if settings is None:
@@ -164,7 +166,7 @@ def create_redis_service(
 def create_cluster_redis_service(
     service_name,
     working_dir,
-    settings: typing.Optional[ClusterServiceSettings] = None,
+    settings: ClusterServiceSettings | None = None,
     env=None,
 ):
     if settings is None:
@@ -206,7 +208,7 @@ def create_cluster_redis_service(
 def create_standalone_redis_service(
     service_name,
     working_dir,
-    settings: typing.Optional[StandaloneServiceSettings] = None,
+    settings: StandaloneServiceSettings | None = None,
     env=None,
 ):
     if settings is None:
@@ -253,7 +255,7 @@ def _resolve_hostname(hostname: str) -> str:
                 family=family,
                 type=socket.SOCK_STREAM,
             )
-        except socket.error:
+        except OSError:
             continue
         if result:
             return result[0][4][0]  # type: ignore[return-value]

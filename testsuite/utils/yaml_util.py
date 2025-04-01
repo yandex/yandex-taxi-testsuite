@@ -19,7 +19,7 @@ else:
 
 
 def load_file(path, encoding='utf-8', object_hook=None):
-    with open(path, 'r', encoding=encoding) as fp:
+    with open(path, encoding=encoding) as fp:
         return load(fp, object_hook=object_hook)
 
 

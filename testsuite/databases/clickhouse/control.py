@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import logging
 import pathlib
@@ -14,13 +16,13 @@ logger = logging.getLogger(__name__)
 class ClickhouseQuery:
     body: str
     source: str
-    path: typing.Optional[str]
+    path: str | None
 
 
 class ConnectionCache:
     def __init__(self, conn_info: classes.ConnectionInfo):
         self._conn_info = conn_info
-        self._cache: typing.Dict[str, clickhouse_driver.Client] = {}
+        self._cache: dict[str, clickhouse_driver.Client] = {}
         self._master_connection = None
 
     def get_master_connection(self):
@@ -46,8 +48,8 @@ class ConnectionCache:
 
 
 class DatabasesState:
-    _migrations_run: typing.Set[typing.Tuple[str, pathlib.Path]]
-    _initialized: typing.Set[str]
+    _migrations_run: set[tuple[str, pathlib.Path]]
+    _initialized: set[str]
 
     def __init__(self, connections: ConnectionCache, verbose: bool = False):
         self._connections = connections
@@ -115,7 +117,7 @@ def _get_db_tables_list(connection: clickhouse_driver.Client):
 
 def apply_queries(
     connection: clickhouse_driver.Client,
-    queries: typing.List[ClickhouseQuery],
+    queries: list[ClickhouseQuery],
 ):
     tables = _get_db_tables_list(connection)
     if tables:

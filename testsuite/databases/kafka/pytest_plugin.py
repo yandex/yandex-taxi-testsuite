@@ -86,7 +86,7 @@ async def kafka_consumer(
 
 
 @pytest.fixture(scope='session')
-def kafka_custom_topics() -> typing.Dict[str, int]:
+def kafka_custom_topics() -> dict[str, int]:
     """
     Redefine this fixture to pass your custom dictionary of topics' settings.
     """

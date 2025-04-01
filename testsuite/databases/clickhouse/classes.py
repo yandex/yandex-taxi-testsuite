@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import pathlib
 import typing
@@ -10,7 +12,7 @@ class ConnectionInfo:
     host: str
     tcp_port: int
     http_port: int
-    dbname: typing.Optional[str] = None
+    dbname: str | None = None
 
     def replace(self, **kwargs) -> 'ConnectionInfo':
         """Returns new instance with attrs updated"""
@@ -20,7 +22,7 @@ class ConnectionInfo:
 @dataclasses.dataclass(frozen=True)
 class DatabaseConfig:
     dbname: str
-    migrations: typing.List[pathlib.Path]
+    migrations: list[pathlib.Path]
 
 
-DatabasesDict = typing.Dict[str, DatabaseConfig]
+DatabasesDict = dict[str, DatabaseConfig]

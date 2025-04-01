@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import getpass
 import pathlib
@@ -33,15 +35,15 @@ class Config:
 
 class Environment:
     config: Config
-    _services: typing.Dict[str, service.ScriptService]
-    _services_start_order: typing.List[str]
-    _env: typing.Optional[typing.Dict[str, str]]
-    _service_factories: typing.Dict[str, typing.Callable]
+    _services: dict[str, service.ScriptService]
+    _services_start_order: list[str]
+    _env: dict[str, str] | None
+    _service_factories: dict[str, typing.Callable]
 
     def __init__(
         self,
         config: Config,
-        env: typing.Optional[typing.Dict[str, str]] = None,
+        env: dict[str, str] | None = None,
     ) -> None:
         self.config = config
         self._services = {}
@@ -109,7 +111,7 @@ class TestsuiteEnvironment(Environment):
             worker_suffix = '_' + config.worker_id
         else:
             worker_suffix = ''
-        super(TestsuiteEnvironment, self).__init__(
+        super().__init__(
             config=config,
             env={'WORKER_SUFFIX': worker_suffix},
         )
@@ -117,7 +119,7 @@ class TestsuiteEnvironment(Environment):
 
 def load_environment_config(
     *,
-    env_dir: typing.Optional[pathlib.Path] = None,
+    env_dir: pathlib.Path | None = None,
     worker_id: str = DEFAULT_WORKER_ID,
     reuse_services: bool = False,
     verbose: int = 0,

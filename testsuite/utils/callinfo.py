@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import inspect
 import typing
@@ -39,7 +41,7 @@ class AsyncCallQueue:
         func: typing.Callable,
         *,
         name=None,
-        checker: typing.Optional[CheckerType] = None,
+        checker: CheckerType | None = None,
     ):
         self._func = func
         self._name = name or func.__name__
@@ -168,7 +170,7 @@ def callinfo(func):
 def acallqueue(
     func: typing.Callable,
     *,
-    checker: typing.Optional[CheckerType] = None,
+    checker: CheckerType | None = None,
 ) -> AsyncCallQueue:
     """Turn function into async call queue.
 

@@ -32,7 +32,7 @@ def pytest_service_register(register_service):
 def clickhouse(
     _clickhouse,
     _clickhouse_apply,
-) -> typing.Dict[str, clickhouse_driver.Client]:
+) -> dict[str, clickhouse_driver.Client]:
     return _clickhouse.get_connections()
 
 

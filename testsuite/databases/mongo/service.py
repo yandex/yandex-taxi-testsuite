@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pathlib
 import typing
 
@@ -31,8 +33,8 @@ class ServiceSettings(typing.NamedTuple):
 def create_mongo_service(
     service_name,
     working_dir,
-    settings: typing.Optional[ServiceSettings] = None,
-    env: typing.Optional[typing.Dict[str, str]] = None,
+    settings: ServiceSettings | None = None,
+    env: dict[str, str] | None = None,
 ):
     if settings is None:
         settings = get_service_settings()

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import contextlib
 import dataclasses
 import logging
@@ -21,7 +23,7 @@ MYSQL_HELPER = pathlib.Path(__file__).parent.joinpath('scripts/mysql-helper')
 class MysqlQuery:
     body: str
     source: str
-    path: typing.Optional[str]
+    path: str | None
 
 
 class ConnectionWrapper:
@@ -30,7 +32,7 @@ class ConnectionWrapper:
     def __init__(self, connection, conninfo, tables):
         self._connection = connection
         self._conninfo = conninfo
-        self._tables: typing.List[str] = tables
+        self._tables: list[str] = tables
 
     @property
     def conninfo(self) -> classes.ConnectionInfo:
@@ -49,7 +51,7 @@ class ConnectionWrapper:
     def commit(self) -> None:
         self._connection.commit()
 
-    def _truncate_non_empty_tables(self) -> typing.Optional[typing.List[str]]:
+    def _truncate_non_empty_tables(self) -> list[str] | None:
         cursor = self.cursor()
         if self._tables:
             with contextlib.closing(cursor):
@@ -67,8 +69,8 @@ class ConnectionWrapper:
 
     def apply_queries(
         self,
-        queries: typing.List[MysqlQuery],
-        keep_tables: typing.Optional[typing.List[str]] = None,
+        queries: list[MysqlQuery],
+        keep_tables: list[str] | None = None,
         truncate_non_empty: bool = False,
     ) -> None:
         if not keep_tables:
@@ -138,8 +140,8 @@ class ConnectionCache:
 
 
 class DatabasesState:
-    _migrations_run: typing.Set[typing.Tuple[str, str]]
-    _initialized: typing.Set[str]
+    _migrations_run: set[tuple[str, str]]
+    _initialized: set[str]
 
     def __init__(self, connections: ConnectionCache, verbose: bool = False):
         self._need_save_tables = True
@@ -147,7 +149,7 @@ class DatabasesState:
         self._verbose = verbose
         self._migrations_run = set()
         self._initialized = set()
-        self._tables: typing.Dict[str, typing.List[str]] = dict()
+        self._tables: dict[str, list[str]] = dict()
 
     def get_connection(self, dbname: str, create_db: bool = True):
         if dbname not in self._initialized:
@@ -230,7 +232,7 @@ class Control:
         self._state.save_tables(dbconfig.dbname)
 
 
-def _build_mysql_args(conninfo: classes.ConnectionInfo) -> typing.List[str]:
+def _build_mysql_args(conninfo: classes.ConnectionInfo) -> list[str]:
     result = ['--protocol=tcp']
     if conninfo.hostname:
         result.append(f'--host={conninfo.hostname}')
@@ -247,7 +249,7 @@ def _build_mysql_args(conninfo: classes.ConnectionInfo) -> typing.List[str]:
 
 def _run_script(
     conninfo: classes.ConnectionInfo,
-    args: typing.List[str],
+    args: list[str],
     verbose: bool,
 ):
     command = [str(MYSQL_HELPER), *_build_mysql_args(conninfo), *args]

@@ -2,7 +2,7 @@ import pathlib
 import typing
 
 
-def scan_sql_directory(root: pathlib.Path) -> typing.List[pathlib.Path]:
+def scan_sql_directory(root: pathlib.Path) -> list[pathlib.Path]:
     return [
         entry
         for entry in sorted(root.iterdir())

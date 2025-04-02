@@ -43,7 +43,7 @@ class AssertionPlugin:
 
         comparator = compare_transform.CompareTransform()
         try:
-            mapped_right = comparator.visit(left, right)
+            mapped_left, mapped_right = comparator.visit(left, right)
         except Exception:
             logging.exception('testsuite assertrepr_compare failed:')
             return None
@@ -52,7 +52,7 @@ class AssertionPlugin:
             pytest_result = config.hook.pytest_assertrepr_compare(
                 config=config,
                 op=op,
-                left=left,
+                left=mapped_left,
                 right=mapped_right,
             )
         if not pytest_result:

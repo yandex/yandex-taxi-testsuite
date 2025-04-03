@@ -4,7 +4,6 @@ import contextlib
 import dataclasses
 import logging
 import pathlib
-import typing
 
 import pymysql
 import pymysql.constants

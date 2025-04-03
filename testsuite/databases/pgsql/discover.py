@@ -6,9 +6,8 @@ import hashlib
 import itertools
 import logging
 import pathlib
-import typing
 from collections.abc import Iterable
-from typing import DefaultDict, Dict, List, Optional
+from typing import DefaultDict
 
 from . import exceptions, utils
 

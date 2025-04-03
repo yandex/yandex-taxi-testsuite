@@ -2,7 +2,6 @@ import contextlib
 import logging
 import subprocess
 import threading
-import typing
 
 from testsuite.utils import traceback
 

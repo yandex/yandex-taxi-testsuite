@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pathlib
-import typing
 
 import pytest
 

@@ -3,7 +3,6 @@ from __future__ import annotations
 import socket
 import subprocess
 import sys
-import typing
 
 from testsuite.utils import subprocess_helper
 

@@ -11,9 +11,6 @@ from collections.abc import AsyncGenerator, Callable, Sequence
 from typing import (
     Any,
     AsyncContextManager,
-    Dict,
-    Optional,
-    Tuple,
 )
 
 import aiohttp

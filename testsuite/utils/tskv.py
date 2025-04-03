@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import datetime
 import itertools
-import typing
 
 ENTRIES_SEP = '\t'
 KV_SEP = '='

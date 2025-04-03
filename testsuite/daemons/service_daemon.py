@@ -12,9 +12,6 @@ from typing import (
     AsyncGenerator,
     Awaitable,
     Callable,
-    Dict,
-    Optional,
-    Tuple,
 )
 
 import aiohttp

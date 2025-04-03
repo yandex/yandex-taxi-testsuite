@@ -1,5 +1,4 @@
 import collections
-import typing
 
 import clickhouse_driver
 import pytest

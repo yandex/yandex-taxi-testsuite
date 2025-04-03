@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import contextlib
-import typing
 
 import pytest
 
 from testsuite import type_annotations
-from testsuite.utils import colors
 
 from . import classes, exceptions, server
 

@@ -1,7 +1,6 @@
 import asyncio
 import contextlib
 import socket
-import typing
 
 import pytest
 

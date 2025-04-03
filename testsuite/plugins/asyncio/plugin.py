@@ -1,8 +1,3 @@
-import asyncio
-
-import pytest
-
-
 def pytest_configure(config):
     # Force default asyncio mode
     config.option.asyncio_mode = 'auto'
@@ -16,8 +11,3 @@ def pytest_collection_modifyitems(items):
         mark = item.get_closest_marker('asyncio')
         if mark:
             mark.kwargs.setdefault('loop_scope', 'session')
-
-
-@pytest.fixture(scope='session')
-async def event_loop():
-    return asyncio.get_running_loop()

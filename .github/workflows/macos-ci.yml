@@ -67,6 +67,7 @@ jobs:
           PYTEST_ARGS: "-k redis -vvs"
         run: |
           brew uninstall redis
+          rm -rf /opt/homebrew/etc/redis-sentinel.conf /opt/homebrew/etc/redis.conf
           brew install valkey
           make venv-tests
       - name: Build documentation

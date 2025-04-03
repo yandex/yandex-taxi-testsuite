@@ -1,4 +1,4 @@
-PYTHON     = $(firstword $(shell which python3.9 python3))
+PYTHON     = $(firstword $(shell which python3))
 PYTEST      ?= $(PYTHON) -m pytest
 PYTEST_ARGS ?= -vv
 

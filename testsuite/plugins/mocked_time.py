@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import typing
 
@@ -40,9 +42,7 @@ class MockedTime:
             raise DisabledUsageError(MOCK_TIME_DISABLED_MESSAGE)
         self._now += datetime.timedelta(seconds=delta)
 
-    def now(
-        self, tz: typing.Optional[datetime.tzinfo] = None
-    ) -> datetime.datetime:
+    def now(self, tz: datetime.tzinfo | None = None) -> datetime.datetime:
         """:returns: current value of mock time"""
         now: datetime.datetime
         if self._is_enabled:

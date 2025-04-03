@@ -24,7 +24,7 @@ __tracebackhide__ = traceback.hide(BaseError)
 
 @pytest.fixture
 def _asyncexc():
-    errors: typing.List[Exception] = []
+    errors: list[Exception] = []
     try:
         yield errors
     finally:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Tools to format messages to different formats."""
 
 import datetime
@@ -21,7 +23,7 @@ def items_to_tskv(items, tskv_format='', add_header=True):
     """Return items to string in TSKV format."""
     data_segments = map(_format_pair, items)
 
-    segments: typing.Union[map, itertools.chain]
+    segments: map | itertools.chain
     if add_header:
         segments = itertools.chain(
             ('tskv', _format_pair(('tskv_format', tskv_format))),
@@ -65,4 +67,4 @@ def _escape_string(string):
 
 
 def _format_pair(value):
-    return '{}={}'.format(_escape_key(value[0]), _escape(value[1]))
+    return f'{_escape_key(value[0])}={_escape(value[1])}'

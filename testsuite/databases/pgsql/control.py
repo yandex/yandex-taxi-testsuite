@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import concurrent.futures
 import contextlib
 import dataclasses
@@ -49,21 +51,19 @@ class UninitializedUsageError(BaseError):
 class PgQuery:
     body: str
     source: str
-    path: typing.Optional[str]
+    path: str | None
 
 
 class ConnectionWrapper:
     def __init__(self, conninfo: connection.PgConnectionInfo):
         self._initialized = False
         self._conninfo = conninfo
-        self._conn: typing.Optional[psycopg2.extensions.connection] = None
-        self._tables: typing.Optional[typing.List[str]] = None
-        self._truncate_thread: typing.Optional[
-            concurrent.futures.Future[None]
-        ] = None
+        self._conn: psycopg2.extensions.connection | None = None
+        self._tables: list[str] | None = None
+        self._truncate_thread: None | (concurrent.futures.Future[None]) = None
         self._executer = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
-    def initialize(self, cleanup_exclude_tables: typing.FrozenSet[str]):
+    def initialize(self, cleanup_exclude_tables: frozenset[str]):
         if self._initialized:
             return
         cursor = self.conn.cursor()
@@ -212,10 +212,10 @@ class PgDatabaseWrapper:
 
 
 class PgControl:
-    _applied_schemas: typing.Dict[str, typing.Set[pathlib.Path]]
-    _connections: typing.Dict[str, ConnectionWrapper]
-    _connection_pool: typing.Optional[pool.AutocommitConnectionPool]
-    _applied_schema_hashes: typing.Optional[testsuite_db.AppliedSchemaHashes]
+    _applied_schemas: dict[str, set[pathlib.Path]]
+    _connections: dict[str, ConnectionWrapper]
+    _connection_pool: pool.AutocommitConnectionPool | None
+    _applied_schema_hashes: testsuite_db.AppliedSchemaHashes | None
 
     def __init__(
         self,

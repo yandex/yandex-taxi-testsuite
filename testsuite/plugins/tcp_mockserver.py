@@ -27,12 +27,12 @@ class Mockserver:
             pytest.fail('Mockserver handler failure')
 
     @cached_property
-    def sockets(self) -> typing.Tuple[socket.socket]:
+    def sockets(self) -> tuple[socket.socket]:
         """Returns list of server sockets."""
         return self._sockets
 
     @cached_property
-    def address(self) -> typing.Tuple[str, int]:
+    def address(self) -> tuple[str, int]:
         """
         Returns service address (host, port)
         """

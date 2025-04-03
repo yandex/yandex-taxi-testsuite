@@ -1,18 +1,17 @@
 # pylint: disable=not-async-context-manager
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import os
 import signal
 import subprocess
 import time
+from collections.abc import AsyncGenerator, Awaitable, Callable, Sequence
 from typing import (
     Any,
-    AsyncGenerator,
-    Awaitable,
-    Callable,
     Dict,
     Optional,
-    Sequence,
     Tuple,
 )
 
@@ -37,7 +36,7 @@ async def start(
     *,
     health_check: HealthCheckType,
     session_factory: ClientSessionFactory = aiohttp.ClientSession,
-    env: Optional[Dict[str, str]] = None,
+    env: dict[str, str] | None = None,
     shutdown_signal: int = signal.SIGINT,
     shutdown_timeout: float = 120,
     poll_retries: int = POLL_RETRIES,
@@ -46,7 +45,7 @@ async def start(
     subprocess_spawner=None,
     stdout_handler=None,
     stderr_handler=None,
-) -> AsyncGenerator[Optional[subprocess.Popen], None]:
+) -> AsyncGenerator[subprocess.Popen | None, None]:
     async with session_factory() as session:
         async with _service_daemon(
             args=args,
@@ -88,7 +87,7 @@ async def service_wait(
                 yellow=True,
             )
             reporter.write_line('')
-            reporter.write_line('gdb --args {}'.format(command), green=True)
+            reporter.write_line(f'gdb --args {command}', green=True)
             reporter.write_line('')
             reporter.write('Waiting for service to start...')
             while not await _run_health_check(
@@ -110,10 +109,10 @@ async def start_dummy_process():
 
 def make_health_check(
     *,
-    health_check: Optional[HealthCheckType] = None,
-    ping_url: Optional[str],
+    health_check: HealthCheckType | None = None,
+    ping_url: str | None,
     ping_request_timeout: float = PING_REQUEST_TIMEOUT,
-    ping_response_codes: Tuple[int] = PING_RESPONSE_CODES,
+    ping_response_codes: tuple[int] = PING_RESPONSE_CODES,
 ) -> HealthCheckType:
     if ping_url:
         return _make_ping_health_check(
@@ -131,7 +130,7 @@ async def _run_health_check(
     health_check: HealthCheckType,
     *,
     session: aiohttp.ClientSession,
-    process: Optional[subprocess.Popen],
+    process: subprocess.Popen | None,
     sleep: float = 0.05,
 ):
     if process and process.poll() is not None:
@@ -151,11 +150,11 @@ def _make_ping_health_check(
     *,
     ping_url: str,
     ping_request_timeout: float,
-    ping_response_codes: Tuple[int],
+    ping_response_codes: tuple[int],
 ) -> HealthCheckType:
     async def ping_health_check(
         session: aiohttp.ClientSession,
-        process: Optional[subprocess.Popen],
+        process: subprocess.Popen | None,
     ) -> bool:
         try:
             response = await session.get(
@@ -174,7 +173,7 @@ def _make_ping_health_check(
 
 
 async def _service_wait(
-    process: Optional[subprocess.Popen],
+    process: subprocess.Popen | None,
     *,
     poll_retries: int,
     health_check: HealthCheckType,
@@ -190,7 +189,7 @@ async def _service_wait(
     raise spawn.HealthCheckError('service daemon is not ready')
 
 
-def _prepare_env(*envs: Optional[Dict[str, str]]) -> Dict[str, str]:
+def _prepare_env(*envs: dict[str, str] | None) -> dict[str, str]:
     result = os.environ.copy()
     for env in envs:
         if env is not None:
@@ -205,7 +204,7 @@ def _prepare_env(*envs: Optional[Dict[str, str]]) -> Dict[str, str]:
 async def _service_daemon(
     args: Sequence[str],
     *,
-    env: Optional[Dict[str, str]],
+    env: dict[str, str] | None,
     shutdown_signal: int,
     shutdown_timeout: float,
     poll_retries: int,

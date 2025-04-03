@@ -21,7 +21,7 @@ __tracebackhide__ = traceback.hide(BaseError)
 
 
 def execute(args, *, env=None, verbose: int, command_alias: str) -> None:
-    buffer: typing.List[str] = []
+    buffer: list[str] = []
     lock_process_completion = threading.Lock()
     process_completed = False
 

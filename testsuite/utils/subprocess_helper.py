@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import subprocess
 import typing
 
 
 def sh(*args: str, nostderr: bool = True) -> str:  # pylint: disable=invalid-name
-    stderr: typing.Optional[int]
+    stderr: int | None
     if nostderr:
         stderr = subprocess.DEVNULL
     else:

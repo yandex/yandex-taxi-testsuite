@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import contextlib
 import dataclasses
 import multiprocessing.pool
@@ -13,7 +15,7 @@ import pymongo.errors
 import pytest
 from bson import json_util
 
-from testsuite import annotations, utils
+from testsuite import type_annotations, utils
 
 from . import connection, ensure_db_indexes, mongo_schema, service
 
@@ -65,7 +67,7 @@ class CollectionWrapper:
     def __contains__(self, alias: str) -> bool:
         return alias in self._collections
 
-    def get_aliases(self) -> typing.Tuple[str]:
+    def get_aliases(self) -> tuple[str]:
         return self._aliases
 
 
@@ -178,7 +180,7 @@ def mongo_connections(
     mongo_connection_info,
     mongo_extra_connections,
     _mongo_local_collections,
-) -> typing.Dict[str, str]:
+) -> dict[str, str]:
     mongo_connection_uri = mongo_connection_info.get_uri()
     return {
         **{
@@ -195,7 +197,7 @@ def mongo_connections(
 
 
 @pytest.fixture
-def mongo_extra_connections() -> typing.Tuple[str, ...]:
+def mongo_extra_connections() -> tuple[str, ...]:
     """
     Override this if you need to access mongo connections besides those
     defined in mongo_connections fixture
@@ -223,7 +225,7 @@ def mongodb_settings(
 
 
 @pytest.fixture
-def mongodb_collections(mongodb_settings) -> typing.Tuple[str, ...]:
+def mongodb_collections(mongodb_settings) -> tuple[str, ...]:
     """
     Override this to enable access to named collections within test module
 
@@ -233,7 +235,7 @@ def mongodb_collections(mongodb_settings) -> typing.Tuple[str, ...]:
 
 
 @pytest.fixture(scope='session')
-def mongo_schema_extra_directories() -> typing.Tuple[str, ...]:
+def mongo_schema_extra_directories() -> tuple[str, ...]:
     """
     Override to use collection schemas besides those defined by
     ``mongo_schema_directory`` fixture
@@ -242,7 +244,7 @@ def mongo_schema_extra_directories() -> typing.Tuple[str, ...]:
 
 
 @pytest.fixture(scope='session')
-def _mongo_indexes_ensured() -> typing.Set[str]:
+def _mongo_indexes_ensured() -> set[str]:
     return set()
 
 
@@ -290,7 +292,7 @@ def _mongo_create_indexes(
 
 
 @pytest.fixture(scope='session')
-def _mongo_thread_pool() -> annotations.YieldFixture[
+def _mongo_thread_pool() -> type_annotations.YieldFixture[
     multiprocessing.pool.ThreadPool,
 ]:
     pool = multiprocessing.pool.ThreadPool(processes=1)
@@ -339,7 +341,7 @@ def mongodb_init(
                     f'Unknown collection {dbname} requested'
                 )
             if alias != 'default':
-                aliases[dbname] = '%s_%s' % (dbname, alias)
+                aliases[dbname] = '{}_{}'.format(dbname, alias)
             requested.add(dbname)
 
     def _verify_db_alias(file_path: pathlib.Path) -> bool:
@@ -419,7 +421,7 @@ def _mongo_collection_wrapper_factory(
 
 
 @pytest.fixture
-def _mongo_local_collections(request, mongodb_collections) -> typing.Set[str]:
+def _mongo_local_collections(request, mongodb_collections) -> set[str]:
     result = set(mongodb_collections)
     for marker in request.node.iter_markers('mongodb_collections'):
         result.update(marker.args)
@@ -434,7 +436,7 @@ def _mongo_schema_cache() -> mongo_schema.MongoSchemaCache:
 @pytest.fixture(scope='session')
 def _mongo_service_settings(
     pytestconfig,
-) -> typing.Optional[service.ServiceSettings]:
+) -> service.ServiceSettings | None:
     if pytestconfig.option.mongo:
         return None
     return service.get_service_settings()

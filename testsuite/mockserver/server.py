@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import itertools
@@ -46,7 +48,7 @@ _LOGGER_HEADERS = (
 
 logger = logging.getLogger(__name__)
 
-RouteParams = typing.Dict[str, str]
+RouteParams = dict[str, str]
 
 
 class MockserverRequest(aiohttp.web.BaseRequest):
@@ -91,9 +93,9 @@ class Handler:
 
 
 class Session:
-    handlers: typing.Dict[str, Handler]
-    prefix_handlers: typing.List[typing.Tuple[str, Handler]]
-    regex_handlers: typing.List[typing.Tuple[typing.Pattern, Handler]]
+    handlers: dict[str, Handler]
+    prefix_handlers: list[tuple[str, Handler]]
+    regex_handlers: list[tuple[typing.Pattern, Handler]]
 
     def __init__(
         self,
@@ -115,7 +117,7 @@ class Session:
         self.mockserver_host = mockserver_host
         self._asyncexc_append = asyncexc_append
 
-    def get_handler(self, path: str) -> typing.Tuple[Handler, RouteParams]:
+    def get_handler(self, path: str) -> tuple[Handler, RouteParams]:
         handler = self.handlers.get(path)
         if handler is not None:
             return handler, {}
@@ -207,7 +209,7 @@ class Session:
     def _get_handler_for_request(
         self,
         request: MockserverRequest,
-    ) -> typing.Tuple[Handler, RouteParams]:
+    ) -> tuple[Handler, RouteParams]:
         path = request.original_path
         if self.http_proxy_enabled:
             host = request.headers.get('host')
@@ -266,7 +268,7 @@ class Server:
         self,
         *,
         asyncexc_append,
-        trace_id: typing.Optional[str] = None,
+        trace_id: str | None = None,
     ):
         self.session = Session(
             asyncexc_append=asyncexc_append,
@@ -374,12 +376,12 @@ class MockserverFixture:
         return self._server.server_info.base_url
 
     @property
-    def host(self) -> typing.Optional[str]:
+    def host(self) -> str | None:
         """Mockserver hostname."""
         return self._server.server_info.host
 
     @property
-    def port(self) -> typing.Optional[int]:
+    def port(self) -> int | None:
         """Mockserver port."""
         return self._server.server_info.port
 
@@ -641,12 +643,12 @@ async def create_server(
     host: str,
     port: int,
     pytestconfig,
-    ssl_info: typing.Optional[classes.SslCertInfo],
+    ssl_info: classes.SslCertInfo | None,
     loop=None,
 ) -> typing.AsyncGenerator[Server, None]:
     if loop is None:
         loop = asyncio.get_running_loop()
-    ssl_context: typing.Optional[ssl.SSLContext]
+    ssl_context: ssl.SSLContext | None
     if ssl_info:
         ssl_context = _create_ssl_context(ssl_info)
     else:
@@ -690,7 +692,7 @@ async def create_unix_server(
 def _create_mockserver_info(
     sock,
     host: str,
-    ssl_info: typing.Optional[classes.SslCertInfo],
+    ssl_info: classes.SslCertInfo | None,
 ) -> classes.MockserverInfo:
     sock_address = sock.getsockname()
     schema = 'https' if ssl_info else 'http'
@@ -721,13 +723,11 @@ def generate_trace_id() -> str:
     return _TRACE_ID_PREFIX + uuid.uuid4().hex
 
 
-def _is_from_client_fixture(trace_id: typing.Optional[str]) -> bool:
+def _is_from_client_fixture(trace_id: str | None) -> bool:
     return trace_id is not None and trace_id.startswith(_TRACE_ID_PREFIX)
 
 
-def _is_other_test(
-    trace_id: typing.Optional[str], current_trace_id: str
-) -> bool:
+def _is_other_test(trace_id: str | None, current_trace_id: str) -> bool:
     return trace_id != current_trace_id and _is_from_client_fixture(trace_id)
 
 

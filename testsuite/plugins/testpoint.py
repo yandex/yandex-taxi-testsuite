@@ -3,13 +3,13 @@ import typing
 
 import pytest
 
-from testsuite import annotations
+from testsuite import type_annotations
 from testsuite.mockserver import server
 from testsuite.utils import callinfo, http
 
 TestpointHandler = typing.Callable[
-    [annotations.JsonAnyOptional],
-    annotations.MaybeAsyncResult[annotations.JsonAnyOptional],
+    [type_annotations.JsonAnyOptional],
+    type_annotations.MaybeAsyncResult[type_annotations.JsonAnyOptional],
 ]
 TestpointDecorator = typing.Callable[
     [TestpointHandler],
@@ -21,7 +21,7 @@ class TestpointFixture(collections.abc.MutableMapping):
     """Testpoint control object."""
 
     def __init__(self, *, checker_factory) -> None:
-        self._handlers: typing.Dict[str, callinfo.AsyncCallQueue] = {}
+        self._handlers: dict[str, callinfo.AsyncCallQueue] = {}
         self._checker_factory = checker_factory
 
     def __getitem__(self, name: str) -> callinfo.AsyncCallQueue:

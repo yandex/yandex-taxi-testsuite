@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import logging
 import os
 import pathlib
 import time
 import typing
 
-from testsuite import annotations
+from testsuite import type_annotations
 from testsuite.utils import traceback
 
 from . import shell, utils
@@ -37,9 +39,9 @@ class ScriptService:
         script_path: str,
         working_dir: str,
         check_host: str = 'localhost',
-        check_ports: typing.List[int],
-        environment: typing.Optional[typing.Dict[str, str]] = None,
-        prestart_hook: typing.Optional[typing.Callable] = None,
+        check_ports: list[int],
+        environment: dict[str, str] | None = None,
+        prestart_hook: typing.Callable | None = None,
         start_timeout: float = 2.0,
     ) -> None:
         self._service_name = service_name
@@ -114,7 +116,7 @@ class ScriptService:
 
 
 class StartedMark:
-    def __init__(self, working_dir: annotations.PathOrStr) -> None:
+    def __init__(self, working_dir: type_annotations.PathOrStr) -> None:
         self._path = pathlib.Path(working_dir) / '.started'
 
     def create(self) -> None:

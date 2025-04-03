@@ -1,8 +1,10 @@
 [tool.mypy]
+python_version = "3.9"
 check_untyped_defs = true
 disable_error_code = ['misc', 'union-attr', 'has-type', 'import-untyped', 'var-annotated']
 
 [tool.ruff]
+target-version = "py39"
 line-length = 80
 
 [tool.ruff.lint]

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import pathlib
 import typing
@@ -5,7 +7,7 @@ import warnings
 
 import pytest
 
-from testsuite import annotations
+from testsuite import type_annotations
 from testsuite._internal import fixture_class
 from testsuite.utils import cached_property, json_util, traceback, yaml_util
 
@@ -32,12 +34,12 @@ __tracebackhide__ = traceback.hide(BaseError, FileNotFoundError)
 class GetSearchPathesFixture(fixture_class.Fixture):
     """Generates sequence of pathes for static files."""
 
-    _fixture__search_directories_existing: typing.Tuple[pathlib.Path, ...]
+    _fixture__search_directories_existing: tuple[pathlib.Path, ...]
     _fixture__path_entries_cache: typing.Callable
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
     ) -> typing.Iterator[pathlib.Path]:
         for directory in self._fixture__search_directories_existing:
             entry = self._fixture__path_entries_cache(directory, filename)
@@ -50,7 +52,7 @@ class SearchPathFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
         directory: bool = False,
     ) -> typing.Iterator[pathlib.Path]:
         for abs_filename in self._fixture_get_search_pathes(filename):
@@ -67,14 +69,14 @@ class GetFilePathFixture(fixture_class.Fixture):
 
     _fixture_search_path: SearchPathFixture
     _fixture_get_search_pathes: GetSearchPathesFixture
-    _fixture__search_directories_existing: typing.Tuple[pathlib.Path, ...]
+    _fixture__search_directories_existing: tuple[pathlib.Path, ...]
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
         *,
         missing_ok=False,
-    ) -> typing.Optional[pathlib.Path]:
+    ) -> pathlib.Path | None:
         for path in self._fixture_search_path(filename):
             return path
         if missing_ok:
@@ -99,10 +101,10 @@ class GetDirectoryPathFixture(GetFilePathFixture):
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
         *,
         missing_ok=False,
-    ) -> typing.Optional[pathlib.Path]:
+    ) -> pathlib.Path | None:
         for path in self._fixture_search_path(filename, directory=True):
             return path
         if missing_ok:
@@ -133,7 +135,7 @@ class OpenFileFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
         mode='r',
         buffering=-1,
         encoding='utf-8',
@@ -170,12 +172,12 @@ class LoadFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
         encoding='utf-8',
         errors=None,
         *,
         missing_ok=False,
-    ) -> typing.Optional[typing.Union[bytes, str]]:
+    ) -> bytes | str | None:
         """Load static text file.
 
         :param filename: static file name part.
@@ -202,7 +204,7 @@ class LoadBinaryFixture(fixture_class.Fixture):
 
     _fixture_get_file_path: GetFilePathFixture
 
-    def __call__(self, filename: annotations.PathOrStr) -> bytes:
+    def __call__(self, filename: type_annotations.PathOrStr) -> bytes:
         """Load static binary file.
 
         :param filename": static file name part
@@ -228,7 +230,7 @@ class JsonLoadsFixture(fixture_class.Fixture):
             json_obj = json_loads('{"key": "value"}')
     """
 
-    _fixture_load_json_defaults: typing.Dict
+    _fixture_load_json_defaults: dict
     _fixture_object_hook: typing.Any
 
     def __call__(self, content, *args, **kwargs) -> typing.Any:
@@ -263,7 +265,7 @@ class LoadJsonFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
         *args,
         missing_ok=False,
         missing=None,
@@ -293,7 +295,7 @@ class LoadYamlFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: annotations.PathOrStr,
+        filename: type_annotations.PathOrStr,
         *args,
         **kwargs,
     ) -> typing.Any:
@@ -306,7 +308,7 @@ class LoadYamlFixture(fixture_class.Fixture):
             ) from exc
 
 
-FilePathsCache = typing.Dict[pathlib.Path, typing.List[pathlib.Path]]
+FilePathsCache = dict[pathlib.Path, list[pathlib.Path]]
 
 get_search_pathes = fixture_class.create_fixture_factory(
     GetSearchPathesFixture,
@@ -346,7 +348,7 @@ def static_dir(testsuite_request_directory) -> pathlib.Path:
 
 
 @pytest.fixture
-def initial_data_path() -> typing.Tuple[pathlib.Path, ...]:
+def initial_data_path() -> tuple[pathlib.Path, ...]:
     """Use this fixture to override base static search path.
 
     .. code-block:: python
@@ -367,7 +369,7 @@ def get_all_static_file_paths(
     static_dir: pathlib.Path,
     _file_paths_cache: FilePathsCache,
 ):
-    def _get_file_paths() -> typing.List[pathlib.Path]:
+    def _get_file_paths() -> list[pathlib.Path]:
         if static_dir not in _file_paths_cache:
             _file_paths_cache[static_dir] = [
                 path for path in static_dir.rglob('') if path.is_file()
@@ -434,10 +436,10 @@ def _file_paths_cache() -> FilePathsCache:
 def _search_directories(
     request,
     static_dir: pathlib.Path,
-    initial_data_path: typing.Tuple[pathlib.Path, ...],
+    initial_data_path: tuple[pathlib.Path, ...],
     testsuite_request_path,
     _path_entries_cache,
-) -> typing.Tuple[pathlib.Path, ...]:
+) -> tuple[pathlib.Path, ...]:
     test_module_name = testsuite_request_path.stem
     node_name = request.node.name
     if '[' in node_name:
@@ -467,14 +469,10 @@ def load_json_defaults():
 @pytest.fixture(scope='session')
 def _cached_stat_path():
     path_type = type(pathlib.Path())
-    stat_cache: typing.Dict[
-        str, typing.Tuple[bool, typing.Union[FileNotFoundError, typing.Any]]
-    ] = {}
-    glob_cache: typing.Dict[typing.Any, typing.Tuple] = {}
-    content_cache: typing.Dict[
-        typing.Any, typing.Union[typing.Tuple, str, bytes]
-    ] = {}
-    iterdir_cache: typing.Dict[str, typing.Tuple] = {}
+    stat_cache: dict[str, tuple[bool, FileNotFoundError | typing.Any]] = {}
+    glob_cache: dict[typing.Any, tuple] = {}
+    content_cache: dict[typing.Any, tuple | str | bytes] = {}
+    iterdir_cache: dict[str, tuple] = {}
 
     class CachedStatPath(path_type):  # type: ignore[valid-type]
         def stat(self, *, follow_symlinks=True):

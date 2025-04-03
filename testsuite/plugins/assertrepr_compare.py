@@ -201,7 +201,7 @@ def _compare_pair(
     records_limit=None,
     key_maker_kwargs=None,
     repr_func=None,
-) -> typing.List[str]:
+) -> list[str]:
     def _group_by_type(cmp_result):
         total_records = 0
         default_dict = {'parts': [], 'extra_count': 0}
@@ -219,7 +219,7 @@ def _compare_pair(
                 groups[cmp_type]['extra_count'] += 1
         return groups
 
-    def _to_explanations(cmp_results_by_type) -> typing.List[typing.List[str]]:
+    def _to_explanations(cmp_results_by_type) -> list[list[str]]:
         key_maker = ReprKeyMaker(**(key_maker_kwargs or {}))
         groups = []
         for cmp_type, to_repr in sorted(
@@ -244,10 +244,10 @@ def _compare_pair(
 
     if type(left) is not type(right) or type(left) not in TYPES:
         raise ValueError(
-            'Incorrect input types: %s, %s' % (type(left), type(right)),
+            'Incorrect input types: {}, {}'.format(type(left), type(right)),
         )
     if left == right:
-        raise ValueError('Input equal! %s == %s' % (left, right))
+        raise ValueError('Input equal! {} == {}'.format(left, right))
     if repr_func is None:
         repr_func = pprint.pformat
 
@@ -265,11 +265,11 @@ def _compare_pair(
     )
 
     cmp_result_by_type = _group_by_type(repr_cmp_result)
-    type_explanations_list: typing.List[typing.List[str]] = _to_explanations(
+    type_explanations_list: list[list[str]] = _to_explanations(
         cmp_result_by_type
     )
 
-    explanation: typing.List[str] = [
+    explanation: list[str] = [
         'failed for %s:' % _get_summary(left, right, '=='),
     ]
     for type_explanations in type_explanations_list:
@@ -316,7 +316,7 @@ def _make_repr_lines(cmp_info, repr_func):
             _get_repr_lines(cmp_info.left_value),
         )
     elif cmp_info.cmp_type == CMP_INCONSISTENCY_TYPES:
-        info = '%s != %s' % (cmp_info.left_value, cmp_info.right_value)
+        info = '{} != {}'.format(cmp_info.left_value, cmp_info.right_value)
         repr_lines = [info]
     elif cmp_info.cmp_type == CMP_SIMPLE_DIFF:
         repr_lines = _merge_lines(
@@ -328,7 +328,7 @@ def _make_repr_lines(cmp_info, repr_func):
             repr_lines.insert(0, '')
     else:
         raise ValueError(
-            'Incorrect cmp type %s: %s' % (cmp_info.cmp_type, cmp_info),
+            'Incorrect cmp type {}: {}'.format(cmp_info.cmp_type, cmp_info),
         )
     return repr_lines
 
@@ -353,7 +353,7 @@ def _format_cmp_part(repr_key, repr_lines):
     ident = '    '
     prefix = ' * '
     if repr_key is not NOT_A_KEY:
-        lines = [('%s%s: ' % (prefix, repr_key)) + repr_lines[0]]
+        lines = [('{}{}: '.format(prefix, repr_key)) + repr_lines[0]]
         extra_lines_ind = 1
     elif repr_lines[0] != '':
         lines = [prefix + repr_lines[0]]
@@ -373,7 +373,7 @@ def _get_summary(left, right, oper):
     left_repr = py.io.saferepr(left, maxsize=int(width // 2))
     right_repr = py.io.saferepr(right, maxsize=width - len(left_repr))
 
-    return '%s %s %s' % (left_repr, oper, right_repr)
+    return '{} {} {}'.format(left_repr, oper, right_repr)
 
 
 def _get_full_diff(left, right):

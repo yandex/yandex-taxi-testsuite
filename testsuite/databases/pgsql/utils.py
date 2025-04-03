@@ -4,7 +4,7 @@ import typing
 import urllib.parse
 
 
-def scan_sql_directory(root: pathlib.Path) -> typing.List[pathlib.Path]:
+def scan_sql_directory(root: pathlib.Path) -> list[pathlib.Path]:
     return [
         path
         for path in sorted(root.iterdir())

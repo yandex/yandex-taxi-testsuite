@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import email
 import json
 import typing
@@ -73,7 +75,7 @@ class Request:
         self._request = request
         self._data: bytes = data
         self._json: object = None
-        self._form: typing.Optional[typing.Dict[str, str]] = None
+        self._form: dict[str, str] | None = None
 
     @property
     def method(self) -> str:
@@ -191,12 +193,12 @@ async def wrap_request(request: aiohttp.web.BaseRequest) -> Request:
 class Response:
     def __init__(
         self,
-        body: typing.Optional[typing.Union[bytes, bytearray]] = None,
-        text: typing.Optional[str] = None,
+        body: bytes | bytearray | None = None,
+        text: str | None = None,
         status: int = 200,
-        headers: typing.Optional[typing.Mapping[str, str]] = None,
-        content_type: typing.Optional[str] = None,
-        charset: typing.Optional[str] = None,
+        headers: typing.Mapping[str, str] | None = None,
+        content_type: str | None = None,
+        charset: str | None = None,
     ):
         if body and text:
             raise RuntimeError(
@@ -237,8 +239,8 @@ class ClientResponse:
     ):
         self._response = response
         self._content: bytes = content
-        self._text: typing.Optional[str] = None
-        self._form: typing.Optional[typing.Dict[str, str]] = None
+        self._text: str | None = None
+        self._form: dict[str, str] | None = None
         self._json_loads = json_loads
 
     def __repr__(self):
@@ -257,7 +259,7 @@ class ClientResponse:
         return self._response.status
 
     @property
-    def reason(self) -> typing.Optional[str]:
+    def reason(self) -> str | None:
         return self._response.reason
 
     @property
@@ -326,11 +328,11 @@ async def wrap_client_response(
 
 
 def make_response(
-    response: typing.Optional[typing.Union[str, bytes, bytearray]] = None,
+    response: str | bytes | bytearray | None = None,
     status: int = 200,
-    headers: typing.Optional[typing.Mapping[str, str]] = None,
-    content_type: typing.Optional[str] = None,
-    charset: typing.Optional[str] = None,
+    headers: typing.Mapping[str, str] | None = None,
+    content_type: str | None = None,
+    charset: str | None = None,
     *,
     json=_NoValue,
     form=_NoValue,

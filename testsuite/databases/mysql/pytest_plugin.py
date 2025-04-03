@@ -28,7 +28,7 @@ def pytest_service_register(register_service):
 
 
 @pytest.fixture
-def mysql(_mysql, _mysql_apply) -> typing.Dict[str, control.ConnectionWrapper]:
+def mysql(_mysql, _mysql_apply) -> dict[str, control.ConnectionWrapper]:
     """MySQL fixture.
 
     Returns dictionary where key is database alias and value is

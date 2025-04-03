@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pathlib
 import typing
 import urllib.parse
@@ -16,8 +18,8 @@ SCRIPTS_DIR = PLUGIN_DIR.joinpath('scripts')
 def create_service(
     service_name: str,
     working_dir: str,
-    settings: typing.Optional[classes.ServiceSettings] = None,
-    env: typing.Optional[typing.Dict[str, str]] = None,
+    settings: classes.ServiceSettings | None = None,
+    env: dict[str, str] | None = None,
 ):
     if settings is None:
         settings = get_service_settings()

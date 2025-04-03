@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import pathlib
 import typing
@@ -16,9 +18,9 @@ class ConnectionInfo:
 
     port: int = 3306
     hostname: str = 'localhost'
-    user: typing.Optional[str] = None
-    password: typing.Optional[str] = None
-    dbname: typing.Optional[str] = None
+    user: str | None = None
+    password: str | None = None
+    dbname: str | None = None
 
     def replace(self, **kwargs) -> 'ConnectionInfo':
         """Returns new instance with attributes updated."""
@@ -36,10 +38,10 @@ class ServiceSettings:
 @dataclasses.dataclass(frozen=True)
 class DatabaseConfig:
     dbname: str
-    migrations: typing.List[pathlib.Path]
+    migrations: list[pathlib.Path]
     create: bool = True
     keep_tables: typing.Sequence[str] = ()
     truncate_non_empty: bool = False
 
 
-DatabasesDict = typing.Dict[str, DatabaseConfig]
+DatabasesDict = dict[str, DatabaseConfig]

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import dataclasses
 import logging
@@ -15,14 +17,14 @@ class ServiceSettings:
     server_host: str
     server_port: int
     controller_port: int
-    custom_start_topics: typing.Dict[str, int]
+    custom_start_topics: dict[str, int]
 
 
 """Kafka bootstrap servers URLs list"""
-BootstrapServers = typing.List[str]
+BootstrapServers = list[str]
 
 """Kafka message header"""
-Header = typing.Tuple[str, bytes]
+Header = tuple[str, bytes]
 
 """
     Kafka headers sequence.
@@ -56,10 +58,10 @@ class KafkaProducer:
     async def send(
         self,
         topic: str,
-        key: typing.Union[str, bytes],
-        value: typing.Union[str, bytes],
-        partition: typing.Optional[int] = None,
-        headers: typing.Optional[Headers] = None,
+        key: str | bytes,
+        value: str | bytes,
+        partition: int | None = None,
+        headers: Headers | None = None,
     ):
         """
         Sends the message (``value``) to ``topic`` by ``key`` and,
@@ -83,10 +85,10 @@ class KafkaProducer:
     async def send_async(
         self,
         topic: str,
-        key: typing.Union[str, bytes],
-        value: typing.Union[str, bytes],
-        partition: typing.Optional[int] = None,
-        headers: typing.Optional[Headers] = None,
+        key: str | bytes,
+        value: str | bytes,
+        partition: int | None = None,
+        headers: Headers | None = None,
     ):
         """
         Sends the message (``value``) to ``topic`` by ``key`` and,
@@ -148,7 +150,7 @@ class ConsumedMessage:
         return self.value_raw.decode()
 
     @property
-    def headers(self) -> typing.List[Header]:
+    def headers(self) -> list[Header]:
         return list(self.headers_raw)
 
 
@@ -163,7 +165,7 @@ class KafkaConsumer:
     def __init__(self, enabled: bool, bootstrap_servers):
         self._enabled = enabled
         self._bootstrap_servers = bootstrap_servers
-        self._subscribed_topics: typing.List[str] = []
+        self._subscribed_topics: list[str] = []
 
     async def start(self):
         if self._enabled:
@@ -175,11 +177,11 @@ class KafkaConsumer:
             )
             await self.consumer.start()
 
-    def _subscribe(self, topics: typing.List[str]):
+    def _subscribe(self, topics: list[str]):
         if not self._enabled:
             raise KafkaDisabledError
 
-        to_subscribe: typing.List[str] = []
+        to_subscribe: list[str] = []
         for topic in topics:
             if topic not in self._subscribed_topics:
                 to_subscribe.append(topic)
@@ -205,7 +207,7 @@ class KafkaConsumer:
             self._subscribed_topics = []
 
     async def receive_one(
-        self, topics: typing.List[str], timeout: float = 20.0
+        self, topics: list[str], timeout: float = 20.0
     ) -> ConsumedMessage:
         """
         Waits until one message are consumed.
@@ -228,10 +230,10 @@ class KafkaConsumer:
 
     async def receive_batch(
         self,
-        topics: typing.List[str],
-        max_batch_size: typing.Optional[int],
+        topics: list[str],
+        max_batch_size: int | None,
         timeout: float = 3.0,
-    ) -> typing.List[ConsumedMessage]:
+    ) -> list[ConsumedMessage]:
         """
         Waits until either ``max_batch_size`` messages are consumed or
         ``timeout`` expired.
@@ -247,8 +249,8 @@ class KafkaConsumer:
 
         self._subscribe(topics)
 
-        records: typing.Dict[
-            aiokafka.TopicPartition, typing.List[aiokafka.ConsumerRecord]
+        records: dict[
+            aiokafka.TopicPartition, list[aiokafka.ConsumerRecord]
         ] = await self.consumer.getmany(
             timeout_ms=int(timeout * 1000), max_records=max_batch_size
         )

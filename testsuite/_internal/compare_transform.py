@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections
 import contextlib
 import typing
@@ -12,8 +14,8 @@ SetTypes = (set, frozenset)
 
 
 class CompareTransform:
-    path: typing.List[str]
-    errors: typing.DefaultDict[str, typing.List[str]]
+    path: list[str]
+    errors: typing.DefaultDict[str, list[str]]
 
     def __init__(self):
         self.path = ['left']
@@ -25,7 +27,7 @@ class CompareTransform:
 
     def visit(
         self, left: typing.Any, right: typing.Any
-    ) -> typing.Tuple[typing.Any, typing.Any]:
+    ) -> tuple[typing.Any, typing.Any]:
         if left == right:
             return left, left
 
@@ -42,9 +44,9 @@ class CompareTransform:
 
     def visit_list(
         self,
-        left: typing.Union[list, tuple],
+        left: list | tuple,
         right: typing.Any,
-    ) -> typing.Tuple:
+    ) -> tuple:
         if not isinstance(right, list):
             self.report_error(
                 f'list expected on the right got {saferepr(right)} instead',
@@ -80,7 +82,7 @@ class CompareTransform:
                 right_result.append(item)
         return left_result, right_result
 
-    def visit_dict(self, left: typing.Dict, right: typing.Any) -> typing.Tuple:
+    def visit_dict(self, left: dict, right: typing.Any) -> tuple:
         if not isinstance(right, dict):
             self.report_error(
                 f'dict expected on the right, got {saferepr(right)} instead'
@@ -122,9 +124,9 @@ class CompareTransform:
 
     def visit_set(
         self,
-        left: typing.Union[set, frozenset],
+        left: set | frozenset,
         right: typing.Any,
-    ) -> typing.Tuple:
+    ) -> tuple:
         if not isinstance(right, SetTypes):
             self.report_error(
                 f'set expected on the right got {saferepr(right)} instead',

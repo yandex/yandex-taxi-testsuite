@@ -7,11 +7,12 @@ import signal
 import subprocess
 import sys
 import time
-from typing import AsyncGenerator, Dict, Sequence
+from collections.abc import AsyncGenerator, Sequence
+from typing import Dict
 
 from testsuite.utils import compat, traceback
 
-SIGNAL_ERRORS: Dict[int, str] = {
+SIGNAL_ERRORS: dict[int, str] = {
     signal.SIGSEGV: (
         'Service crashed with {signal_name} signal (segmentation fault)'
     ),
@@ -19,7 +20,7 @@ SIGNAL_ERRORS: Dict[int, str] = {
 }
 DEFAULT_SIGNAL_ERROR = 'Service terminated by {signal_name} signal'
 
-_KNOWN_SIGNALS: Dict[int, str] = {
+_KNOWN_SIGNALS: dict[int, str] = {
     signal.SIGABRT: 'SIGABRT',
     signal.SIGBUS: 'SIGBUS',
     signal.SIGFPE: 'SIGFPE',

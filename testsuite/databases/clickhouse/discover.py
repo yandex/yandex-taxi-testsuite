@@ -6,9 +6,9 @@ from . import classes, utils
 
 
 def find_schemas(
-    schema_dirs: typing.List[pathlib.Path],
+    schema_dirs: list[pathlib.Path],
     dbprefix: str = 'testsuite-',
-) -> typing.Dict[str, classes.DatabaseConfig]:
+) -> dict[str, classes.DatabaseConfig]:
     result = {}
     for path in schema_dirs:
         if not path.is_dir():
@@ -25,7 +25,7 @@ def find_schemas(
 
 def _scan_path(
     schema_path: pathlib.Path,
-) -> typing.DefaultDict[str, typing.List[pathlib.Path]]:
+) -> typing.DefaultDict[str, list[pathlib.Path]]:
     result = collections.defaultdict(list)
     for entry in schema_path.iterdir():
         if entry.suffix == '.sql' and entry.is_file():

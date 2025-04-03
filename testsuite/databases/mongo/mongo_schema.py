@@ -2,21 +2,21 @@ import collections.abc
 import pathlib
 import typing
 
-from testsuite import annotations
+from testsuite import type_annotations
 from testsuite.utils import yaml_util
 
 
 class MongoSchema(collections.abc.Mapping):
     _directory: pathlib.Path
-    _loaded: typing.Dict[str, typing.Dict]
-    _paths: typing.Dict[str, pathlib.Path]
+    _loaded: dict[str, dict]
+    _paths: dict[str, pathlib.Path]
 
-    def __init__(self, directory: annotations.PathOrStr) -> None:
+    def __init__(self, directory: type_annotations.PathOrStr) -> None:
         self._directory = pathlib.Path(directory)
         self._loaded = {}
         self._paths = _get_paths(self._directory)
 
-    def __getitem__(self, name: str) -> typing.Dict:
+    def __getitem__(self, name: str) -> dict:
         if name not in self._paths:
             raise KeyError(f'Missing schema file for collection {name}')
         if name not in self._loaded:
@@ -36,9 +36,9 @@ class MongoSchema(collections.abc.Mapping):
 
 class MongoSchemaCache:
     def __init__(self) -> None:
-        self._cache: typing.Dict[pathlib.Path, MongoSchema] = {}
+        self._cache: dict[pathlib.Path, MongoSchema] = {}
 
-    def get_schema(self, directory: annotations.PathOrStr) -> MongoSchema:
+    def get_schema(self, directory: type_annotations.PathOrStr) -> MongoSchema:
         directory = pathlib.Path(directory)
         if directory not in self._cache:
             self._cache[directory] = MongoSchema(directory)
@@ -49,13 +49,13 @@ class MongoSchemas(collections.abc.Mapping):
     def __init__(
         self,
         cache: MongoSchemaCache,
-        directories: typing.Iterable[annotations.PathOrStr],
+        directories: typing.Iterable[type_annotations.PathOrStr],
     ):
         self._cache = cache
         self._directories = [
             pathlib.Path(directory) for directory in directories
         ]
-        self._schema_by_collection: typing.Dict[str, MongoSchema] = {}
+        self._schema_by_collection: dict[str, MongoSchema] = {}
         for directory in self._directories:
             schema = cache.get_schema(directory)
             for name in schema:
@@ -74,8 +74,7 @@ class MongoSchemas(collections.abc.Mapping):
 
     def __iter__(self):
         for directory in self._directories:
-            for name in self._cache.get_schema(directory):
-                yield name
+            yield from self._cache.get_schema(directory)
 
     def __len__(self) -> int:
         return sum(
@@ -84,5 +83,5 @@ class MongoSchemas(collections.abc.Mapping):
         )
 
 
-def _get_paths(directory: pathlib.Path) -> typing.Dict[str, pathlib.Path]:
+def _get_paths(directory: pathlib.Path) -> dict[str, pathlib.Path]:
     return {path.stem: path for path in directory.glob('*.yaml')}

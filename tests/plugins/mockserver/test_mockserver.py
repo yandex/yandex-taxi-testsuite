@@ -25,7 +25,7 @@ class Client:
 
 
 def _build_url(base_url, path):
-    return '%s/%s' % (base_url.rstrip('/'), path.lstrip('/'))
+    return '{}/{}'.format(base_url.rstrip('/'), path.lstrip('/'))
 
 
 @pytest.fixture

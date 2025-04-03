@@ -1,4 +1,6 @@
 # pylint: disable=no-member
+from __future__ import annotations
+
 import typing
 import urllib.parse
 
@@ -14,13 +16,13 @@ class PgConnectionInfo(typing.NamedTuple):
     PostgreSQL connection parameters
     """
 
-    host: typing.Optional[str] = None
-    port: typing.Optional[int] = None
-    user: typing.Optional[str] = None
-    password: typing.Optional[str] = None
-    options: typing.Optional[str] = None
-    sslmode: typing.Optional[str] = None
-    dbname: typing.Optional[str] = None
+    host: str | None = None
+    port: int | None = None
+    user: str | None = None
+    password: str | None = None
+    options: str | None = None
+    sslmode: str | None = None
+    dbname: str | None = None
 
     def get_dsn(self) -> str:
         """PostgreSQL connection string in DSN format"""

@@ -19,7 +19,7 @@ class Foo:
         return self.val == other.val
 
     def __repr__(self):
-        return 'Foo(%s)' % (self.val,)
+        return 'Foo({})'.format(self.val)
 
     def __hash__(self):
         return hash(self.val)

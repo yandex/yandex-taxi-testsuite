@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pathlib
 import typing
 
@@ -12,7 +14,7 @@ class Hookspec:
 
 
 class TestsuiteEnvironmentPlugin:
-    _env: typing.Optional[control.TestsuiteEnvironment]
+    _env: control.TestsuiteEnvironment | None
 
     def __init__(self):
         self._env = None

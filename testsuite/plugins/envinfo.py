@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import socket
 import subprocess
 import sys
@@ -20,14 +22,14 @@ def pytest_addoption(parser):
 def pytest_report_header(config):
     headers = [
         'args: {}'.format(' '.join(sys.argv)),
-        'hostname: {}'.format(socket.gethostname()),
+        f'hostname: {socket.gethostname()}',
     ]
     if not config.option.envinfo_no_git:
         headers.extend(get_vcs_info())
     return headers
 
 
-def get_vcs_info() -> typing.List[str]:
+def get_vcs_info() -> list[str]:
     try:
         commit = subprocess_helper.sh('git', 'rev-parse', 'HEAD')
         branch = subprocess_helper.sh(
@@ -62,7 +64,7 @@ def git_is_clean() -> bool:
     return True
 
 
-def git_merge_base() -> typing.Optional[str]:
+def git_merge_base() -> str | None:
     """Try to guess merge base for current commit."""
     try:
         remotes = set(subprocess_helper.sh('git', 'remote').splitlines())

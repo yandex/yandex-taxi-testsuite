@@ -15,9 +15,9 @@ DB_FILE_RE_PATTERN = re.compile(r'/pg_(?P<pg_db_alias>\w+)(/?\w*)\.sql$')
 class ServiceLocalConfig(collections.abc.Mapping):
     def __init__(
         self,
-        databases: typing.List[discover.PgShardedDatabase],
+        databases: list[discover.PgShardedDatabase],
         pgsql_control: control.PgControl,
-        cleanup_exclude_tables: typing.FrozenSet[str],
+        cleanup_exclude_tables: frozenset[str],
     ):
         self._initialized = False
         self._pgsql_control = pgsql_control
@@ -46,7 +46,7 @@ class ServiceLocalConfig(collections.abc.Mapping):
 
     def initialize(
         self, parallel_init: bool
-    ) -> typing.Dict[str, control.ConnectionWrapper]:
+    ) -> dict[str, control.ConnectionWrapper]:
         if self._initialized:
             return self._shard_connections
 
@@ -115,12 +115,12 @@ def pytest_service_register(register_service):
 
 
 @pytest.fixture(scope='session')
-def pgsql_cleanup_exclude_tables() -> typing.FrozenSet[str]:
+def pgsql_cleanup_exclude_tables() -> frozenset[str]:
     return frozenset()
 
 
 @pytest.fixture
-def pgsql(_pgsql, pgsql_apply) -> typing.Dict[str, control.PgDatabaseWrapper]:
+def pgsql(_pgsql, pgsql_apply) -> dict[str, control.PgDatabaseWrapper]:
     """
     Returns str to
     :py:class:`testsuite.databases.pgsql.control.PgDatabaseWrapper` dictionary
@@ -145,7 +145,7 @@ def pgsql_local_create(
     _pgsql_control,
     pgsql_cleanup_exclude_tables,
 ) -> typing.Callable[
-    [typing.List[discover.PgShardedDatabase]],
+    [list[discover.PgShardedDatabase]],
     ServiceLocalConfig,
 ]:
     """Creates pgsql configuration.
@@ -223,7 +223,7 @@ def _pgsql(
     pgsql_cleanup_exclude_tables,
     pgsql_disabled: bool,
     pgsql_parallelization_enabled: bool,
-) -> typing.Dict[str, control.ConnectionWrapper]:
+) -> dict[str, control.ConnectionWrapper]:
     if pgsql_disabled:
         pgsql_local = ServiceLocalConfig(
             [],
@@ -241,7 +241,7 @@ def pgsql_background_truncate_enabled():
 @pytest.fixture
 def _pgsql_apply_queries(
     request, _pgsql: ServiceLocalConfig, _pgsql_query_loader
-) -> typing.Dict[str, typing.List[control.PgQuery]]:
+) -> dict[str, list[control.PgQuery]]:
     def pgsql_default_queries(dbname):
         return [
             *_pgsql_query_loader.load(
@@ -288,12 +288,14 @@ def _pgsql_apply_queries(
 
     overrides: typing.DefaultDict[
         str,
-        typing.List[control.PgQuery],
+        list[control.PgQuery],
     ] = collections.defaultdict(list)
     for mark in request.node.iter_markers('pgsql'):
         dbname, queries = pgsql_mark(*mark.args, **mark.kwargs)
         if dbname not in _pgsql:
-            raise exceptions.PostgresqlError('Unknown database %s' % (dbname,))
+            raise exceptions.PostgresqlError(
+                'Unknown database {}'.format(dbname)
+            )
         overrides[dbname].extend(queries)
 
     queries = {}
@@ -362,7 +364,7 @@ def _pgsql_query_loader(get_file_path, get_directory_path, mockserver_info):
     def substitute_mockserver(str_val: str):
         return str_val.replace(
             '$mockserver',
-            'http://{}:{}'.format(mockserver_info.host, mockserver_info.port),
+            f'http://{mockserver_info.host}:{mockserver_info.port}',
         )
 
     def load_pg_file(path, source):

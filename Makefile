@@ -1,6 +1,6 @@
 VENV_DOCS_PATH  = .venv-docs
 VENV_DEV_PATH   = .venv-dev
-VENV_PYTHON     = $(firstword $(shell which python3.9 python3.8 python3.7 python3 2> /dev/null))
+VENV_PYTHON     = $(firstword $(shell which python3.9 python3 2> /dev/null))
 
 VENV_COMMON_DEPS = setup.py setup.cfg requirements.txt
 VENV_DEV_DEPS = $(VENV_COMMON_DEPS) docs/examples/requirements.txt

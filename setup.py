@@ -21,10 +21,7 @@ setuptools.setup(
         'clickhouse': ['clickhouse-driver>=0.2.0'],
         'redis': ['python-redis>=0.2.1', 'redis>=2.10.6'],
         'mysql': ['PyMySQL>=0.9.2'],
-        'rabbitmq': [
-            'aio-pika==7.2.0; python_version < "3.7"',
-            'aio-pika>=8.1.0; python_version >= "3.7"',
-        ],
+        'rabbitmq': ['aio-pika>=8.1.0'],
         'kafka': ['aiokafka>=0.9.0'],
     },
     setup_requires=['pytest-runner'],

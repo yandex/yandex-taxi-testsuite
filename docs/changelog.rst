@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.2.22
+~~~~~~
+
+- Support external develop branch
+- Fix assertrepr_compare_experimental mapping usage (#176)
+
 0.2.21
 ~~~~~~
 

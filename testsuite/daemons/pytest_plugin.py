@@ -21,6 +21,7 @@ from testsuite._internal import fixture_class, fixture_types
 from testsuite.utils import compat
 
 from . import service_client, service_daemon
+from .spawn import __tracebackhide__  # noqa: F401
 
 SHUTDOWN_SIGNALS = {
     'SIGINT': signal.SIGINT,

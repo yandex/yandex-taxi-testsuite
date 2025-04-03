@@ -26,6 +26,7 @@ from testsuite.utils import (
 from testsuite.utils import net as net_utils
 
 from . import classes, exceptions, magicargs
+from .exceptions import __tracebackhide__  # noqa: F401
 
 DEFAULT_TRACE_ID_HEADER = 'X-YaTraceId'
 DEFAULT_SPAN_ID_HEADER = 'X-YaSpanId'

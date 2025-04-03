@@ -16,6 +16,7 @@ import psycopg2.extras
 from testsuite.environment import shell
 
 from . import connection, discover, exceptions, pool, service, testsuite_db
+from .exceptions import __tracebackhide__  # noqa: F401
 
 logger = logging.getLogger(__name__)
 

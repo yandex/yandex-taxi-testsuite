@@ -2,6 +2,8 @@ import pathlib
 
 import pytest
 
+pytest_plugins = ['testsuite.databases.mongo.pytest_plugin']
+
 
 @pytest.fixture(scope='session')
 def schemas_directory() -> pathlib.Path:

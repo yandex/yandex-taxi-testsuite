@@ -11,8 +11,8 @@ PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
 
 TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
 
-TEST_CASES=$(filter-out __%__,$(patsubst tests/%/,%,$(shell ls --color=never -d tests/*/)))
-TEST_DATABASE_CASES=$(filter-out __%__,$(patsubst tests/databases/%/,%,$(shell ls --color=never -d tests/databases/*/)))
+TEST_CASES=$(filter-out __%__ static,$(patsubst tests/%/,%,$(shell ls --color=never -d tests/*/)))
+TEST_DATABASE_CASES=$(filter-out __%__ static,$(patsubst tests/databases/%/,%,$(shell ls --color=never -d tests/databases/*/)))
 
 .PHONY: tests
 

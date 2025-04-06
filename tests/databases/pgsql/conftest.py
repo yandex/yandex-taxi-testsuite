@@ -1,5 +1,7 @@
 import pytest
 
+pytest_plugins = ['testsuite.databases.pgsql.pytest_plugin']
+
 
 @pytest.fixture(scope='session')
 def pgsql_cleanup_exclude_tables():

@@ -22,7 +22,7 @@ $(foreach case,$(TEST_CASES),test-$(case)): test-%:
 $(foreach case,$(TEST_DATABASE_CASES),test-databases-$(case)): test-databases-%:
 	python3 -m pytest -v tests/databases/$* $(PYTEST_ARGS)
 
-test: $(addprefix test-,$(TEST_CASES)) $(addprefix test-databases-,$(TEST_DATABASE_CASES))
+tests: $(addprefix test-,$(TEST_CASES)) $(addprefix test-databases-,$(TEST_DATABASE_CASES))
 
 test-examples:
 	make -C docs/examples runtests
@@ -41,7 +41,7 @@ format:
 	ruff format .
 	ruff check --ignore ALL --select I --fix .
 
-venv-test:
+venv-tests:
 venv-check-linters:
 venv-check-mypy:
 venv-check-format:

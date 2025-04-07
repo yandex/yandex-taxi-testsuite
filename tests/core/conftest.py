@@ -8,18 +8,7 @@ from testsuite._internal import fixture_types
 from testsuite.daemons import service_client
 
 pytest_plugins = [
-    'pytester',
     'testsuite.pytest_plugin',
-    # Databases
-    'testsuite.databases.mongo.pytest_plugin',
-    'testsuite.databases.pgsql.pytest_plugin',
-    'testsuite.databases.redis.pytest_plugin',
-    'testsuite.databases.mysql.pytest_plugin',
-    'testsuite.databases.clickhouse.pytest_plugin',
-    # RabbitMQ
-    'testsuite.databases.rabbitmq.pytest_plugin',
-    # Kafka
-    'testsuite.databases.kafka.pytest_plugin',
 ]
 
 

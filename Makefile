@@ -11,8 +11,8 @@ PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
 
 TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
 
-TEST_CASES=$(filter-out __%__,$(patsubst tests/%/,%,$(shell ls --color=never -d tests/*/)))
-TEST_DATABASE_CASES=$(filter-out __%__,$(patsubst tests/databases/%/,%,$(shell ls --color=never -d tests/databases/*/)))
+TEST_CASES = core
+TEST_DATABASE_CASES = $(filter-out __%__ static,$(shell find tests/databases -maxdepth 1 -type d | xargs basename  -a))
 
 .PHONY: tests
 
@@ -22,10 +22,7 @@ $(foreach case,$(TEST_CASES),test-$(case)): test-%:
 $(foreach case,$(TEST_DATABASE_CASES),test-databases-$(case)): test-databases-%:
 	python3 -m pytest -v tests/databases/$* $(PYTEST_ARGS)
 
-test-core: $(addprefix test-,$(filter-out databases,$(TEST_CASES)))
-
-tests:
-	python3 -m pytest -v tests/ $(PYTEST_ARGS)
+test: $(addprefix test-,$(TEST_CASES)) $(addprefix test-databases-,$(TEST_DATABASE_CASES))
 
 test-examples:
 	make -C docs/examples runtests
@@ -44,7 +41,7 @@ format:
 	ruff format .
 	ruff check --ignore ALL --select I --fix .
 
-venv-tests:
+venv-test:
 venv-check-linters:
 venv-check-mypy:
 venv-check-format:

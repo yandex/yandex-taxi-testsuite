@@ -44,5 +44,5 @@ def test_hash_changes_with_file_name(temp_dir_path):
 
 
 @pytest.fixture
-def temp_dir_path(testdir):
-    return pathlib.Path(testdir.tmpdir.strpath)
+def temp_dir_path(tmp_path_factory):
+    return pathlib.Path(tmp_path_factory.mktemp('pgsql'))

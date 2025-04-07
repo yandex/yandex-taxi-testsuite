@@ -22,7 +22,7 @@ $(foreach case,$(TEST_CASES),test-$(case)): test-%:
 $(foreach case,$(TEST_DATABASE_CASES),test-databases-$(case)): test-databases-%:
 	python3 -m pytest -v tests/databases/$* $(PYTEST_ARGS)
 
-tests: $(addprefix test-databases-,$(TEST_DATABASE_CASES)) $(addprefix test-,$(TEST_CASES))
+tests: $(addprefix test-,$(TEST_CASES)) $(addprefix test-databases-,$(TEST_DATABASE_CASES))
 
 test-examples:
 	make -C docs/examples runtests

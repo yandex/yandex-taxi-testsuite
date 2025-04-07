@@ -12,7 +12,7 @@ PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
 TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
 
 TEST_CASES = core
-TEST_DATABASE_CASES = $(filter-out __%__ static,$(shell find tests/databases -maxdepth 1 -type d | xargs basename  -a))
+TEST_DATABASE_CASES = $(filter-out __%__ static databases,$(shell find tests/databases -maxdepth 1 -type d | xargs basename  -a))
 
 .PHONY: tests
 
@@ -22,7 +22,7 @@ $(foreach case,$(TEST_CASES),test-$(case)): test-%:
 $(foreach case,$(TEST_DATABASE_CASES),test-databases-$(case)): test-databases-%:
 	python3 -m pytest -v tests/databases/$* $(PYTEST_ARGS)
 
-tests: $(addprefix test-,$(TEST_CASES)) $(addprefix test-databases-,$(TEST_DATABASE_CASES))
+tests: $(addprefix test-databases-,$(TEST_DATABASE_CASES)) $(addprefix test-,$(TEST_CASES))
 
 test-examples:
 	make -C docs/examples runtests

@@ -64,12 +64,12 @@ jobs:
         env:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-k redis -vvs"
+          PYTEST_ARGS: "-vvs"
         run: |
           brew uninstall redis
           rm -rf /opt/homebrew/etc/redis-sentinel.conf /opt/homebrew/etc/redis.conf
           brew install valkey
-          make venv-tests
+          make venv-test-databases-redis
       - name: Build documentation
         if: matrix.python-version != '3.13'
         run: |

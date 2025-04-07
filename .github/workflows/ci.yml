@@ -86,20 +86,20 @@ jobs:
         env:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-k mysql -vvs"
+          PYTEST_ARGS: "-vvs"
         run: |
           curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash
           sudo apt install -y mariadb-server
-          make venv-tests
+          make venv-test-databases-mysql
       - name: Rerun redis tests with Valkey
         env:
           TESTSUITE_ALLOW_ROOT: 1
           TESTSUITE_DEBUG: 1
-          PYTEST_ARGS: "-k redis -vvs"
+          PYTEST_ARGS: "-vvs"
         run: |
           sudo apt remove -y redis-server
           sudo apt install -y valkey-server
-          make venv-tests
+          make venv-test-databases-redis
       - name: Build documentation
         run: |
           make build-docs

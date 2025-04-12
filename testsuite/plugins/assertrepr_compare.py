@@ -161,9 +161,8 @@ def pytest_addoption(parser):
     )
     group.addoption(
         '--assert-transform-mode',
-        choices=[i.name for i in list(compare_transform.TransformMode)],
-        type=compare_transform.TransformMode,
-        default=compare_transform.TransformMode.DEFAULT,
+        choices=['default', 'experimental'],
+        default='default',
         help='Transformation mode in assertion representation',
     )
 
@@ -173,7 +172,9 @@ def pytest_configure(config):
         config.pluginmanager.register(
             assertrepr_compare_experimental.AssertionPlugin(
                 assertrepr_compare_experimental.AssertMode.COMBINE,
-                config.option.assert_transform_mode,
+                compare_transform.TransformMode(
+                    config.option.assert_transform_mode
+                ),
             )
         )
 

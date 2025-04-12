@@ -22,8 +22,36 @@ def test_basic():
     }
 
 
-def test_match_error():
-    comparator = compare_transform.CompareTransform()
+def test_experimental_basic():
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.EXPERIMENTAL
+    )
+    left_mapped, right_mapped = comparator.visit(
+        [4, 3, 2, 1],
+        matching.unordered_list([1, 2, 4]),
+    )
+
+    assert left_mapped == [1, 2, 3, 4]
+    assert right_mapped == [1, 2, 4]
+
+    assert comparator.errors == {
+        'left': [
+            'list length does not match: len(left)=4 len(right)=3',
+            '[3]: extra item on the left: 4',
+        ],
+        'left[2]': ['3 != 4'],
+    }
+
+
+@pytest.mark.parametrize(
+    'mode',
+    (
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.TransformMode.EXPERIMENTAL,
+    ),
+)
+def test_match_error(mode):
+    comparator = compare_transform.CompareTransform(mode)
     comparator.visit(
         matching.unordered_list([1, 2, 4]),
         42,
@@ -52,6 +80,28 @@ def test_order_restore(left, right, expected):
     )
 
     assert right_mapped == expected
+
+
+@pytest.mark.parametrize(
+    ('left', 'right', 'expected'),
+    [
+        ([3, 2, 1], matching.unordered_list([1, 2, 4, 5, 6]), [1, 2, 3]),
+        ([3, 2, 1], matching.unordered_list([1, 2]), [1, 2, 3]),
+        ([3, 2, 1], matching.unordered_list([0, 1]), [1, 2, 3]),
+        ([3, 2, 1], matching.unordered_list([0]), [1, 2, 3]),
+    ],
+)
+def test_order_restore_experimental(left, right, expected):
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.EXPERIMENTAL
+    )
+    left_mapped, righ_mapped = comparator.visit(
+        left,
+        right,
+    )
+
+    assert left_mapped == expected
+    assert righ_mapped == right._value
 
 
 def test_same_key():

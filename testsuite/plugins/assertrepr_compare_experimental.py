@@ -75,7 +75,9 @@ class AssertionPlugin:
 def pytest_configure(config: pytest.Config):
     if config.option.assert_mode != AssertMode.DEFAULT:
         config.pluginmanager.register(
-            AssertionPlugin(config.option.assert_mode)
+            AssertionPlugin(
+                config.option.assert_mode, config.option.assert_transform_mode
+            )
         )
 
 
@@ -96,4 +98,11 @@ def pytest_addoption(parser: pytest.Parser):
         type=int,
         default=None,
         help='Depth of assertions, use 0 for simple print different items',
+    )
+    group.addoption(
+        '--assert-transform-mode',
+        choices=[i.name for i in list(compare_transform.TransformMode)],
+        type=compare_transform.TransformMode,
+        default=compare_transform.TransformMode.DEFAULT,
+        help='Transformation mode in assertion representation',
     )

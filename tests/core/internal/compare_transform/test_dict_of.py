@@ -1,9 +1,18 @@
+import pytest
+
 from testsuite import matching
 from testsuite._internal import compare_transform
 
 
-def test_eq():
-    comparator = compare_transform.CompareTransform()
+@pytest.mark.parametrize(
+    'mode',
+    (
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.TransformMode.EXPERIMENTAL,
+    ),
+)
+def test_eq(mode):
+    comparator = compare_transform.CompareTransform(mode)
     mapped_left, mapped_right = comparator.visit(
         {'foo': 'bar'},
         matching.DictOf(matching.any_string, matching.any_string),
@@ -12,8 +21,15 @@ def test_eq():
     assert mapped_right == {'foo': 'bar'}
 
 
-def test_value_nq():
-    comparator = compare_transform.CompareTransform()
+@pytest.mark.parametrize(
+    'mode',
+    (
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.TransformMode.EXPERIMENTAL,
+    ),
+)
+def test_value_nq(mode):
+    comparator = compare_transform.CompareTransform(mode)
     comparator.visit(
         {'foo': 'bar'},
         matching.DictOf(matching.any_string, matching.any_integer),
@@ -21,7 +37,14 @@ def test_value_nq():
     assert comparator.errors == {"left['foo']": ["'bar' != <IsInstance int>"]}
 
 
-def test_value_nq_reversed():
+@pytest.mark.parametrize(
+    'mode',
+    (
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.TransformMode.EXPERIMENTAL,
+    ),
+)
+def test_value_nq_reversed(mode):
     comparator = compare_transform.CompareTransform()
     left_mapped, right_mapped = comparator.visit(
         matching.DictOf(matching.any_string, matching.any_integer),
@@ -32,8 +55,15 @@ def test_value_nq_reversed():
     assert comparator.errors == {"left['foo']": ["<IsInstance int> != 'bar'"]}
 
 
-def test_key_nq():
-    comparator = compare_transform.CompareTransform()
+@pytest.mark.parametrize(
+    'mode',
+    (
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.TransformMode.EXPERIMENTAL,
+    ),
+)
+def test_key_nq(mode):
+    comparator = compare_transform.CompareTransform(mode)
 
     comparator.visit(
         {'foo': 'bar'},

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import collections
 import contextlib
+import enum
 import typing
 
 import py.io
@@ -9,13 +10,19 @@ import py.io
 SetTypes = (set, frozenset)
 
 
+class TransformMode(enum.Enum):
+    DEFAULT = 'default'
+    EXPERIMENTAL = 'experimental'
+
+
 class CompareTransform:
     path: list[str]
     errors: typing.DefaultDict[str, list[str]]
 
-    def __init__(self):
+    def __init__(self, transform_mode: TransformMode = TransformMode.DEFAULT):
         self.path = ['left']
         self.errors = collections.defaultdict(list)
+        self.transform_mode = transform_mode
 
     def report_error(self, msg: str, *, path=None) -> None:
         path_str = _build_path(self.path, path)
@@ -27,7 +34,15 @@ class CompareTransform:
         if left == right:
             return left, left
 
-        left, right = _resolve_value(left, right, self.report_error)
+        if self.transform_mode == TransformMode.DEFAULT:
+            left, right = _resolve_values_default(
+                left, right, self.report_error
+            )
+        else:
+            left, right = _resolve_values_experimental(
+                left, right, self.report_error
+            )
+
         if isinstance(left, list):
             return self.visit_list(left, right)
         elif isinstance(left, dict):
@@ -155,11 +170,19 @@ class CompareTransform:
             self.path.pop(-1)
 
 
-def _resolve_value(left, right, reporter):
+def _resolve_values_default(left, right, reporter):
     if hasattr(left, '__testsuite_resolve_value__'):
         return left.__testsuite_resolve_value__(right, reporter), right
     if hasattr(right, '__testsuite_resolve_value__'):
         return left, right.__testsuite_resolve_value__(left, reporter)
+    return left, right
+
+
+def _resolve_values_experimental(left, right, reporter):
+    if hasattr(left, '__testsuite_adjust_values__'):
+        return left.__testsuite_adjust_values__(right, reporter)
+    if hasattr(right, '__testsuite_adjust_values__'):
+        return right.__testsuite_adjust_values__(left, reporter)[::-1]
     return left, right
 
 

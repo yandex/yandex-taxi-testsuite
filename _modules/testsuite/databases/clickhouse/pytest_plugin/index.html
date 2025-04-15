@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.databases.clickhouse.pytest_plugin &#8212; yandex-taxi-testsuite 0.2.21 documentation</title>
+    <title>testsuite.databases.clickhouse.pytest_plugin &#8212; yandex-taxi-testsuite 0.3.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css?v=27fed22d" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css?v=51489a46" />
-    <script src="../../../../../_static/documentation_options.js?v=f1dae19b"></script>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
+    <script src="../../../../../_static/documentation_options.js?v=720b4ce5"></script>
     <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../genindex/" />
@@ -33,7 +33,6 @@
             
   <h1>Source code for testsuite.databases.clickhouse.pytest_plugin</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">clickhouse_driver</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
@@ -68,7 +67,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">clickhouse</span><span class="p">(</span>
     <span class="n">_clickhouse</span><span class="p">,</span>
     <span class="n">_clickhouse_apply</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">clickhouse_driver</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">clickhouse_driver</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
     <span class="k">return</span> <span class="n">_clickhouse</span><span class="o">.</span><span class="n">get_connections</span><span class="p">()</span></div>
 
 

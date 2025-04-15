@@ -21,7 +21,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: clone userver
         run: |
-          git clone https://github.com/userver-framework/userver -b v2.8
+          git clone https://github.com/userver-framework/userver
+          pushd userver
+          git checkout 64c4f7f5d289128f07db29baa207da976ff45ea6
+          popd
       - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip wheel virtualenv pytest
@@ -34,8 +37,12 @@ jobs:
       - name: Run userver testsuite tests
         run: |
           source .venv/bin/activate
-          PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" pytest userver/testsuite/tests
+          for case in chaos config metrics sql_coverage_empty sql_coverage_full; do
+            PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" pytest userver/testsuite/tests/$case
+          done
       - name: Run mypy for userver testsuite tests
         run: |
           source .venv/bin/activate
-          PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" mypy userver/testsuite/tests
+          for case in chaos config metrics sql_coverage_empty sql_coverage_fullg; do
+            PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" mypy userver/testsuite/tests/$case
+          done

@@ -2,7 +2,7 @@ import collections.abc
 import pathlib
 import typing
 
-from testsuite import annotations
+from testsuite import types
 from testsuite.utils import yaml_util
 
 
@@ -11,7 +11,7 @@ class MongoSchema(collections.abc.Mapping):
     _loaded: dict[str, dict]
     _paths: dict[str, pathlib.Path]
 
-    def __init__(self, directory: annotations.PathOrStr) -> None:
+    def __init__(self, directory: types.PathOrStr) -> None:
         self._directory = pathlib.Path(directory)
         self._loaded = {}
         self._paths = _get_paths(self._directory)
@@ -38,7 +38,7 @@ class MongoSchemaCache:
     def __init__(self) -> None:
         self._cache: dict[pathlib.Path, MongoSchema] = {}
 
-    def get_schema(self, directory: annotations.PathOrStr) -> MongoSchema:
+    def get_schema(self, directory: types.PathOrStr) -> MongoSchema:
         directory = pathlib.Path(directory)
         if directory not in self._cache:
             self._cache[directory] = MongoSchema(directory)
@@ -49,7 +49,7 @@ class MongoSchemas(collections.abc.Mapping):
     def __init__(
         self,
         cache: MongoSchemaCache,
-        directories: typing.Iterable[annotations.PathOrStr],
+        directories: typing.Iterable[types.PathOrStr],
     ):
         self._cache = cache
         self._directories = [

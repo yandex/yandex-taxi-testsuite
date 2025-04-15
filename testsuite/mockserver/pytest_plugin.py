@@ -1,10 +1,10 @@
-from __future__ import annotations as future_annotations
+from __future__ import annotations
 
 import contextlib
 
 import pytest
 
-from testsuite import annotations
+from testsuite import types
 
 from . import classes, exceptions, server
 
@@ -140,7 +140,7 @@ def fixture_mockserver_create_session(
 def mockserver(
     _mockserver: server.Server,
     _mockserver_create_session,
-) -> annotations.YieldFixture[server.MockserverFixture]:
+) -> types.YieldFixture[server.MockserverFixture]:
     with _mockserver_create_session(_mockserver) as fixture:
         yield fixture
 
@@ -149,7 +149,7 @@ def mockserver(
 async def mockserver_ssl(
     _mockserver_ssl: server.Server | None,
     _mockserver_create_session,
-) -> annotations.AsyncYieldFixture[server.MockserverSslFixture]:
+) -> types.AsyncYieldFixture[server.MockserverSslFixture]:
     if _mockserver_ssl is None:
         raise exceptions.MockServerError(
             f'mockserver_ssl is not configured. {_SSL_KEY_FILE_INI_KEY} and '
@@ -219,7 +219,7 @@ def _mockserver_getport(pytestconfig, worker_id):
 async def _mockserver(
     pytestconfig,
     _mockserver_getport,
-) -> annotations.AsyncYieldFixture[server.Server]:
+) -> types.AsyncYieldFixture[server.Server]:
     if pytestconfig.option.mockserver_unix_socket:
         async with server.create_unix_server(
             socket_path=pytestconfig.option.mockserver_unix_socket,
@@ -245,7 +245,7 @@ async def _mockserver_ssl(
     pytestconfig,
     mockserver_ssl_cert,
     _mockserver_getport,
-) -> annotations.AsyncYieldFixture[server.Server | None]:
+) -> types.AsyncYieldFixture[server.Server | None]:
     if mockserver_ssl_cert:
         port = _mockserver_getport(
             pytestconfig.option.mockserver_ssl_port,

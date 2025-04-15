@@ -1,4 +1,4 @@
-from __future__ import annotations as future_annotations
+from __future__ import annotations
 
 import logging
 import os
@@ -6,7 +6,7 @@ import pathlib
 import time
 import typing
 
-from testsuite import annotations
+from testsuite import types
 from testsuite.utils import traceback
 
 from . import shell, utils
@@ -116,7 +116,7 @@ class ScriptService:
 
 
 class StartedMark:
-    def __init__(self, working_dir: annotations.PathOrStr) -> None:
+    def __init__(self, working_dir: types.PathOrStr) -> None:
         self._path = pathlib.Path(working_dir) / '.started'
 
     def create(self) -> None:

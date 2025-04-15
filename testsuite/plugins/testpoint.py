@@ -3,13 +3,13 @@ import typing
 
 import pytest
 
-from testsuite import annotations
+from testsuite import types
 from testsuite.mockserver import server
 from testsuite.utils import callinfo, http
 
 TestpointHandler = typing.Callable[
-    [annotations.JsonAnyOptional],
-    annotations.MaybeAsyncResult[annotations.JsonAnyOptional],
+    [types.JsonAnyOptional],
+    types.MaybeAsyncResult[types.JsonAnyOptional],
 ]
 TestpointDecorator = typing.Callable[
     [TestpointHandler],

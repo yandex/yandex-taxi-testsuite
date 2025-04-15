@@ -1,4 +1,4 @@
-from __future__ import annotations as future_annotations
+from __future__ import annotations
 
 import contextlib
 import inspect
@@ -16,7 +16,7 @@ from typing import (
 import aiohttp
 import pytest
 
-from testsuite import annotations
+from testsuite import types
 from testsuite._internal import fixture_class, fixture_types
 from testsuite.utils import compat
 
@@ -427,7 +427,7 @@ def service_client_session_factory() -> service_daemon.ClientSessionFactory:
 @pytest.fixture
 async def service_client_session(
     service_client_session_factory,
-) -> annotations.AsyncYieldFixture[aiohttp.ClientSession]:
+) -> types.AsyncYieldFixture[aiohttp.ClientSession]:
     async with service_client_session_factory() as session:
         yield session
 
@@ -446,7 +446,7 @@ def service_client_options(
     pytestconfig,
     service_client_session: aiohttp.ClientSession,
     mockserver: fixture_types.MockserverFixture,
-) -> annotations.YieldFixture[dict[str, Any]]:
+) -> types.YieldFixture[dict[str, Any]]:
     """Returns service client options dictionary."""
     yield {
         'session': service_client_session,

@@ -1,4 +1,4 @@
-from __future__ import annotations as future_annotations
+from __future__ import annotations
 
 import os
 import pathlib

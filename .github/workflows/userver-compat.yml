@@ -34,12 +34,8 @@ jobs:
       - name: Run userver testsuite tests
         run: |
           source .venv/bin/activate
-          for case in chaos config metrics sql_coverage_empty sql_coverage_full; do
-            PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" pytest userver/testsuite/tests/$case
-          done
+          PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" pytest userver/testsuite/tests
       - name: Run mypy for userver testsuite tests
         run: |
           source .venv/bin/activate
-          for case in chaos config metrics sql_coverage_empty sql_coverage_full; do
-            PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" mypy userver/testsuite/tests/$case
-          done
+          PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" mypy userver/testsuite/tests

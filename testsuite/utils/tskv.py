@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations as future_annotations
 
 """Tools to format messages to different formats."""
 

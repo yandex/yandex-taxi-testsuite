@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations as future_annotations
 
 import dataclasses
 import pathlib
@@ -6,12 +6,12 @@ import typing
 
 import aiohttp.web
 
-from testsuite import type_annotations
+from testsuite import annotations
 from testsuite.utils import callinfo, http, url_util
 
 GenericRequestHandler = typing.Callable[
     ...,
-    type_annotations.MaybeAsyncResult[aiohttp.web.Response],
+    annotations.MaybeAsyncResult[aiohttp.web.Response],
 ]
 GenericRequestDecorator = typing.Callable[
     [GenericRequestHandler],
@@ -19,8 +19,8 @@ GenericRequestDecorator = typing.Callable[
 ]
 JsonRequestHandler = typing.Callable[
     ...,
-    type_annotations.MaybeAsyncResult[
-        typing.Union[aiohttp.web.Response, type_annotations.JsonAnyOptional]
+    annotations.MaybeAsyncResult[
+        typing.Union[aiohttp.web.Response, annotations.JsonAnyOptional]
     ],
 ]
 JsonRequestDecorator = typing.Callable[

@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations as future_annotations
 
 import contextlib
 import dataclasses
@@ -14,7 +14,7 @@ import pymongo.errors
 import pytest
 from bson import json_util
 
-from testsuite import type_annotations, utils
+from testsuite import annotations, utils
 
 from . import connection, ensure_db_indexes, mongo_schema, service
 
@@ -291,7 +291,7 @@ def _mongo_create_indexes(
 
 
 @pytest.fixture(scope='session')
-def _mongo_thread_pool() -> type_annotations.YieldFixture[
+def _mongo_thread_pool() -> annotations.YieldFixture[
     multiprocessing.pool.ThreadPool,
 ]:
     pool = multiprocessing.pool.ThreadPool(processes=1)

@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations as future_annotations
 
 import json
 import pathlib
@@ -6,7 +6,7 @@ import typing
 
 import pytest
 
-from testsuite import type_annotations
+from testsuite import annotations
 from testsuite._internal import fixture_class
 from testsuite.utils import cached_property, json_util, traceback, yaml_util
 
@@ -38,7 +38,7 @@ class GetSearchPathesFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
     ) -> typing.Iterator[pathlib.Path]:
         for directory in self._fixture__search_directories_existing:
             entry = self._fixture__path_entries_cache(directory, filename)
@@ -51,7 +51,7 @@ class SearchPathFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
         directory: bool = False,
     ) -> typing.Iterator[pathlib.Path]:
         for abs_filename in self._fixture_get_search_pathes(filename):
@@ -72,7 +72,7 @@ class GetFilePathFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
         *,
         missing_ok=False,
     ) -> pathlib.Path | None:
@@ -100,7 +100,7 @@ class GetDirectoryPathFixture(GetFilePathFixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
         *,
         missing_ok=False,
     ) -> pathlib.Path | None:
@@ -134,7 +134,7 @@ class OpenFileFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
         mode='r',
         buffering=-1,
         encoding='utf-8',
@@ -171,7 +171,7 @@ class LoadFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
         encoding='utf-8',
         errors=None,
         *,
@@ -203,7 +203,7 @@ class LoadBinaryFixture(fixture_class.Fixture):
 
     _fixture_get_file_path: GetFilePathFixture
 
-    def __call__(self, filename: type_annotations.PathOrStr) -> bytes:
+    def __call__(self, filename: annotations.PathOrStr) -> bytes:
         """Load static binary file.
 
         :param filename": static file name part
@@ -264,7 +264,7 @@ class LoadJsonFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
         *args,
         missing_ok=False,
         missing=None,
@@ -294,7 +294,7 @@ class LoadYamlFixture(fixture_class.Fixture):
 
     def __call__(
         self,
-        filename: type_annotations.PathOrStr,
+        filename: annotations.PathOrStr,
         *args,
         **kwargs,
     ) -> typing.Any:

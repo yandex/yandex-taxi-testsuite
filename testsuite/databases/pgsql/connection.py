@@ -1,5 +1,5 @@
 # pylint: disable=no-member
-from __future__ import annotations
+from __future__ import annotations as future_annotations
 
 import typing
 import urllib.parse

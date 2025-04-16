@@ -46,3 +46,6 @@ jobs:
           for case in chaos config metrics sql_coverage_empty sql_coverage_full; do
             PYTHONPATH="userver/testsuite/pytest_plugins/:$PYTHONPATH" mypy userver/testsuite/tests/$case
           done
+      - name: Cleanup
+        run: |
+          rm -rf userver

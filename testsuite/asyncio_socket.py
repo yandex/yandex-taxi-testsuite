@@ -1,9 +1,10 @@
 # mypy: disable-error-code=attr-defined
+from __future__ import annotations
+
 import asyncio
 import select
 import socket
 import sys
-import typing
 
 DEFAULT_TIMEOUT = 10.0
 _DefaultTimeout = object()
@@ -15,7 +16,7 @@ class AsyncioSocket:
     def __init__(
         self,
         sock: socket.socket,
-        loop: typing.Optional[asyncio.AbstractEventLoop] = None,
+        loop: asyncio.AbstractEventLoop | None = None,
         timeout=DEFAULT_TIMEOUT,
     ):
         if loop is None:
@@ -188,7 +189,7 @@ class AsyncioSocketsFactory:
 
 
 def from_socket(
-    sock: typing.Union[socket.socket, AsyncioSocket],
+    sock: socket.socket | AsyncioSocket,
     *,
     loop=None,
     timeout=DEFAULT_TIMEOUT,

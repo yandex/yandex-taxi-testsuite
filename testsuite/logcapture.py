@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import enum
@@ -107,7 +109,7 @@ class Capture:
 
 
 class CaptureServer:
-    _capture: typing.Optional[CapturedLogs]
+    _capture: CapturedLogs | None
 
     def __init__(self, *, log_level: str, parse_line):
         self._log_level = LogLevel.from_string(log_level)
@@ -171,7 +173,7 @@ class CaptureServer:
     async def capture(
         self,
         *,
-        log_level: typing.Optional[str] = None,
+        log_level: str | None = None,
         timeout: float = 10.0,
     ) -> typing.AsyncIterator[CapturedLogs]:
         if self._capture:

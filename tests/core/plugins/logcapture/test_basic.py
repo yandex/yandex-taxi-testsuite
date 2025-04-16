@@ -13,7 +13,7 @@ async def logcapture_server(json_loads):
         return json_loads(line)
 
     server = logcapture.CaptureServer(
-        log_level='INFO',
+        log_level=logcapture.LogLevel.INFO,
         parse_line=_parse_log_line,
     )
     async with server.start(host='localhost', port=0):

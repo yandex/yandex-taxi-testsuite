@@ -9,7 +9,7 @@ simple server that interacts with (reader, writer). Just like with regular
 Example
 -------
 
-.. literalinclude:: ../tests/plugins/tcp_mockserver/test_example.py
+.. literalinclude:: ../tests/core/plugins/tcp_mockserver/test_example.py
 
 Fixtures
 --------

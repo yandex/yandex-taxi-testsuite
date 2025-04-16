@@ -1,6 +1,13 @@
+"""
+Logcapture allows to intercepts service logs on demand with context manager.
+
+It starts tcp server and read logs sent by server.
+"""
+
 from __future__ import annotations
 
 import asyncio
+import collections
 import contextlib
 import enum
 import logging
@@ -16,7 +23,7 @@ class BaseError(Exception):
 
 
 class IncorrectUsageError(BaseError):
-    pass
+    """Incorrect usage error."""
 
 
 class ClientConnectTimeoutError(BaseError):
@@ -27,7 +34,13 @@ class TimeoutError(BaseError):
     pass
 
 
-class LogLevel(enum.Enum):
+class LogLevel(enum.IntEnum):
+    """
+    Represents log level as IntEnum, which supports comparison.
+
+    Available levels are: TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL, NONE
+    """
+
     TRACE = 0
     DEBUG = 1
     INFO = 2
@@ -38,6 +51,7 @@ class LogLevel(enum.Enum):
 
     @classmethod
     def from_string(cls, level: str) -> 'LogLevel':
+        """Parse log level from the string."""
         return cls[level.upper()]
 
 
@@ -76,6 +90,16 @@ class Capture:
         self._logs = logs
 
     def select(self, **query) -> list[dict]:
+        """Select logs matching query.
+
+        Could only be used after capture contextmanager block.
+
+        .. code-block:: python
+
+           async with logcapture_server.capture() as capture:
+               ...
+           records = capture.select(text='Message to capture')
+        """
         if not self._logs.is_closed():
             raise IncorrectUsageError(
                 'select() is only supported for closed captures\n'
@@ -95,6 +119,18 @@ class Capture:
         return result
 
     def subscribe(self, **query):
+        """Subscribe to records matching `query`. Returns decorator function.
+        `subscribe()` may only be used within `capture()` block. Callqueue is returned.
+
+        .. code-block:: python
+
+           async with logcapture_server.capture() as capture:
+               @capture.subscribe(text='Message to capture')
+               def log_event(link, **other):
+                   ...
+               ...
+               assert log_event.wait_call()
+        """
         if self._logs.is_closed():
             raise IncorrectUsageError(
                 'subscribe() is not supported for closed captures\nPlease move subscribe() into context manager body',
@@ -111,8 +147,14 @@ class Capture:
 class CaptureServer:
     _capture: CapturedLogs | None
 
-    def __init__(self, *, log_level: str, parse_line):
-        self._log_level = LogLevel.from_string(log_level)
+    def __init__(
+        self,
+        *,
+        log_level: LogLevel,
+        parse_line: collections.abc.Callable[[bytes], dict],
+    ):
+        """Capture server."""
+        self._log_level = log_level
         self._client_cond = asyncio.Condition()
         self._capture = None
         self._tasks = []
@@ -120,11 +162,25 @@ class CaptureServer:
         self._started = False
         self._socknames = []
 
-    def getsocknames(self):
+    @property
+    def default_log_level(self) -> LogLevel:
+        """Returns default log level specified on object creation."""
+        return self._log_level
+
+    def getsocknames(self) -> list[tuple]:
+        """Return list of server socket names."""
         return self._socknames
 
     @contextlib.asynccontextmanager
-    async def start(self, *args, **kwargs):
+    async def start(
+        self, *args, **kwargs
+    ) -> typing.AsyncIterator['CaptureServer']:
+        """Starts capture logs asyncio server.
+
+        Arguments are directly passed to `asyncio.start_server`. Server could be started
+        only once. Capture server is returned. Server is closed when contextmanager
+        is finished.
+        """
         if self._started:
             raise IncorrectUsageError('Service was already started')
         server = await asyncio.start_server(
@@ -139,6 +195,8 @@ class CaptureServer:
             await server.wait_closed()
 
     async def wait_for_client(self, timeout: float = 10.0):
+        """Waits for logserver client to connect."""
+
         async def waiter():
             async with self._client_cond:
                 await self._client_cond.wait_for(lambda: self._tasks)
@@ -156,9 +214,15 @@ class CaptureServer:
 
         async def log_reader(capture: CapturedLogs):
             with contextlib.closing(writer):
-                async for line in reader:
-                    row = self._parse_line(line)
-                    await capture.publish(row)
+                try:
+                    async for line in reader:
+                        row = self._parse_line(line)
+                        await capture.publish(row)
+                except Exception:
+                    async for line in reader:
+                        # wait for data transfer to finish
+                        pass
+                    raise
             await writer.wait_closed()
 
         if not self._capture:
@@ -173,19 +237,17 @@ class CaptureServer:
     async def capture(
         self,
         *,
-        log_level: str | None = None,
+        log_level: LogLevel | None = None,
         timeout: float = 10.0,
-    ) -> typing.AsyncIterator[CapturedLogs]:
+    ) -> typing.AsyncIterator[Capture]:
+        """
+        Starts logs capture. Returns `Capture` object.
+        """
         if self._capture:
             yield self._capture
             return
 
-        if not log_level:
-            actual_log_level = self._log_level
-        else:
-            actual_log_level = LogLevel.from_string(log_level)
-
-        self._capture = CapturedLogs(log_level=actual_log_level)
+        self._capture = CapturedLogs(log_level=log_level or self._log_level)
         try:
             yield Capture(self._capture)
         finally:

@@ -35,13 +35,13 @@ jobs:
         run: |
           source .venv/bin/activate
           for test_folder in $(find userver/testsuite/tests -mindepth 1 -maxdepth 1 -type d); do
-            PYTHONPATH="$(PWD)/userver/testsuite/pytest_plugins/:$PYTHONPATH" pytest $test_folder
+            PYTHONPATH="$(pwd)userver/testsuite/pytest_plugins/:$PYTHONPATH" pytest $test_folder
           done
       - name: Run mypy for userver testsuite tests
         run: |
           source .venv/bin/activate
           for test_folder in $(find userver/testsuite/tests -mindepth 1 -maxdepth 1 -type d); do
-            PYTHONPATH="$(PWD)/userver/testsuite/pytest_plugins/:$PYTHONPATH" mypy $test_folder
+            PYTHONPATH="$(pwd)/userver/testsuite/pytest_plugins/:$PYTHONPATH" mypy $test_folder
           done
       - name: Cleanup
         run: |

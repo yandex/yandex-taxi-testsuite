@@ -99,7 +99,7 @@ class ServiceLogsPlugin:
 
 def pytest_addoption(parser) -> None:
     parser.addoption(
-        '--service-live-logs-disable',
+        '--service-livelogs-disable',
         action='store_true',
         help='Disable service live logs (enabled with -s)',
     )
@@ -148,7 +148,7 @@ def _servicelogs_logging_plugin(pytestconfig) -> ServiceLogsPlugin:
 
 
 def _is_live_logs_enabled(config):
-    if not config.option.service_live_logs_disable:
+    if not config.option.service_livelogs_disable:
         return bool(
             config.option.capture == 'no'
             and config.option.showcapture in ('all', 'log'),

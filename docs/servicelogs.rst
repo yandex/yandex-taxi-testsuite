@@ -70,8 +70,8 @@ service_logs_update_position
 Options
 -------
 
---service-live-logs-disable
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--service-livelogs-disable
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Disables service live logs.
 

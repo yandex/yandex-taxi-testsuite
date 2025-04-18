@@ -1,11 +1,11 @@
-import sys
-
 import pytest
+
+from testsuite.utils import colors
 
 
 class ColorsPlugin:
     def __init__(self, config):
-        self._colors_enabled = _is_colors_enabled(config)
+        self._colors_enabled = colors.should_enable_color(config)
 
     @pytest.fixture(scope='session')
     def testsuite_colors_enabled(self) -> bool:
@@ -17,12 +17,3 @@ def pytest_configure(config):
         ColorsPlugin(config=config),
         '_colors_plugin',
     )
-
-
-def _is_colors_enabled(pytestconfig) -> bool:
-    option = getattr(pytestconfig.option, 'color', 'no')
-    if option == 'yes':
-        return True
-    if option == 'auto':
-        return sys.stderr.isatty()
-    return False

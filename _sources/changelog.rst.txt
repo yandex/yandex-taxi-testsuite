@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.3.3
+~~~~~
+
+- Add servicelogs plugin (#186)
+- Add logcapture plugin (#184)
+- Add asyncio_socket (#184)
+- add ci tests to ensure, that userver testsuite tests works (#185)
+
 0.3.2
 ~~~~~
 

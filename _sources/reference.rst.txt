@@ -19,3 +19,4 @@ pytest plugins:
    other_plugins
    utils
    tcp_mockserver
+   servicelogs

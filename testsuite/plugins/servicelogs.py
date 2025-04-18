@@ -38,7 +38,7 @@ class ServiceLogsPlugin:
         self._flushers = []
 
     def pytest_sessionstart(self, session):
-        if _is_live_logs_enabled(self._config):
+        if _live_logs_enabled(self._config):
             self._live_logs = logreader.LiveLogHandler()
         else:
             self._live_logs = None
@@ -122,7 +122,7 @@ def servicelogs_register_logfile(_servicelogs_logging_plugin):
     return register
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def servicelogs_register_flusher(
     _servicelogs_logging_plugin: ServiceLogsPlugin,
 ):
@@ -147,7 +147,7 @@ def _servicelogs_logging_plugin(pytestconfig) -> ServiceLogsPlugin:
     return pytestconfig.pluginmanager.get_plugin('service_logs_plugin')
 
 
-def _is_live_logs_enabled(config):
+def _live_logs_enabled(config):
     if not config.option.service_livelogs_disable:
         return bool(
             config.option.capture == 'no'

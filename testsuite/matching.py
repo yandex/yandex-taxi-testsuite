@@ -358,7 +358,7 @@ class PartialDict(collections.abc.Mapping):
             return self, other
         return self._dict, {
             key: value for key, value in other.items() if key in self._dict
-        }
+        } or other
 
 
 class UnorderedList:

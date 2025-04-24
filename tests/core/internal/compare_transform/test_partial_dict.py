@@ -39,6 +39,25 @@ def test_experimental():
     }
 
 
+def test_experimental_if_dicts_has_no_common_fields():
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.EXPERIMENTAL
+    )
+    left_mapped, right_mapped = comparator.visit(
+        {'foo': 'bar', 'extra': 123},
+        matching.PartialDict(baz='bar', bar=123),
+    )
+
+    assert left_mapped == {'foo': 'bar', 'extra': 123}
+    assert right_mapped == {'baz': 'bar', 'bar': 123}
+    assert comparator.errors == {
+        'left': [
+            "extra keys on the left: 'extra', 'foo'",
+            "extra keys on the right: 'bar', 'baz'",
+        ],
+    }
+
+
 @pytest.mark.parametrize(
     'mode',
     (

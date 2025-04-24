@@ -26,7 +26,7 @@ jobs:
         run: |
           brew tap mongodb/brew
           brew update
-          brew install redis clickhouse rabbitmq postgresql mariadb kafka@3.9.0 mongodb-community
+          brew install redis clickhouse rabbitmq postgresql mariadb kafka mongodb-community
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:

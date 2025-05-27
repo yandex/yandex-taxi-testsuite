@@ -74,6 +74,7 @@ start_kafka() {
 
     echo "Copying Kafka home to tmp (to patch server configs): $KAFKA_HOME -> $KAFKA_SOURCE_DIR"
     cp -r "$KAFKA_HOME"/* "$KAFKA_SOURCE_DIR/"
+    mkdir -p $(dirname "$KAFKA_CONF_FILE")
     cp "$KAFKA_KRAFT_SOURCE_CONF_FILE" "$KAFKA_CONF_FILE" || cp "$KAFKA_DEFAULT_SOURCE_CONF_FILE" "$KAFKA_CONF_FILE"
 
     echo "Generating cluster UUID..."

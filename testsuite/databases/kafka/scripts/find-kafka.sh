@@ -35,7 +35,7 @@ check_java() {
 }
 
 check_home() {
-    if ![ -x "$1/bin/kafka-run-class.sh" ] && ([ -e "$1/config/kraft/server.properties" ] || [ -e "$1/config/server.properties" ])
+    [ -x "$1/bin/kafka-run-class.sh" ] && ([ -e "$1/config/kraft/server.properties" ] || [ -e "$1/config/server.properties" ])
 }
 
 find_kafka() {

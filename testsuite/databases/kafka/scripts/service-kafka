@@ -96,19 +96,17 @@ start_kafka() {
     "$KAFKA_BIN_DIR/kafka-storage.sh" format \
         --cluster-id $(cat "$CLUSTER_UUID_FILE") \
         --config $KAFKA_CONF_FILE \
+        --standalone \
         --ignore-formatted
 
     echo "Running Kafka broker..."
     "$KAFKA_BIN_DIR/kafka-server-start.sh" -daemon \
         "$KAFKA_CONF_FILE" \
-        --override node.id="$KAFKA_NODE_ID" \
         --override auto.create.topics.enable=true \
         --override listeners="PLAINTEXT://$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT,CONTROLLER://$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
         --override advertised.listeners="PLAINTEXT://$KAFKA_SERVER_HOST:$KAFKA_SERVER_PORT" \
         --override controller.quorum.voters="$KAFKA_NODE_ID@$KAFKA_SERVER_HOST:$KAFKA_CONTROLLER_PORT" \
-        --override offsets.topic.num.partitions=1 \
-        --override log.dir="$KAFKA_LOGS_DIR" \
-        --override log.dirs="$KAFKA_LOGS_DIR"
+        --override offsets.topic.num.partitions=1
 
     # There is no basic healthcheck mechanism for checking if broker is started.
     # But almost exactly, if broker can create the topic, it is alive.

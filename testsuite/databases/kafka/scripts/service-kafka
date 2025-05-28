@@ -93,6 +93,8 @@ start_kafka() {
     echo "Patched server config:\n$patched_config"
 
     echo "Formatting logs dir..."
+    # standalone appeared in kafka 4.0
+    # and is required for kafka launch
     "$KAFKA_BIN_DIR/kafka-storage.sh" format \
         --cluster-id $(cat "$CLUSTER_UUID_FILE") \
         --config $KAFKA_CONF_FILE \

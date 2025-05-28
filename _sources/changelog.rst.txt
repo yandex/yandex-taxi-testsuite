@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.3.4
+~~~~~
+
+- fix MacOS CI for kafka (#189)
+- replace assertrepr plugin with experimental (#188)
+
 0.3.3
 ~~~~~
 

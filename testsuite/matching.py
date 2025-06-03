@@ -218,7 +218,7 @@ class Not:
 
 
 class Comparator:
-    op: typing.Callable[[typing.Any, typing.Any], bool] = operator.eq
+    op: typing.Callable[[typing.Any, typing.Any], typing.Any] = operator.eq
 
     def __init__(self, value):
         self._value = value

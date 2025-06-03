@@ -1,5 +1,5 @@
 ruff
-mypy>=1.11.0
+mypy>=1.11.0,<1.16
 
 # MyPy requirements
 types-PyMySQL

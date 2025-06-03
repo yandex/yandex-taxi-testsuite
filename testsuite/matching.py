@@ -1,4 +1,5 @@
 import collections.abc
+import datetime
 import itertools
 import operator
 import re
@@ -732,6 +733,8 @@ any_value = Any()
 any_float = IsInstance(float)
 any_integer = IsInstance(int)
 any_numeric = IsInstance((int, float))
+any_datetime = IsInstance(datetime.datetime)
+any_timedelta = IsInstance(datetime.timedelta)
 positive_float = And(any_float, Gt(0))
 positive_integer = And(any_integer, Gt(0))
 positive_numeric = And(any_numeric, Gt(0))

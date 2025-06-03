@@ -1,3 +1,5 @@
+import datetime
+
 from testsuite import matching
 
 
@@ -97,3 +99,27 @@ def test_non_negative_numeric():
     assert matching.non_negative_numeric == 1
     assert matching.non_negative_numeric != -1
     assert matching.non_negative_numeric != 'foo'
+
+
+def test_any_datetime():
+    assert matching.any_datetime != matching.any_timedelta
+    assert matching.any_datetime != matching.datetime_string
+
+    assert matching.any_datetime != 'foo'
+    assert matching.any_datetime != b'foo'
+    assert matching.any_datetime != 1
+    assert matching.any_datetime != -1.0
+
+    assert matching.any_datetime == datetime.datetime.now()
+
+
+def test_any_timedelta():
+    assert matching.any_datetime != matching.any_timedelta
+    assert matching.any_timedelta != matching.datetime_string
+
+    assert matching.any_timedelta != 'foo'
+    assert matching.any_timedelta != b'foo'
+    assert matching.any_timedelta != 1
+    assert matching.any_timedelta != -1.0
+
+    assert matching.any_timedelta == datetime.timedelta(seconds=10)

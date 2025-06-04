@@ -74,7 +74,7 @@ class AssertionPlugin:
 
 
 def pytest_configure(config: pytest.Config):
-    if config.option.assert_mode != AssertMode.DEFAULT.name:
+    if config.option.assert_mode != AssertMode.DEFAULT:
         config.pluginmanager.register(
             AssertionPlugin(
                 config.option.assert_mode, config.option.assert_transform_mode

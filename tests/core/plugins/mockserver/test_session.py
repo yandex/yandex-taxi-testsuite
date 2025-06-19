@@ -5,9 +5,12 @@ from testsuite.mockserver import classes, exceptions, server
 
 
 @pytest.fixture
-def create_session(asyncexc_append):
+def create_session(asyncexc_append, testsuite_traceid_manager):
     def create_session():
-        return server.Session(asyncexc_append=asyncexc_append)
+        return server.Session(
+            asyncexc_append=asyncexc_append,
+            traceid_manager=testsuite_traceid_manager,
+        )
 
     return create_session
 

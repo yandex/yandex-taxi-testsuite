@@ -19,6 +19,7 @@ pytest_plugins = [
     'testsuite.plugins.servicetest',
     'testsuite.plugins.tcp_mockserver',
     'testsuite.plugins.testpoint',
+    'testsuite.plugins.tracing',
     'testsuite.plugins.verify_file_paths',
 ]
 

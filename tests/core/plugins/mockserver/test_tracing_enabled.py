@@ -5,6 +5,16 @@ from testsuite.mockserver import (
 )
 
 
+@pytest.fixture
+def other_traceid(
+    testsuite_traceid_generator,
+    _testsuite_traceid_history,
+):
+    other_traceid = testsuite_traceid_generator()
+    _testsuite_traceid_history.add(other_traceid)
+    return other_traceid
+
+
 # pylint: disable=invalid-name
 async def test_mockserver_responds_with_handler_to_current_test(
     mockserver,
@@ -47,6 +57,7 @@ async def test_mockserver_responds_with_json_handler_to_current_test(
 async def test_mockserver_skips_handler_and_responds_500_to_other_test(
     mockserver,
     create_service_client,
+    other_traceid,
 ):
     @mockserver.handler('/arbitrary/path')
     def _handler(request):
@@ -54,7 +65,7 @@ async def test_mockserver_skips_handler_and_responds_500_to_other_test(
 
     client = create_service_client(
         mockserver.base_url,
-        headers={mockserver.trace_id_header: server.generate_trace_id()},
+        headers={mockserver.trace_id_header: other_traceid},
     )
 
     response = await client.post('arbitrary/path')
@@ -65,6 +76,7 @@ async def test_mockserver_skips_handler_and_responds_500_to_other_test(
 async def test_mockserver_skips_json_handler_and_responds_500_to_other_test(
     mockserver,
     create_service_client,
+    other_traceid,
 ):
     @mockserver.json_handler('/arbitrary/path')
     def _json_handler(request):
@@ -72,7 +84,7 @@ async def test_mockserver_skips_json_handler_and_responds_500_to_other_test(
 
     client = create_service_client(
         mockserver.base_url,
-        headers={mockserver.trace_id_header: server.generate_trace_id()},
+        headers={mockserver.trace_id_header: other_traceid},
     )
 
     response = await client.post('arbitrary/path')

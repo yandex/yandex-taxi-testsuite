@@ -13,8 +13,7 @@ def disable_mockserver_tracing(mockserver):
 
 
 async def test_mockserver_handles_request_from_other_test(
-    mockserver,
-    create_service_client,
+    mockserver, create_service_client, testsuite_traceid_generator
 ):
     @mockserver.json_handler('/arbitrary/path')
     def _json_handler(request):
@@ -22,7 +21,7 @@ async def test_mockserver_handles_request_from_other_test(
 
     client = create_service_client(
         mockserver.base_url,
-        headers={mockserver.trace_id_header: server.generate_trace_id()},
+        headers={mockserver.trace_id_header: testsuite_traceid_generator()},
     )
 
     response = await client.post('arbitrary/path')
@@ -41,13 +40,16 @@ async def test_mockserver_handles_request_from_other_test(
 async def test_mockserver_raises_on_unhandled_request_from_other_sources(
     http_headers,
     mockserver_info,
+    testsuite_traceid_manager,
 ):
     mockserver = server.Server(
         mockserver_info,
         tracing_enabled=False,
     )
     errors = []
-    with mockserver.new_session(asyncexc_append=errors.append) as session:
+    with mockserver.new_session(
+        asyncexc_append=errors.append, traceid_manager=testsuite_traceid_manager
+    ) as session:
         request = _make_mocked_request(
             'POST',
             '/arbitrary/path',

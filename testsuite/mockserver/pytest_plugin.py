@@ -5,6 +5,7 @@ import contextlib
 import pytest
 
 from testsuite import types
+from testsuite.tracing import TraceidManager
 
 from . import classes, exceptions, server
 
@@ -123,13 +124,13 @@ def pytest_register_object_hooks():
 @pytest.fixture(name='_mockserver_create_session')
 def fixture_mockserver_create_session(
     asyncexc_append,
-    _mockserver_trace_id: str,
+    testsuite_traceid_manager: TraceidManager,
 ):
     @contextlib.contextmanager
     def create_session(mockserver):
         with mockserver.new_session(
             asyncexc_append=asyncexc_append,
-            trace_id=_mockserver_trace_id,
+            traceid_manager=testsuite_traceid_manager,
         ) as session:
             yield server.MockserverFixture(mockserver, session)
 
@@ -260,11 +261,6 @@ async def _mockserver_ssl(
             yield result
     else:
         yield None
-
-
-@pytest.fixture
-def _mockserver_trace_id() -> str:
-    return server.generate_trace_id()
 
 
 @pytest.fixture(scope='session')

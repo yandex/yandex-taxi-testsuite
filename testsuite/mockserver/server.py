@@ -10,13 +10,13 @@ import ssl
 import time
 import typing
 import urllib.parse
-import uuid
 import warnings
 
 import aiohttp.web
 import yarl
 
 from testsuite import utils
+from testsuite.tracing import TraceidManager
 from testsuite.utils import (
     cached_property,
     callinfo,
@@ -30,8 +30,6 @@ from .exceptions import __tracebackhide__  # noqa: F401
 
 DEFAULT_TRACE_ID_HEADER = 'X-YaTraceId'
 DEFAULT_SPAN_ID_HEADER = 'X-YaSpanId'
-
-_TRACE_ID_PREFIX = 'testsuite-'
 
 REQUEST_FROM_ANOTHER_TEST_ERROR = 'Internal error: request is from other test'
 
@@ -99,14 +97,12 @@ class Session:
         self,
         *,
         asyncexc_append,
+        traceid_manager: TraceidManager,
         tracing_enabled=True,
-        trace_id=None,
         http_proxy_enabled=False,
         mockserver_host=None,
     ):
-        if trace_id is None:
-            trace_id = generate_trace_id()
-        self.trace_id = trace_id
+        self.traceid_manager = traceid_manager
         self.tracing_enabled = tracing_enabled
         self.handlers = {}
         self.prefix_handlers = []
@@ -266,12 +262,12 @@ class Server:
         self,
         *,
         asyncexc_append,
-        trace_id: str | None = None,
+        traceid_manager: TraceidManager,
     ):
         self.session = Session(
             asyncexc_append=asyncexc_append,
             tracing_enabled=self._tracing_enabled,
-            trace_id=trace_id,
+            traceid_manager=traceid_manager,
             http_proxy_enabled=self._http_proxy_enabled,
             mockserver_host=self._info.get_host_header(),
         )
@@ -315,20 +311,18 @@ class Server:
         logger.log(log_level, 'Mockserver request', extra={'tskv': fields})
 
     async def _handle_request(self, request: MockserverRequest):
-        trace_id = request.headers.get(self.trace_id_header)
-        nofail = self._nofail
-        if self.tracing_enabled and not _is_from_client_fixture(trace_id):
-            nofail = True
         if not self.session:
-            error_message = 'Internal error: missing mockserver fixture'
-            if nofail:
-                return _internal_error(error_message)
-            raise exceptions.MockServerError(error_message)
+            raise exceptions.MockServerError(
+                'Internal error: mockserver session was not initialized'
+            )
 
-        if self.tracing_enabled and _is_other_test(
-            trace_id,
-            self.session.trace_id,
-        ):
+        nofail = self._nofail
+        trace_id = request.headers.get(self.trace_id_header)
+        traceid_manager = self.session.traceid_manager
+        if self.tracing_enabled and not traceid_manager.is_testsuite(trace_id):
+            nofail = True
+
+        if self.tracing_enabled and traceid_manager.is_other_test(trace_id):
             self._report_other_test_request(request, trace_id)
             return _internal_error(REQUEST_FROM_ANOTHER_TEST_ERROR)
         try:
@@ -393,7 +387,7 @@ class MockserverFixture:
 
     @property
     def trace_id(self) -> str:
-        return self._session.trace_id
+        return self._session.traceid_manager.trace_id
 
     def handler(
         self,
@@ -715,18 +709,6 @@ def _create_unix_mockserver_info(
         port=None,
         ssl=None,
     )
-
-
-def generate_trace_id() -> str:
-    return _TRACE_ID_PREFIX + uuid.uuid4().hex
-
-
-def _is_from_client_fixture(trace_id: str | None) -> bool:
-    return trace_id is not None and trace_id.startswith(_TRACE_ID_PREFIX)
-
-
-def _is_other_test(trace_id: str | None, current_trace_id: str) -> bool:
-    return trace_id != current_trace_id and _is_from_client_fixture(trace_id)
 
 
 def _path_from_message(message):

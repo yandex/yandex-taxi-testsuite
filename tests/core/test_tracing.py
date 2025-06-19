@@ -12,7 +12,6 @@ def test_tracing():
     assert not traceid_manager.is_testsuite(None)
     assert not traceid_manager.is_testsuite('foo')
 
-
     assert traceid_manager.is_other_test('test0')
     assert traceid_manager.is_other_test('test1')
     assert not traceid_manager.is_other_test('this test')

@@ -18,11 +18,11 @@ else:
 def unix_mockserver(
     asyncexc_append,
     _unix_mockserver: server.Server,
-    _mockserver_trace_id: str,
+    testsuite_traceid_manager,
 ):
     with _unix_mockserver.new_session(
         asyncexc_append=asyncexc_append,
-        trace_id=_mockserver_trace_id,
+        traceid_manager=testsuite_traceid_manager,
     ) as session:
         yield server.MockserverFixture(_unix_mockserver, session)
 

@@ -16,6 +16,7 @@ pytest plugins:
    mockserver
    servicerunner
    testpoint
+   tracing
    other_plugins
    utils
    tcp_mockserver

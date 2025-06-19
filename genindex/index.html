@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; yandex-taxi-testsuite 0.3.4 documentation</title>
+    <title>Index &#8212; yandex-taxi-testsuite 0.3.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css?v=51489a46" />
-    <script src="../_static/documentation_options.js?v=1c9fc4b9"></script>
+    <script src="../_static/documentation_options.js?v=3913bc8d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="#" />
@@ -88,6 +88,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig.__getitem__">__getitem__() (testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig method)</a>
+</li>
       <li><a href="../servicerunner/#testsuite.daemons.service_client.AiohttpClient.__init__">__init__() (testsuite.daemons.service_client.AiohttpClient method)</a>
 
       <ul>
@@ -146,9 +148,13 @@
 </li>
       <li><a href="../tcp_mockserver/#testsuite.plugins.tcp_mockserver.Mockserver.client_handler">client_handler() (testsuite.plugins.tcp_mockserver.Mockserver method)</a>
 </li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.control.PgDatabaseWrapper.conn">conn (testsuite.databases.pgsql.control.PgDatabaseWrapper property)</a>
+</li>
+      <li><a href="../mongo/#testsuite.databases.mongo.connection.ConnectionInfo">ConnectionInfo (class in testsuite.databases.mongo.connection)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="../mongo/#testsuite.databases.mongo.connection.ConnectionInfo">ConnectionInfo (class in testsuite.databases.mongo.connection)</a>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.control.PgDatabaseWrapper.conninfo">conninfo (testsuite.databases.pgsql.control.PgDatabaseWrapper property)</a>
 </li>
       <li><a href="../kafka/#testsuite.databases.kafka.classes.ConsumedMessage">ConsumedMessage (class in testsuite.databases.kafka.classes)</a>
 </li>
@@ -161,6 +167,8 @@
       <li><a href="../servicerunner/#testsuite.daemons.pytest_plugin.CreateDaemonScope">CreateDaemonScope (class in testsuite.daemons.pytest_plugin)</a>
 </li>
       <li><a href="../servicerunner/#testsuite.daemons.pytest_plugin.CreateServiceClientFixture">CreateServiceClientFixture (class in testsuite.daemons.pytest_plugin)</a>
+</li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.control.PgDatabaseWrapper.cursor">cursor() (testsuite.databases.pgsql.control.PgDatabaseWrapper method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -178,6 +186,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.control.PgDatabaseWrapper.dict_cursor">dict_cursor() (testsuite.databases.pgsql.control.PgDatabaseWrapper method)</a>
+</li>
       <li><a href="../utils/#testsuite.matching.DictOf">DictOf (class in testsuite.matching)</a>
 </li>
   </ul></td>
@@ -226,6 +236,8 @@
       </ul></li>
       <li><a href="../staticfiles/#testsuite.plugins.common.get_directory_path">get_directory_path() (in module testsuite.plugins.common)</a>
 </li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.connection.PgConnectionInfo.get_dsn">get_dsn() (testsuite.databases.pgsql.connection.PgConnectionInfo method)</a>
+</li>
       <li><a href="../staticfiles/#testsuite.plugins.common.get_file_path">get_file_path() (in module testsuite.plugins.common)</a>
 </li>
       <li><a href="../staticfiles/#testsuite.plugins.common.get_search_pathes">get_search_pathes() (in module testsuite.plugins.common)</a>
@@ -233,7 +245,11 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../mongo/#testsuite.databases.mongo.connection.ConnectionInfo.get_uri">get_uri() (testsuite.databases.mongo.connection.ConnectionInfo method)</a>
+
+      <ul>
+        <li><a href="../postgresql/#testsuite.databases.pgsql.connection.PgConnectionInfo.get_uri">(testsuite.databases.pgsql.connection.PgConnectionInfo method)</a>
 </li>
+      </ul></li>
       <li><a href="../staticfiles/#testsuite.plugins.common.GetDirectoryPathFixture">GetDirectoryPathFixture (class in testsuite.plugins.common)</a>
 </li>
       <li><a href="../staticfiles/#testsuite.plugins.common.GetFilePathFixture">GetFilePathFixture (class in testsuite.plugins.common)</a>
@@ -266,8 +282,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../staticfiles/#testsuite.plugins.common.initial_data_path">initial_data_path() (in module testsuite.plugins.common)</a>
 </li>
+      <li><a href="../tracing/#testsuite.tracing.TraceidManager.is_other_test">is_other_test() (testsuite.tracing.TraceidManager method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../tracing/#testsuite.tracing.TraceidManager.is_testsuite">is_testsuite() (testsuite.tracing.TraceidManager method)</a>
+</li>
       <li><a href="../utils/#testsuite.matching.IsInstance">IsInstance (class in testsuite.matching)</a>
 </li>
   </ul></td>
@@ -413,6 +433,20 @@
         <li><a href="../servicerunner/#testsuite.daemons.service_client.Client.patch">(testsuite.daemons.service_client.Client method)</a>
 </li>
       </ul></li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.connection.PgConnectionInfo">PgConnectionInfo (class in testsuite.databases.pgsql.connection)</a>
+</li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.control.PgDatabaseWrapper">PgDatabaseWrapper (class in testsuite.databases.pgsql.control)</a>
+</li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql">pgsql() (in module testsuite.databases.pgsql.pytest_plugin)</a>
+</li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql_cleanup_exclude_tables">pgsql_cleanup_exclude_tables() (in module testsuite.databases.pgsql.pytest_plugin)</a>
+</li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql_local">pgsql_local() (in module testsuite.databases.pgsql.pytest_plugin)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql_local_create">pgsql_local_create() (in module testsuite.databases.pgsql.pytest_plugin)</a>
+</li>
       <li><a href="../mockserver/#testsuite.mockserver.server.MockserverFixture.port">port (testsuite.mockserver.server.MockserverFixture property)</a>
 </li>
       <li><a href="../servicerunner/#testsuite.daemons.service_client.AiohttpClient.post">post() (testsuite.daemons.service_client.AiohttpClient method)</a>
@@ -421,8 +455,6 @@
         <li><a href="../servicerunner/#testsuite.daemons.service_client.Client.post">(testsuite.daemons.service_client.Client method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../servicerunner/#testsuite.daemons.service_client.AiohttpClient.put">put() (testsuite.daemons.service_client.AiohttpClient method)</a>
 
       <ul>
@@ -447,11 +479,13 @@
 </li>
       <li><a href="../utils/#testsuite.matching.recursive_partial_dict">recursive_partial_dict() (in module testsuite.matching)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../utils/#testsuite.matching.RegexString">RegexString (class in testsuite.matching)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../servicerunner/#testsuite.daemons.pytest_plugin.register_daemon_scope">register_daemon_scope() (in module testsuite.daemons.pytest_plugin)</a>
+</li>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.connection.PgConnectionInfo.replace">replace() (testsuite.databases.pgsql.connection.PgConnectionInfo method)</a>
 </li>
       <li><a href="../servicerunner/#testsuite.daemons.service_client.AiohttpClient.request">request() (testsuite.daemons.service_client.AiohttpClient method)</a>
 
@@ -475,12 +509,14 @@
 </li>
       <li><a href="../servicerunner/#testsuite.daemons.pytest_plugin.service_spawner_factory">service_spawner_factory() (in module testsuite.daemons.pytest_plugin)</a>
 </li>
-      <li><a href="../servicelogs/#testsuite.plugins.servicelogs.servicelogs_register_flusher">servicelogs_register_flusher() (in module testsuite.plugins.servicelogs)</a>
+      <li><a href="../postgresql/#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig">ServiceLocalConfig (class in testsuite.databases.pgsql.pytest_plugin)</a>
 </li>
-      <li><a href="../servicelogs/#testsuite.plugins.servicelogs.servicelogs_register_logfile">servicelogs_register_logfile() (in module testsuite.plugins.servicelogs)</a>
+      <li><a href="../servicelogs/#testsuite.plugins.servicelogs.servicelogs_register_flusher">servicelogs_register_flusher() (in module testsuite.plugins.servicelogs)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../servicelogs/#testsuite.plugins.servicelogs.servicelogs_register_logfile">servicelogs_register_logfile() (in module testsuite.plugins.servicelogs)</a>
+</li>
       <li><a href="../servicerunner/#testsuite.daemons.pytest_plugin.ServiceSpawnerFactory">ServiceSpawnerFactory (class in testsuite.daemons.pytest_plugin)</a>
 </li>
       <li><a href="../other_plugins/#testsuite.plugins.mocked_time.MockedTime.set">set() (testsuite.plugins.mocked_time.MockedTime method)</a>
@@ -510,13 +546,23 @@
         <li><a href="../servicelogs/#module-testsuite.logcapture">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../staticfiles/#testsuite.plugins.common.testsuite_get_source_directory">testsuite_get_source_directory() (in module testsuite.plugins.common)</a>
 </li>
       <li><a href="../staticfiles/#testsuite.plugins.common.testsuite_get_source_path">testsuite_get_source_path() (in module testsuite.plugins.common)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../tracing/#testsuite.plugins.tracing.testsuite_trace_id">testsuite_trace_id() (in module testsuite.plugins.tracing)</a>
+</li>
+      <li><a href="../tracing/#testsuite.plugins.tracing.testsuite_traceid_generator">testsuite_traceid_generator() (in module testsuite.plugins.tracing)</a>
+</li>
+      <li><a href="../tracing/#testsuite.plugins.tracing.testsuite_traceid_manager">testsuite_traceid_manager() (in module testsuite.plugins.tracing)</a>
+</li>
       <li><a href="../utils/#testsuite.utils.callinfo.AsyncCallQueue.times_called">times_called (testsuite.utils.callinfo.AsyncCallQueue property)</a>
+</li>
+      <li><a href="../tracing/#testsuite.tracing.TraceidManager.trace_id">trace_id (testsuite.tracing.TraceidManager property)</a>
+</li>
+      <li><a href="../tracing/#testsuite.tracing.TraceidManager">TraceidManager (class in testsuite.tracing)</a>
 </li>
   </ul></td>
 </tr></table>

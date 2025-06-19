@@ -4,6 +4,8 @@ import pytest
 
 from testsuite.tracing import TraceidManager
 
+_TRACE_ID_PREFIX = 'testsuite-'
+
 
 @pytest.fixture(scope='session')
 def testsuite_traceid_generator():
@@ -12,7 +14,7 @@ def testsuite_traceid_generator():
     """
 
     def generator():
-        return uuid.uuid4().hex
+        return _TRACE_ID_PREFIX + uuid.uuid4().hex
 
     return generator
 

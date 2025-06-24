@@ -1,4 +1,3 @@
-import random
 import uuid
 
 import pytest
@@ -13,7 +12,7 @@ def testsuite_traceid_generator():
     """
 
     def generator():
-        return 'f' * 12 + ''.join(random.choices('0123456789abcdef', k=20))
+        return uuid.uuid4().hex
 
     return generator
 

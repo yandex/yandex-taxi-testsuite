@@ -21,6 +21,7 @@ pytest_plugins = [
     'testsuite.plugins.testpoint',
     'testsuite.plugins.tracing',
     'testsuite.plugins.verify_file_paths',
+    'testsuite.plugins.compare_transform',
 ]
 
 

@@ -1,7 +1,6 @@
 import pytest
 
-from testsuite import matching
-from testsuite._internal import compare_transform
+from testsuite import compare_transform, matching
 
 
 @pytest.mark.parametrize(
@@ -12,7 +11,9 @@ from testsuite._internal import compare_transform
     ),
 )
 def test_eq(mode):
-    comparator = compare_transform.CompareTransform(mode)
+    comparator = compare_transform.CompareTransform(
+        mode, compare_transform.pytest_register_compare_transform_hooks()
+    )
     left, right = comparator.visit([1, 2, 3], matching.AnyList())
     assert left == [1, 2, 3]
     assert right == [1, 2, 3]
@@ -27,7 +28,9 @@ def test_eq(mode):
     ),
 )
 def test_neq(mode):
-    comparator = compare_transform.CompareTransform(mode)
+    comparator = compare_transform.CompareTransform(
+        mode, compare_transform.pytest_register_compare_transform_hooks()
+    )
     left, right = comparator.visit({}, matching.AnyList())
     assert left == {}
     assert right == matching.AnyList()
@@ -44,7 +47,9 @@ def test_neq(mode):
     ),
 )
 def test_type_mismatch(mode):
-    comparator = compare_transform.CompareTransform(mode)
+    comparator = compare_transform.CompareTransform(
+        mode, compare_transform.pytest_register_compare_transform_hooks()
+    )
     comparator.visit(matching.AnyList(), {})
     assert comparator.errors == {
         'left': [

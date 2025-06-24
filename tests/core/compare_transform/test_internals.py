@@ -1,4 +1,4 @@
-from testsuite._internal import compare_transform
+from testsuite import compare_transform
 
 
 def test_build_path():

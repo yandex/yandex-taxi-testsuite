@@ -1,7 +1,6 @@
 import pytest
 
-from testsuite import matching
-from testsuite._internal import compare_transform
+from testsuite import compare_transform, matching
 
 
 @pytest.mark.parametrize(
@@ -12,7 +11,9 @@ from testsuite._internal import compare_transform
     ),
 )
 def test_eq(mode):
-    comparator = compare_transform.CompareTransform(mode)
+    comparator = compare_transform.CompareTransform(
+        mode, compare_transform.pytest_register_compare_transform_hooks()
+    )
     mapped_left, mapped_right = comparator.visit(
         ['foo', 'bar'],
         matching.ListOf(matching.any_string),
@@ -29,7 +30,9 @@ def test_eq(mode):
     ),
 )
 def test_neq(mode):
-    comparator = compare_transform.CompareTransform(mode)
+    comparator = compare_transform.CompareTransform(
+        mode, compare_transform.pytest_register_compare_transform_hooks()
+    )
     mapped_left, mapped_right = comparator.visit(
         ['foo', 'bar', 123],
         matching.ListOf(matching.any_string),

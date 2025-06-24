@@ -1,14 +1,20 @@
-from testsuite._internal import compare_transform
+from testsuite import compare_transform
 
 
 def test_value_neq():
-    comparator = compare_transform.CompareTransform()
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.pytest_register_compare_transform_hooks(),
+    )
     comparator.visit({'foo': 'bar'}, {'foo': 123})
     assert comparator.errors == {"left['foo']": ["'bar' != 123"]}
 
 
 def test_length_neq():
-    comparator = compare_transform.CompareTransform()
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.pytest_register_compare_transform_hooks(),
+    )
     comparator.visit({'foo': 'bar'}, {'foo': 'bar', 'bar': 123})
     assert comparator.errors == {
         'left': [
@@ -19,7 +25,10 @@ def test_length_neq():
 
 
 def test_type_neq():
-    comparator = compare_transform.CompareTransform()
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.pytest_register_compare_transform_hooks(),
+    )
     comparator.visit({'foo': 'bar'}, 123)
     assert comparator.errors == {
         'left': ['dict expected on the right, got 123 instead']
@@ -27,7 +36,10 @@ def test_type_neq():
 
 
 def test_extra_keys():
-    comparator = compare_transform.CompareTransform()
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.pytest_register_compare_transform_hooks(),
+    )
     comparator.visit({'foo': 'bar'}, {'bar': 'foo'})
     assert comparator.errors == {
         'left': [

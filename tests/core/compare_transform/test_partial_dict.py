@@ -1,11 +1,13 @@
 import pytest
 
-from testsuite import matching
-from testsuite._internal import compare_transform
+from testsuite import compare_transform, matching
 
 
 def test_basic():
-    comparator = compare_transform.CompareTransform()
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.pytest_register_compare_transform_hooks(),
+    )
     _, right_mapped = comparator.visit(
         {'foo': 'bar', 'extra': 123},
         matching.PartialDict(foo='bar', bar=123),
@@ -22,7 +24,8 @@ def test_basic():
 
 def test_experimental():
     comparator = compare_transform.CompareTransform(
-        compare_transform.TransformMode.EXPERIMENTAL
+        compare_transform.TransformMode.EXPERIMENTAL,
+        compare_transform.pytest_register_compare_transform_hooks(),
     )
     left_mapped, right_mapped = comparator.visit(
         {'foo': 'bar', 'extra': 123},
@@ -47,7 +50,9 @@ def test_experimental():
     ),
 )
 def test_match_error(mode):
-    comparator = compare_transform.CompareTransform(mode)
+    comparator = compare_transform.CompareTransform(
+        mode, compare_transform.pytest_register_compare_transform_hooks()
+    )
     _, right = comparator.visit(
         matching.PartialDict(foo='bar', bar=123),
         123,

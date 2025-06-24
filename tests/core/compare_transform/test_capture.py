@@ -1,9 +1,11 @@
-from testsuite import matching
-from testsuite._internal import compare_transform
+from testsuite import compare_transform, matching
 
 
 def test_neq():
-    comparator = compare_transform.CompareTransform()
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.pytest_register_compare_transform_hooks(),
+    )
     left, right = comparator.visit(
         'foo',
         matching.Capture(matching.any_integer),
@@ -14,7 +16,10 @@ def test_neq():
 
 
 def test_neq_list_of():
-    comparator = compare_transform.CompareTransform()
+    comparator = compare_transform.CompareTransform(
+        compare_transform.TransformMode.DEFAULT,
+        compare_transform.pytest_register_compare_transform_hooks(),
+    )
     left, right = comparator.visit(
         [1, 2, 3, 'foo'],
         matching.Capture(matching.ListOf(matching.any_integer)),

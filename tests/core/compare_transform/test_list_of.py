@@ -12,9 +12,9 @@ from testsuite import compare_transform, matching
 )
 def test_eq(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    mapped_left, mapped_right = comparator.visit(
+    mapped_left, mapped_right = comparator.compare_and_transform(
         ['foo', 'bar'],
         matching.ListOf(matching.any_string),
     )
@@ -31,9 +31,9 @@ def test_eq(mode):
 )
 def test_neq(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    mapped_left, mapped_right = comparator.visit(
+    mapped_left, mapped_right = comparator.compare_and_transform(
         ['foo', 'bar', 123],
         matching.ListOf(matching.any_string),
     )

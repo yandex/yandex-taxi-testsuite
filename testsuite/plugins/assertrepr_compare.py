@@ -41,7 +41,9 @@ class AssertionPlugin:
             'compare_transform'
         ).comparator()
         try:
-            mapped_left, mapped_right = comparator.visit(left, right)
+            mapped_left, mapped_right = comparator.compare_and_transform(
+                left, right
+            )
         except Exception:
             logging.exception('testsuite assertrepr_compare failed:')
             return None

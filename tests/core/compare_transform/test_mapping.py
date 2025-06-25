@@ -37,25 +37,25 @@ from testsuite import compare_transform, matching
 def test_eq(left, right):
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
 
     # compare left and right
-    _, mapped_right = comparator.visit(left, right)
+    _, mapped_right = comparator.compare_and_transform(left, right)
     assert not comparator.errors
     assert left == _, mapped_right
 
     # compare right and left
-    _, mapped_left = comparator.visit(right, left)
+    _, mapped_left = comparator.compare_and_transform(right, left)
     assert not comparator.errors
     assert mapped_left == right
 
     # compare left and left
-    _, mapped_left = comparator.visit(left, left)
+    _, mapped_left = comparator.compare_and_transform(left, left)
     assert not comparator.errors
     assert mapped_left == left
 
     # compare right and right
-    _, mapped_right = comparator.visit(right, right)
+    _, mapped_right = comparator.compare_and_transform(right, right)
     assert not comparator.errors
     assert _, mapped_right == right

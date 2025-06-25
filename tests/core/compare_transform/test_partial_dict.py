@@ -6,9 +6,9 @@ from testsuite import compare_transform, matching
 def test_basic():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    _, right_mapped = comparator.visit(
+    _, right_mapped = comparator.compare_and_transform(
         {'foo': 'bar', 'extra': 123},
         matching.PartialDict(foo='bar', bar=123),
     )
@@ -25,9 +25,9 @@ def test_basic():
 def test_experimental():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.EXPERIMENTAL,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    left_mapped, right_mapped = comparator.visit(
+    left_mapped, right_mapped = comparator.compare_and_transform(
         {'foo': 'bar', 'extra': 123},
         matching.PartialDict(foo='bar', bar=123),
     )
@@ -51,9 +51,9 @@ def test_experimental():
 )
 def test_match_error(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    _, right = comparator.visit(
+    _, right = comparator.compare_and_transform(
         matching.PartialDict(foo='bar', bar=123),
         123,
     )

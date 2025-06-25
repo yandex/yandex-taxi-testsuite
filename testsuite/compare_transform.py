@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import collections
 import contextlib
+import dataclasses
 import enum
 import typing
 
@@ -10,20 +11,36 @@ import py.io
 SetTypes = (set, frozenset)
 
 
+@dataclasses.dataclass
+class TypeTransformer:
+    types: type | tuple
+    compare_and_transform: typing.Callable[
+        [typing.Any, typing.Any, CompareTransform],
+        tuple[typing.Any, typing.Any],
+    ]
+
+
 class TransformMode(enum.Enum):
     DEFAULT = 'default'
     EXPERIMENTAL = 'experimental'
 
 
 class CompareTransform:
-    def __init__(self, mode: TransformMode, hooks: list[tuple]):
+    def __init__(
+        self, mode: TransformMode, transformers: list[TypeTransformer]
+    ):
         self.path: list[str] = ['left']
         self.errors: typing.DefaultDict[str, list[str]] = (
             collections.defaultdict(list)
         )
-
         self._mode = mode
-        self._hooks = hooks
+        self._transformers = transformers
+
+    def _resolve_transformer(self, value: typing.Any) -> TypeTransformer | None:
+        for transformer in self._transformers:
+            if isinstance(value, transformer.types):
+                return transformer
+        return None
 
     def report_error(
         self, message: str, path: str | tuple | list | None = None
@@ -31,47 +48,47 @@ class CompareTransform:
         self.errors[_build_path(self.path, path)].append(message)
 
     @contextlib.contextmanager
-    def push(self, path: str):
+    def push_path(self, path: str) -> typing.Generator:
         try:
             self.path.append(path)
             yield
         finally:
             self.path.pop(-1)
 
-    def visit(
+    def resolve_values(
+        self, left: typing.Any, right: typing.Any
+    ) -> tuple[typing.Any, typing.Any]:
+        if self._mode == TransformMode.DEFAULT:
+            return _resolve_values_default(left, right, self.report_error)
+        return _resolve_values_experimental(left, right, self.report_error)
+
+    def compare_and_transform(
         self, left: typing.Any, right: typing.Any
     ) -> tuple[typing.Any, typing.Any]:
         if left == right:
-            return left, left
+            return left, right
 
-        if self._mode == TransformMode.DEFAULT:
-            left, right = _resolve_values_default(
-                left, right, self.report_error
-            )
-        else:
-            left, right = _resolve_values_experimental(
-                left, right, self.report_error
-            )
+        left, right = self.resolve_values(left, right)
 
-        hook = self._choose_hook(left)
-        if hook:
-            return hook(left, right, self)
+        transformer = self._resolve_transformer(left)
+        if transformer is not None:
+            return transformer.compare_and_transform(left, right, self)
 
         self.report_error(f'{py.io.saferepr(left)} != {py.io.saferepr(right)}')
         return left, right
 
-    def _choose_hook(self, value):
-        for hook in self._hooks:
-            if isinstance(value, hook[0]):
-                return hook[1]
-        return None
 
-
-def pytest_register_compare_transform_hooks():
+def pytest_register_compare_transform_transformers() -> list[TypeTransformer]:
     return [
-        ((list,), _visit_list),
-        ((dict,), _visit_dict),
-        (SetTypes, _visit_set),
+        TypeTransformer(
+            types=list, compare_and_transform=_compare_and_transform_list
+        ),
+        TypeTransformer(
+            types=dict, compare_and_transform=_compare_and_transform_dict
+        ),
+        TypeTransformer(
+            types=SetTypes, compare_and_transform=_compare_and_transform_set
+        ),
     ]
 
 
@@ -104,7 +121,9 @@ def _format_keys(keys):
     return ', '.join(repr(key) for key in sorted(keys))
 
 
-def _visit_list(left, right, comparator) -> tuple:
+def _compare_and_transform_list(
+    left, right, comparator: CompareTransform
+) -> tuple:
     if not isinstance(right, list):
         comparator.report_error(
             f'list expected on the right got {py.io.saferepr(right)} instead',
@@ -122,8 +141,10 @@ def _visit_list(left, right, comparator) -> tuple:
     for idx, (item_left, item_right) in enumerate(
         zip(left, right),
     ):
-        with comparator.push(f'[{idx}]'):
-            left_mapped, right_mapped = comparator.visit(item_left, item_right)
+        with comparator.push_path(f'[{idx}]'):
+            left_mapped, right_mapped = comparator.compare_and_transform(
+                item_left, item_right
+            )
             left_result.append(left_mapped)
             right_result.append(right_mapped)
     if left_len > right_len:
@@ -141,7 +162,9 @@ def _visit_list(left, right, comparator) -> tuple:
     return left_result, right_result
 
 
-def _visit_dict(left, right, comparator) -> tuple:
+def _compare_and_transform_dict(
+    left, right, comparator: CompareTransform
+) -> tuple:
     if not isinstance(right, dict):
         comparator.report_error(
             f'dict expected on the right, got {py.io.saferepr(right)} instead'
@@ -175,14 +198,18 @@ def _visit_dict(left, right, comparator) -> tuple:
     for key in right_only:
         right_result[key] = right[key]
     for key in common_keys:
-        with comparator.push(f'[{key!r}]'):
-            left_mapped, right_mapped = comparator.visit(left[key], right[key])
+        with comparator.push_path(f'[{key!r}]'):
+            left_mapped, right_mapped = comparator.compare_and_transform(
+                left[key], right[key]
+            )
             left_result[key] = left_mapped
             right_result[key] = right_mapped
     return left_result, right_result
 
 
-def _visit_set(left, right, comparator) -> tuple:
+def _compare_and_transform_set(
+    left, right, comparator: CompareTransform
+) -> tuple:
     if not isinstance(right, SetTypes):
         comparator.report_error(
             f'set expected on the right got {py.io.saferepr(right)} instead',

@@ -6,24 +6,27 @@ from testsuite import compare_transform
 
 
 class Hookspec:
-    def pytest_register_compare_transform_hooks(self):
-        pass
+    def pytest_register_compare_transform_transformers(
+        self,
+    ) -> list[compare_transform.TypeTransformer]:
+        return []
 
 
 class CompareTransformPlugin:
     def __init__(self, mode: compare_transform.TransformMode):
-        self._compare_transform_hooks: list[tuple] = []
+        self._transformers: list[compare_transform.TypeTransformer] = []
         self._mode: compare_transform.TransformMode = mode
 
     def comparator(self):
         return compare_transform.CompareTransform(
-            self._mode, self._compare_transform_hooks
+            self._mode, self._transformers
         )
 
     def pytest_sessionstart(self, session):
-        self._compare_transform_hooks = list(
-            session.config.pluginmanager.hook.pytest_register_compare_transform_hooks()
-        )
+        transformers_list = session.config.pluginmanager.hook.pytest_register_compare_transform_transformers()
+
+        for transformers in transformers_list:
+            self._transformers.extend(transformers)
 
     def pytest_addhooks(self, pluginmanager):
         pluginmanager.add_hookspecs(Hookspec)

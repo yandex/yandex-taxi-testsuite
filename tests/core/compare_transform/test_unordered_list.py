@@ -6,9 +6,9 @@ from testsuite import compare_transform, matching
 def test_basic():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    _, right_mapped = comparator.visit(
+    _, right_mapped = comparator.compare_and_transform(
         [4, 3, 2, 1],
         matching.unordered_list([1, 2, 4]),
     )
@@ -27,9 +27,9 @@ def test_basic():
 def test_experimental_basic():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.EXPERIMENTAL,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    left_mapped, right_mapped = comparator.visit(
+    left_mapped, right_mapped = comparator.compare_and_transform(
         [4, 3, 2, 1],
         matching.unordered_list([1, 2, 4]),
     )
@@ -55,9 +55,9 @@ def test_experimental_basic():
 )
 def test_match_error(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    comparator.visit(
+    comparator.compare_and_transform(
         matching.unordered_list([1, 2, 4]),
         42,
     )
@@ -80,9 +80,9 @@ def test_match_error(mode):
 def test_order_restore(left, right, expected):
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    _, right_mapped = comparator.visit(
+    _, right_mapped = comparator.compare_and_transform(
         left,
         right,
     )
@@ -102,9 +102,9 @@ def test_order_restore(left, right, expected):
 def test_order_restore_experimental(left, right, expected):
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.EXPERIMENTAL,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    left_mapped, righ_mapped = comparator.visit(
+    left_mapped, righ_mapped = comparator.compare_and_transform(
         left,
         right,
     )
@@ -116,9 +116,9 @@ def test_order_restore_experimental(left, right, expected):
 def test_same_key():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    _, right_mapped = comparator.visit(
+    _, right_mapped = comparator.compare_and_transform(
         [0], matching.unordered_list([1], key=lambda x: 1)
     )
     assert right_mapped == [1]

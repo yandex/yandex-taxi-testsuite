@@ -12,9 +12,11 @@ from testsuite import compare_transform, matching
 )
 def test_eq(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    left, right = comparator.visit([1, 2, 3], matching.AnyList())
+    left, right = comparator.compare_and_transform(
+        [1, 2, 3], matching.AnyList()
+    )
     assert left == [1, 2, 3]
     assert right == [1, 2, 3]
     assert not comparator.errors
@@ -29,9 +31,9 @@ def test_eq(mode):
 )
 def test_neq(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    left, right = comparator.visit({}, matching.AnyList())
+    left, right = comparator.compare_and_transform({}, matching.AnyList())
     assert left == {}
     assert right == matching.AnyList()
     assert comparator.errors == {
@@ -48,9 +50,9 @@ def test_neq(mode):
 )
 def test_type_mismatch(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    comparator.visit(matching.AnyList(), {})
+    comparator.compare_and_transform(matching.AnyList(), {})
     assert comparator.errors == {
         'left': [
             '<AnyList> != {}',

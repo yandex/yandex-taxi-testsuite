@@ -12,9 +12,9 @@ from testsuite import compare_transform, matching
 )
 def test_eq(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    mapped_left, mapped_right = comparator.visit(
+    mapped_left, mapped_right = comparator.compare_and_transform(
         {'foo': 'bar'},
         matching.DictOf(matching.any_string, matching.any_string),
     )
@@ -31,9 +31,9 @@ def test_eq(mode):
 )
 def test_value_nq(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
-    comparator.visit(
+    comparator.compare_and_transform(
         {'foo': 'bar'},
         matching.DictOf(matching.any_string, matching.any_integer),
     )
@@ -50,9 +50,9 @@ def test_value_nq(mode):
 def test_value_nq_reversed(mode):
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    left_mapped, right_mapped = comparator.visit(
+    left_mapped, right_mapped = comparator.compare_and_transform(
         matching.DictOf(matching.any_string, matching.any_integer),
         {'foo': 'bar'},
     )
@@ -70,10 +70,10 @@ def test_value_nq_reversed(mode):
 )
 def test_key_nq(mode):
     comparator = compare_transform.CompareTransform(
-        mode, compare_transform.pytest_register_compare_transform_hooks()
+        mode, compare_transform.pytest_register_compare_transform_transformers()
     )
 
-    comparator.visit(
+    comparator.compare_and_transform(
         {'foo': 'bar'},
         matching.DictOf(matching.any_integer, matching.any_string),
     )

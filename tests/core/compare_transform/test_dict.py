@@ -4,18 +4,18 @@ from testsuite import compare_transform
 def test_value_neq():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    comparator.visit({'foo': 'bar'}, {'foo': 123})
+    comparator.compare_and_transform({'foo': 'bar'}, {'foo': 123})
     assert comparator.errors == {"left['foo']": ["'bar' != 123"]}
 
 
 def test_length_neq():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    comparator.visit({'foo': 'bar'}, {'foo': 'bar', 'bar': 123})
+    comparator.compare_and_transform({'foo': 'bar'}, {'foo': 'bar', 'bar': 123})
     assert comparator.errors == {
         'left': [
             'dict length does not match len(left)=1, len(right)=2',
@@ -27,9 +27,9 @@ def test_length_neq():
 def test_type_neq():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    comparator.visit({'foo': 'bar'}, 123)
+    comparator.compare_and_transform({'foo': 'bar'}, 123)
     assert comparator.errors == {
         'left': ['dict expected on the right, got 123 instead']
     }
@@ -38,9 +38,9 @@ def test_type_neq():
 def test_extra_keys():
     comparator = compare_transform.CompareTransform(
         compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_hooks(),
+        compare_transform.pytest_register_compare_transform_transformers(),
     )
-    comparator.visit({'foo': 'bar'}, {'bar': 'foo'})
+    comparator.compare_and_transform({'foo': 'bar'}, {'bar': 'foo'})
     assert comparator.errors == {
         'left': [
             "extra keys on the left: 'foo'",

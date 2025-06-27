@@ -11,22 +11,14 @@ from testsuite import compare_transform, matching
         (1, matching.any_integer),
     ],
 )
-def test_eq(left, right):
-    comparator = compare_transform.CompareTransform(
-        compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_transformers(),
-    )
-    comparator.compare_and_transform(left, right)
-    assert not comparator.errors
+def test_eq(left, right, parametrized_comparator):
+    parametrized_comparator.compare_and_transform(left, right)
+    assert not parametrized_comparator.errors
 
 
-def test_neq():
-    comparator = compare_transform.CompareTransform(
-        compare_transform.TransformMode.DEFAULT,
-        compare_transform.pytest_register_compare_transform_transformers(),
-    )
-    comparator.compare_and_transform(1, 2)
-    assert comparator.errors == {
+def test_neq(parametrized_comparator):
+    parametrized_comparator.compare_and_transform(1, 2)
+    assert parametrized_comparator.errors == {
         'left': [
             '1 != 2',
         ]

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import collections
 import contextlib
-import dataclasses
 import enum
 import typing
 
@@ -11,13 +10,30 @@ import py.io
 SetTypes = (set, frozenset)
 
 
-@dataclasses.dataclass
 class TypeTransformer:
-    types: type | tuple
-    compare_and_transform: typing.Callable[
-        [typing.Any, typing.Any, CompareTransform],
-        tuple[typing.Any, typing.Any],
-    ]
+    def __init__(
+        self,
+        comparator: typing.Callable[
+            [typing.Any, typing.Any, CompareTransform],
+            tuple[typing.Any, typing.Any],
+        ],
+        types: type | tuple | None = None,
+        matcher: typing.Callable[[typing.Any], bool] | None = None,
+    ):
+        assert types or matcher, (
+            'either types or matcher must be specified for transformer'
+        )
+
+        self._comparator = comparator
+        self._matcher = matcher or (lambda x: isinstance(x, types))  # type: ignore[arg-type]
+
+    def matches(self, value: typing.Any) -> bool:
+        return self._matcher(value)
+
+    def compare_and_transform(
+        self, left: typing.Any, right: typing.Any, comparator: CompareTransform
+    ) -> tuple[typing.Any, typing.Any]:
+        return self._comparator(left, right, comparator)
 
 
 class TransformMode(enum.Enum):
@@ -36,11 +52,24 @@ class CompareTransform:
         self._mode = mode
         self._transformers = transformers
 
-    def _resolve_transformer(self, value: typing.Any) -> TypeTransformer | None:
-        for transformer in self._transformers:
-            if isinstance(value, transformer.types):
-                return transformer
-        return None
+    def _try_match_transformer(
+        self, value: typing.Any
+    ) -> TypeTransformer | None:
+        return next(
+            (
+                transformer
+                for transformer in self._transformers
+                if transformer.matches(value)
+            ),
+            None,
+        )
+
+    def _resolve_values(
+        self, left: typing.Any, right: typing.Any
+    ) -> tuple[typing.Any, typing.Any]:
+        if self._mode == TransformMode.DEFAULT:
+            return _resolve_values_default(left, right, self.report_error)
+        return _resolve_values_experimental(left, right, self.report_error)
 
     def report_error(
         self, message: str, path: str | tuple | list | None = None
@@ -55,22 +84,15 @@ class CompareTransform:
         finally:
             self.path.pop(-1)
 
-    def resolve_values(
-        self, left: typing.Any, right: typing.Any
-    ) -> tuple[typing.Any, typing.Any]:
-        if self._mode == TransformMode.DEFAULT:
-            return _resolve_values_default(left, right, self.report_error)
-        return _resolve_values_experimental(left, right, self.report_error)
-
     def compare_and_transform(
         self, left: typing.Any, right: typing.Any
     ) -> tuple[typing.Any, typing.Any]:
         if left == right:
             return left, right
 
-        left, right = self.resolve_values(left, right)
+        left, right = self._resolve_values(left, right)
 
-        transformer = self._resolve_transformer(left)
+        transformer = self._try_match_transformer(left)
         if transformer is not None:
             return transformer.compare_and_transform(left, right, self)
 
@@ -78,17 +100,11 @@ class CompareTransform:
         return left, right
 
 
-def pytest_register_compare_transform_transformers() -> list[TypeTransformer]:
+def default_transformers() -> list[TypeTransformer]:
     return [
-        TypeTransformer(
-            types=list, compare_and_transform=_compare_and_transform_list
-        ),
-        TypeTransformer(
-            types=dict, compare_and_transform=_compare_and_transform_dict
-        ),
-        TypeTransformer(
-            types=SetTypes, compare_and_transform=_compare_and_transform_set
-        ),
+        TypeTransformer(types=list, comparator=_compare_and_transform_list),
+        TypeTransformer(types=dict, comparator=_compare_and_transform_dict),
+        TypeTransformer(types=SetTypes, comparator=_compare_and_transform_set),
     ]
 
 

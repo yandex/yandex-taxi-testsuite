@@ -52,3 +52,9 @@ def pytest_addoption(parser: pytest.Parser):
         default=compare_transform.TransformMode.DEFAULT,
         help='Transformation mode in assertion representation',
     )
+
+
+def pytest_register_compare_transform_transformers() -> list[
+    compare_transform.TypeTransformer
+]:
+    return compare_transform.default_transformers()

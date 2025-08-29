@@ -120,10 +120,16 @@ start_sharded_cluster() {
         exit 1
     } &
 
-    sleep 1
-
     echo "Adding shard0..."
-    $MONGO --port $MONGOS_PORT --eval 'sh.addShard("rs0/localhost:'"$SHARD_PORT"'")'
+
+    for i in $(seq 1 10); do
+        if [ $MONGO --port $MONGOS_PORT --eval 'sh.addShard("rs0/localhost:'"$SHARD_PORT"'")' ]; then
+            return ;
+        fi
+
+        echo "retry adding shard0"
+        sleep 1
+    done
 }
 
 start() {

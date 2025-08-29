@@ -80,7 +80,14 @@ start_sharded_cluster() {
     sleep 1
 
     echo "Initiating config server replica set..."
-    $MONGO --port $CONFIG_SERVER_PORT --eval 'rs.initiate({_id: "crs0", configsvr: true, members: [{_id: 0, host: "localhost:'"$CONFIG_SERVER_PORT"'"}]})'
+    for i in $(seq 1 10); do
+        if ($MONGO --port $CONFIG_SERVER_PORT --eval 'rs.initiate({_id: "crs0", configsvr: true, members: [{_id: 0, host: "localhost:'"$CONFIG_SERVER_PORT"'"}]})'); then
+            break
+        fi
+
+        echo "retry config server replica set"
+        sleep 1
+    done
 
     INSTANCES_LIST=""
     for INSTANCE_INDEX in $MONGO_RS_INSTANCE_INDEXES; do
@@ -112,7 +119,14 @@ start_sharded_cluster() {
     done
 
     echo "Initiating shard0 replica set with members $INSTANCES_LIST..."
-    $MONGO --port $SHARD_PORT --eval 'rs.initiate({_id: "rs0", members: ['"$INSTANCES_LIST"']})'
+    for i in $(seq 1 10); do
+        if ($MONGO --port $SHARD_PORT --eval 'rs.initiate({_id: "rs0", members: ['"$INSTANCES_LIST"']})'); then
+            break
+        fi
+
+        echo "retry shard0 replica set"
+        sleep 1
+    done
 
     echo "Starting mongos..."
     nohup $MONGOS $MONGOS_ARGS > /dev/null || {
@@ -124,7 +138,7 @@ start_sharded_cluster() {
 
     for i in $(seq 1 10); do
         if ($MONGO --port $MONGOS_PORT --eval 'sh.addShard("rs0/localhost:'"$SHARD_PORT"'")'); then
-            return ;
+            break
         fi
 
         echo "retry adding shard0"

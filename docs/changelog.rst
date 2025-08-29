@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.3.7
+~~~~~
+
+- fix mongo recepie: use nohup instead of --fork (#196)
+
 0.3.6.1
 ~~~~~~~
 

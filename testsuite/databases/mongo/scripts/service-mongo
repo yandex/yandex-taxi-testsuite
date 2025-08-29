@@ -123,7 +123,7 @@ start_sharded_cluster() {
     echo "Adding shard0..."
 
     for i in $(seq 1 10); do
-        if [ $MONGO --port $MONGOS_PORT --eval 'sh.addShard("rs0/localhost:'"$SHARD_PORT"'")' ]; then
+        if ($MONGO --port $MONGOS_PORT --eval 'sh.addShard("rs0/localhost:'"$SHARD_PORT"'")'); then
             return ;
         fi
 

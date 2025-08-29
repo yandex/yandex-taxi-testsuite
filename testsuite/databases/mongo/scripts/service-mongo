@@ -72,7 +72,7 @@ start_sharded_cluster() {
     echo "Mongo data directory: $MONGO_TMPDIR"
 
     echo "Starting sharded cluster's config server at $CONFIG_SERVER_DIR..."
-    nohup $MONGOD $MONGOD_CONFIG_SERVER_ARGS || {
+    nohup $MONGOD $MONGOD_CONFIG_SERVER_ARGS > /dev/null & disown || {
         dump_log_stderr "$MONGOD_CONFIG_SERVER_LOG_FILE"
         exit 1
     }
@@ -99,7 +99,7 @@ start_sharded_cluster() {
             --pidfilepath $MONGO_RS_INSTANCE_PID_FILE
             --logpath $MONGOD_RS_INSTANCE_SERVER_LOG_FILE"
 
-        nohup $MONGOD $MONGOD_RS_INSTANCE_SERVER_ARGS || {
+        nohup $MONGOD $MONGOD_RS_INSTANCE_SERVER_ARGS > /dev/null & disown || {
             dump_log_stderr "$MONGOD_RS_INSTANCE_SERVER_LOG_FILE"
             exit 1
         }
@@ -115,10 +115,12 @@ start_sharded_cluster() {
     $MONGO --port $SHARD_PORT --eval 'rs.initiate({_id: "rs0", members: ['"$INSTANCES_LIST"']})'
 
     echo "Starting mongos..."
-    nohup $MONGOS $MONGOS_ARGS || {
+    nohup $MONGOS $MONGOS_ARGS > /dev/null & disown || {
         dump_log_stderr "$MONGOS_LOG_FILE"
         exit 1
     }
+
+    sleep 1
 
     echo "Adding shard0..."
     $MONGO --port $MONGOS_PORT --eval 'sh.addShard("rs0/localhost:'"$SHARD_PORT"'")'

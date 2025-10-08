@@ -282,6 +282,7 @@ class CreateDaemonScope(fixture_class.Fixture):
         shutdown_signal: int | None = None,
         stdout_handler=None,
         stderr_handler=None,
+        multiple=True,
     ) -> AsyncContextManager[_DaemonScope]:
         """
         :param args: command arguments
@@ -298,6 +299,7 @@ class CreateDaemonScope(fixture_class.Fixture):
         :param setup_service: Function to be called right after service
             is started.
         :param shutdown_signal: Signal used to stop running services.
+        :param multiple: do not fail when this scope is requested with others.
         :returns: Returns internal daemon scope instance to be used with
             ``ensure_daemon_started`` fixture.
         """
@@ -320,6 +322,7 @@ class CreateDaemonScope(fixture_class.Fixture):
                 stdout_handler=stdout_handler,
                 stderr_handler=stderr_handler,
             ),
+            multiple=multiple,
         )
 
 

@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.3.8
+~~~~~
+
+- Typo fix in postgresql.rst (#195)
+- multiple daemons support (#197)
+
 0.3.7
 ~~~~~
 

@@ -8,10 +8,7 @@ import subprocess
 import uuid
 import warnings
 from collections.abc import AsyncGenerator, Callable, Sequence
-from typing import (
-    Any,
-    AsyncContextManager,
-)
+from typing import Any, AsyncContextManager
 
 import aiohttp
 import pytest
@@ -32,9 +29,16 @@ SHUTDOWN_SIGNALS = {
 
 
 class _DaemonScope:
-    def __init__(self, name: str, spawn: Callable) -> None:
+    def __init__(
+        self,
+        name: str,
+        spawn: Callable,
+        *,
+        multiple: bool = False,
+    ) -> None:
         self.name = name
         self._spawn = spawn
+        self.multiple = multiple
 
     async def spawn(self) -> 'DaemonInstance':
         manager = self._spawn()
@@ -62,43 +66,64 @@ class DaemonInstance:
 
 
 class _DaemonStore:
-    cells: dict[str, DaemonInstance]
+    _cells: dict[str, tuple[_DaemonScope, DaemonInstance]]
 
     def __init__(self) -> None:
-        self.cells = {}
+        self._cells = {}
 
-    async def aclose(self) -> None:
-        for daemon in self.cells.values():
-            await self._close_daemon(daemon)
-        self.cells = {}
+    async def aclose(self, skip_multiple=False) -> None:
+        cells_left = {}
+        for name, (scope, daemon) in self._cells.items():
+            if skip_multiple and scope.multiple:
+                cells_left[name] = scope, daemon
+            else:
+                await self._close_daemon(daemon)
+        self._cells = cells_left
 
     @contextlib.asynccontextmanager
-    async def scope(self, name, spawn) -> AsyncGenerator[_DaemonScope, None]:
-        scope = _DaemonScope(name, spawn)
+    async def scope(
+        self,
+        name,
+        spawn,
+        *,
+        multiple: bool = False,
+    ) -> AsyncGenerator[_DaemonScope, None]:
+        """
+        Creates new scope evicting previous daemon.
+
+        :param name: scope identifier.
+        :param spawn: spawner instance.
+        :param multiple: do not fail when this scope is requested with others.
+        """
+        scope = _DaemonScope(name, spawn, multiple=multiple)
         try:
             yield scope
         finally:
-            daemon = self.cells.pop(name, None)
-            if daemon:
-                await self._close_daemon(daemon)
+            await self._cleanup_cell(name)
 
     async def request(self, scope: _DaemonScope) -> DaemonInstance:
-        if scope.name in self.cells:
-            daemon = self.cells[scope.name]
+        if scope.name in self._cells:
+            _, daemon = self._cells[scope.name]
             if daemon.process is None:
                 return daemon
             if daemon.process.poll() is None:
                 return daemon
-        await self.aclose()
+        await self.aclose(skip_multiple=True)
         daemon = await scope.spawn()
-        self.cells[scope.name] = daemon
+        self._cells[scope.name] = scope, daemon
         return daemon
 
     def has_running_daemons(self) -> bool:
-        for daemon in self.cells.values():
+        for _, daemon in self._cells.values():
             if daemon.process and daemon.process.poll() is None:
                 return True
         return False
+
+    async def _cleanup_cell(self, name):
+        if name not in self._cells:
+            return
+        scope, daemon = self._cells.pop(name)
+        await self._close_daemon(daemon)
 
     async def _close_daemon(self, daemon: DaemonInstance):
         await daemon.aclose()
@@ -116,7 +141,8 @@ class EnsureDaemonStartedFixture(fixture_class.Fixture):
         self._requests = set()
 
     async def __call__(self, scope: _DaemonScope) -> DaemonInstance:
-        self._requests.add(scope.name)
+        if not scope.multiple:
+            self._requests.add(scope.name)
         if len(self._requests) > 1:
             pytest.fail('Test requested multiple daemons: %r' % self._requests)
 
@@ -256,6 +282,7 @@ class CreateDaemonScope(fixture_class.Fixture):
         shutdown_signal: int | None = None,
         stdout_handler=None,
         stderr_handler=None,
+        multiple=True,
     ) -> AsyncContextManager[_DaemonScope]:
         """
         :param args: command arguments
@@ -272,6 +299,7 @@ class CreateDaemonScope(fixture_class.Fixture):
         :param setup_service: Function to be called right after service
             is started.
         :param shutdown_signal: Signal used to stop running services.
+        :param multiple: do not fail when this scope is requested with others.
         :returns: Returns internal daemon scope instance to be used with
             ``ensure_daemon_started`` fixture.
         """
@@ -294,6 +322,7 @@ class CreateDaemonScope(fixture_class.Fixture):
                 stdout_handler=stdout_handler,
                 stderr_handler=stderr_handler,
             ),
+            multiple=multiple,
         )
 
 

@@ -64,11 +64,6 @@ def ping(request):
     request.make_response(b'pong')
 
 
-@RequestHandler.route('/hello')
-def hello(request):
-    request.make_response(b'Hello, world!\n')
-
-
 @RequestHandler.route('/exit')
 def exit_(request):
     request.make_response(b'Exiting!\n')
@@ -100,7 +95,12 @@ def server_main():
         type=int,
         help='Server socket descriptor (default: %(default)s)',
     )
+    parser.add_argument('--who', type=str, default='world')
     args = parser.parse_args()
+
+    @RequestHandler.route('/hello')
+    def hello(request):
+        request.make_response(f'Hello, {args.who}!\n'.encode('utf-8'))
 
     httpd: socketserver.TCPServer
     if args.server_fd is not None:

@@ -55,7 +55,9 @@ class MockserverRequest(aiohttp.web.BaseRequest):
 
 
 class Handler:
-    def __init__(self, func, *, raw_request=False, json_response=False, strict=False):
+    def __init__(
+        self, func, *, raw_request=False, json_response=False, strict=False
+    ):
         self.raw_request = raw_request
         self.json_response = json_response
         self.orig_func = func

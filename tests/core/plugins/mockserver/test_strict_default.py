@@ -1,5 +1,5 @@
-import pytest
 import aiohttp
+import pytest
 
 from testsuite._internal import fixture_types
 
@@ -23,9 +23,11 @@ async def mockserver_client(mockserver: fixture_types.MockserverFixture):
     async with aiohttp.ClientSession() as session:
         yield Client(base_url=mockserver.base_url, session=session)
 
+
 @pytest.fixture
 def mockserver_strict_default():
     return True
+
 
 @pytest.mark.mockserver_assert_lost_calls
 async def test_lost_some_calls(

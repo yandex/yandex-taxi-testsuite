@@ -140,7 +140,9 @@ def fixture_mockserver_create_session(
     testsuite_traceid_manager: TraceidManager,
     mockserver_strict_default: bool,
 ):
-    assert_lost_calls = request.node.get_closest_marker('mockserver_assert_lost_calls')
+    assert_lost_calls = request.node.get_closest_marker(
+        'mockserver_assert_lost_calls'
+    )
 
     @contextlib.contextmanager
     def create_session(mockserver):
@@ -156,9 +158,13 @@ def fixture_mockserver_create_session(
 
             calls = session.collect_calls()
             if assert_lost_calls:
-                assert calls, f'mockserver is expected to have lost calls, but it doesnt'
+                assert calls, (
+                    f'mockserver is expected to have lost calls, but it doesnt'
+                )
             else:
-                assert not calls, f'mockserver handler with strict=True has skipped calls: {calls}'
+                assert not calls, (
+                    f'mockserver handler with strict=True has skipped calls: {calls}'
+                )
 
     return create_session
 

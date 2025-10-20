@@ -1,7 +1,7 @@
 import asyncio
 
-import pytest
 import aiohttp
+import pytest
 
 from testsuite._internal import fixture_types
 

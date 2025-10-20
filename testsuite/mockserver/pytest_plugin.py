@@ -114,6 +114,13 @@ def pytest_addoption(parser):
     )
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        'markers',
+        'mockserver_assert_lost_calls: test does not need db initialization',
+    )
+
+
 def pytest_register_object_hooks():
     return {
         '$mockserver': {'$fixture': '_mockserver_hook'},
@@ -121,18 +128,37 @@ def pytest_register_object_hooks():
     }
 
 
+@pytest.fixture(name='mockserver_strict_default')
+def _mockserver_strict_default():
+    return False
+
+
 @pytest.fixture(name='_mockserver_create_session')
 def fixture_mockserver_create_session(
+    request,
     asyncexc_append,
     testsuite_traceid_manager: TraceidManager,
+    mockserver_strict_default: bool,
 ):
+    assert_lost_calls = request.node.get_closest_marker('mockserver_assert_lost_calls')
+
     @contextlib.contextmanager
     def create_session(mockserver):
         with mockserver.new_session(
             asyncexc_append=asyncexc_append,
             traceid_manager=testsuite_traceid_manager,
         ) as session:
-            yield server.MockserverFixture(mockserver, session)
+            yield server.MockserverFixture(
+                mockserver,
+                session,
+                strict_default=mockserver_strict_default,
+            )
+
+            calls = session.collect_calls()
+            if assert_lost_calls:
+                assert calls, f'mockserver is expected to have lost calls, but it doesnt'
+            else:
+                assert not calls, f'mockserver handler with strict=True has skipped calls: {calls}'
 
     return create_session
 

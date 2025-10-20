@@ -55,10 +55,11 @@ class MockserverRequest(aiohttp.web.BaseRequest):
 
 
 class Handler:
-    def __init__(self, func, *, raw_request=False, json_response=False):
+    def __init__(self, func, *, raw_request=False, json_response=False, strict=False):
         self.raw_request = raw_request
         self.json_response = json_response
         self.orig_func = func
+        self.strict = strict
 
     @cached_property
     def callqueue(self):
@@ -86,6 +87,16 @@ class Handler:
         if isinstance(response, (http.Response, aiohttp.web.Response)):
             return response
         return http.make_response(json=response)
+
+    def collect_calls(self) -> list[dict]:
+        if not self.strict:
+            return []
+
+        callqueue = self.callqueue
+        lost_calls = []
+        while callqueue.has_calls:
+            lost_calls.append(callqueue.next_call())
+        return lost_calls
 
 
 class Session:
@@ -210,6 +221,16 @@ class Session:
             if host and host != self.mockserver_host:
                 return self.get_handler(f'http://{host}{path}')
         return self.get_handler(path)
+
+    def collect_calls(self) -> list[dict]:
+        calls = []
+        for _, handler in self.regex_handlers:
+            calls.extend(handler.collect_calls())
+        for _, handler in self.prefix_handlers:
+            calls.extend(handler.collect_calls())
+        for handler in self.handlers.values():
+            calls.extend(handler.collect_calls())
+        return calls
 
 
 # pylint: disable=too-many-instance-attributes
@@ -348,11 +369,14 @@ class MockserverFixture:
         mockserver: Server,
         session: Session,
         base_prefix: str = '',
+        *,
+        strict_default: bool = False,
     ) -> None:
         self._server = mockserver
         self._session = session
         self._base_prefix = base_prefix
         self._base_prefix_re = re.escape(base_prefix)
+        self._strict_default = strict_default
 
     def new(self, prefix: str) -> 'MockserverFixture':
         """Create mockserver installer with given base prefix."""
@@ -397,6 +421,7 @@ class MockserverFixture:
         raw_request: bool = False,
         json_response: bool = False,
         regex: bool = False,
+        strict: typing.Optional[bool] = None,
     ) -> classes.GenericRequestDecorator:
         """Register basic http handler for ``path``.
 
@@ -435,6 +460,7 @@ class MockserverFixture:
             raw_request=raw_request,
             json_response=json_response,
             regex=regex,
+            strict=strict,
         )
 
     def json_handler(
@@ -444,6 +470,7 @@ class MockserverFixture:
         prefix: bool = False,
         raw_request: bool = False,
         regex: bool = False,
+        strict: typing.Optional[bool] = None,
     ) -> classes.JsonRequestDecorator:
         """Register json http handler for ``path``.
 
@@ -477,6 +504,7 @@ class MockserverFixture:
             raw_request=raw_request,
             json_response=True,
             regex=regex,
+            strict=strict,
         )
 
     def aiohttp_handler(
@@ -485,6 +513,7 @@ class MockserverFixture:
         *,
         prefix: bool = False,
         regex: bool = False,
+        strict: typing.Optional[bool] = None,
     ) -> classes.GenericRequestDecorator:
         return self._handler_installer(
             path,
@@ -492,6 +521,7 @@ class MockserverFixture:
             raw_request=True,
             json_response=False,
             regex=regex,
+            strict=strict,
         )
 
     def aiohttp_json_handler(
@@ -500,6 +530,7 @@ class MockserverFixture:
         *,
         prefix: bool = False,
         regex: bool = False,
+        strict: typing.Optional[bool] = None,
     ) -> classes.JsonRequestDecorator:
         return self._handler_installer(
             path,
@@ -507,6 +538,7 @@ class MockserverFixture:
             raw_request=True,
             json_response=True,
             regex=regex,
+            strict=strict,
         )
 
     def url(self, path: str) -> str:
@@ -542,18 +574,22 @@ class MockserverFixture:
         self,
         path: str,
         *,
+        strict: typing.Optional[bool],
         prefix: bool = False,
         raw_request: bool = False,
         json_response: bool = False,
         regex: bool = False,
     ) -> typing.Callable:
         path = self._build_fullpath(path, regex)
+        if strict is None:
+            strict = self._strict_default
 
         def decorator(func):
             handler = Handler(
                 func,
                 raw_request=raw_request,
                 json_response=json_response,
+                strict=strict,
             )
             self._session.register_handler(
                 path,

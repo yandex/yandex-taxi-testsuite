@@ -1,18 +1,16 @@
 import pytest
 
-from testsuite import matching
-from testsuite._internal import compare_transform
+from testsuite import compare_transform, matching
 
 
-def test_basic():
-    comparator = compare_transform.CompareTransform()
-    _, right_mapped = comparator.visit(
+def test_basic(default_comparator):
+    _, right_mapped = default_comparator.compare_and_transform(
         [4, 3, 2, 1],
         matching.unordered_list([1, 2, 4]),
     )
 
     assert right_mapped == [4, 2, 1]
-    assert comparator.errors == {
+    assert default_comparator.errors == {
         'left': [
             'list length does not match: len(left)=4 len(right)=3',
             '[3]: extra item on the left: 1',
@@ -22,11 +20,8 @@ def test_basic():
     }
 
 
-def test_experimental_basic():
-    comparator = compare_transform.CompareTransform(
-        compare_transform.TransformMode.EXPERIMENTAL
-    )
-    left_mapped, right_mapped = comparator.visit(
+def test_experimental_basic(experimental_comparator):
+    left_mapped, right_mapped = experimental_comparator.compare_and_transform(
         [4, 3, 2, 1],
         matching.unordered_list([1, 2, 4]),
     )
@@ -34,7 +29,7 @@ def test_experimental_basic():
     assert left_mapped == [1, 2, 3, 4]
     assert right_mapped == [1, 2, 4]
 
-    assert comparator.errors == {
+    assert experimental_comparator.errors == {
         'left': [
             'list length does not match: len(left)=4 len(right)=3',
             '[3]: extra item on the left: 4',
@@ -43,20 +38,12 @@ def test_experimental_basic():
     }
 
 
-@pytest.mark.parametrize(
-    'mode',
-    (
-        compare_transform.TransformMode.DEFAULT,
-        compare_transform.TransformMode.EXPERIMENTAL,
-    ),
-)
-def test_match_error(mode):
-    comparator = compare_transform.CompareTransform(mode)
-    comparator.visit(
+def test_match_error(parametrized_comparator):
+    parametrized_comparator.compare_and_transform(
         matching.unordered_list([1, 2, 4]),
         42,
     )
-    assert comparator.errors == {
+    assert parametrized_comparator.errors == {
         'left': [
             '<UnorderedList: [1, 2, 4]> != 42',
         ],
@@ -72,9 +59,8 @@ def test_match_error(mode):
         ([3, 2, 1], matching.unordered_list([0]), [0]),
     ],
 )
-def test_order_restore(left, right, expected):
-    comparator = compare_transform.CompareTransform()
-    _, right_mapped = comparator.visit(
+def test_order_restore(default_comparator, left, right, expected):
+    _, right_mapped = default_comparator.compare_and_transform(
         left,
         right,
     )
@@ -91,11 +77,10 @@ def test_order_restore(left, right, expected):
         ([3, 2, 1], matching.unordered_list([0]), [1, 2, 3]),
     ],
 )
-def test_order_restore_experimental(left, right, expected):
-    comparator = compare_transform.CompareTransform(
-        compare_transform.TransformMode.EXPERIMENTAL
-    )
-    left_mapped, righ_mapped = comparator.visit(
+def test_order_restore_experimental(
+    experimental_comparator, left, right, expected
+):
+    left_mapped, righ_mapped = experimental_comparator.compare_and_transform(
         left,
         right,
     )
@@ -104,9 +89,8 @@ def test_order_restore_experimental(left, right, expected):
     assert righ_mapped == right._value
 
 
-def test_same_key():
-    comparator = compare_transform.CompareTransform()
-    _, right_mapped = comparator.visit(
+def test_same_key(default_comparator):
+    _, right_mapped = default_comparator.compare_and_transform(
         [0], matching.unordered_list([1], key=lambda x: 1)
     )
     assert right_mapped == [1]

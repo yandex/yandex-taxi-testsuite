@@ -1,7 +1,6 @@
 import pytest
 
-from testsuite import matching
-from testsuite._internal import compare_transform
+from testsuite import compare_transform, matching
 
 
 @pytest.mark.parametrize(
@@ -35,25 +34,23 @@ from testsuite._internal import compare_transform
         ({1, 2, 3}, {1, 2, 3}),
     ],
 )
-def test_eq(left, right):
-    comparator = compare_transform.CompareTransform()
-
+def test_eq(left, right, default_comparator):
     # compare left and right
-    _, mapped_right = comparator.visit(left, right)
-    assert not comparator.errors
+    _, mapped_right = default_comparator.compare_and_transform(left, right)
+    assert not default_comparator.errors
     assert left == _, mapped_right
 
     # compare right and left
-    _, mapped_left = comparator.visit(right, left)
-    assert not comparator.errors
+    _, mapped_left = default_comparator.compare_and_transform(right, left)
+    assert not default_comparator.errors
     assert mapped_left == right
 
     # compare left and left
-    _, mapped_left = comparator.visit(left, left)
-    assert not comparator.errors
+    _, mapped_left = default_comparator.compare_and_transform(left, left)
+    assert not default_comparator.errors
     assert mapped_left == left
 
     # compare right and right
-    _, mapped_right = comparator.visit(right, right)
-    assert not comparator.errors
+    _, mapped_right = default_comparator.compare_and_transform(right, right)
+    assert not default_comparator.errors
     assert _, mapped_right == right

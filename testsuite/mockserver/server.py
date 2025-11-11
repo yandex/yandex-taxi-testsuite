@@ -57,7 +57,7 @@ class MockserverRequest(aiohttp.web.BaseRequest):
 class Handler:
     def __init__(
         self,
-        func,
+        func: typing.Callable,
         *,
         raw_request: bool = False,
         json_response: bool = False,

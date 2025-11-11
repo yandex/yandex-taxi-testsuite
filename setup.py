@@ -9,7 +9,7 @@ setuptools.setup(
         'yarl>=1.4.2,!=1.6',
         'py>=1.10',
         'pytest-aiohttp>=0.3.0',
-        'pytest-asyncio != 0.22.*, != 0.23.*, != 0.24.*',
+        'pytest-asyncio!=0.22.*,!=0.23.*,!=0.24.*',
         'pytest>=4.5.0',
         'python-dateutil>=2.7.3',
         'cached-property>=1.5.1',

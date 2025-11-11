@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.3.9
+~~~~~
+
+- fix compat with pytest >= 9 && pytest-asyncio >= 1 (#199)
+
 0.3.8
 ~~~~~
 

@@ -117,7 +117,7 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     config.addinivalue_line(
         'markers',
-        'mockserver_assert_lost_calls: test does not need db initialization',
+        'mockserver_assert_lost_calls: assert that all calls to mockservers are checked',
     )
 
 

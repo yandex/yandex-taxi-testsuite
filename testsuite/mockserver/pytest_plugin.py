@@ -129,7 +129,7 @@ def pytest_register_object_hooks():
 
 
 @pytest.fixture(name='mockserver_strict_default')
-def _mockserver_strict_default():
+def fixture_mockserver_strict_default():
     return False
 
 

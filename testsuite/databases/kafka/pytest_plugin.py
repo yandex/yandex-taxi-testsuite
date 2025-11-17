@@ -1,8 +1,7 @@
+import contextlib
 import typing
 
 import pytest
-
-from testsuite.utils import compat
 
 from . import classes, service
 
@@ -39,7 +38,7 @@ async def _kafka_global_producer(
     )
     await producer.start()
 
-    async with compat.aclosing(producer):
+    async with contextlib.aclosing(producer):
         yield producer
 
 
@@ -67,7 +66,7 @@ async def _kafka_global_consumer(
     )
     await consumer.start()
 
-    async with compat.aclosing(consumer):
+    async with contextlib.aclosing(consumer):
         yield consumer
 
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import contextlib
 import inspect
 import itertools
@@ -15,7 +13,6 @@ import pytest
 
 from testsuite import types
 from testsuite._internal import fixture_class, fixture_types
-from testsuite.utils import compat
 
 from . import service_client, service_daemon
 from .spawn import __tracebackhide__  # noqa: F401
@@ -487,7 +484,7 @@ def service_client_options(
 @pytest.fixture(scope='session')
 async def _global_daemon_store():
     store = _DaemonStore()
-    async with compat.aclosing(store):
+    async with contextlib.aclosing(store):
         yield store
 
 

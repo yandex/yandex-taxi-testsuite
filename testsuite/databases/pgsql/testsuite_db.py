@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from testsuite import utils
 
 from . import connection, pool

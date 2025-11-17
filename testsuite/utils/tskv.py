@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """Tools to format messages to different formats."""
 
 import datetime

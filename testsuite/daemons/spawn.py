@@ -9,7 +9,7 @@ import sys
 import time
 from collections.abc import AsyncGenerator, Sequence
 
-from testsuite.utils import compat, traceback
+from testsuite.utils import traceback
 
 SIGNAL_ERRORS: dict[int, str] = {
     signal.SIGSEGV: (
@@ -105,7 +105,7 @@ async def spawned(
     await readers.add(process.stdout, stdout_handler)
     await readers.add(process.stderr, stderr_handler)
 
-    async with compat.aclosing(readers):
+    async with contextlib.aclosing(readers):
         async with _shutdown_service(
             process,
             shutdown_signal=shutdown_signal,

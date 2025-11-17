@@ -1,6 +1,4 @@
 # pylint: disable=no-member
-
-
 import typing
 import urllib.parse
 

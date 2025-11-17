@@ -87,7 +87,7 @@ jobs:
           TESTSUITE_DEBUG: 1
           PYTEST_ARGS: "-vvs"
         run: |
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash --mariadb-server-version=11.8
           sudo apt install -y mariadb-server
           make venv-test-databases-mysql
       - name: Rerun redis tests with Valkey

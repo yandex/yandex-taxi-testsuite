@@ -4,8 +4,6 @@ Logcapture allows to intercepts service logs on demand with context manager.
 It starts tcp server and read logs sent by server.
 """
 
-from __future__ import annotations
-
 import asyncio
 import collections
 import contextlib

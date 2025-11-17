@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 class TraceidManager:
     def __init__(self, trace_id: str, history: set[str]):
         self._trace_id = trace_id

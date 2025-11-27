@@ -21,6 +21,7 @@ MYSQL_PIDFILE=$MYSQL_BASEDIR/mysql.pid
 MYSQL_LOGFILE=$MYSQL_BASEDIR/mysql.log
 
 MYSQLD=$(which mysqld 2>/dev/null)
+MYSQLADMIN=$(which mysqladmin 2>/dev/null)
 
 if [ "x$MYSQLD" = "x" ]; then
     die "No mysqld binary found, please install mysql (or mariadb):
@@ -46,6 +47,15 @@ run_mysqld() {
             --default-storage-engine=INNODB             \
             --character-set-server=utf8mb4              \
             "$@"
+}
+
+run_mysqladmin() {
+    $MYSQLADMIN \
+            --socket="$MYSQL_BASEDIR/mysql.sock"        \
+            --secure-file-priv="$MYSQL_BASEDIR"         \
+            --port=$MYSQL_PORT                          \
+            --character-set-server=utf8mb4              \
+	    "$@"
 }
 
 mysql_die() {
@@ -74,6 +84,15 @@ start_db() {
     else
         run_mysqld -- &
     fi
+
+    for i in $(seq 1 60); do
+        if run_mysqladmin ping; then
+	    break
+	fi
+
+	echo "Waiting for mysqld to open port..."
+	sleep 1
+    done
 }
 
 start() {

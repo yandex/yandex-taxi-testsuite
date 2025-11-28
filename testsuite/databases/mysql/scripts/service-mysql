@@ -55,7 +55,7 @@ run_mysqladmin() {
             --secure-file-priv="$MYSQL_BASEDIR"         \
             --port=$MYSQL_PORT                          \
             --character-set-server=utf8mb4              \
-	    "$@"
+            "$@"
 }
 
 mysql_die() {
@@ -87,11 +87,11 @@ start_db() {
 
     for i in $(seq 1 60); do
         if run_mysqladmin ping; then
-	    break
-	fi
+            break
+        fi
 
-	echo "Waiting for mysqld to open port..."
-	sleep 1
+        echo "Waiting for mysqld to open port..."
+        sleep 1
     done
 }
 

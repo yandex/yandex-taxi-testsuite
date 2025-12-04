@@ -77,7 +77,7 @@ script_main() {
 # Returns an absolute path to a file in /tmp subdirectory
 # The parent directory is created for the returned path
 get_pidfile() {
-    local service="$(basename $0)"
+    local service=$(basename "$0")
     local path=/tmp/taxi-testsuite-$USER/run/$service/${WORKER_SUFFIX}/$1.pid
     mkdir -p "$(dirname "$path")"
     echo $path

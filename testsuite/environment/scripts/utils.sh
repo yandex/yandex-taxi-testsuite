@@ -117,6 +117,6 @@ choose_binaries_or_die() {
   local first_binary_name="$1"
   local second_binary_name="$2"
   local binary=$(choose_binaries $first_binary_name $second_binary_name)
-  [ -z "$binary" ] && die "No $binary_name binary found"
+  [ -z "$binary" ] && die "No $first_binary_name or $second_binary_name binary found"
   echo $binary
 }

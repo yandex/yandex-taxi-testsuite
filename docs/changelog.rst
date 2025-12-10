@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.4.0
+~~~~~
+
+- fix broken docs build (#204)
+- bug redis: fix start check & log (#203)
+- bug start: fix basename arg with spaces (#202)
+- bug mysql: fix race on mysqld start (#201)
+- drop python 3.9 support (#200)
+- feat mockserver: strict mode (#198)
+
 0.3.9
 ~~~~~
 

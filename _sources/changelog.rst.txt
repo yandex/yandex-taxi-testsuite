@@ -1,6 +1,37 @@
 Changelog
 ---------
 
+0.4.0
+~~~~~
+
+- fix broken docs build (#204)
+- bug redis: fix start check & log (#203)
+- bug start: fix basename arg with spaces (#202)
+- bug mysql: fix race on mysqld start (#201)
+- drop python 3.9 support (#200)
+- feat mockserver: strict mode (#198)
+
+0.3.9
+~~~~~
+
+- fix compat with pytest >= 9 && pytest-asyncio >= 1 (#199)
+
+0.3.8
+~~~~~
+
+- Typo fix in postgresql.rst (#195)
+- multiple daemons support (#197)
+
+0.3.7
+~~~~~
+
+- fix mongo recepie: use nohup instead of --fork (#196)
+
+0.3.6.1
+~~~~~~~
+
+- Remove legacy traceid prefix (#193)
+
 0.3.6
 ~~~~~
 

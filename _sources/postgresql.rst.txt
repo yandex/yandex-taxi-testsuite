@@ -150,7 +150,7 @@ pytest.mark.pgsql
    :param dbname: Database name.
    :param files: List of filenames to apply to the database.
    :param directories: List of directories to apply to the database.
-   :param directories: List of queries to apply to the database.
+   :param queries: List of queries to apply to the database.
 
 
 Classes

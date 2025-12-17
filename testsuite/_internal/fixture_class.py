@@ -17,7 +17,6 @@ try:
         return func(annotationlib.Format.VALUE)
 
 except ImportError:
-
     def get_annotations(obj) -> dict:
         return getattr(obj, '__annotations__', {})
 

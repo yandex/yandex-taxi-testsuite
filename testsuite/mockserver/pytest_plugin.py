@@ -290,7 +290,7 @@ def mockserver_ssl_cert(
 @pytest.fixture(scope='session')
 async def _mockserver(
     pytestconfig,
-    _mockserver_socket: classes.MockserverInfo,
+    _mockserver_socket: classes.MockserverSocket,
     _mockserver_config: classes.MockserverConfig,
 ) -> types.AsyncYieldFixture[server.Server]:
     async with server.create_server(
@@ -302,7 +302,7 @@ async def _mockserver(
 @pytest.fixture(scope='session')
 async def _mockserver_ssl(
     pytestconfig,
-    _mockserver_ssl_socket: classes.MockserverInfo,
+    _mockserver_ssl_socket: classes.MockserverSocket,
     _mockserver_config: classes.MockserverConfig,
 ) -> types.AsyncYieldFixture[server.Server]:
     async with server.create_server(

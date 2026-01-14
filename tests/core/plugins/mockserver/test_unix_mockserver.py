@@ -15,24 +15,19 @@ else:
 
 
 @pytest.fixture
-def unix_mockserver(
-    asyncexc_append,
+async def unix_mockserver(
     _unix_mockserver: server.Server,
-    testsuite_traceid_manager,
+    mockserver_create_session,
 ):
-    with _unix_mockserver.new_session(
-        asyncexc_append=asyncexc_append,
-        traceid_manager=testsuite_traceid_manager,
-    ) as session:
-        yield server.MockserverFixture(_unix_mockserver, session)
+    async with mockserver_create_session(_unix_mockserver) as session:
+        yield session
 
 
 @pytest.fixture(scope='session')
-async def _unix_mockserver(pytestconfig, tmp_path_factory, _mockserver_config):
+async def _unix_mockserver(tmp_path_factory, mockserver_create):
     socket_path = tmp_path_factory.mktemp('mockserver') / _MOCKSERVER_SOCKET
-    socket_info = server.create_mockserver_socket(socket_path=socket_path)
-    async with server.create_server(socket_info, _mockserver_config) as result:
-        yield result
+    async with mockserver_create(socket_path=socket_path) as server:
+        yield server
 
 
 @pytest.fixture(scope='session')

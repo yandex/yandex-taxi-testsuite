@@ -619,6 +619,26 @@ class MockserverFixture:
 MockserverSslFixture = MockserverFixture
 
 
+async def create_server(
+    *,
+    host: str,
+    port: int,
+    pytestconfig,
+    ssl_info: classes.SslCertInfo | None,
+    loop=None,
+) -> typing.AsyncGenerator[Server, None]:
+    warnings.warn('Use mockserver_create() fixture instead', DeprecationWarning)
+
+    mockserver_socket = _create_mockserver_socket(
+        host=host, port=port, ssl_info=ssl_info
+    )
+    return await _create_server_from_socket(
+        mockserver_socket,
+        mockserver_config=classes.MockserverConfig(),
+        loop=loop,
+    )
+
+
 def _create_ssl_context(ssl_info: classes.SslCertInfo) -> ssl.SSLContext:
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_context.load_cert_chain(ssl_info.cert_path, ssl_info.private_key_path)
@@ -673,7 +693,7 @@ def _create_web_server(server: Server, loop) -> aiohttp.web.Server:
     )
 
 
-def create_mockserver_socket(
+def _create_mockserver_socket(
     socket_path=None,
     host='localhost',
     port=0,
@@ -694,16 +714,18 @@ def create_mockserver_socket(
 
 
 @contextlib.asynccontextmanager
-async def create_server(
+async def _create_server_from_socket(
     mockserver_socket: classes.MockserverSocket,
     mockserver_config: classes.MockserverConfig,
+    loop=None,
 ) -> typing.AsyncGenerator[Server, None]:
     if mockserver_socket.ssl_info:
         ssl_context = _create_ssl_context(mockserver_socket.ssl_info)
     else:
         ssl_context = None
 
-    loop = asyncio.get_running_loop()
+    if loop is None:
+        loop = asyncio.get_running_loop()
 
     server = _create_server_obj(mockserver_socket.info, mockserver_config)
     web_server = _create_web_server(server, loop)

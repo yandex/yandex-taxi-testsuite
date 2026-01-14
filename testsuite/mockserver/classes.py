@@ -74,12 +74,12 @@ class MockserverSocket:
 
 @dataclasses.dataclass(frozen=True)
 class MockserverConfig:
-    nofail: bool
-    debug: bool
-    tracing_enabled: bool
-    trace_id_header: str
-    span_id_header: str
-    http_proxy_enabled: bool
+    nofail: bool = False
+    debug: bool = False
+    tracing_enabled: bool = False
+    trace_id_header: str = ''
+    span_id_header: str = ''
+    http_proxy_enabled: bool = False
 
 
 MockserverInfoFixture = MockserverInfo

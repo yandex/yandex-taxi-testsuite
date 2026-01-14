@@ -67,7 +67,7 @@ class MockserverPlugin:
             config.option.mockserver_port,
             default_port=MOCKSERVER_DEFAULT_PORT,
         )
-        return server.create_mockserver_socket(
+        return server._create_mockserver_socket(
             socket_path=config.option.mockserver_unix_socket,
             host=config.option.mockserver_host,
             port=port,
@@ -82,7 +82,7 @@ class MockserverPlugin:
             config.option.mockserver_ssl_port,
             default_port=MOCKSERVER_SSL_DEFAULT_PORT,
         )
-        return server.create_mockserver_socket(
+        return server._create_mockserver_socket(
             host=config.option.mockserver_ssl_host,
             port=port,
             ssl_info=ssl_info,
@@ -200,7 +200,7 @@ def fixture_mockserver_strict_default():
     return False
 
 
-@pytest.fixture(name='_mockserver_create_session')
+@pytest.fixture(name='mockserver_create_session')
 def fixture_mockserver_create_session(
     request,
     asyncexc_append,
@@ -211,8 +211,8 @@ def fixture_mockserver_create_session(
         'mockserver_assert_lost_calls'
     )
 
-    @contextlib.contextmanager
-    def create_session(mockserver):
+    @contextlib.asynccontextmanager
+    async def create_session(mockserver):
         with mockserver.new_session(
             asyncexc_append=asyncexc_append,
             traceid_manager=testsuite_traceid_manager,
@@ -239,25 +239,25 @@ def fixture_mockserver_create_session(
 
 
 @pytest.fixture
-def mockserver(
+async def mockserver(
     _mockserver: server.Server,
-    _mockserver_create_session,
+    mockserver_create_session,
 ) -> types.YieldFixture[server.MockserverFixture]:
-    with _mockserver_create_session(_mockserver) as fixture:
+    async with mockserver_create_session(_mockserver) as fixture:
         yield fixture
 
 
 @pytest.fixture
 async def mockserver_ssl(
     _mockserver_ssl: server.Server | None,
-    _mockserver_create_session,
+    mockserver_create_session,
 ) -> types.AsyncYieldFixture[server.MockserverSslFixture]:
     if _mockserver_ssl is None:
         raise exceptions.MockServerError(
             f'mockserver_ssl is not configured. {_SSL_KEY_FILE_INI_KEY} and '
             f'{_SSL_CERT_FILE_INI_KEY} must be specified in pytest.ini',
         )
-    with _mockserver_create_session(_mockserver_ssl) as fixture:
+    async with mockserver_create_session(_mockserver_ssl) as fixture:
         yield fixture
 
 
@@ -288,12 +288,39 @@ def mockserver_ssl_cert(
 
 
 @pytest.fixture(scope='session')
+async def mockserver_create(
+    _mockserver_config,
+):
+    @contextlib.asynccontextmanager
+    async def create(
+        *,
+        host='localhost',
+        port=0,
+        socket_path=None,
+        ssl_info=None,
+        config: classes.MockserverConfig | None = None,
+    ):
+        socket_info = server._create_mockserver_socket(
+            host=host,
+            port=port,
+            socket_path=socket_path,
+            ssl_info=ssl_info,
+        )
+        async with server._create_server_from_socket(
+            socket_info, config or _mockserver_config
+        ) as result:
+            yield result
+
+    return create
+
+
+@pytest.fixture(scope='session')
 async def _mockserver(
     pytestconfig,
     _mockserver_socket: classes.MockserverSocket,
     _mockserver_config: classes.MockserverConfig,
 ) -> types.AsyncYieldFixture[server.Server]:
-    async with server.create_server(
+    async with server._create_server_from_socket(
         _mockserver_socket, _mockserver_config
     ) as result:
         yield result
@@ -305,7 +332,7 @@ async def _mockserver_ssl(
     _mockserver_ssl_socket: classes.MockserverSocket,
     _mockserver_config: classes.MockserverConfig,
 ) -> types.AsyncYieldFixture[server.Server]:
-    async with server.create_server(
+    async with server._create_server_from_socket(
         _mockserver_ssl_socket,
         _mockserver_config,
     ) as result:

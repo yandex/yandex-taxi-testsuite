@@ -619,20 +619,20 @@ class MockserverFixture:
 MockserverSslFixture = MockserverFixture
 
 
-async def create_server(
+def create_server(
     *,
     host: str,
     port: int,
     pytestconfig,
     ssl_info: classes.SslCertInfo | None,
     loop=None,
-) -> typing.AsyncGenerator[Server, None]:
+):
     warnings.warn('Use mockserver_create() fixture instead', DeprecationWarning)
 
     mockserver_socket = _create_mockserver_socket(
         host=host, port=port, ssl_info=ssl_info
     )
-    return await _create_server_from_socket(
+    return _create_server_from_socket(
         mockserver_socket,
         mockserver_config=classes.MockserverConfig(),
         loop=loop,

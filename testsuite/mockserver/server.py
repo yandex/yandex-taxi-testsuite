@@ -624,7 +624,7 @@ def create_server(
     host: str,
     port: int,
     pytestconfig,
-    ssl_info: classes.SslCertInfo | None,
+    ssl_info: classes.SslCertInfo | None = None,
     loop=None,
 ):
     warnings.warn('Use mockserver_create() fixture instead', DeprecationWarning)

@@ -1,4 +1,5 @@
 import contextlib
+import warnings
 
 import pytest
 
@@ -217,6 +218,45 @@ def fixture_mockserver_create_session(
             asyncexc_append=asyncexc_append,
             traceid_manager=testsuite_traceid_manager,
         ) as session:
+            yield server.MockserverFixture(
+                mockserver,
+                session,
+                strict_default=mockserver_strict_default,
+            )
+
+            calls = session.collect_calls()
+            if assert_lost_calls:
+                if not calls:
+                    raise exceptions.MockServerError(
+                        f'mockserver is expected to have lost calls, but it doesnt'
+                    )
+            else:
+                if calls:
+                    raise exceptions.MockServerError(
+                        f'mockserver handler with strict=True has skipped calls: {calls}'
+                    )
+
+    return create_session
+
+
+@pytest.fixture(name='_mockserver_create_session')
+def legacy_fixture_mockserver_create_session(
+    request,
+    asyncexc_append,
+    testsuite_traceid_manager: TraceidManager,
+    mockserver_strict_default: bool,
+):
+    assert_lost_calls = request.node.get_closest_marker(
+        'mockserver_assert_lost_calls'
+    )
+
+    @contextlib.contextmanager
+    def create_session(mockserver):
+        with mockserver.new_session(
+            asyncexc_append=asyncexc_append,
+            traceid_manager=testsuite_traceid_manager,
+        ) as session:
+            warnings.warn('Use mockserver_create_session() fixture instead', DeprecationWarning)
             yield server.MockserverFixture(
                 mockserver,
                 session,

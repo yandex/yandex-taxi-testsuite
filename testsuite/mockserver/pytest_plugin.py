@@ -372,11 +372,14 @@ async def _mockserver_ssl(
     _mockserver_ssl_socket: classes.MockserverSocket,
     _mockserver_config: classes.MockserverConfig,
 ) -> types.AsyncYieldFixture[server.Server]:
-    async with server._create_server_from_socket(
-        _mockserver_ssl_socket,
-        _mockserver_config,
-    ) as result:
-        yield result
+    if _mockserver_ssl_socket:
+        async with server._create_server_from_socket(
+            _mockserver_ssl_socket,
+            _mockserver_config,
+        ) as result:
+            yield result
+    else:
+        yield None
 
 
 @pytest.fixture(scope='session')

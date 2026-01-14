@@ -1,5 +1,4 @@
 import contextlib
-import dataclasses
 
 import pytest
 

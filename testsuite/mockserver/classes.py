@@ -1,5 +1,6 @@
 import dataclasses
 import pathlib
+import socket
 import typing
 
 import aiohttp.web
@@ -62,6 +63,23 @@ class MockserverInfo:
 
 class MockserverSslInfo(MockserverInfo):
     ssl: SslCertInfo
+
+
+@dataclasses.dataclass(frozen=True)
+class MockserverSocket:
+    info: MockserverInfo
+    sock: socket.socket
+    ssl_info: SslCertInfo | None
+
+
+@dataclasses.dataclass(frozen=True)
+class MockserverConfig:
+    nofail: bool
+    debug: bool
+    tracing_enabled: bool
+    trace_id_header: str
+    span_id_header: str
+    http_proxy_enabled: bool
 
 
 MockserverInfoFixture = MockserverInfo

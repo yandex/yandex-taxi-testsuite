@@ -45,6 +45,15 @@ def bind_socket(
     return sock
 
 
+def bind_unix_socket(
+        socket_path,
+        backlog=DEFAULT_BACKLOG,
+):
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.bind(str(socket_path))
+    sock.listen(backlog)
+    return sock
+
 @contextlib.asynccontextmanager
 async def _create_unix_server(factory, *, loop=None, **kwargs):
     if loop is None:

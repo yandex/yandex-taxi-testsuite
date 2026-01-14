@@ -271,7 +271,7 @@ def mockserver_info(
 
 @pytest.fixture(scope='session')
 def mockserver_ssl_info(
-    _mockserver_socket: classes.MockserverSocket | None,
+    _mockserver_ssl_socket: classes.MockserverSocket | None,
 ) -> classes.MockserverInfo | None:
     if _mockserver_ssl_socket is None:
         return None

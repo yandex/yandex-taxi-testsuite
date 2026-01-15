@@ -438,7 +438,9 @@ def _mockserver_config(
     return _mockserver_plugin.mockserver_config
 
 
-def _mockserver_info_hook(doc: dict, key=None, mockserver_info: classes.MockserverInfo|None=None):
+def _mockserver_info_hook(
+    doc: dict, key=None, mockserver_info: classes.MockserverInfo | None = None
+):
     if mockserver_info is None:
         raise RuntimeError(f'Missing {key} argument')
     if not doc.get('$schema', True):

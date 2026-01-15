@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.2
+~~~~~
+
+- Cleanup mockserver internals (#207)
+
 0.4.1
 ~~~~~
 

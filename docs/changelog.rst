@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.2.1
+~~~~~~~
+
+- add mockserver_set_debug (#208)
+
 0.4.2
 ~~~~~
 

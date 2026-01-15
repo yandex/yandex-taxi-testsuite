@@ -5,6 +5,7 @@ import http.server
 import socket
 import socketserver
 import typing
+import urllib.request
 
 
 class ExternalSocketHTTPServer(socketserver.TCPServer):
@@ -77,6 +78,12 @@ def exit_(request):
     thread.start()
 
 
+def do_request(url):
+    response = urllib.request.urlopen(url, timeout=10)
+    if response.status != 200:
+        raise RuntimeError(f'Server returned {response.status}')
+
+
 def server_main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -95,8 +102,15 @@ def server_main():
         type=int,
         help='Server socket descriptor (default: %(default)s)',
     )
+    parser.add_argument(
+        '--mockserver-request',
+        help='Request this url before server is up',
+    )
     parser.add_argument('--who', type=str, default='world')
     args = parser.parse_args()
+
+    if args.mockserver_request:
+        do_request(args.mockserver_request)
 
     @RequestHandler.route('/hello')
     def hello(request):

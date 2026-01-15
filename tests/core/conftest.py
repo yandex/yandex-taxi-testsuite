@@ -29,16 +29,15 @@ def mockserver_client(
 @pytest.fixture
 def mockserver_ssl_client(
     mockserver_ssl: fixture_types.MockserverSslFixture,
-    mockserver_ssl_info: fixture_types.MockserverSslInfoFixture,
+    mockserver_ssl_cert,
     service_client_default_headers,
     service_client_options,
 ):
-    if not mockserver_ssl_info:
+    if not mockserver_ssl_cert:
         raise RuntimeError('No https mockserver configured')
-    assert mockserver_ssl_info.ssl
     ssl_context = ssl.create_default_context(
         ssl.Purpose.SERVER_AUTH,
-        cafile=mockserver_ssl_info.ssl.cert_path,
+        cafile=mockserver_ssl_cert.cert_path,
     )
     return service_client.Client(
         mockserver_ssl.base_url,

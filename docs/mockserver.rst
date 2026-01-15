@@ -54,6 +54,28 @@ Usually your service takes config file as an argument.
 In this case you should provide fixture that creates config file
 and substitutes all testsuite related parameters.
 
+Creating custom mockserver
+--------------------------
+
+Sometimes it's required to create a specific mockserver. This could be achieved this way:
+
+.. code-block::
+
+   @pytest.fixture
+   async def my_mockserver(
+       _my_mockserver: server.Server,
+       mockserver_create_session,
+   ):
+       async with mockserver_create_session(_my_mockserver) as session:
+           yield session
+
+
+   @pytest.fixture(scope='session')
+   async def _my_mockserver(mockserver_create):
+       async with _mockserver_create() as server:
+           yield server
+
+
 Command line options
 --------------------
 

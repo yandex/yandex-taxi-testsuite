@@ -619,9 +619,28 @@ class MockserverFixture:
 MockserverSslFixture = MockserverFixture
 
 
-def _create_ssl_context(ssl_info: classes.SslCertInfo) -> ssl.SSLContext:
+def create_server(
+    *,
+    host: str,
+    port: int,
+    pytestconfig,
+    ssl_info=None,
+    loop=None,
+):
+    warnings.warn('Use mockserver_create() fixture instead', DeprecationWarning)
+
+    mockserver_socket = _create_mockserver_socket(host=host, port=port)
+    return _create_server_from_socket(
+        mockserver_socket,
+        mockserver_config=classes.MockserverConfig(),
+        ssl_cert=ssl_info,
+        loop=loop,
+    )
+
+
+def _create_ssl_context(ssl_cert: classes.SslCertInfo) -> ssl.SSLContext:
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-    ssl_context.load_cert_chain(ssl_info.cert_path, ssl_info.private_key_path)
+    ssl_context.load_cert_chain(ssl_cert.cert_path, ssl_cert.private_key_path)
     return ssl_context
 
 
@@ -646,15 +665,18 @@ def _mocked_error_response(request, error_code) -> aiohttp.web.Response:
     ).to_aiohttp()
 
 
-def _create_server_obj(mockserver_info, pytestconfig) -> Server:
+def _create_server_obj(
+    mockserver_info: classes.MockserverInfo,
+    mockserver_config: classes.MockserverConfig,
+) -> Server:
     return Server(
         mockserver_info,
-        nofail=pytestconfig.option.mockserver_nofail,
-        mockserver_debug=pytestconfig.option.mockserver_debug,
-        tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
-        trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
-        span_id_header=pytestconfig.getini('mockserver-span-id-header'),
-        http_proxy_enabled=pytestconfig.getini('mockserver-http-proxy-enabled'),
+        nofail=mockserver_config.nofail,
+        mockserver_debug=mockserver_config.debug,
+        tracing_enabled=mockserver_config.tracing_enabled,
+        trace_id_header=mockserver_config.trace_id_header,
+        span_id_header=mockserver_config.span_id_header,
+        http_proxy_enabled=mockserver_config.http_proxy_enabled,
     )
 
 
@@ -670,72 +692,69 @@ def _create_web_server(server: Server, loop) -> aiohttp.web.Server:
     )
 
 
+def _create_mockserver_socket(
+    socket_path=None,
+    host='localhost',
+    port=0,
+    https=False,
+):
+    if socket_path is None:
+        sock = net_utils.bind_socket(host, port)
+    else:
+        sock = net_utils.bind_unix_socket(socket_path)
+    sock.setblocking(False)
+    info = _create_mockserver_info(
+        sock,
+        socket_path=socket_path,
+        host=host,
+        https=https,
+    )
+    return classes.MockserverSocket(sock=sock, info=info)
+
+
 @contextlib.asynccontextmanager
-async def create_server(
-    *,
-    host: str,
-    port: int,
-    pytestconfig,
-    ssl_info: classes.SslCertInfo | None,
+async def _create_server_from_socket(
+    mockserver_socket: classes.MockserverSocket,
+    mockserver_config: classes.MockserverConfig,
+    ssl_cert: classes.SslCertInfo | None = None,
     loop=None,
 ) -> typing.AsyncGenerator[Server, None]:
-    if loop is None:
-        loop = asyncio.get_running_loop()
-    ssl_context: ssl.SSLContext | None
-    if ssl_info:
-        ssl_context = _create_ssl_context(ssl_info)
+    if ssl_cert:
+        ssl_context = _create_ssl_context(ssl_cert)
     else:
         ssl_context = None
 
-    async with net_utils.create_tcp_server(
-        lambda: web_server(),
-        host=host,
-        port=port,
-        ssl=ssl_context,
-    ) as aio_server:
-        mockserver_info = _create_mockserver_info(
-            aio_server.sockets[0],
-            host,
-            ssl_info,
-        )
-        server = _create_server_obj(mockserver_info, pytestconfig)
-        web_server = _create_web_server(server, loop)
-        yield server
-
-
-@contextlib.asynccontextmanager
-async def create_unix_server(
-    socket_path: pathlib.Path,
-    *,
-    pytestconfig,
-    loop=None,
-) -> typing.AsyncGenerator[Server, None]:
     if loop is None:
         loop = asyncio.get_running_loop()
-    async with net_utils.create_unix_server(
-        lambda: web_server(),
-        path=socket_path,
-    ):
-        mockserver_info = _create_unix_mockserver_info(socket_path)
-        server = _create_server_obj(mockserver_info, pytestconfig)
-        web_server = _create_web_server(server, loop)
+
+    server = _create_server_obj(mockserver_socket.info, mockserver_config)
+    web_server = _create_web_server(server, loop)
+
+    async with net_utils.create_tcp_server(
+        web_server,
+        sock=mockserver_socket.sock,
+        ssl=ssl_context,
+    ) as aio_server:
         yield server
 
 
 def _create_mockserver_info(
     sock,
+    socket_path,
     host: str,
-    ssl_info: classes.SslCertInfo | None,
+    https: bool = False,
 ) -> classes.MockserverInfo:
+    if socket_path:
+        return _create_unix_mockserver_info(socket_path)
     sock_address = sock.getsockname()
-    schema = 'https' if ssl_info else 'http'
+    schema = 'https' if https else 'http'
     port = sock_address[1]
-    base_url = '%s://%s:%d/' % (schema, host, port)
+    base_url = f'{schema}://{host}:{port}/'
     return classes.MockserverInfo(
         host=host,
         port=port,
         base_url=base_url,
-        ssl=ssl_info,
+        https=https,
     )
 
 
@@ -745,10 +764,10 @@ def _create_unix_mockserver_info(
     return classes.MockserverInfo(
         socket_path=socket_path,
         # use localhost to avoid aiohttp complains on invalid url
-        base_url='http://localhost',
-        host=None,
-        port=None,
-        ssl=None,
+        base_url='http://localhost/',
+        host='localhost',
+        port=80,
+        https=False,
     )
 
 

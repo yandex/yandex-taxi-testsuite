@@ -1,5 +1,6 @@
 import dataclasses
 import pathlib
+import socket
 import typing
 
 import aiohttp.web
@@ -36,11 +37,11 @@ class SslCertInfo:
 
 @dataclasses.dataclass(frozen=True)
 class MockserverInfo:
-    host: str | None
-    port: int | None
+    host: str
+    port: int
     base_url: str
-    ssl: SslCertInfo | None
     socket_path: pathlib.Path | None = None
+    https: bool = False
 
     def url(self, path: str) -> str:
         """Concats ``base_url`` and provided ``path``."""
@@ -60,8 +61,20 @@ class MockserverInfo:
         return f'{self.host}:{self.port}'
 
 
-class MockserverSslInfo(MockserverInfo):
-    ssl: SslCertInfo
+@dataclasses.dataclass(frozen=True)
+class MockserverSocket:
+    info: MockserverInfo
+    sock: socket.socket
+
+
+@dataclasses.dataclass(frozen=True)
+class MockserverConfig:
+    nofail: bool = False
+    debug: bool = False
+    tracing_enabled: bool = False
+    trace_id_header: str = ''
+    span_id_header: str = ''
+    http_proxy_enabled: bool = False
 
 
 MockserverInfoFixture = MockserverInfo

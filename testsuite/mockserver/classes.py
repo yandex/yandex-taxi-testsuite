@@ -40,7 +40,6 @@ class MockserverInfo:
     host: str | None
     port: int | None
     base_url: str
-    ssl: SslCertInfo | None
     socket_path: pathlib.Path | None = None
 
     def url(self, path: str) -> str:
@@ -61,15 +60,10 @@ class MockserverInfo:
         return f'{self.host}:{self.port}'
 
 
-class MockserverSslInfo(MockserverInfo):
-    ssl: SslCertInfo
-
-
 @dataclasses.dataclass(frozen=True)
 class MockserverSocket:
     info: MockserverInfo
     sock: socket.socket
-    ssl_info: SslCertInfo | None
 
 
 @dataclasses.dataclass(frozen=True)

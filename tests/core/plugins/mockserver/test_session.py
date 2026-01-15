@@ -97,6 +97,5 @@ def _create_server(**kwargs):
         host='',
         port=0,
         base_url='http://mockserver/',
-        ssl=None,
     )
     return server.Server(mockserver_info, **kwargs)

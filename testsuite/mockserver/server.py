@@ -624,13 +624,12 @@ def create_server(
     host: str,
     port: int,
     pytestconfig,
-    ssl_info: classes.SslCertInfo | None = None,
     loop=None,
 ):
     warnings.warn('Use mockserver_create() fixture instead', DeprecationWarning)
 
     mockserver_socket = _create_mockserver_socket(
-        host=host, port=port, ssl_info=ssl_info
+        host=host, port=port
     )
     return _create_server_from_socket(
         mockserver_socket,
@@ -639,9 +638,9 @@ def create_server(
     )
 
 
-def _create_ssl_context(ssl_info: classes.SslCertInfo) -> ssl.SSLContext:
+def _create_ssl_context(ssl_cert: classes.SslCertInfo) -> ssl.SSLContext:
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-    ssl_context.load_cert_chain(ssl_info.cert_path, ssl_info.private_key_path)
+    ssl_context.load_cert_chain(ssl_cert.cert_path, ssl_cert.private_key_path)
     return ssl_context
 
 
@@ -697,7 +696,7 @@ def _create_mockserver_socket(
     socket_path=None,
     host='localhost',
     port=0,
-    ssl_info=None,
+    https=False,
 ):
     if socket_path is None:
         sock = net_utils.bind_socket(host, port)
@@ -708,19 +707,20 @@ def _create_mockserver_socket(
         sock,
         socket_path=socket_path,
         host=host,
-        ssl_info=ssl_info,
+        https=https,
     )
-    return classes.MockserverSocket(sock=sock, info=info, ssl_info=ssl_info)
+    return classes.MockserverSocket(sock=sock, info=info)
 
 
 @contextlib.asynccontextmanager
 async def _create_server_from_socket(
     mockserver_socket: classes.MockserverSocket,
     mockserver_config: classes.MockserverConfig,
+    ssl_cert: classes.SslCertInfo| None = None,
     loop=None,
 ) -> typing.AsyncGenerator[Server, None]:
-    if mockserver_socket.ssl_info:
-        ssl_context = _create_ssl_context(mockserver_socket.ssl_info)
+    if ssl_cert:
+        ssl_context = _create_ssl_context(ssl_cert)
     else:
         ssl_context = None
 
@@ -742,19 +742,18 @@ def _create_mockserver_info(
     sock,
     socket_path,
     host: str,
-    ssl_info: classes.SslCertInfo | None,
+    https:bool=False,
 ) -> classes.MockserverInfo:
     if socket_path:
         return _create_unix_mockserver_info(socket_path)
     sock_address = sock.getsockname()
-    schema = 'https' if ssl_info else 'http'
+    schema = 'https' if https else 'http'
     port = sock_address[1]
     base_url = f'{schema}://{host}:{port}/'
     return classes.MockserverInfo(
         host=host,
         port=port,
         base_url=base_url,
-        ssl=ssl_info,
     )
 
 
@@ -767,7 +766,6 @@ def _create_unix_mockserver_info(
         base_url='http://localhost',
         host=None,
         port=None,
-        ssl=None,
     )
 
 

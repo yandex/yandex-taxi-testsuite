@@ -41,7 +41,7 @@ class MockserverPlugin:
     def pytest_report_header(self):
         headers = [
             f'mockserver: {self.mockserver_socket.info.base_url}',
-            f'mockserver-ssl: {self.mockserver_ssl_socket.info.base_url}'
+            f'mockserver-ssl: {self.mockserver_ssl_socket.info.base_url}',
         ]
         return headers
 
@@ -345,7 +345,7 @@ async def mockserver_create(
         host='localhost',
         port=0,
         socket_path=None,
-        ssl_cert: classes.SslCertInfo|None=None,
+        ssl_cert: classes.SslCertInfo | None = None,
         config: classes.MockserverConfig | None = None,
     ):
         socket_info = server._create_mockserver_socket(
@@ -355,8 +355,9 @@ async def mockserver_create(
             https=bool(ssl_cert),
         )
         async with server._create_server_from_socket(
-                socket_info, config or _mockserver_config,
-                ssl_cert=ssl_cert,
+            socket_info,
+            config or _mockserver_config,
+            ssl_cert=ssl_cert,
         ) as result:
             yield result
 
@@ -437,12 +438,12 @@ def _mockserver_config(
     return _mockserver_plugin.mockserver_config
 
 
-def _mockserver_info_hook(doc: dict, key=None, mockserver_info=None):
+def _mockserver_info_hook(doc: dict, key=None, mockserver_info: classes.MockserverInfo|None=None):
     if mockserver_info is None:
         raise RuntimeError(f'Missing {key} argument')
     if not doc.get('$schema', True):
         schema = ''
-    elif mockserver_info.ssl is not None:
+    elif mockserver_info.https:
         schema = 'https://'
     else:
         schema = 'http://'

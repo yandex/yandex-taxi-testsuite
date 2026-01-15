@@ -37,10 +37,11 @@ class SslCertInfo:
 
 @dataclasses.dataclass(frozen=True)
 class MockserverInfo:
-    host: str | None
-    port: int | None
+    host: str
+    port: int
     base_url: str
     socket_path: pathlib.Path | None = None
+    https: bool = False
 
     def url(self, path: str) -> str:
         """Concats ``base_url`` and provided ``path``."""

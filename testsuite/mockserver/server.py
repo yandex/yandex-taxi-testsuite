@@ -628,9 +628,7 @@ def create_server(
 ):
     warnings.warn('Use mockserver_create() fixture instead', DeprecationWarning)
 
-    mockserver_socket = _create_mockserver_socket(
-        host=host, port=port
-    )
+    mockserver_socket = _create_mockserver_socket(host=host, port=port)
     return _create_server_from_socket(
         mockserver_socket,
         mockserver_config=classes.MockserverConfig(),
@@ -716,7 +714,7 @@ def _create_mockserver_socket(
 async def _create_server_from_socket(
     mockserver_socket: classes.MockserverSocket,
     mockserver_config: classes.MockserverConfig,
-    ssl_cert: classes.SslCertInfo| None = None,
+    ssl_cert: classes.SslCertInfo | None = None,
     loop=None,
 ) -> typing.AsyncGenerator[Server, None]:
     if ssl_cert:
@@ -742,7 +740,7 @@ def _create_mockserver_info(
     sock,
     socket_path,
     host: str,
-    https:bool=False,
+    https: bool = False,
 ) -> classes.MockserverInfo:
     if socket_path:
         return _create_unix_mockserver_info(socket_path)
@@ -754,6 +752,7 @@ def _create_mockserver_info(
         host=host,
         port=port,
         base_url=base_url,
+        https=https,
     )
 
 
@@ -763,9 +762,10 @@ def _create_unix_mockserver_info(
     return classes.MockserverInfo(
         socket_path=socket_path,
         # use localhost to avoid aiohttp complains on invalid url
-        base_url='http://localhost',
-        host=None,
-        port=None,
+        base_url='http://localhost/',
+        host='localhost',
+        port=80,
+        https=False,
     )
 
 

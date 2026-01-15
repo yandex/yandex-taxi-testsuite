@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import warnings
 
@@ -436,6 +437,17 @@ def _mockserver_config(
     _mockserver_plugin,
 ) -> classes.MockserverConfig:
     return _mockserver_plugin.mockserver_config
+
+
+@pytest.fixture(scope='session')
+async def mockserver_set_debug(_mockserver, _mockserver_ssl):
+    def set_debug(enabled: bool):
+        loop = asyncio.get_running_loop()
+        for obj in (loop, _mockserver, _mockserver_ssl):
+            if obj is not None:
+                obj.set_debug(enabled)
+
+    return set_debug
 
 
 def _mockserver_info_hook(

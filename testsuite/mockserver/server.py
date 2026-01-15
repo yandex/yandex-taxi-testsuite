@@ -283,6 +283,12 @@ class Server:
     def server_info(self) -> classes.MockserverInfo:
         return self._info
 
+    def get_debug(self) -> bool:
+        return self._mockserver_debug
+
+    def set_debug(self, enabled: bool):
+        self._mockserver_debug = enabled
+
     @contextlib.contextmanager
     def new_session(
         self,

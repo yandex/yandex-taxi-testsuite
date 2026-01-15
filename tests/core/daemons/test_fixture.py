@@ -19,7 +19,7 @@ def httpd_socket():
 @pytest.fixture(scope='session')
 def httpd_baseurl(httpd_socket):
     _, port = httpd_socket.getsockname()
-    return 'http://localhost:%d' % (port,)
+    return f'http://localhost:{port}'
 
 
 @pytest.fixture(scope='session')
@@ -28,6 +28,7 @@ async def httpd_scope(
     httpd_baseurl,
     httpd_socket,
     service_spawner_factory,
+    mockserver_info,
 ):
     async with register_daemon_scope(
         name=HTTPD_NAME,
@@ -37,6 +38,8 @@ async def httpd_scope(
                 HTTPD_PATH,
                 '--server-fd',
                 str(httpd_socket.fileno()),
+                '--mockserver-request',
+                mockserver_info.url('/service/startup'),
             ],
             ping_url=httpd_baseurl + '/ping',
             subprocess_options={'pass_fds': [httpd_socket.fileno()]},
@@ -46,7 +49,18 @@ async def httpd_scope(
 
 
 @pytest.fixture
-async def httpd(ensure_daemon_started, mockserver, httpd_scope):
+async def mock_startup(mockserver):
+    @mockserver.json_handler('/service/startup')
+    def mock(request):
+        return {}
+
+    return mock
+
+
+@pytest.fixture
+async def httpd(
+    ensure_daemon_started, httpd_scope, mock_startup, mockserver_set_debug
+):
     return await ensure_daemon_started(httpd_scope)
 
 
@@ -103,6 +117,7 @@ async def test_ensure_daemon_started_repeatable(
     ensure_daemon_started,
     mockserver,
     httpd_scope,
+    mock_startup,
 ):
     instance1 = await ensure_daemon_started(httpd_scope)
     instance2 = await ensure_daemon_started(httpd_scope)
@@ -113,6 +128,7 @@ async def test_ensure_daemon_started_id(
     ensure_daemon_started,
     mockserver,
     httpd_scope,
+    mock_startup,
 ):
     instance = await ensure_daemon_started(httpd_scope)
     assert len(instance.id) == 32

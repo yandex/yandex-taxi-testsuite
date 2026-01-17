@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.2.2
+~~~~~~~
+
+- User must be responsible for client connection disposal (#209)
+
 0.4.2.1
 ~~~~~~~
 

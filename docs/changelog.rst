@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.2.3
+~~~~~~~
+
+- mockserver: closes sockets after fixtures teardown (#210)
+
 0.4.2.2
 ~~~~~~~
 

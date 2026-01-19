@@ -13,4 +13,3 @@ select = ['E9', 'F63', 'F7', 'F82', 'F401']
 
 [tool.ruff.format]
 quote-style = 'single'
-

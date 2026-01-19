@@ -35,6 +35,7 @@ class MockserverPlugin:
         )
 
     def pytest_sessionfinish(self, session):
+        yield
         for socket_info in (self.mockserver_socket, self.mockserver_ssl_socket):
             if socket_info:
                 socket_info.sock.close()

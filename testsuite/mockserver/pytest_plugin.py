@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import logging
 import warnings
 
 import pytest
@@ -21,6 +22,8 @@ Random port is used by default. If testsuite is started with
 --service-wait or --service-disabled default is forced to {default}.
 """
 
+logger = logging.getLogger(__name__)
+
 
 class MockserverPlugin:
     mockserver_config: classes.MockserverConfig
@@ -33,12 +36,6 @@ class MockserverPlugin:
         self.mockserver_ssl_socket = self._create_mockserver_ssl_socket(
             session.config
         )
-
-    def pytest_sessionfinish(self, session):
-        yield
-        for socket_info in (self.mockserver_socket, self.mockserver_ssl_socket):
-            if socket_info:
-                socket_info.sock.close()
 
     def pytest_report_header(self):
         headers = [
@@ -206,8 +203,8 @@ def fixture_mockserver_create_session(
         'mockserver_assert_lost_calls'
     )
 
-    @contextlib.asynccontextmanager
-    async def create_session(mockserver):
+    @contextlib.contextmanager
+    def create_session(mockserver):
         with mockserver.new_session(
             asyncexc_append=asyncexc_append,
             traceid_manager=testsuite_traceid_manager,
@@ -235,57 +232,29 @@ def fixture_mockserver_create_session(
 
 @pytest.fixture(name='_mockserver_create_session')
 def legacy_fixture_mockserver_create_session(
-    request,
-    asyncexc_append,
-    testsuite_traceid_manager: TraceidManager,
-    mockserver_strict_default: bool,
+    mockserver_create_session,
 ):
-    assert_lost_calls = request.node.get_closest_marker(
-        'mockserver_assert_lost_calls'
-    )
-
-    @contextlib.contextmanager
-    def create_session(mockserver):
-        with mockserver.new_session(
-            asyncexc_append=asyncexc_append,
-            traceid_manager=testsuite_traceid_manager,
-        ) as session:
-            warnings.warn(
-                'Use mockserver_create_session() fixture instead',
-                DeprecationWarning,
-            )
-            yield server.MockserverFixture(
-                mockserver,
-                session,
-                strict_default=mockserver_strict_default,
-            )
-
-            calls = session.collect_calls()
-            if assert_lost_calls:
-                if not calls:
-                    raise exceptions.MockServerError(
-                        f'mockserver is expected to have lost calls, but it doesnt'
-                    )
-            else:
-                if calls:
-                    raise exceptions.MockServerError(
-                        f'mockserver handler with strict=True has skipped calls: {calls}'
-                    )
+    def create_session(*args, **kwargs):
+        warnings.warn(
+            'Use mockserver_create_session() fixture instead',
+            DeprecationWarning,
+        )
+        return mockserver_create_session(*args, **kwargs)
 
     return create_session
 
 
 @pytest.fixture
-async def mockserver(
+def mockserver(
     _mockserver: server.Server,
     mockserver_create_session,
 ) -> types.YieldFixture[server.MockserverFixture]:
-    async with mockserver_create_session(_mockserver) as fixture:
+    with mockserver_create_session(_mockserver) as fixture:
         yield fixture
 
 
 @pytest.fixture
-async def mockserver_ssl(
+def mockserver_ssl(
     _mockserver_ssl: server.Server | None,
     mockserver_create_session,
 ) -> types.AsyncYieldFixture[server.MockserverSslFixture]:
@@ -294,7 +263,7 @@ async def mockserver_ssl(
             f'mockserver_ssl is not configured. {_SSL_KEY_FILE_INI_KEY} and '
             f'{_SSL_CERT_FILE_INI_KEY} must be specified in pytest.ini',
         )
-    async with mockserver_create_session(_mockserver_ssl) as fixture:
+    with mockserver_create_session(_mockserver_ssl) as fixture:
         yield fixture
 
 
@@ -423,6 +392,10 @@ def _mockserver_plugin(pytestconfig) -> MockserverPlugin:
 
 @pytest.fixture(scope='session')
 def _mockserver_socket(_mockserver_plugin) -> classes.MockserverSocket:
+    info = []
+    for sock in _mockserver_plugin.mockserver_socket.sockets:
+        info.append(sock.getsockname())
+    logger.debug('Mockserver bound to %r', info)
     return _mockserver_plugin.mockserver_socket
 
 
@@ -430,6 +403,10 @@ def _mockserver_socket(_mockserver_plugin) -> classes.MockserverSocket:
 def _mockserver_ssl_socket(
     _mockserver_plugin,
 ) -> classes.MockserverSocket | None:
+    info = []
+    for sock in _mockserver_plugin.mockserver_socket.sockets:
+        info.append(sock.getsockname())
+    logger.debug('Mockserver HTTPS bound to %r', info)
     return _mockserver_plugin.mockserver_ssl_socket
 
 

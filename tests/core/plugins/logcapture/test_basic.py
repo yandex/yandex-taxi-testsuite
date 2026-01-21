@@ -8,7 +8,7 @@ from testsuite import asyncio_socket, logcapture
 
 
 @pytest.fixture
-async def logcapture_server(json_loads):
+async def logcapture_server(json_loads, _mockserver):
     def _parse_log_line(line):
         return json_loads(line)
 

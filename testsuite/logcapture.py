@@ -11,7 +11,7 @@ import enum
 import logging
 import typing
 
-from testsuite.utils import callinfo, traceback
+from testsuite.utils import callinfo, net, traceback
 
 logger = logging.getLogger(__name__)
 
@@ -171,7 +171,7 @@ class CaptureServer:
 
     @contextlib.asynccontextmanager
     async def start(
-        self, *args, **kwargs
+        self, host='localhost', port=0, **kwargs
     ) -> typing.AsyncIterator['CaptureServer']:
         """Starts capture logs asyncio server.
 
@@ -181,11 +181,14 @@ class CaptureServer:
         """
         if self._started:
             raise IncorrectUsageError('Service was already started')
-        server = await asyncio.start_server(
-            self._handle_client, *args, **kwargs
+
+        sockets = net.bind_socket_multiple(host, port)
+        server = await net.start_multiple_servers(
+            self._handle_client, sockets, **kwargs
         )
         self._started = True
         self._socknames = [sock.getsockname() for sock in server.sockets]
+        logger.debug('Logcapture server bound to %r', self._socknames)
         try:
             yield self
         finally:

@@ -1,4 +1,6 @@
 # pylint: disable=protected-access
+import socket
+
 import aiohttp
 import aiohttp.web
 import pytest
@@ -113,3 +115,29 @@ async def test_aiohttp_response(
 
     assert response.status == 200
     assert await response.json() == {'foo': 'bar'}
+
+
+async def test_direct_addresses(
+    mockserver, mockserver_client, _mockserver_socket
+):
+    @mockserver.json_handler('/foo')
+    def handler(request):
+        return {}
+
+    def build_addr(sock):
+        addr, port, *_ = sock.getsockname()
+        if sock.family == socket.AF_INET6:
+            return f'[{addr}]', port
+        elif sock.family == socket.AF_INET:
+            return f'{addr}', port
+        raise RuntimeError(f'Unknown socket family {sock}')
+
+    async with aiohttp.ClientSession() as session:
+        for sock in _mockserver_socket.sockets:
+            addr, port = build_addr(sock)
+            response = await session.get(
+                f'http://{addr}:{port}/foo',
+                timeout=10.0,
+                headers={'Host': f'localhost:{port}'},
+            )
+            assert response.status == 200

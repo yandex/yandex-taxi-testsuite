@@ -19,7 +19,7 @@ async def unix_mockserver(
     _unix_mockserver: server.Server,
     mockserver_create_session,
 ):
-    async with mockserver_create_session(_unix_mockserver) as session:
+    with mockserver_create_session(_unix_mockserver) as session:
         yield session
 
 

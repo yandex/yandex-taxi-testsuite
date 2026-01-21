@@ -16,7 +16,7 @@ async def my_mockserver(
     mockserver_create_session,
     testsuite_traceid_manager,
 ):
-    async with mockserver_create_session(_my_mockserver) as session:
+    with mockserver_create_session(_my_mockserver) as session:
         yield session
 
 

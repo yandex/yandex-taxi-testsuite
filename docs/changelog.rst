@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.2.4
+~~~~~~~
+
+- Bind multiple socket families on the same port (#211)
+
 0.4.2.3
 ~~~~~~~
 

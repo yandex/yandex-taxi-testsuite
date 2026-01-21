@@ -705,17 +705,19 @@ def _create_mockserver_socket(
     https=False,
 ):
     if socket_path is None:
-        sock = net_utils.bind_socket(host, port)
+        sockets = net_utils.bind_socket_multiple(host, port)
     else:
-        sock = net_utils.bind_unix_socket(socket_path)
-    sock.setblocking(False)
+        sockets = [net_utils.bind_unix_socket(socket_path)]
+    assert sockets
+    for sock in sockets:
+        sock.setblocking(False)
     info = _create_mockserver_info(
-        sock,
+        sockets[0],
         socket_path=socket_path,
         host=host,
         https=https,
     )
-    return classes.MockserverSocket(sock=sock, info=info)
+    return classes.MockserverSocket(sockets=sockets, info=info)
 
 
 @contextlib.asynccontextmanager
@@ -738,7 +740,7 @@ async def _create_server_from_socket(
 
     async with net_utils.create_tcp_server(
         web_server,
-        sock=mockserver_socket.sock,
+        sock=mockserver_socket.sockets[0],
         ssl=ssl_context,
     ) as aio_server:
         yield server
@@ -752,9 +754,8 @@ def _create_mockserver_info(
 ) -> classes.MockserverInfo:
     if socket_path:
         return _create_unix_mockserver_info(socket_path)
-    sock_address = sock.getsockname()
+    port = sock.getsockname()[1]
     schema = 'https' if https else 'http'
-    port = sock_address[1]
     base_url = f'{schema}://{host}:{port}/'
     return classes.MockserverInfo(
         host=host,

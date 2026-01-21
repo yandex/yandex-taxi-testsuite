@@ -64,7 +64,7 @@ class MockserverInfo:
 @dataclasses.dataclass(frozen=True)
 class MockserverSocket:
     info: MockserverInfo
-    sock: socket.socket
+    sockets: list[socket.socket]
 
 
 @dataclasses.dataclass(frozen=True)

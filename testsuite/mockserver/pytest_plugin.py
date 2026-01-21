@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import logging
 import warnings
 
 import pytest
@@ -21,6 +22,8 @@ Random port is used by default. If testsuite is started with
 --service-wait or --service-disabled default is forced to {default}.
 """
 
+logger = logging.getLogger(__name__)
+
 
 class MockserverPlugin:
     mockserver_config: classes.MockserverConfig
@@ -33,12 +36,6 @@ class MockserverPlugin:
         self.mockserver_ssl_socket = self._create_mockserver_ssl_socket(
             session.config
         )
-
-    def pytest_sessionfinish(self, session):
-        yield
-        for socket_info in (self.mockserver_socket, self.mockserver_ssl_socket):
-            if socket_info:
-                socket_info.sock.close()
 
     def pytest_report_header(self):
         headers = [
@@ -423,6 +420,10 @@ def _mockserver_plugin(pytestconfig) -> MockserverPlugin:
 
 @pytest.fixture(scope='session')
 def _mockserver_socket(_mockserver_plugin) -> classes.MockserverSocket:
+    info = []
+    for sock in _mockserver_plugin.mockserver_socket.sockets:
+        info.append(sock.getsockname())
+    logger.debug('Mockserver bound to %r', info)
     return _mockserver_plugin.mockserver_socket
 
 
@@ -430,6 +431,10 @@ def _mockserver_socket(_mockserver_plugin) -> classes.MockserverSocket:
 def _mockserver_ssl_socket(
     _mockserver_plugin,
 ) -> classes.MockserverSocket | None:
+    info = []
+    for sock in _mockserver_plugin.mockserver_socket.sockets:
+        info.append(sock.getsockname())
+    logger.debug('Mockserver HTTPS bound to %r', info)
     return _mockserver_plugin.mockserver_ssl_socket
 
 

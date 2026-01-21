@@ -245,7 +245,7 @@ def legacy_fixture_mockserver_create_session(
 
 
 @pytest.fixture
-async def mockserver(
+def mockserver(
     _mockserver: server.Server,
     mockserver_create_session,
 ) -> types.YieldFixture[server.MockserverFixture]:
@@ -254,7 +254,7 @@ async def mockserver(
 
 
 @pytest.fixture
-async def mockserver_ssl(
+def mockserver_ssl(
     _mockserver_ssl: server.Server | None,
     mockserver_create_session,
 ) -> types.AsyncYieldFixture[server.MockserverSslFixture]:

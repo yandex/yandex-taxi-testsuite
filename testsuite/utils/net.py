@@ -159,7 +159,7 @@ def bind_unix_socket(
 
 
 @contextlib.contextmanager
-def close_sockets(sockets):
+def _close_sockets_on_error(sockets):
     try:
         yield sockets
     except:
@@ -204,7 +204,7 @@ def _bind_socket_multiple(
     infos = socket.getaddrinfo(
         hostname, port, family=family, type=type, flags=socket.AI_PASSIVE
     )
-    with close_sockets([]) as sockets:
+    with _close_sockets_on_error([]) as sockets:
         for af, socktype, proto, canonname, sa in infos:
             addr = sa[0]
             sock = bind_socket(

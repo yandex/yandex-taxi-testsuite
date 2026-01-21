@@ -738,9 +738,9 @@ async def _create_server_from_socket(
     server = _create_server_obj(mockserver_socket.info, mockserver_config)
     web_server = _create_web_server(server, loop)
 
-    async with net_utils.create_tcp_server(
+    async with net_utils.create_server_multiple(
         web_server,
-        sock=mockserver_socket.sockets[0],
+        sockets=mockserver_socket.sockets,
         ssl=ssl_context,
     ) as aio_server:
         yield server

@@ -8,10 +8,9 @@ from testsuite.utils import net
 
 def test_bind_multiple():
     ports = set()
-    with net.close_sockets(net.bind_socket_multiple()) as socks:
-        for sock in socks:
-            sock_port = sock.getsockname()[1]
-            ports.add(sock_port)
+    for sock in net.bind_socket_multiple():
+        sock_port = sock.getsockname()[1]
+        ports.add(sock_port)
     assert len(ports) == 1
 
 
@@ -26,6 +25,6 @@ def test_bind_multiple_addrinuse():
 async def test_server_multiple():
     def factory(): ...
 
-    with net.close_sockets(net.bind_socket_multiple()) as socks:
-        async with net.create_server_multiple(factory, socks) as server:
-            pass
+    socks = net.bind_socket_multiple()
+    async with net.create_server_multiple(factory, socks) as server:
+        pass

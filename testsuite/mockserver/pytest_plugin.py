@@ -237,10 +237,10 @@ def legacy_fixture_mockserver_create_session(
     def create_session(*args, **kwargs):
         warnings.warn(
             'Use mockserver_create_session() fixture instead',
-        DeprecationWarning,
+            DeprecationWarning,
         )
         return mockserver_create_session(*args, **kwargs)
-        
+
     return create_session
 
 

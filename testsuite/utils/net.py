@@ -159,6 +159,15 @@ def bind_unix_socket(
 
 
 @contextlib.contextmanager
+def closing_sockets(sockets):
+    try:
+        yield sockets
+    finally:
+        for sock in sockets:
+            sock.close()
+
+
+@contextlib.contextmanager
 def _close_sockets_on_error(sockets):
     try:
         yield sockets

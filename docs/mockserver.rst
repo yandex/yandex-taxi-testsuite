@@ -284,6 +284,40 @@ Available errors are:
 * :py:class:`testsuite.mockserver.server.MockserverFixture.TimeoutError`
 * :py:class:`testsuite.mockserver.server.MockserverFixture.NetworkError`
 
+Mockserver Routing
+------------------
+
+Mockserver matches HTTP calls to handlers based on the request path. 
+By default, they are compared for equality. 
+
+`regex=True` allows you to compare paths using regular expressions. 
+The values of named groups are passed to the handler method parameters 
+of the same name.
+
+.. code-block:: python
+
+   @mockserver.json_handler(r'/lib/(?P<lib_id>\w+)/books/(?P<book_id>\w+)', regex=True)
+   def handler(request, lib_id, book_id):
+        # When requesting POST /lib/mylib/books/mybook
+        # `mylib` will be passed to lib_id and
+        # `mybook` will be passed to book_id.
+        return {}
+
+The path is checked for compliance with the entire pattern 
+:py:meth:`pattern.fullmatch`, so you do not need to add `^$` markers for the 
+beginning/ending of the line.
+
+`prefix=True` allows you to match the handler path to the beginning of the 
+path in the http request.
+
+.. code-block:: python
+
+   @mockserver.json_handler('/foo', prefix=True)
+   def handler(request):
+       # Will handle both `/foo` and `/foo/bar`
+       # POST requests.
+       return {}
+
 OpenTracing
 -----------
 

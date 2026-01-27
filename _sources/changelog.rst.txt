@@ -1,6 +1,36 @@
 Changelog
 ---------
 
+0.4.2.4
+~~~~~~~
+
+- Bind multiple socket families on the same port (#211)
+
+0.4.2.3
+~~~~~~~
+
+- mockserver: closes sockets after fixtures teardown (#210)
+
+0.4.2.2
+~~~~~~~
+
+- User must be responsible for client connection disposal (#209)
+
+0.4.2.1
+~~~~~~~
+
+- add mockserver_set_debug (#208)
+
+0.4.2
+~~~~~
+
+- Cleanup mockserver internals (#207)
+
+0.4.1
+~~~~~
+
+- Python 3.14 support (#206)
+
 0.4.0
 ~~~~~
 

@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Http mockserver &#8212; yandex-taxi-testsuite 0.4.0 documentation</title>
+    <title>Http mockserver &#8212; yandex-taxi-testsuite 0.4.2.4 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css?v=51489a46" />
-    <script src="../_static/documentation_options.js?v=3da8d795"></script>
+    <script src="../_static/documentation_options.js?v=10d9f4de"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex/" />
@@ -76,6 +76,25 @@ of original service url.</p>
 <p>Usually your service takes config file as an argument.
 In this case you should provide fixture that creates config file
 and substitutes all testsuite related parameters.</p>
+<section id="creating-custom-mockserver">
+<h2>Creating custom mockserver<a class="headerlink" href="#creating-custom-mockserver" title="Link to this heading">¶</a></h2>
+<p>Sometimes it’s required to create a specific mockserver. This could be achieved this way:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_mockserver</span><span class="p">(</span>
+    <span class="n">_my_mockserver</span><span class="p">:</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">,</span>
+    <span class="n">mockserver_create_session</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">mockserver_create_session</span><span class="p">(</span><span class="n">_my_mockserver</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">session</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_my_mockserver</span><span class="p">(</span><span class="n">mockserver_create</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">_mockserver_create</span><span class="p">()</span> <span class="k">as</span> <span class="n">server</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">server</span>
+</pre></div>
+</div>
+</section>
 <section id="command-line-options">
 <h2>Command line options<a class="headerlink" href="#command-line-options" title="Link to this heading">¶</a></h2>
 <section id="mockserver-nofail">
@@ -305,7 +324,7 @@ mockserver.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="testsuite.mockserver.classes.MockserverInfo">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">testsuite.mockserver.classes.</span></span><span class="sig-name descname"><span class="pre">MockserverInfo</span></span><a class="reference internal" href="../_modules/testsuite/mockserver/classes/#MockserverInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.mockserver.classes.MockserverInfo" title="Link to this definition">¶</a></dt>
-<dd><p>MockserverInfo(host: str | None, port: int | None, base_url: str, ssl: testsuite.mockserver.classes.SslCertInfo | None, socket_path: pathlib._local.Path | None = None)</p>
+<dd><p>MockserverInfo(host: str, port: int, base_url: str, socket_path: pathlib._local.Path | None = None, https: bool = False)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="testsuite.mockserver.classes.MockserverInfo.url">
 <span class="sig-name descname"><span class="pre">url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/testsuite/mockserver/classes/#MockserverInfo.url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.mockserver.classes.MockserverInfo.url" title="Link to this definition">¶</a></dt>
@@ -417,6 +436,34 @@ X-Testsuite-Error: network|timeout
 <li><p><a class="reference internal" href="#testsuite.mockserver.server.MockserverFixture.TimeoutError" title="testsuite.mockserver.server.MockserverFixture.TimeoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.server.MockserverFixture.TimeoutError</span></code></a></p></li>
 <li><p><a class="reference internal" href="#testsuite.mockserver.server.MockserverFixture.NetworkError" title="testsuite.mockserver.server.MockserverFixture.NetworkError"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.mockserver.server.MockserverFixture.NetworkError</span></code></a></p></li>
 </ul>
+</section>
+<section id="mockserver-routing">
+<h2>Mockserver Routing<a class="headerlink" href="#mockserver-routing" title="Link to this heading">¶</a></h2>
+<p>Mockserver matches HTTP calls to handlers based on the request path.
+By default, they are compared for equality.</p>
+<p><cite>regex=True</cite> allows you to compare paths using regular expressions.
+The values of named groups are passed to the handler method parameters
+of the same name.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@mockserver</span><span class="o">.</span><span class="n">json_handler</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/lib/(?P&lt;lib_id&gt;\w+)/books/(?P&lt;book_id&gt;\w+)&#39;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">lib_id</span><span class="p">,</span> <span class="n">book_id</span><span class="p">):</span>
+     <span class="c1"># When requesting POST /lib/mylib/books/mybook</span>
+     <span class="c1"># `mylib` will be passed to lib_id and</span>
+     <span class="c1"># `mybook` will be passed to book_id.</span>
+     <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>The path is checked for compliance with the entire pattern
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">pattern.fullmatch()</span></code>, so you do not need to add <cite>^$</cite> markers for the
+beginning/ending of the line.</p>
+<p><cite>prefix=True</cite> allows you to match the handler path to the beginning of the
+path in the http request.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@mockserver</span><span class="o">.</span><span class="n">json_handler</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Will handle both `/foo` and `/foo/bar`</span>
+    <span class="c1"># POST requests.</span>
+    <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
 </section>
 <section id="opentracing">
 <h2>OpenTracing<a class="headerlink" href="#opentracing" title="Link to this heading">¶</a></h2>
@@ -533,7 +580,7 @@ and test case proceeds normally.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2020-2025, Yandex LLC.
+      &#169;2020-2026, Yandex LLC.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>

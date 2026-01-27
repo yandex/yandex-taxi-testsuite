@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.2.5
+~~~~~~~
+
+- feat docs: add info about mockserver prefix and regex (#214)
+
 0.4.2.4
 ~~~~~~~
 

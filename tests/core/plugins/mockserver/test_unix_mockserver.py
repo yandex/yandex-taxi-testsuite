@@ -4,9 +4,9 @@ from typing import Any
 import aiohttp
 import pytest
 
-from testsuite._internal import fixture_types
+import testsuite
 from testsuite.daemons import service_client
-from testsuite.mockserver import classes, server
+from testsuite.mockserver import server
 
 if platform.system() == 'Darwin':
     _MOCKSERVER_SOCKET = 'socket'
@@ -33,14 +33,14 @@ async def _unix_mockserver(tmp_path_factory, mockserver_create):
 @pytest.fixture(scope='session')
 def unix_mockserver_info(
     _unix_mockserver: server.Server,
-) -> classes.MockserverInfo:
+) -> testsuite.MockserverInfo:
     return _unix_mockserver.server_info
 
 
 @pytest.fixture
 async def unix_mockserver_client(
-    unix_mockserver: fixture_types.MockserverFixture,
-    unix_mockserver_info: classes.MockserverInfo,
+    unix_mockserver: testsuite.MockserverFixture,
+    unix_mockserver_info: testsuite.MockserverInfo,
     service_client_options: dict[str, Any],
 ) -> service_client.Client:
     async with aiohttp.UnixConnector(
@@ -60,11 +60,11 @@ async def unix_mockserver_client(
 
 
 async def test_handler(
-    unix_mockserver: fixture_types.MockserverFixture,
+    unix_mockserver: testsuite.MockserverFixture,
     unix_mockserver_client: service_client.Client,
 ):
     @unix_mockserver.handler('/test_unix_socket')
-    def _test(request: fixture_types.MockserverRequest):
+    def _test(request: testsuite.MockserverRequest):
         return unix_mockserver.make_response('test', 200)
 
     response = await unix_mockserver_client.get('test_unix_socket')

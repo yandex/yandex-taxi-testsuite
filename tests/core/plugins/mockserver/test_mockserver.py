@@ -5,7 +5,7 @@ import aiohttp
 import aiohttp.web
 import pytest
 
-from testsuite._internal import fixture_types
+import testsuite
 from testsuite.mockserver import exceptions
 
 from .client import Client
@@ -16,13 +16,13 @@ class UserError(Exception):
 
 
 @pytest.fixture
-async def mockserver_client(mockserver: fixture_types.MockserverFixture):
+async def mockserver_client(mockserver: testsuite.MockserverFixture):
     async with aiohttp.ClientSession() as session:
         yield Client(base_url=mockserver.base_url, session=session)
 
 
 async def test_json_handler(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     mockserver_client: Client,
 ):
     @mockserver.json_handler('/foo')
@@ -37,7 +37,7 @@ async def test_json_handler(
 
 
 async def test_async_json_handler(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     mockserver_client: Client,
 ):
     @mockserver.json_handler('/foo')
@@ -52,7 +52,7 @@ async def test_async_json_handler(
 
 
 async def test_handler(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     mockserver_client: Client,
 ):
     @mockserver.json_handler('/foo')
@@ -67,7 +67,7 @@ async def test_handler(
 
 
 async def test_user_error(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     mockserver_client: Client,
     mockserver_errors_list,
     mockserver_errors_pop,
@@ -86,7 +86,7 @@ async def test_user_error(
 
 
 async def test_nohandler(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     mockserver_client: Client,
     mockserver_errors_list,
     mockserver_errors_pop,
@@ -104,7 +104,7 @@ async def test_nohandler(
 
 
 async def test_aiohttp_response(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     mockserver_client: Client,
 ):
     @mockserver.json_handler('/foo')

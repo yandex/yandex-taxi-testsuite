@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from testsuite._internal import fixture_types
+import testsuite
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ def simple_client(mockserver_info):
     ],
 )
 async def test_path_basic(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     simple_client,
     mock_url,
     request_path,

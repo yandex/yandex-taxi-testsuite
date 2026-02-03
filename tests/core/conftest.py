@@ -2,7 +2,7 @@ import ssl
 
 import pytest
 
-from testsuite._internal import fixture_types
+import testsuite
 from testsuite.daemons import service_client
 
 pytest_plugins = [
@@ -12,7 +12,7 @@ pytest_plugins = [
 
 @pytest.fixture
 def mockserver_client(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     service_client_default_headers,
     service_client_options,
 ) -> service_client.Client:
@@ -28,7 +28,7 @@ def mockserver_client(
 
 @pytest.fixture
 def mockserver_ssl_client(
-    mockserver_ssl: fixture_types.MockserverSslFixture,
+    mockserver_ssl: testsuite.MockserverFixture,
     mockserver_ssl_cert,
     service_client_default_headers,
     service_client_options,

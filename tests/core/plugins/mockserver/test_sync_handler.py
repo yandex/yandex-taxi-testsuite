@@ -2,12 +2,12 @@ import inspect
 
 import aiohttp.web
 
-from testsuite._internal import fixture_types
+import testsuite
 from testsuite.utils import http
 
 
 async def test_request_wrapper_attributes(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.handler('/arbitrary/path', prefix=True)
@@ -32,7 +32,7 @@ async def test_request_wrapper_attributes(
 
 
 async def test_response_attributes(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.handler('/arbitrary/path')
@@ -51,7 +51,7 @@ async def test_response_attributes(
 
 
 async def test_request_json(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.handler('/arbitrary/path')
@@ -65,7 +65,7 @@ async def test_request_json(
 
 
 async def test_response_json(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
@@ -80,7 +80,7 @@ async def test_response_json(
 
 
 async def test_raw_request_parameter(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.aiohttp_json_handler('/arbitrary/path')
@@ -96,7 +96,7 @@ async def test_raw_request_parameter(
 
 
 async def test_request_form(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')

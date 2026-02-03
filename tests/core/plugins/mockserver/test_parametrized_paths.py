@@ -1,9 +1,9 @@
-from testsuite._internal import fixture_types
+import testsuite
 from testsuite.utils import http
 
 
 async def test_regex_path(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.handler(r'/path/(?P<num>\d+)', regex=True)
@@ -24,7 +24,7 @@ async def test_regex_path(
 
 
 async def test_regex_path_not_matched(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.handler(r'/path/(?P<num>\d+)', regex=True)
@@ -43,7 +43,7 @@ async def test_regex_path_not_matched(
 
 
 async def test_regex_pathes_are_matched_in_reversed_addition_order(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.handler(r'/path/(?P<param_first>[^/]+)', regex=True)

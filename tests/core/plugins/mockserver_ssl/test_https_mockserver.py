@@ -1,13 +1,13 @@
-from testsuite._internal import fixture_types
+import testsuite
 
 
-def test_schema_is_https(mockserver_ssl: fixture_types.MockserverFixture):
+def test_schema_is_https(mockserver_ssl: testsuite.MockserverFixture):
     url: str = mockserver_ssl.url('some/path')
     assert url.startswith('https://')
 
 
 async def test_request_is_handled(
-    mockserver_ssl: fixture_types.MockserverFixture,
+    mockserver_ssl: testsuite.MockserverFixture,
     mockserver_ssl_client,
 ):
     @mockserver_ssl.handler('/test')

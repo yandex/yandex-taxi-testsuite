@@ -7,6 +7,7 @@ import pytest
 
 from testsuite import types
 from testsuite.tracing import TraceidManager
+from testsuite.utils import net
 
 from . import classes, exceptions, server
 
@@ -23,62 +24,6 @@ Random port is used by default. If testsuite is started with
 """
 
 logger = logging.getLogger(__name__)
-
-
-class MockserverPlugin:
-    mockserver_config: classes.MockserverConfig
-    mockserver_socket: classes.MockserverSocket
-    mockserver_ssl_socket: classes.MockserverSocket
-
-    def pytest_sessionstart(self, session):
-        self.mockserver_config = self._create_mockserver_config(session.config)
-        self.mockserver_socket = self._create_mockserver_socket(session.config)
-        self.mockserver_ssl_socket = self._create_mockserver_ssl_socket(
-            session.config
-        )
-
-    def pytest_report_header(self):
-        headers = [
-            f'mockserver: {self.mockserver_socket.info.base_url}',
-            f'mockserver-ssl: {self.mockserver_ssl_socket.info.base_url}',
-        ]
-        return headers
-
-    def _create_mockserver_config(self, pytestconfig):
-        return classes.MockserverConfig(
-            nofail=pytestconfig.option.mockserver_nofail,
-            debug=pytestconfig.option.mockserver_debug,
-            tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
-            trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
-            span_id_header=pytestconfig.getini('mockserver-span-id-header'),
-            http_proxy_enabled=pytestconfig.getini(
-                'mockserver-http-proxy-enabled'
-            ),
-        )
-
-    def _create_mockserver_socket(self, config):
-        port = _mockserver_getport(
-            config,
-            config.option.mockserver_port,
-            default_port=MOCKSERVER_DEFAULT_PORT,
-        )
-        return server._create_mockserver_socket(
-            socket_path=config.option.mockserver_unix_socket,
-            host=config.option.mockserver_host,
-            port=port,
-        )
-
-    def _create_mockserver_ssl_socket(self, config):
-        port = _mockserver_getport(
-            config,
-            config.option.mockserver_ssl_port,
-            default_port=MOCKSERVER_SSL_DEFAULT_PORT,
-        )
-        return server._create_mockserver_socket(
-            host=config.option.mockserver_ssl_host,
-            port=port,
-            https=True,
-        )
 
 
 def pytest_addoption(parser):
@@ -176,8 +121,6 @@ def pytest_configure(config):
         'markers',
         'mockserver_assert_lost_calls: assert that all calls to mockservers are checked',
     )
-
-    config.pluginmanager.register(MockserverPlugin(), 'testsuite_mockserver')
 
 
 def pytest_register_object_hooks():
@@ -386,35 +329,47 @@ def _mockserver_https_hook(mockserver_ssl_info):
 
 
 @pytest.fixture(scope='session')
-def _mockserver_plugin(pytestconfig) -> MockserverPlugin:
-    return pytestconfig.pluginmanager.get_plugin('testsuite_mockserver')
-
-
-@pytest.fixture(scope='session')
-def _mockserver_socket(_mockserver_plugin) -> classes.MockserverSocket:
-    info = []
-    for sock in _mockserver_plugin.mockserver_socket.sockets:
-        info.append(sock.getsockname())
-    logger.debug('Mockserver bound to %r', info)
-    return _mockserver_plugin.mockserver_socket
+def _mockserver_socket(
+    pytestconfig, _mockserver_config
+) -> classes.MockserverSocket:
+    port = _mockserver_getport(
+        pytestconfig,
+        pytestconfig.option.mockserver_port,
+        default_port=MOCKSERVER_DEFAULT_PORT,
+    )
+    mockserver_socket = server._create_mockserver_socket(
+        socket_path=pytestconfig.option.mockserver_unix_socket,
+        host=pytestconfig.option.mockserver_host,
+        port=port,
+    )
+    with net.closing_sockets(mockserver_socket.sockets):
+        info = []
+        for sock in mockserver_socket.sockets:
+            info.append(sock.getsockname())
+        logger.debug('Mockserver bound to %r', info)
+        yield mockserver_socket
 
 
 @pytest.fixture(scope='session')
 def _mockserver_ssl_socket(
-    _mockserver_plugin,
+    pytestconfig,
 ) -> classes.MockserverSocket | None:
-    info = []
-    for sock in _mockserver_plugin.mockserver_socket.sockets:
-        info.append(sock.getsockname())
-    logger.debug('Mockserver HTTPS bound to %r', info)
-    return _mockserver_plugin.mockserver_ssl_socket
-
-
-@pytest.fixture(scope='session')
-def _mockserver_config(
-    _mockserver_plugin,
-) -> classes.MockserverConfig:
-    return _mockserver_plugin.mockserver_config
+    port = _mockserver_getport(
+        pytestconfig,
+        pytestconfig.option.mockserver_ssl_port,
+        default_port=MOCKSERVER_SSL_DEFAULT_PORT,
+    )
+    mockserver_socket = server._create_mockserver_socket(
+        host=pytestconfig.option.mockserver_ssl_host,
+        port=port,
+        https=True,
+    )
+    with net.closing_sockets(mockserver_socket.sockets):
+        info = []
+        for sock in mockserver_socket.sockets:
+            info.append(sock.getsockname())
+        logger.debug('Mockserver HTTPS bound to %r', info)
+        yield mockserver_socket
 
 
 @pytest.fixture(scope='session')
@@ -426,6 +381,18 @@ async def mockserver_set_debug(_mockserver, _mockserver_ssl):
                 obj.set_debug(enabled)
 
     return set_debug
+
+
+@pytest.fixture(scope='session')
+def _mockserver_config(pytestconfig) -> classes.MockserverConfig:
+    return classes.MockserverConfig(
+        nofail=pytestconfig.option.mockserver_nofail,
+        debug=pytestconfig.option.mockserver_debug,
+        tracing_enabled=pytestconfig.getini('mockserver-tracing-enabled'),
+        trace_id_header=pytestconfig.getini('mockserver-trace-id-header'),
+        span_id_header=pytestconfig.getini('mockserver-span-id-header'),
+        http_proxy_enabled=pytestconfig.getini('mockserver-http-proxy-enabled'),
+    )
 
 
 def _mockserver_info_hook(

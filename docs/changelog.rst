@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.4.3
+~~~~~
+
+- remove mockserver plugin (#212)
+- Add some types to testsuite package root (#215)
+
 0.4.2.5
 ~~~~~~~
 

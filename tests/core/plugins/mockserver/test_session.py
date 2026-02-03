@@ -1,6 +1,7 @@
 # pylint: disable=protected-access
 import pytest
 
+import testsuite
 from testsuite.mockserver import classes, exceptions, server
 
 
@@ -93,7 +94,7 @@ def test_mockserver_new(
 
 
 def _create_server(**kwargs):
-    mockserver_info = classes.MockserverInfo(
+    mockserver_info = testsuite.MockserverInfo(
         host='',
         port=0,
         base_url='http://mockserver/',

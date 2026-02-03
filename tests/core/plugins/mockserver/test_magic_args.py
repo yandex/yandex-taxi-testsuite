@@ -1,11 +1,11 @@
 import aiohttp.web
 
-from testsuite._internal import fixture_types
+import testsuite
 from testsuite.utils import http
 
 
 async def test_basic(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
@@ -41,7 +41,7 @@ async def test_basic(
 
 
 async def test_body_binary(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
@@ -55,7 +55,7 @@ async def test_body_binary(
 
 
 async def test_form(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
@@ -73,7 +73,7 @@ async def test_form(
 
 
 async def test_request_type(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
@@ -87,7 +87,7 @@ async def test_request_type(
 
 
 async def test_naorgs(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')
@@ -101,7 +101,7 @@ async def test_naorgs(
 
 
 async def test_star_args(
-    mockserver: fixture_types.MockserverFixture,
+    mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):
     @mockserver.json_handler('/arbitrary/path')

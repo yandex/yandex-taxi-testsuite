@@ -3,7 +3,6 @@ import inspect
 import itertools
 import signal
 import subprocess
-import uuid
 import warnings
 from collections.abc import AsyncGenerator, Callable, Sequence
 from typing import Any, AsyncContextManager
@@ -15,6 +14,7 @@ from testsuite import types
 from testsuite._internal import fixture_class, fixture_types
 
 from . import service_client, service_daemon
+from .classes import DaemonInstance
 from .spawn import __tracebackhide__  # noqa: F401
 
 SHUTDOWN_SIGNALS = {
@@ -48,18 +48,6 @@ class _DaemonScope:
             manager = await manager
         process = await manager.__aenter__()
         return DaemonInstance(manager, process)
-
-
-class DaemonInstance:
-    process: subprocess.Popen | None
-
-    def __init__(self, owner, process) -> None:
-        self.id = uuid.uuid4().hex
-        self._owner = owner
-        self.process = process
-
-    async def aclose(self) -> None:
-        await self._owner.__aexit__(None, None, None)
 
 
 class _DaemonStore:
@@ -245,7 +233,7 @@ class ServiceSpawnerFixture(fixture_class.Fixture):
     def __call__(self, *args, **kwargs):
         warnings.warn(
             'service_spawner() fixture is deprecated, '
-            'use  service_spawner_factory()',
+            'use service_spawner_factory()',
             PendingDeprecationWarning,
         )
         factory = self._fixture_service_spawner_factory(*args, **kwargs)

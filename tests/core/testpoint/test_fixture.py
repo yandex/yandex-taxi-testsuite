@@ -1,12 +1,12 @@
 import pytest
 
-from testsuite._internal import fixture_types
+import testsuite
 
 
 @pytest.mark.parametrize('data', [None, 'hello', {'msg': 'hello'}])
 async def test_basic(
     mockserver_client,
-    testpoint: fixture_types.TestpointFixture,
+    testpoint: testsuite.TestpointFixture,
     data,
 ):
     @testpoint('ping')
@@ -24,7 +24,7 @@ async def test_basic(
 
 async def test_basic_async(
     mockserver_client,
-    testpoint: fixture_types.TestpointFixture,
+    testpoint: testsuite.TestpointFixture,
 ):
     @testpoint('ping')
     async def ping(data):
@@ -41,7 +41,7 @@ async def test_basic_async(
 
 async def test_next_call(
     mockserver_client,
-    testpoint: fixture_types.TestpointFixture,
+    testpoint: testsuite.TestpointFixture,
 ):
     @testpoint('foo')
     def foo_point(data):
@@ -59,7 +59,7 @@ async def test_next_call(
 
 async def test_wait_call(
     mockserver_client,
-    testpoint: fixture_types.TestpointFixture,
+    testpoint: testsuite.TestpointFixture,
 ):
     @testpoint('foo')
     def foo_point(data):
@@ -75,7 +75,7 @@ async def test_wait_call(
 
 async def test_not_handled(
     mockserver_client,
-    testpoint: fixture_types.TestpointFixture,
+    testpoint: testsuite.TestpointFixture,
 ):
     response = await mockserver_client.post(
         'testpoint',

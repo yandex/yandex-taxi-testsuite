@@ -3,7 +3,8 @@ import sys
 
 import pytest
 
-from testsuite.daemons import pytest_plugin, service_client, service_daemon
+import testsuite
+from testsuite.daemons import service_client, service_daemon
 from testsuite.utils import net as net_utils
 
 HTTPD_NAME = f'{__name__}.httpd'
@@ -88,7 +89,7 @@ async def test_httpd_hello(httpd_client):
 async def test_httpd_restart(
     httpd_client,
     restart_id,
-    httpd: pytest_plugin.DaemonInstance,
+    httpd: testsuite.DaemonInstance,
 ):
     response = await httpd_client.get('/exit')
     assert response.status_code == 200

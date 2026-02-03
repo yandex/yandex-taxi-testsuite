@@ -4,7 +4,7 @@ from typing import Any
 import aiohttp
 import pytest
 
-from testsuite._internal import fixture_types
+import testsuite
 from testsuite.daemons import service_client
 from testsuite.mockserver import classes, server
 
@@ -30,7 +30,7 @@ async def _my_mockserver(pytestconfig):
 
 @pytest.fixture
 async def my_mockserver_client(
-    my_mockserver: fixture_types.MockserverFixture,
+    my_mockserver: testsuite.MockserverFixture,
     service_client_options,
 ) -> service_client.Client:
     return service_client.Client(
@@ -41,7 +41,7 @@ async def my_mockserver_client(
 
 async def test_handler(my_mockserver, my_mockserver_client):
     @my_mockserver.handler('/test')
-    def _test(request: fixture_types.MockserverRequest):
+    def _test(request: testsuite.MockserverRequest):
         return my_mockserver.make_response('test', 200)
 
     response = await my_mockserver_client.get('/test')

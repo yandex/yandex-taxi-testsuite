@@ -65,7 +65,6 @@ class GetFilePathFixture(fixture_class.Fixture):
     """Returns path to static regular file."""
 
     _fixture_search_path: SearchPathFixture
-    _fixture_get_search_pathes: GetSearchPathesFixture
     _fixture__search_directories_existing: tuple[pathlib.Path, ...]
 
     def __call__(
@@ -110,6 +109,78 @@ class GetDirectoryPathFixture(GetFilePathFixture):
             f'Directory {filename} was not found',
             filename,
         )
+
+
+class _DoSearchPathCustomFixture(fixture_class.Fixture):
+    _fixture__path_entries_cache: typing.Callable
+
+    def _do_search(
+        self,
+        filename: types.PathOrStr,
+        search_directories: typing.Sequence[types.PathOrStr],
+        *,
+        directory: bool,
+        missing_ok: bool,
+    ) -> typing.Iterator[pathlib.Path]:
+        cache = self._fixture__path_entries_cache
+        search_paths_existing = [
+            cached_search_dir
+            for search_dir in search_directories
+            if (cached_search_dir := cache(search_dir)).is_dir()
+        ]
+        is_missing = True
+        for search_dir in search_paths_existing:
+            entry = self._fixture__path_entries_cache(search_dir, filename)
+            exists = entry.is_dir() if directory else entry.is_file()
+            if exists:
+                is_missing = False
+                yield entry
+        if is_missing and not missing_ok:
+            pathes = '\n'.join(
+                f' - {path / filename}' for path in search_paths_existing
+            )
+            raise FileNotFoundError(
+                f'Path {filename} was not found\n\n'
+                f'The following pathes were examined:\n{pathes}',
+            )
+
+
+class SearchPathCustomFixture(_DoSearchPathCustomFixture):
+    """Finds all instances of ``filename`` in ``search_directories``."""
+
+    def __call__(
+        self,
+        filename: types.PathOrStr,
+        search_directories: typing.Sequence[types.PathOrStr],
+        *,
+        directory: bool = False,
+    ) -> typing.Iterator[pathlib.Path]:
+        return self._do_search(
+            filename,
+            search_directories,
+            directory=directory,
+            missing_ok=True,
+        )
+
+
+class GetPathCustomFixture(_DoSearchPathCustomFixture):
+    """Finds first instance of ``filename`` in ``search_directories``."""
+
+    def __call__(
+        self,
+        filename: types.PathOrStr,
+        search_directories: typing.Sequence[types.PathOrStr],
+        *,
+        directory: bool = False,
+        missing_ok: bool = False,
+    ) -> pathlib.Path | None:
+        results = self._do_search(
+            filename,
+            search_directories,
+            directory=directory,
+            missing_ok=missing_ok,
+        )
+        return next(iter(results), None)
 
 
 class OpenFileFixture(fixture_class.Fixture):
@@ -314,6 +385,14 @@ search_path = fixture_class.create_fixture_factory(SearchPathFixture)
 get_file_path = fixture_class.create_fixture_factory(GetFilePathFixture)
 get_directory_path = fixture_class.create_fixture_factory(
     GetDirectoryPathFixture,
+)
+search_path_custom = fixture_class.create_fixture_factory(
+    SearchPathCustomFixture,
+    scope='session',
+)
+get_path_custom = fixture_class.create_fixture_factory(
+    GetPathCustomFixture,
+    scope='session',
 )
 open_file = fixture_class.create_fixture_factory(OpenFileFixture)
 load = fixture_class.create_fixture_factory(LoadFixture)

@@ -193,7 +193,7 @@ _MODES_WHITELIST = frozenset(['r', 'rt', 'rb'])
 
 
 @pytest.fixture
-def get_search_paths(
+def get_search_pathes(
     _search_directories_existing: tuple[pathlib.Path, ...],
     _path_entries_cache: typing.Callable,
 ) -> GetSearchPathsFixture:
@@ -207,8 +207,8 @@ def get_search_paths(
 
 
 @pytest.fixture
-def get_search_pathes(get_search_paths):
-    return get_search_paths
+def get_search_paths(get_search_pathes):
+    return get_search_pathes
 
 
 @pytest.fixture
@@ -273,6 +273,10 @@ def get_directory_path(
 
 @pytest.fixture
 def _testsuite_file_not_found_error(_search_directories_existing):
+    from pdb import set_trace
+
+    set_trace()
+
     def raise_error(message, filename):
         paths = '\n'.join(
             f' - {path / filename}' for path in _search_directories_existing

@@ -4,6 +4,7 @@ import itertools
 import signal
 import subprocess
 import warnings
+import typing
 from collections.abc import AsyncGenerator, Callable, Sequence
 from typing import Any, AsyncContextManager
 
@@ -11,7 +12,7 @@ import aiohttp
 import pytest
 
 from testsuite import types
-from testsuite._internal import fixture_class, fixture_types
+from testsuite._internal import fixture_types
 
 from . import service_client, service_daemon
 from .classes import DaemonInstance
@@ -114,34 +115,13 @@ class _DaemonStore:
         await daemon.aclose()
 
 
-class EnsureDaemonStartedFixture(fixture_class.Fixture):
+class EnsureDaemonStartedFixture(typing.Protocol):
     """Fixture that starts requested service."""
 
-    _fixture__global_daemon_store: _DaemonStore
-    _fixture__testsuite_suspend_capture: Any
-    _fixture_pytestconfig: Any
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._requests = set()
-
     async def __call__(self, scope: _DaemonScope) -> DaemonInstance:
-        if not scope.multiple:
-            self._requests.add(scope.name)
-        if len(self._requests) > 1:
-            pytest.fail('Test requested multiple daemons: %r' % self._requests)
+        ...
 
-        if self._fixture_pytestconfig.option.service_wait:
-            with self._fixture__testsuite_suspend_capture():
-                return await self._fixture__global_daemon_store.request(scope)
-        return await self._fixture__global_daemon_store.request(scope)
-
-
-class ServiceSpawnerFactory(fixture_class.Fixture):
-    _fixture_pytestconfig: Any
-    _fixture_service_client_session_factory: Any
-    _fixture_wait_service_started: Any
-
+class ServiceSpawnerFactory(typing.Protocol):
     def __call__(
         self,
         args: Sequence[str],
@@ -180,75 +160,9 @@ class ServiceSpawnerFactory(fixture_class.Fixture):
         :returns: Return asynccontextmanager factory that might be used
                   within ``register_daemon_scope`` fixture.
         """
-        pytestconfig = self._fixture_pytestconfig
 
-        shutdown_timeout = pytestconfig.option.service_shutdown_timeout
-        if shutdown_signal is None:
-            shutdown_signal = SHUTDOWN_SIGNALS[
-                pytestconfig.option.service_shutdown_signal
-            ]
-
-        health_check = service_daemon.make_health_check(
-            ping_url=ping_url,
-            ping_request_timeout=ping_request_timeout,
-            ping_response_codes=ping_response_codes,
-            health_check=health_check,
-        )
-
-        command_args = _build_command_args(args, base_command)
-
-        @contextlib.asynccontextmanager
-        async def spawn():
-            if pytestconfig.option.service_wait:
-                manager = self._fixture_wait_service_started(
-                    args=command_args,
-                    health_check=health_check,
-                )
-            elif pytestconfig.option.service_disable:
-                manager = service_daemon.start_dummy_process()
-            else:
-                manager = service_daemon.start(
-                    args=command_args,
-                    env=env,
-                    shutdown_signal=shutdown_signal,
-                    shutdown_timeout=shutdown_timeout,
-                    poll_retries=poll_retries,
-                    health_check=health_check,
-                    session_factory=self._fixture_service_client_session_factory,
-                    subprocess_options=subprocess_options,
-                    setup_service=setup_service,
-                    subprocess_spawner=subprocess_spawner,
-                    stdout_handler=stdout_handler,
-                    stderr_handler=stderr_handler,
-                )
-            async with manager as process:
-                yield process
-
-        return spawn
-
-
-class ServiceSpawnerFixture(fixture_class.Fixture):
-    _fixture_service_spawner_factory: ServiceSpawnerFactory
-
-    def __call__(self, *args, **kwargs):
-        warnings.warn(
-            'service_spawner() fixture is deprecated, '
-            'use service_spawner_factory()',
-            PendingDeprecationWarning,
-        )
-        factory = self._fixture_service_spawner_factory(*args, **kwargs)
-
-        async def spawner():
-            return factory()
-
-        return spawner
-
-
-class CreateDaemonScope(fixture_class.Fixture):
+class CreateDaemonScope(typing.Protocol):
     """Create daemon scope for daemon with command to start."""
-
-    _fixture__global_daemon_store: _DaemonStore
-    _fixture_service_spawner_factory: ServiceSpawnerFactory
 
     def __call__(
         self,
@@ -288,11 +202,192 @@ class CreateDaemonScope(fixture_class.Fixture):
         :returns: Returns internal daemon scope instance to be used with
             ``ensure_daemon_started`` fixture.
         """
+
+class CreateServiceClientFixture(typing.Protocol):
+    """Creates service client instance.
+
+    Example:
+
+    .. code-block:: python
+
+        def my_client(create_service_client):
+            return create_service_client('http://localhost:9999/')
+    """
+
+    def __call__(
+        self,
+        base_url: str,
+        *,
+        client_class=service_client.Client,
+        **kwargs,
+    ):
+        """
+        :param base_url: base url for http client
+        :param client_class: client class to use
+        :returns: ``client_class`` instance
+        """
+
+@pytest.fixture
+def ensure_daemon_started(
+        _global_daemon_store: _DaemonStore,
+    _testsuite_suspend_capture,
+    pytestconfig) -> EnsureDaemonStartedFixture:
+
+    requests = set()
+
+    async def ensure_daemon_started(scope: _DaemonScope) -> DaemonInstance:
+        if not scope.multiple:
+            requests.add(scope.name)
+        if len(requests) > 1:
+            pytest.fail(f'Test requested multiple daemons: {requests!r}')
+
+        if pytestconfig.option.service_wait:
+            with _testsuite_suspend_capture():
+                return await _global_daemon_store.request(scope)
+        return await _global_daemon_store.request(scope)
+
+    return ensure_daemon_started
+
+
+
+
+@pytest.fixture(scope='session')
+def service_spawner_factory(
+        pytestconfig: Any,
+        service_client_session_factory: Any,
+        wait_service_started: Any) -> ServiceSpawnerFactory:
+
+    def service_spawner_factory(
+        args: Sequence[str],
+        *,
+        base_command: Sequence[str] | None = None,
+        env: dict[str, str] | None = None,
+        poll_retries: int = service_daemon.POLL_RETRIES,
+        ping_url: str | None = None,
+        ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
+        ping_response_codes: tuple[int] = service_daemon.PING_RESPONSE_CODES,
+        health_check: service_daemon.HealthCheckType | None = None,
+        subprocess_spawner: Callable[..., subprocess.Popen] | None = None,
+        subprocess_options: dict[str, Any] | None = None,
+        setup_service: Callable[[subprocess.Popen], None] | None = None,
+        shutdown_signal: int | None = None,
+        stdout_handler=None,
+        stderr_handler=None,
+    ):
+        shutdown_timeout = pytestconfig.option.service_shutdown_timeout
+        if shutdown_signal is None:
+            shutdown_signal = SHUTDOWN_SIGNALS[
+                pytestconfig.option.service_shutdown_signal
+            ]
+
+        health_check = service_daemon.make_health_check(
+            ping_url=ping_url,
+            ping_request_timeout=ping_request_timeout,
+            ping_response_codes=ping_response_codes,
+            health_check=health_check,
+        )
+
+        command_args = _build_command_args(args, base_command)
+
+        @contextlib.asynccontextmanager
+        async def spawn():
+            if pytestconfig.option.service_wait:
+                manager = wait_service_started(
+                    args=command_args,
+                    health_check=health_check,
+                )
+            elif pytestconfig.option.service_disable:
+                manager = service_daemon.start_dummy_process()
+            else:
+                manager = service_daemon.start(
+                    args=command_args,
+                    env=env,
+                    shutdown_signal=shutdown_signal,
+                    shutdown_timeout=shutdown_timeout,
+                    poll_retries=poll_retries,
+                    health_check=health_check,
+                    session_factory=service_client_session_factory,
+                    subprocess_options=subprocess_options,
+                    setup_service=setup_service,
+                    subprocess_spawner=subprocess_spawner,
+                    stdout_handler=stdout_handler,
+                    stderr_handler=stderr_handler,
+                )
+            async with manager as process:
+                yield process
+
+        return spawn
+    return service_spawner_factory
+
+
+@pytest.fixture(scope='session')
+def service_spawner(service_spawner_factory):
+    def service_spawner(*args, **kwargs):
+        factory = service_spawner_factory(*args, **kwargs)
+        warnings.warn(
+            'service_spawner() fixture is deprecated, '
+            'use service_spawner_factory()',
+            PendingDeprecationWarning,
+        )
+        async def spawner():
+            return factory()
+
+        return spawner
+
+    return service_spawner
+
+
+
+
+@pytest.fixture(scope='session')
+def create_daemon_scope(    _global_daemon_store: _DaemonStore,
+                            service_spawner_factory: ServiceSpawnerFactory
+                        )->CreateDaemonScope:
+    """Create daemon scope for daemon with command to start."""
+
+
+    def create_daemon_scope(
+        *,
+        args: Sequence[str],
+        ping_url: str | None = None,
+        name: str | None = None,
+        base_command: Sequence | None = None,
+        env: dict[str, str] | None = None,
+        poll_retries: int = service_daemon.POLL_RETRIES,
+        ping_request_timeout: float = service_daemon.PING_REQUEST_TIMEOUT,
+        ping_response_codes: tuple[int] = service_daemon.PING_RESPONSE_CODES,
+        health_check: service_daemon.HealthCheckType | None = None,
+        subprocess_options: dict[str, Any] | None = None,
+        setup_service: Callable[[subprocess.Popen], None] | None = None,
+        shutdown_signal: int | None = None,
+        stdout_handler=None,
+        stderr_handler=None,
+        multiple=True,
+    ) -> AsyncContextManager[_DaemonScope]:
+        """
+        :param args: command arguments
+        :param base_command: Arguments to be prepended to ``args``.
+        :param env: Environment variables dictionary.
+        :param poll_retries: Number of tries for service health check
+        :param ping_url: service health check url, service is considered up
+            when 200 received.
+        :param ping_request_timeout: Timeout for ping_url request
+        :param ping_response_codes: HTTP resopnse codes tuple meaning that
+            service is up and running.
+        :param health_check: Async function to check service is running.
+        :param subprocess_options: Custom subprocess options.
+        :param setup_service: Function to be called right after service
+            is started.
+        :param shutdown_signal: Signal used to stop running services.
+        :param multiple: do not fail when this scope is requested with others.
+        :returns: Returns internal daemon scope instance to be used with
+            ``ensure_daemon_started`` fixture.
+        """
         if name is None:
             name = ' '.join(args)
-        return self._fixture__global_daemon_store.scope(
+        return _global_daemon_store.scope(
             name=name,
-            spawn=self._fixture_service_spawner_factory(
+            spawn=service_spawner_factory(
                 args=args,
                 base_command=base_command,
                 env=env,
@@ -309,24 +404,16 @@ class CreateDaemonScope(fixture_class.Fixture):
             ),
             multiple=multiple,
         )
+    return create_daemon_scope
 
 
-class CreateServiceClientFixture(fixture_class.Fixture):
-    """Creates service client instance.
 
-    Example:
+@pytest.fixture
+def create_service_client(
+        service_client_default_headers: dict[str, str],
+        service_client_options: dict[str, Any]) -> CreateServiceClientFixture:
 
-    .. code-block:: python
-
-        def my_client(create_service_client):
-            return create_service_client('http://localhost:9999/')
-    """
-
-    _fixture_service_client_default_headers: dict[str, str]
-    _fixture_service_client_options: dict[str, Any]
-
-    def __call__(
-        self,
+    def create_service_client(
         base_url: str,
         *,
         client_class=service_client.Client,
@@ -339,30 +426,11 @@ class CreateServiceClientFixture(fixture_class.Fixture):
         """
         return client_class(
             base_url,
-            headers=self._fixture_service_client_default_headers,
-            **self._fixture_service_client_options,
+            headers=service_client_default_headers,
+            **service_client_options,
             **kwargs,
         )
-
-
-ensure_daemon_started = fixture_class.create_fixture_factory(
-    EnsureDaemonStartedFixture,
-)
-service_spawner = fixture_class.create_fixture_factory(
-    ServiceSpawnerFixture,
-    scope='session',
-)
-service_spawner_factory = fixture_class.create_fixture_factory(
-    ServiceSpawnerFactory,
-    scope='session',
-)
-create_daemon_scope = fixture_class.create_fixture_factory(
-    CreateDaemonScope,
-    scope='session',
-)
-create_service_client = fixture_class.create_fixture_factory(
-    CreateServiceClientFixture,
-)
+    return create_service_client
 
 
 @pytest.fixture(scope='session')

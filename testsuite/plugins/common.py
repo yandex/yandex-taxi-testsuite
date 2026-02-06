@@ -28,7 +28,7 @@ __tracebackhide__ = traceback.hide(BaseError, FileNotFoundError)
 
 
 class GetSearchPathsFixture(typing.Protocol):
-    """Generates sequence of pathes for static files."""
+    """Generates sequence of paths for static files."""
 
     def __call__(
         self,
@@ -202,18 +202,19 @@ def get_search_paths(
 
     return search
 
+
 @pytest.fixture
 def get_search_pathes(get_search_paths):
     return get_search_paths
 
 
 @pytest.fixture
-def search_path(get_search_pathes: GetSearchPathsFixture) -> SearchPathFixture:
+def search_path(get_search_paths: GetSearchPathsFixture) -> SearchPathFixture:
     def search_path(
         filename: types.PathOrStr,
         directory: bool = False,
     ) -> typing.Iterator[pathlib.Path]:
-        for abs_filename in get_search_pathes(filename):
+        for abs_filename in get_search_paths(filename):
             if directory:
                 if abs_filename.is_dir():
                     yield abs_filename
@@ -224,10 +225,10 @@ def search_path(get_search_pathes: GetSearchPathsFixture) -> SearchPathFixture:
     return search_path
 
 
-
-
 @pytest.fixture
-def get_file_path(search_path: SearchPathFixture, _testsuite_file_not_found_error) -> GetFilePathFixture:
+def get_file_path(
+    search_path: SearchPathFixture, _testsuite_file_not_found_error
+) -> GetFilePathFixture:
     def get_file_path(
         filename: types.PathOrStr,
         *,
@@ -270,12 +271,13 @@ def get_directory_path(
 @pytest.fixture
 def _testsuite_file_not_found_error(_search_directories_existing):
     def raise_error(message, filename):
-        pathes = '\n'.join(
+        paths = '\n'.join(
             f' - {path / filename}' for path in _search_directories_existing
         )
         return FileNotFoundError(
-            f'{message}\n\nThe following pathes were examined:\n{pathes}',
+            f'{message}\n\nThe following paths were examined:\n{paths}',
         )
+
     return raise_error
 
 

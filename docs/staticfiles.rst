@@ -107,14 +107,14 @@ get_directory_path
     :members: __call__
 
 
-get_search_pathes
+get_search_paths
 ~~~~~~~~~~~~~~~~~
 
-.. py:function:: get_search_pathes
+.. py:function:: get_search_paths
 
-   Returns :py:class:`GetSearchPathesFixture` instance.
+   Returns :py:class:`GetSearchPathsFixture` instance.
 
-.. autoclass:: GetSearchPathesFixture()
+.. autoclass:: GetSearchPathsFixture()
     :members: __call__
 
 static_dir

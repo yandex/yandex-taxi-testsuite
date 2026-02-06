@@ -3,8 +3,8 @@ import inspect
 import itertools
 import signal
 import subprocess
-import warnings
 import typing
+import warnings
 from collections.abc import AsyncGenerator, Callable, Sequence
 from typing import Any, AsyncContextManager
 
@@ -118,8 +118,8 @@ class _DaemonStore:
 class EnsureDaemonStartedFixture(typing.Protocol):
     """Fixture that starts requested service."""
 
-    async def __call__(self, scope: _DaemonScope) -> DaemonInstance:
-        ...
+    async def __call__(self, scope: _DaemonScope) -> DaemonInstance: ...
+
 
 class ServiceSpawnerFactory(typing.Protocol):
     def __call__(
@@ -160,6 +160,7 @@ class ServiceSpawnerFactory(typing.Protocol):
         :returns: Return asynccontextmanager factory that might be used
                   within ``register_daemon_scope`` fixture.
         """
+
 
 class CreateDaemonScope(typing.Protocol):
     """Create daemon scope for daemon with command to start."""
@@ -203,6 +204,7 @@ class CreateDaemonScope(typing.Protocol):
             ``ensure_daemon_started`` fixture.
         """
 
+
 class CreateServiceClientFixture(typing.Protocol):
     """Creates service client instance.
 
@@ -227,12 +229,11 @@ class CreateServiceClientFixture(typing.Protocol):
         :returns: ``client_class`` instance
         """
 
+
 @pytest.fixture
 def ensure_daemon_started(
-        _global_daemon_store: _DaemonStore,
-    _testsuite_suspend_capture,
-    pytestconfig) -> EnsureDaemonStartedFixture:
-
+    _global_daemon_store: _DaemonStore, _testsuite_suspend_capture, pytestconfig
+) -> EnsureDaemonStartedFixture:
     requests = set()
 
     async def ensure_daemon_started(scope: _DaemonScope) -> DaemonInstance:
@@ -249,14 +250,12 @@ def ensure_daemon_started(
     return ensure_daemon_started
 
 
-
-
 @pytest.fixture(scope='session')
 def service_spawner_factory(
-        pytestconfig: Any,
-        service_client_session_factory: Any,
-        wait_service_started: Any) -> ServiceSpawnerFactory:
-
+    pytestconfig: Any,
+    service_client_session_factory: Any,
+    wait_service_started: Any,
+) -> ServiceSpawnerFactory:
     def service_spawner_factory(
         args: Sequence[str],
         *,
@@ -317,6 +316,7 @@ def service_spawner_factory(
                 yield process
 
         return spawn
+
     return service_spawner_factory
 
 
@@ -329,6 +329,7 @@ def service_spawner(service_spawner_factory):
             'use service_spawner_factory()',
             PendingDeprecationWarning,
         )
+
         async def spawner():
             return factory()
 
@@ -337,14 +338,12 @@ def service_spawner(service_spawner_factory):
     return service_spawner
 
 
-
-
 @pytest.fixture(scope='session')
-def create_daemon_scope(    _global_daemon_store: _DaemonStore,
-                            service_spawner_factory: ServiceSpawnerFactory
-                        )->CreateDaemonScope:
+def create_daemon_scope(
+    _global_daemon_store: _DaemonStore,
+    service_spawner_factory: ServiceSpawnerFactory,
+) -> CreateDaemonScope:
     """Create daemon scope for daemon with command to start."""
-
 
     def create_daemon_scope(
         *,
@@ -404,15 +403,15 @@ def create_daemon_scope(    _global_daemon_store: _DaemonStore,
             ),
             multiple=multiple,
         )
-    return create_daemon_scope
 
+    return create_daemon_scope
 
 
 @pytest.fixture
 def create_service_client(
-        service_client_default_headers: dict[str, str],
-        service_client_options: dict[str, Any]) -> CreateServiceClientFixture:
-
+    service_client_default_headers: dict[str, str],
+    service_client_options: dict[str, Any],
+) -> CreateServiceClientFixture:
     def create_service_client(
         base_url: str,
         *,
@@ -430,6 +429,7 @@ def create_service_client(
             **service_client_options,
             **kwargs,
         )
+
     return create_service_client
 
 

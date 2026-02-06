@@ -273,10 +273,6 @@ def get_directory_path(
 
 @pytest.fixture
 def _testsuite_file_not_found_error(_search_directories_existing):
-    from pdb import set_trace
-
-    set_trace()
-
     def raise_error(message, filename):
         paths = '\n'.join(
             f' - {path / filename}' for path in _search_directories_existing

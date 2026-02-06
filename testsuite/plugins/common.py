@@ -5,7 +5,6 @@ import typing
 import pytest
 
 from testsuite import types
-from testsuite._internal import fixture_class
 from testsuite.utils import cached_property, json_util, traceback, yaml_util
 
 
@@ -28,31 +27,44 @@ class LoadYamlError(BaseError):
 __tracebackhide__ = traceback.hide(BaseError, FileNotFoundError)
 
 
-class GetSearchPathesFixture(fixture_class.Fixture):
+class GetSearchPathsFixture(typing.Protocol):
     """Generates sequence of pathes for static files."""
-
-    _fixture__search_directories_existing: tuple[pathlib.Path, ...]
-    _fixture__path_entries_cache: typing.Callable
 
     def __call__(
         self,
         filename: types.PathOrStr,
-    ) -> typing.Iterator[pathlib.Path]:
-        for directory in self._fixture__search_directories_existing:
-            entry = self._fixture__path_entries_cache(directory, filename)
-            if entry.exists():
-                yield entry
+    ) -> typing.Iterator[pathlib.Path]: ...
 
 
-class SearchPathFixture(fixture_class.Fixture):
-    _fixture_get_search_pathes: GetSearchPathesFixture
-
+class SearchPathFixture(typing.Protocol):
     def __call__(
         self,
         filename: types.PathOrStr,
         directory: bool = False,
+    ) -> typing.Iterator[pathlib.Path]: ...
+
+
+@pytest.fixture
+def get_search_pathes(
+    _search_directories_existing: tuple[pathlib.Path, ...],
+    _path_entries_cache: typing.Callable,
+) -> GetSearchPathsFixture:
+    def search(filename: types.PathOrStr) -> typing.Iterator[pathlib.Path]:
+        for directory in _search_directories_existing:
+            entry = _path_entries_cache(directory, filename)
+            if entry.exists():
+                yield entry
+
+    return search
+
+
+@pytest.fixture
+def search_path(get_search_pathes: GetSearchPathsFixture) -> SearchPathFixture:
+    def search_path(
+        filename: types.PathOrStr,
+        directory: bool = False,
     ) -> typing.Iterator[pathlib.Path]:
-        for abs_filename in self._fixture_get_search_pathes(filename):
+        for abs_filename in get_search_pathes(filename):
             if directory:
                 if abs_filename.is_dir():
                     yield abs_filename
@@ -60,40 +72,53 @@ class SearchPathFixture(fixture_class.Fixture):
                 if abs_filename.is_file():
                     yield abs_filename
 
+    return search_path
 
-class GetFilePathFixture(fixture_class.Fixture):
+
+class GetFilePathFixture(typing.Protocol):
     """Returns path to static regular file."""
-
-    _fixture_search_path: SearchPathFixture
-    _fixture_get_search_pathes: GetSearchPathesFixture
-    _fixture__search_directories_existing: tuple[pathlib.Path, ...]
 
     def __call__(
         self,
         filename: types.PathOrStr,
         *,
         missing_ok=False,
+    ) -> pathlib.Path | None: ...
+
+
+@pytest.fixture
+def get_file_path(search_path: SearchPathFixture) -> GetFilePathFixture:
+    _fixture_search_path: SearchPathFixture
+    _fixture_get_search_pathes: GetSearchPathsFixture
+    _fixture__search_directories_existing: tuple[pathlib.Path, ...]
+
+    def get_file_path(
+        filename: types.PathOrStr,
+        *,
+        missing_ok=False,
     ) -> pathlib.Path | None:
-        for path in self._fixture_search_path(filename):
+        for path in search_path(filename):
             return path
         if missing_ok:
             return None
-        raise self._file_not_found_error(
+        raise _file_not_found_error(
             f'File {filename} was not found',
             filename,
         )
 
-    def _file_not_found_error(self, message, filename):
-        pathes = '\n'.join(
-            f' - {path / filename}'
-            for path in self._fixture__search_directories_existing
-        )
-        return FileNotFoundError(
-            f'{message}\n\nThe following pathes were examined:\n{pathes}',
-        )
+    return get_file_path
 
 
-class GetDirectoryPathFixture(GetFilePathFixture):
+def _file_not_found_error(message, filename):
+    pathes = '\n'.join(
+        f' - {path / filename}' for path in __search_directories_existing
+    )
+    return FileNotFoundError(
+        f'{message}\n\nThe following pathes were examined:\n{pathes}',
+    )
+
+
+class GetDirectoryPathFixture(typing.Protocol):
     """Returns path to static directory."""
 
     def __call__(
@@ -102,17 +127,17 @@ class GetDirectoryPathFixture(GetFilePathFixture):
         *,
         missing_ok=False,
     ) -> pathlib.Path | None:
-        for path in self._fixture_search_path(filename, directory=True):
+        for path in search_path(filename, directory=True):
             return path
         if missing_ok:
             return None
-        raise self._file_not_found_error(
+        raise _file_not_found_error(
             f'Directory {filename} was not found',
             filename,
         )
 
 
-class OpenFileFixture(fixture_class.Fixture):
+class OpenFileFixture(typing.Protocol):
     """Open static file by name.
 
     Only read-only open modes are supported.
@@ -144,7 +169,7 @@ class OpenFileFixture(fixture_class.Fixture):
                 f'Only read-only modes are supported.',
             )
         return open(
-            self._fixture_get_file_path(filename),  # type: ignore[arg-type]
+            get_file_path(filename),  # type: ignore[arg-type]
             mode=mode,
             buffering=buffering,
             encoding=encoding,
@@ -152,7 +177,7 @@ class OpenFileFixture(fixture_class.Fixture):
         )
 
 
-class LoadFixture(fixture_class.Fixture):
+class LoadFixture(typing.Protocol):
     """Load file from static directory.
 
     Example:
@@ -182,13 +207,13 @@ class LoadFixture(fixture_class.Fixture):
         :param errors: error handling mode see :func:`open`.
         :returns: ``str`` instance.
         """
-        path = self._fixture_get_file_path(filename, missing_ok=missing_ok)
+        path = get_file_path(filename, missing_ok=missing_ok)
         if path is None:
             return None
         return path.read_text(encoding=encoding, errors=errors)
 
 
-class LoadBinaryFixture(fixture_class.Fixture):
+class LoadBinaryFixture(typing.Protocol):
     """Load binary data from static directory.
 
     Example:
@@ -207,11 +232,11 @@ class LoadBinaryFixture(fixture_class.Fixture):
         :param filename": static file name part
         :returns: ``bytes`` file content.
         """
-        path = self._fixture_get_file_path(filename)
+        path = get_file_path(filename)
         return path.read_bytes()
 
 
-class JsonLoadsFixture(fixture_class.Fixture):
+class JsonLoadsFixture(typing.Protocol):
     """Load json doc from string.
 
     Json loader runs ``json_util.loads(data, ..., *args, **kwargs)`` hooks.
@@ -227,21 +252,25 @@ class JsonLoadsFixture(fixture_class.Fixture):
             json_obj = json_loads('{"key": "value"}')
     """
 
-    _fixture_load_json_defaults: dict
-    _fixture_object_hook: typing.Any
+    def __call__(self, content, *args, **kwargs) -> typing.Any: ...
 
-    def __call__(self, content, *args, **kwargs) -> typing.Any:
+
+@pytest.fixture
+def json_loads(object_hook) -> JsonLoadsFixture:
+    def json_loads(content, *args, **kwargs) -> typing.Any:
         if 'object_hook' not in kwargs:
-            kwargs['object_hook'] = self._fixture_object_hook
+            kwargs['object_hook'] = object_hook
         return json_util.loads(
             content,
             *args,
-            **self._fixture_load_json_defaults,
+            **load_json_defaults,
             **kwargs,
         )
 
+    return json_loads
 
-class LoadJsonFixture(fixture_class.Fixture):
+
+class LoadJsonFixture(typing.Protocol):
     """Load json doc from static directory.
 
     Json loader runs ``json_util.loads(data, ..., *args, **kwargs)`` hooks.
@@ -257,9 +286,6 @@ class LoadJsonFixture(fixture_class.Fixture):
             json_obj = load_json('filename.json')
     """
 
-    _fixture_load: LoadFixture
-    _fixture_json_loads: JsonLoadsFixture
-
     def __call__(
         self,
         filename: types.PathOrStr,
@@ -267,19 +293,34 @@ class LoadJsonFixture(fixture_class.Fixture):
         missing_ok=False,
         missing=None,
         **kwargs,
+    ) -> typing.Any: ...
+
+
+@pytest.fixture
+def load_json(
+    load: LoadFixture, json_loads: JsonLoadsFixture
+) -> LoadJsonFixture:
+    def load_json(
+        filename: types.PathOrStr,
+        *args,
+        missing_ok=False,
+        missing=None,
+        **kwargs,
     ) -> typing.Any:
-        content = self._fixture_load(filename, missing_ok=missing_ok)
+        content = load(filename, missing_ok=missing_ok)
         if content is None:
             return missing
         try:
-            return self._fixture_json_loads(content, *args, **kwargs)
+            return json_loads(content, *args, **kwargs)
         except json.JSONDecodeError as err:
             raise LoadJsonError(
                 f'Failed to load JSON file {filename}',
             ) from err
 
+    return load_json
 
-class LoadYamlFixture(fixture_class.Fixture):
+
+class LoadYamlFixture(typing.Protocol):
     """Load yaml doc from static directory.
 
     .. code-block:: python
@@ -288,15 +329,22 @@ class LoadYamlFixture(fixture_class.Fixture):
             yaml_obj = load_yaml('filename.yaml')
     """
 
-    _fixture_load: LoadFixture
-
     def __call__(
         self,
         filename: types.PathOrStr,
         *args,
         **kwargs,
+    ) -> typing.Any: ...
+
+
+@pytest.fixture
+def load_yaml(load: LoadFixture) -> LoadYamlFixture:
+    def load_yaml(
+        filename: types.PathOrStr,
+        *args,
+        **kwargs,
     ) -> typing.Any:
-        content = self._fixture_load(filename)
+        content = load(filename)
         try:
             return yaml_util.load(content, *args, **kwargs)
         except yaml_util.ParserError as exc:
@@ -304,23 +352,10 @@ class LoadYamlFixture(fixture_class.Fixture):
                 f'Failed to load YAML file {filename}',
             ) from exc
 
+    return load_yaml
+
 
 FilePathsCache = dict[pathlib.Path, list[pathlib.Path]]
-
-get_search_pathes = fixture_class.create_fixture_factory(
-    GetSearchPathesFixture,
-)
-search_path = fixture_class.create_fixture_factory(SearchPathFixture)
-get_file_path = fixture_class.create_fixture_factory(GetFilePathFixture)
-get_directory_path = fixture_class.create_fixture_factory(
-    GetDirectoryPathFixture,
-)
-open_file = fixture_class.create_fixture_factory(OpenFileFixture)
-load = fixture_class.create_fixture_factory(LoadFixture)
-load_binary = fixture_class.create_fixture_factory(LoadBinaryFixture)
-json_loads = fixture_class.create_fixture_factory(JsonLoadsFixture)
-load_json = fixture_class.create_fixture_factory(LoadJsonFixture)
-load_yaml = fixture_class.create_fixture_factory(LoadYamlFixture)
 
 
 def pytest_configure(config):

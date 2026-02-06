@@ -108,7 +108,7 @@ get_directory_path
 
 
 get_search_paths
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. py:function:: get_search_paths
 

@@ -109,6 +109,27 @@ def get_file_path(search_path: SearchPathFixture) -> GetFilePathFixture:
     return get_file_path
 
 
+@pytest.fixture
+def get_directory_path(
+    search_path: SearchPathFixture,
+) -> GetDirectoryPathFixture:
+    def get_directory_path(
+        filename: types.PathOrStr,
+        *,
+        missing_ok=False,
+    ) -> pathlib.Path | None:
+        for path in search_path(filename, directory=True):
+            return path
+        if missing_ok:
+            return None
+        raise _file_not_found_error(
+            f'Directory {filename} was not found',
+            filename,
+        )
+
+    return get_directory_path
+
+
 def _file_not_found_error(message, filename):
     pathes = '\n'.join(
         f' - {path / filename}' for path in __search_directories_existing
@@ -126,15 +147,7 @@ class GetDirectoryPathFixture(typing.Protocol):
         filename: types.PathOrStr,
         *,
         missing_ok=False,
-    ) -> pathlib.Path | None:
-        for path in search_path(filename, directory=True):
-            return path
-        if missing_ok:
-            return None
-        raise _file_not_found_error(
-            f'Directory {filename} was not found',
-            filename,
-        )
+    ) -> pathlib.Path | None: ...
 
 
 class OpenFileFixture(typing.Protocol):
@@ -151,10 +164,6 @@ class OpenFileFixture(typing.Protocol):
                 ...
     """
 
-    _modes_whitelist = frozenset(['r', 'rt', 'rb'])
-
-    _fixture_get_file_path: GetFilePathFixture
-
     def __call__(
         self,
         filename: types.PathOrStr,
@@ -162,8 +171,21 @@ class OpenFileFixture(typing.Protocol):
         buffering=-1,
         encoding='utf-8',
         errors=None,
+    ) -> typing.IO: ...
+
+
+@pytest.fixture
+def open_file(get_file_path: GetFilePathFixture) -> OpenFileFixture:
+    _modes_whitelist = frozenset(['r', 'rt', 'rb'])
+
+    def open_file(
+        filename: types.PathOrStr,
+        mode='r',
+        buffering=-1,
+        encoding='utf-8',
+        errors=None,
     ) -> typing.IO:
-        if mode not in self._modes_whitelist:
+        if mode not in _modes_whitelist:
             raise UnsupportedFileModeError(
                 f'Incorrect file open mode {mode!r} passed. '
                 f'Only read-only modes are supported.',
@@ -175,6 +197,8 @@ class OpenFileFixture(typing.Protocol):
             encoding=encoding,
             errors=errors,
         )
+
+    return open_file
 
 
 class LoadFixture(typing.Protocol):
@@ -190,8 +214,6 @@ class LoadFixture(typing.Protocol):
     :return: :py:class:`LoadFixture` callable instance.
     """
 
-    _fixture_get_file_path: GetFilePathFixture
-
     def __call__(
         self,
         filename: types.PathOrStr,
@@ -199,18 +221,24 @@ class LoadFixture(typing.Protocol):
         errors=None,
         *,
         missing_ok=False,
-    ) -> bytes | str | None:
-        """Load static text file.
+    ) -> bytes | str | None: ...
 
-        :param filename: static file name part.
-        :param encoding: stream encoding, see :func:`open`.
-        :param errors: error handling mode see :func:`open`.
-        :returns: ``str`` instance.
-        """
+
+@pytest.fixture
+def load(get_file_path: GetFilePathFixture) -> LoadFixture:
+    def load(
+        filename: types.PathOrStr,
+        encoding='utf-8',
+        errors=None,
+        *,
+        missing_ok=False,
+    ) -> bytes | str | None:
         path = get_file_path(filename, missing_ok=missing_ok)
         if path is None:
             return None
         return path.read_text(encoding=encoding, errors=errors)
+
+    return load
 
 
 class LoadBinaryFixture(typing.Protocol):
@@ -224,16 +252,16 @@ class LoadBinaryFixture(typing.Protocol):
             bytes_data = load_binary('data.bin')
     """
 
-    _fixture_get_file_path: GetFilePathFixture
+    def __call__(self, filename: types.PathOrStr) -> bytes: ...
 
-    def __call__(self, filename: types.PathOrStr) -> bytes:
-        """Load static binary file.
 
-        :param filename": static file name part
-        :returns: ``bytes`` file content.
-        """
+@pytest.fixture
+def load_binary(get_file_path: GetFilePathFixture) -> LoadBinaryFixture:
+    def load_binary(filename: types.PathOrStr) -> bytes:
         path = get_file_path(filename)
         return path.read_bytes()
+
+    return load_binary
 
 
 class JsonLoadsFixture(typing.Protocol):

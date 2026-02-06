@@ -189,6 +189,9 @@ class LoadYamlFixture(typing.Protocol):
     ) -> typing.Any: ...
 
 
+_MODES_WHITELIST = frozenset(['r', 'rt', 'rb'])
+
+
 @pytest.fixture
 def get_search_paths(
     _search_directories_existing: tuple[pathlib.Path, ...],
@@ -283,8 +286,6 @@ def _testsuite_file_not_found_error(_search_directories_existing):
 
 @pytest.fixture
 def open_file(get_file_path: GetFilePathFixture) -> OpenFileFixture:
-    _modes_whitelist = frozenset(['r', 'rt', 'rb'])
-
     def open_file(
         filename: types.PathOrStr,
         mode='r',
@@ -292,7 +293,7 @@ def open_file(get_file_path: GetFilePathFixture) -> OpenFileFixture:
         encoding='utf-8',
         errors=None,
     ) -> typing.IO:
-        if mode not in _modes_whitelist:
+        if mode not in _MODES_WHITELIST:
             raise UnsupportedFileModeError(
                 f'Incorrect file open mode {mode!r} passed. '
                 f'Only read-only modes are supported.',

@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.4
+~~~~~
+
+- Remove fixture_class (#217)
+
 0.4.3
 ~~~~~
 

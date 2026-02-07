@@ -12,7 +12,7 @@ def find_schemas(
 ) -> dict[str, classes.DatabaseConfig]:
     """Retrieve database schemas from filesystem.
 
-    :param schema_dirs: list of schema pathes
+    :param schema_dirs: list of schema paths
     :param dbprefix: database name internal prefix
     :param extra_schema_args: for each DB contains list
         of tables we don't have to truncate and flag for explicit creation

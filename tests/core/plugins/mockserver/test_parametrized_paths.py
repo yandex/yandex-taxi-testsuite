@@ -42,7 +42,7 @@ async def test_regex_path_not_matched(
     assert response.status_code == 404
 
 
-async def test_regex_pathes_are_matched_in_reversed_addition_order(
+async def test_regex_paths_are_matched_in_reversed_addition_order(
     mockserver: testsuite.MockserverFixture,
     create_service_client,
 ):

@@ -181,6 +181,8 @@ class Session:
                 return response.to_aiohttp()
             elif isinstance(response, aiohttp.web.Response):
                 return response
+            elif isinstance(response, aiohttp.web.WebSocketResponse):
+                return response
             elif isinstance(response, http.MockedError):
                 return _mocked_error_response(request, response.error_code)
             raise exceptions.MockServerError(
@@ -559,6 +561,9 @@ class MockserverFixture:
     def url_encoded(self, path: str) -> yarl.URL:
         """Builds mockserver url for ``path``"""
         return yarl.URL(url_util.join(self.base_url, path), encoded=True)
+
+    def ws_url(self, path: str) -> str:
+        return self._server.server_info.ws_url(path)
 
     def ignore_trace_id(self) -> typing.ContextManager[None]:
         return self.tracing(False)

@@ -141,3 +141,25 @@ async def test_direct_addresses(
                 headers={'Host': f'localhost:{port}'},
             )
             assert response.status == 200
+
+
+async def test_websocket(
+    mockserver: testsuite.MockserverFixture,
+):
+    @mockserver.aiohttp_handler('/ws/chat')
+    async def ws_handler(request):
+        ws = aiohttp.web.WebSocketResponse()
+        await ws.prepare(request)
+
+        async for msg in ws:
+            if msg.type == aiohttp.WSMsgType.TEXT:
+                assert msg.data == 'message'
+                await ws.send_str('answer')
+
+        return ws
+
+    async with aiohttp.ClientSession() as session:
+        async with session.ws_connect(mockserver.ws_url('/ws/chat')) as ws:
+            await ws.send_str('message')
+            msg = await ws.receive()
+            assert msg.data == 'answer'

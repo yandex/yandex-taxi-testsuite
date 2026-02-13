@@ -179,9 +179,7 @@ class Session:
             response = await handler(request, **kwargs)
             if isinstance(response, http.Response):
                 return response.to_aiohttp()
-            elif isinstance(response, aiohttp.web.Response):
-                return response
-            elif isinstance(response, aiohttp.web.WebSocketResponse):
+            elif isinstance(response, (aiohttp.web.Response, aiohttp.web.WebSocketResponse)):
                 return response
             elif isinstance(response, http.MockedError):
                 return _mocked_error_response(request, response.error_code)

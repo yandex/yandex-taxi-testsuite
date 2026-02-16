@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.5
+~~~~~
+
+- Add WebSocket support to mockserver (#218)
+
 0.4.4
 ~~~~~
 

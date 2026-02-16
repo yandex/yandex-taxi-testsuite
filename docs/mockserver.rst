@@ -318,6 +318,30 @@ path in the http request.
        # POST requests.
        return {}
 
+WebSocket support
+-----------------
+
+Mockserver supports WebSocket connections.
+
+Example:
+
+.. code-block:: python
+
+   @mockserver.aiohttp_handler('/ws/chat')
+   async def ws_handler(request):
+       ws = aiohttp.web.WebSocketResponse()
+       await ws.prepare(request)
+
+       async for msg in ws:
+           if msg.type == aiohttp.WSMsgType.TEXT:
+               await ws.send_str(msg.data)
+           elif msg.type == aiohttp.WSMsgType.BINARY:
+               await ws.send_bytes(msg.data)
+           elif msg.type == aiohttp.WSMsgType.ERROR:
+               break
+
+       return ws
+
 OpenTracing
 -----------
 

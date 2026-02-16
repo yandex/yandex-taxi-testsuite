@@ -60,6 +60,10 @@ class MockserverInfo:
             return str(self.host)
         return f'{self.host}:{self.port}'
 
+    def ws_url(self, path: str) -> str:
+        schema = 'wss' if self.https else 'ws'
+        return url_util.join(f'{schema}://{self.host}:{self.port}/', path)
+
 
 @dataclasses.dataclass(frozen=True)
 class MockserverSocket:

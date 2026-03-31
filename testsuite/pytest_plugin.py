@@ -7,7 +7,6 @@ pytest_plugins = [
     'testsuite.environment.pytest_plugin',
     'testsuite.mockserver.pytest_plugin',
     'testsuite.plugins.assertrepr_compare',
-    'testsuite.plugins.assertrepr_protobuf',
     'testsuite.plugins.asyncexc',
     'testsuite.plugins.colors',
     'testsuite.plugins.common',

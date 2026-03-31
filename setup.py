@@ -27,7 +27,7 @@ setuptools.setup(
     setup_requires=['pytest-runner'],
     tests_require=[
         'pytest',
-        'protobuf>=3.19.0',
+        'protobuf>=6.0.0',
     ],
     packages=setuptools.find_packages(include=['testsuite', 'testsuite.*']),
     package_data={

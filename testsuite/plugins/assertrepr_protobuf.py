@@ -7,32 +7,22 @@ try:
     from google.protobuf import message as _protobuf_message
 
     _PROTOBUF_AVAILABLE = True
-except ImportError:
+except (ImportError, TypeError):
     _PROTOBUF_AVAILABLE = False
-
-
-def _proto_to_dict(msg: '_protobuf_message.Message') -> dict:
-    return _protobuf_json_format.MessageToDict(
-        msg,
-        preserving_proto_field_name=True,
-        including_default_value_fields=True,
-        float_precision=None,
-    )
 
 
 def proto_to_dict(msg: typing.Any) -> dict:
     if not _PROTOBUF_AVAILABLE:
         raise RuntimeError('google.protobuf is required for proto_to_dict')
-    return _proto_to_dict(msg)
+    return _protobuf_json_format.MessageToDict(
+        msg, preserving_proto_field_name=True
+    )
 
 
 def _protobuf_pair_predicate(left: typing.Any, right: typing.Any) -> bool:
     if not _PROTOBUF_AVAILABLE:
         return False
-    return isinstance(left, _protobuf_message.Message) and isinstance(
-        right,
-        (_protobuf_message.Message, dict),
-    )
+    return isinstance(left, _protobuf_message.Message)
 
 
 def _protobuf_pair_visitor(
@@ -57,8 +47,8 @@ def _protobuf_pair_visitor(
         )
         return left, right
 
-    left_dict = _proto_to_dict(left) if left_is_proto else left
-    right_dict = _proto_to_dict(right) if right_is_proto else right
+    left_dict = proto_to_dict(left) if left_is_proto else left
+    right_dict = proto_to_dict(right) if right_is_proto else right
     return transform.visit_dict(left_dict, right_dict)
 
 

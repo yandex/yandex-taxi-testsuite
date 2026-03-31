@@ -9,6 +9,15 @@ import pytest
 from testsuite._internal import compare_transform
 
 
+class CompareVisitorsHookspec:
+    def pytest_register_compare_visitors(self):
+        pass
+
+
+def pytest_addhooks(pluginmanager):
+    pluginmanager.add_hookspecs(CompareVisitorsHookspec)
+
+
 class AssertMode(enum.Enum):
     DEFAULT = 'default'
     COMBINE = 'combine'
@@ -17,9 +26,22 @@ class AssertMode(enum.Enum):
 
 class AssertionPlugin:
     def __init__(self, assert_mode, transform_mode):
+        self._compare_visitors: list = []
         self._disabled = False
         self._assert_mode = assert_mode
         self._transform_mode = transform_mode
+
+    @property
+    def compare_visitors(self):
+        return self._compare_visitors
+
+    def pytest_sessionstart(self, session):
+        hook_results = (
+            session.config.pluginmanager.hook.pytest_register_compare_visitors()
+        )
+        for items in hook_results:
+            if items:
+                self._compare_visitors.extend(items)
 
     @contextlib.contextmanager
     def disabled(self):
@@ -40,12 +62,7 @@ class AssertionPlugin:
         if op != '==' or self._disabled:
             return None
 
-        visitors_plugin = config.pluginmanager.get_plugin('compare_visitors')
-        compare_visitors = (
-            visitors_plugin.compare_visitors
-            if visitors_plugin is not None
-            else []
-        )
+        compare_visitors = self._compare_visitors
         comparator = compare_transform.CompareTransform(
             self._transform_mode,
             compare_visitors=compare_visitors,

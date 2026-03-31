@@ -25,7 +25,10 @@ setuptools.setup(
         'kafka': ['aiokafka>=0.9.0'],
     },
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=[
+        'pytest',
+        'protobuf>=3.19.0',
+    ],
     packages=setuptools.find_packages(include=['testsuite', 'testsuite.*']),
     package_data={
         'testsuite.environment': ['scripts/*.sh'],

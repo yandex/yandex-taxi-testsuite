@@ -35,7 +35,7 @@ class CompareTransform:
         self.transform_mode = transform_mode
         self._compare_visitors: list[
             tuple[ComparePredicate, CompareVisitor]
-        ] = list(compare_visitors) if compare_visitors else []
+        ] = [] if compare_visitors is None else compare_visitors
 
     def report_error(self, msg: str, *, path=None) -> None:
         path_str = _build_path(self.path, path)

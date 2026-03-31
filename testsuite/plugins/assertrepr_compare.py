@@ -40,7 +40,16 @@ class AssertionPlugin:
         if op != '==' or self._disabled:
             return None
 
-        comparator = compare_transform.CompareTransform(self._transform_mode)
+        visitors_plugin = config.pluginmanager.get_plugin('compare_visitors')
+        compare_visitors = (
+            visitors_plugin.compare_visitors
+            if visitors_plugin is not None
+            else []
+        )
+        comparator = compare_transform.CompareTransform(
+            self._transform_mode,
+            compare_visitors=compare_visitors,
+        )
         try:
             mapped_left, mapped_right = comparator.visit(left, right)
         except Exception:

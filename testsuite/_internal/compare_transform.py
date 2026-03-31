@@ -13,14 +13,29 @@ class TransformMode(enum.Enum):
     EXPERIMENTAL = 'experimental'
 
 
+ComparePredicate = typing.Callable[[typing.Any, typing.Any], bool]
+CompareVisitor = typing.Callable[
+    ['CompareTransform', typing.Any, typing.Any], tuple
+]
+
+
 class CompareTransform:
     path: list[str]
     errors: typing.DefaultDict[str, list[str]]
 
-    def __init__(self, transform_mode: TransformMode = TransformMode.DEFAULT):
+    def __init__(
+        self,
+        transform_mode: TransformMode = TransformMode.DEFAULT,
+        *,
+        compare_visitors: list[tuple[ComparePredicate, CompareVisitor]]
+        | None = None,
+    ):
         self.path = ['left']
         self.errors = collections.defaultdict(list)
         self.transform_mode = transform_mode
+        self._compare_visitors: list[
+            tuple[ComparePredicate, CompareVisitor]
+        ] = list(compare_visitors) if compare_visitors else []
 
     def report_error(self, msg: str, *, path=None) -> None:
         path_str = _build_path(self.path, path)
@@ -40,6 +55,10 @@ class CompareTransform:
             left, right = _resolve_values_experimental(
                 left, right, self.report_error
             )
+
+        for predicate, visitor in self._compare_visitors:
+            if predicate(left, right):
+                return visitor(self, left, right)
 
         if isinstance(left, list):
             return self.visit_list(left, right)

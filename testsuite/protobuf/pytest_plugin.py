@@ -1,6 +1,5 @@
 import typing
 
-import py.io
 import pytest
 from google.protobuf import message as protobuf_message
 

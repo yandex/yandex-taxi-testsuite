@@ -12,10 +12,7 @@ def _protobuf_pair_predicate(left: typing.Any, right: typing.Any) -> bool:
     right_is_proto = isinstance(right, protobuf_message.Message)
     if not left_is_proto and not right_is_proto:
         return False
-    return isinstance(left, (dict, protobuf_message.Message)) and isinstance(
-        right,
-        (dict, protobuf_message.Message),
-    )
+    return True
 
 
 def _protobuf_pair_visitor(
@@ -23,23 +20,7 @@ def _protobuf_pair_visitor(
     left: typing.Any,
     right: typing.Any,
 ) -> tuple:
-    left_is_proto = isinstance(left, protobuf_message.Message)
-    right_is_proto = isinstance(right, protobuf_message.Message)
-
-    if not isinstance(left, (dict, protobuf_message.Message)):
-        transform.report_error(
-            'protobuf Message or dict expected on the left, '
-            f'got {py.io.saferepr(left)} instead',
-        )
-        return left, right
-    if not isinstance(right, (dict, protobuf_message.Message)):
-        transform.report_error(
-            'protobuf Message or dict expected on the right, '
-            f'got {py.io.saferepr(right)} instead',
-        )
-        return left, right
-
-    if left_is_proto and right_is_proto and type(left) is not type(right):
+    if type(left) is not type(right):
         transform.report_error(
             'protobuf type mismatch: '
             f'{type(left).__name__} != {type(right).__name__}',

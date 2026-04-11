@@ -1,7 +1,5 @@
 import pytest
 
-pytest.importorskip('google.protobuf')
-
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from tests.core.plugins.protobuf.dynamic_sample import new_inner

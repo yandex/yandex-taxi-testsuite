@@ -1,7 +1,5 @@
 import pytest
 
-pytest.importorskip('google.protobuf')
-
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp

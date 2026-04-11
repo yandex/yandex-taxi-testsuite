@@ -22,6 +22,7 @@ CompareVisitor = typing.Callable[
 class CompareTransform:
     path: list[str]
     errors: typing.DefaultDict[str, list[str]]
+    _compare_visitors: list[tuple[ComparePredicate, CompareVisitor]]
 
     def __init__(
         self,
@@ -33,9 +34,9 @@ class CompareTransform:
         self.path = ['left']
         self.errors = collections.defaultdict(list)
         self.transform_mode = transform_mode
-        self._compare_visitors: list[
-            tuple[ComparePredicate, CompareVisitor]
-        ] = [] if compare_visitors is None else compare_visitors
+        self._compare_visitors = (
+            [] if compare_visitors is None else compare_visitors
+        )
 
     def report_error(self, msg: str, *, path=None) -> None:
         path_str = _build_path(self.path, path)

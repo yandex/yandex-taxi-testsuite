@@ -40,8 +40,7 @@ class AssertionPlugin:
             session.config.pluginmanager.hook.pytest_register_compare_visitors()
         )
         for items in hook_results:
-            if items:
-                self._compare_visitors.extend(items)
+            self._compare_visitors.extend(items or ())
 
     @contextlib.contextmanager
     def disabled(self):

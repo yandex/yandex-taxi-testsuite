@@ -1,17 +1,15 @@
 import typing
 
-import pytest
 from google.protobuf import message as protobuf_message
 
 from testsuite.protobuf import formatting
 
 
 def _protobuf_pair_predicate(left: typing.Any, right: typing.Any) -> bool:
-    left_is_proto = isinstance(left, protobuf_message.Message)
-    right_is_proto = isinstance(right, protobuf_message.Message)
-    if not left_is_proto or not right_is_proto:
-        return False
-    return True
+    return isinstance(left, protobuf_message.Message) and isinstance(
+        right,
+        protobuf_message.Message,
+    )
 
 
 def _protobuf_pair_visitor(
@@ -31,12 +29,7 @@ def _protobuf_pair_visitor(
     return transform.visit_dict(left_dict, right_dict)
 
 
-def builtin_protobuf_compare_visitor_pairs() -> list:
+def pytest_register_compare_visitors():
     return [
         (_protobuf_pair_predicate, _protobuf_pair_visitor),
     ]
-
-
-@pytest.hookimpl
-def pytest_register_compare_visitors():
-    return builtin_protobuf_compare_visitor_pairs()

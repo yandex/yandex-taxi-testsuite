@@ -6,6 +6,18 @@ _pool = descriptor_pool.Default()
 _registered = False
 
 
+def new_sample_message():
+    _ensure_registered()
+    desc = _pool.FindMessageTypeByName('ts.assertrepr.SampleMessage')
+    return GetMessageClass(desc)()
+
+
+def new_inner():
+    _ensure_registered()
+    desc = _pool.FindMessageTypeByName('ts.assertrepr.Inner')
+    return GetMessageClass(desc)()
+
+
 def _file_descriptor_proto() -> descriptor_pb2.FileDescriptorProto:
     fp = descriptor_pb2.FileDescriptorProto()
     fp.name = 'ts/assertrepr/sample.proto'
@@ -77,15 +89,3 @@ def _ensure_registered() -> None:
         return
     _pool.Add(_file_descriptor_proto())
     _registered = True
-
-
-def new_sample_message():
-    _ensure_registered()
-    desc = _pool.FindMessageTypeByName('ts.assertrepr.SampleMessage')
-    return GetMessageClass(desc)()
-
-
-def new_inner():
-    _ensure_registered()
-    desc = _pool.FindMessageTypeByName('ts.assertrepr.Inner')
-    return GetMessageClass(desc)()

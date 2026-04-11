@@ -6,25 +6,6 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from tests.protobuf.dynamic_sample import new_inner, new_sample_message
 
 
-def _complex_nested_struct(*, leaf: float, row_value: float) -> Struct:
-    struct = Struct()
-    json_format.ParseDict(
-        {
-            'outer': {
-                'middle': {
-                    'inner': {'leaf': leaf},
-                },
-                'rows': [
-                    {'name': 'a', 'value': 0.0},
-                    {'name': 'b', 'value': row_value},
-                ],
-            },
-        },
-        struct,
-    )
-    return struct
-
-
 def test_protobuf_nested_dict_mismatch_reports_deep_path():
     left = _complex_nested_struct(leaf=7.0, row_value=2.0)
     right = _complex_nested_struct(leaf=99.0, row_value=2.0)
@@ -47,22 +28,6 @@ def test_protobuf_nested_list_mismatch_reports_indexed_path():
     row_path = "left['outer']['rows'][1]['value']"
     assert row_path in text
     assert '!=' in text
-
-
-def _filled_sample(*, status: int, seconds: int, tags: tuple[str, ...]):
-    msg = new_sample_message()
-    msg.id = 'same-id'
-    msg.status = status
-    ts = Timestamp()
-    ts.seconds = seconds
-    ts.nanos = 500
-    msg.created_at.CopyFrom(ts)
-    inner = new_inner()
-    inner.note = 'present'
-    msg.inner.CopyFrom(inner)
-    for tag in tags:
-        msg.tags.append(tag)
-    return msg
 
 
 def test_protobuf_enum_mismatch_path():
@@ -124,3 +89,38 @@ def test_protobuf_repeated_tags_mismatch():
         assert left == right
     text = str(excinfo.value)
     assert "left['tags'][1]" in text
+
+
+def _complex_nested_struct(*, leaf: float, row_value: float) -> Struct:
+    struct = Struct()
+    json_format.ParseDict(
+        {
+            'outer': {
+                'middle': {
+                    'inner': {'leaf': leaf},
+                },
+                'rows': [
+                    {'name': 'a', 'value': 0.0},
+                    {'name': 'b', 'value': row_value},
+                ],
+            },
+        },
+        struct,
+    )
+    return struct
+
+
+def _filled_sample(*, status: int, seconds: int, tags: tuple[str, ...]):
+    msg = new_sample_message()
+    msg.id = 'same-id'
+    msg.status = status
+    ts = Timestamp()
+    ts.seconds = seconds
+    ts.nanos = 500
+    msg.created_at.CopyFrom(ts)
+    inner = new_inner()
+    inner.note = 'present'
+    msg.inner.CopyFrom(inner)
+    for tag in tags:
+        msg.tags.append(tag)
+    return msg

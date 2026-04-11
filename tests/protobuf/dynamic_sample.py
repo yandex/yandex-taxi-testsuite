@@ -1,7 +1,5 @@
 import google.protobuf.timestamp_pb2  # noqa: F401
-
-from google.protobuf import descriptor_pb2
-from google.protobuf import descriptor_pool
+from google.protobuf import descriptor_pb2, descriptor_pool
 from google.protobuf.message_factory import GetMessageClass
 
 _pool = descriptor_pool.Default()

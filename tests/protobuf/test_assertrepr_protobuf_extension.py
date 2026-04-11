@@ -1,9 +1,7 @@
 import pytest
-
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from tests.protobuf.dynamic_sample import new_inner
-from tests.protobuf.dynamic_sample import new_sample_message
+from tests.protobuf.dynamic_sample import new_inner, new_sample_message
 from tests.protobuf.envelope_plugin import ProtoEnvelope
 
 

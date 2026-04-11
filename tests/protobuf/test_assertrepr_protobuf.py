@@ -1,11 +1,9 @@
 import pytest
-
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from tests.protobuf.dynamic_sample import new_inner
-from tests.protobuf.dynamic_sample import new_sample_message
+from tests.protobuf.dynamic_sample import new_inner, new_sample_message
 
 
 def _complex_nested_struct(*, leaf: float, row_value: float) -> Struct:

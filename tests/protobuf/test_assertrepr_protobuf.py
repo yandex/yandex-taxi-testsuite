@@ -4,8 +4,8 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from tests.core.plugins.protobuf.dynamic_sample import new_inner
-from tests.core.plugins.protobuf.dynamic_sample import new_sample_message
+from tests.protobuf.dynamic_sample import new_inner
+from tests.protobuf.dynamic_sample import new_sample_message
 
 
 def _complex_nested_struct(*, leaf: float, row_value: float) -> Struct:
@@ -84,7 +84,9 @@ def test_protobuf_timestamp_mismatch_path():
     with pytest.raises(AssertionError) as excinfo:
         assert left == right
     text = str(excinfo.value)
-    assert "left['created_at']['seconds']" in text
+    assert "left['created_at']" in text
+    assert '1970-01-01T00:00:01' in text
+    assert '1970-01-01T00:00:02' in text
 
 
 def test_protobuf_optional_inner_note_mismatch():

@@ -2,9 +2,9 @@ import pytest
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from tests.core.plugins.protobuf.dynamic_sample import new_inner
-from tests.core.plugins.protobuf.dynamic_sample import new_sample_message
-from tests.core.plugins.protobuf.envelope_plugin import ProtoEnvelope
+from tests.protobuf.dynamic_sample import new_inner
+from tests.protobuf.dynamic_sample import new_sample_message
+from tests.protobuf.envelope_plugin import ProtoEnvelope
 
 
 def _sample_with_ts(seconds: int):
@@ -27,4 +27,6 @@ def test_custom_envelope_visitor_compares_wrapped_protobuf():
     with pytest.raises(AssertionError) as excinfo:
         assert left == right
     text = str(excinfo.value)
-    assert "left['created_at']['seconds']" in text
+    assert "left['created_at']" in text
+    assert '1970-01-01T00:00:01' in text
+    assert '1970-01-01T00:00:09' in text

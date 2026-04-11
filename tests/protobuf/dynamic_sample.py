@@ -33,7 +33,6 @@ def _file_descriptor_proto() -> descriptor_pb2.FileDescriptorProto:
     f.number = 1
     f.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
     f.type = descriptor_pb2.FieldDescriptorProto.TYPE_STRING
-    f.proto3_optional = True
 
     msg = fp.message_type.add()
     msg.name = 'SampleMessage'

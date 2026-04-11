@@ -1,6 +1,6 @@
 ruff
 mypy>=1.11.0,<1.16
-protobuf
+protobuf>=4.22.5
 
 # MyPy requirements
 types-PyMySQL

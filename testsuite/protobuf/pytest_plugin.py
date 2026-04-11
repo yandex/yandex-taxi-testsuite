@@ -5,6 +5,12 @@ from google.protobuf import message as protobuf_message
 from testsuite.protobuf import formatting
 
 
+def pytest_register_compare_visitors():
+    return [
+        (_protobuf_pair_predicate, _protobuf_pair_visitor),
+    ]
+
+
 def _protobuf_pair_predicate(left: typing.Any, right: typing.Any) -> bool:
     return isinstance(left, protobuf_message.Message) and isinstance(
         right,
@@ -26,10 +32,4 @@ def _protobuf_pair_visitor(
 
     left_dict = formatting.proto_to_dict(left)
     right_dict = formatting.proto_to_dict(right)
-    return transform.visit_dict(left_dict, right_dict)
-
-
-def pytest_register_compare_visitors():
-    return [
-        (_protobuf_pair_predicate, _protobuf_pair_visitor),
-    ]
+    return transform.visit(left_dict, right_dict)

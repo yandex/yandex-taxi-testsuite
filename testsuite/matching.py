@@ -352,15 +352,6 @@ class PartialDict(collections.abc.Mapping):
             return self
         return {**other, **self._dict}
 
-    def __testsuite_adjust_values__(
-        self, other, report_error
-    ) -> tuple[typing.Any, typing.Any]:
-        if not isinstance(other, collections.abc.Mapping):
-            return self, other
-        return self._dict, {
-            key: value for key, value in other.items() if key in self._dict
-        }
-
 
 class UnorderedList:
     def __init__(self, sequence, key):
@@ -415,13 +406,6 @@ class UnorderedList:
 
         return [item for _, item in sorted(doit(), key=operator.itemgetter(0))]
 
-    def __testsuite_adjust_values__(
-        self, other, report_error
-    ) -> tuple[typing.Any, typing.Any]:
-        if not isinstance(other, list):
-            return self, other
-        return self._value, list(sorted(other, key=self._key))
-
 
 class AnyList:
     """Value is a list.
@@ -443,13 +427,6 @@ class AnyList:
         if not isinstance(other, list):
             return self
         return other
-
-    def __testsuite_adjust_values__(
-        self, other, report_error
-    ) -> tuple[typing.Any, typing.Any]:
-        if not isinstance(other, list):
-            return self, other
-        return other, other
 
 
 class ListOf:
@@ -487,13 +464,6 @@ class ListOf:
             return self
         return [self._value] * len(other)
 
-    def __testsuite_adjust_values__(
-        self, other, report_error
-    ) -> tuple[typing.Any, typing.Any]:
-        if not isinstance(other, list):
-            return self, other
-        return [self._value] * len(other), other
-
 
 class AnyDict:
     """Value is a dictionary.
@@ -515,13 +485,6 @@ class AnyDict:
         if not isinstance(other, collections.abc.Mapping):
             return self
         return other
-
-    def __testsuite_adjust_values__(
-        self, other, report_error
-    ) -> tuple[typing.Any, typing.Any]:
-        if not isinstance(other, collections.abc.Mapping):
-            return self, other
-        return other, other
 
 
 class DictOf:
@@ -572,24 +535,6 @@ class DictOf:
                 )
             result[key] = self._value
         return result
-
-    def __testsuite_adjust_values__(
-        self, other, report_error
-    ) -> tuple[typing.Any, typing.Any]:
-        if not isinstance(other, collections.abc.Mapping):
-            return self, other
-
-        adjusted_self = {}
-
-        for key, value in other.items():
-            if key != self._key:
-                report_error(
-                    f'dict key must match {self._key} expression',
-                    path=f'[{key!r}]',
-                )
-            adjusted_self[key] = self._value
-
-        return adjusted_self, other
 
 
 class Capture:

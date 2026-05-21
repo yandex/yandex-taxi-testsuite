@@ -45,7 +45,11 @@ class Channel:
         )
 
     async def declare_queue(self, queue: str, timeout: float = 1.0) -> None:
-        await self._channel.declare_queue(name=queue, timeout=timeout)
+        await self._channel.declare_queue(
+            name=queue,
+            durable=True,
+            timeout=timeout,
+        )
 
     async def bind_queue(
         self,

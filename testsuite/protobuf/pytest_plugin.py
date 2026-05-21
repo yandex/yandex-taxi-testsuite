@@ -30,12 +30,17 @@ def _proto_dicts_predicate(left, right):
 def _proto_dicts_visitor(left, right, reporter):
     if _is_proto(left):
         left = message_to_dict(left)
-    elif isinstance(left, ProtobufDict):
-        left = left._dict
-    if _is_proto(right):
+        if isinstance(right, ProtobufDict):
+            right = right._dict
+        elif isinstance(right, PartialProtobufDict):
+            right = right._partial
+    else:
         right = message_to_dict(right)
-    elif isinstance(right, ProtobufDict):
-        right = right._dict
+        if isinstance(left, ProtobufDict):
+            left = left._dict
+        elif isinstance(left, PartialProtobufDict):
+            left = left._partial
+
     return left, right
 
 

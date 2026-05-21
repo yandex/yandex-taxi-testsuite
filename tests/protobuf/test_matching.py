@@ -75,6 +75,20 @@ def test_partial_protobuf_dict_not_equal():
     assert msg != PartialProtobufDict({'first_name': 'John'})
 
 
+def test_partial_protobuf_dict():
+    assert PartialProtobufDict({'first_name': 'John'}) == PartialProtobufDict(
+        {'first_name': 'John'}
+    )
+
+    assert PartialProtobufDict({'first_name': 'John'}) != PartialProtobufDict(
+        {'first_name': 'Jane'}
+    )
+
+    assert PartialProtobufDict({'first_name': 'John'}) != {'first_name': 'John'}
+    assert PartialProtobufDict({'first_name': 'John'}) != 'John'
+    assert PartialProtobufDict({'first_name': 'John'}) != 42
+
+
 def test_partial_protobuf_dict_compare_error():
     msg = make_msg(first_name='Jane', status=Status.STATUS_INACTIVE)
     partial = PartialProtobufDict(

@@ -1,5 +1,3 @@
-import collections.abc
-
 import google.protobuf.message
 
 from testsuite.matching import PartialDict
@@ -25,13 +23,19 @@ class ProtobufDict:
         return False
 
 
-class PartialProtobufDict(PartialDict):
+class PartialProtobufDict:
     """Partially compare a protobuf message against an expected dict."""
+
+    def __init__(self, d: dict):
+        self._dict = d
+        self._partial = PartialDict(d)
 
     def __repr__(self):
         return f'<PartialProtobufDict {self._dict!r}>'
 
     def __eq__(self, other):
         if isinstance(other, google.protobuf.message.Message):
-            return super().__eq__(message_to_dict(other))
-        return super().__eq__(other)
+            return self._partial == message_to_dict(other)
+        if isinstance(other, PartialProtobufDict):
+            return self._partial == other._partial
+        return False

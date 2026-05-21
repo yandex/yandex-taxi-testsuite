@@ -38,7 +38,7 @@ def create_rabbitmq_service(
             'RABBITMQ_TCP_PORT': str(settings.tcp_port),
             'RABBITMQ_EPMD_PORT': str(settings.epmd_port),
         },
-        check_ports=[settings.tcp_port, settings.epmd_port],
+        check_ports=[settings.tcp_port],
         start_timeout=utils.getenv_float(
             key='TESTSUITE_RABBITMQ_SERVER_START_TIMEOUT',
             default=20.0,

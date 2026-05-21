@@ -63,7 +63,7 @@ class CompareTransform:
                 left, right = compare_visitor.visit(
                     left, right, self.report_error
                 )
-                break
+                return self.visit(left, right)
 
         if isinstance(left, list):
             return self.visit_list(left, right)

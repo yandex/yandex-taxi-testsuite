@@ -1,6 +1,9 @@
 import pytest
 
-from tests.protobuf.proto.sample_message_pb2 import SampleMessage, Status
+from tests.protobuf.proto.sample_message_pb2 import (  # type: ignore[attr-defined]
+    SampleMessage,
+    Status,
+)
 from testsuite.matching import PartialDict
 from testsuite.protobuf.matching import PartialProtobufDict, ProtobufDict
 

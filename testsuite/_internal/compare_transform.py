@@ -1,6 +1,6 @@
 import collections
 import contextlib
-import enum
+import dataclasses
 import typing
 
 import py.io
@@ -8,19 +8,43 @@ import py.io
 SetTypes = (set, frozenset)
 
 
-class TransformMode(enum.Enum):
-    DEFAULT = 'default'
-    EXPERIMENTAL = 'experimental'
+class Reporter(typing.Protocol):
+    def __call__(self, msg: str, *, path: typing.Any) -> None:
+        pass
+
+
+@dataclasses.dataclass
+class CompareVisitor:
+    class Predicate(typing.Protocol):
+        def __call__(self, left: typing.Any, right: typing.Any) -> bool:
+            pass
+
+    class Visitor(typing.Protocol):
+        def __call__(
+            self,
+            left: typing.Any,
+            right: typing.Any,
+            reporter: Reporter,
+        ) -> tuple[typing.Any, typing.Any]:
+            pass
+
+    predicate: Predicate
+    visit: Visitor
 
 
 class CompareTransform:
     path: list[str]
     errors: typing.DefaultDict[str, list[str]]
 
-    def __init__(self, transform_mode: TransformMode = TransformMode.DEFAULT):
+    _compare_visitors: list[CompareVisitor]
+
+    def __init__(
+        self,
+        compare_visitors: list[CompareVisitor] | None = None,
+    ):
         self.path = ['left']
         self.errors = collections.defaultdict(list)
-        self.transform_mode = transform_mode
+        self._compare_visitors = compare_visitors or []
 
     def report_error(self, msg: str, *, path=None) -> None:
         path_str = _build_path(self.path, path)
@@ -32,14 +56,14 @@ class CompareTransform:
         if left == right:
             return left, left
 
-        if self.transform_mode == TransformMode.DEFAULT:
-            left, right = _resolve_values_default(
-                left, right, self.report_error
-            )
-        else:
-            left, right = _resolve_values_experimental(
-                left, right, self.report_error
-            )
+        left, right = _resolve_values(left, right, self.report_error)
+
+        for compare_visitor in reversed(self._compare_visitors):
+            if compare_visitor.predicate(left, right):
+                left, right = compare_visitor.visit(
+                    left, right, self.report_error
+                )
+                break
 
         if isinstance(left, list):
             return self.visit_list(left, right)
@@ -168,19 +192,11 @@ class CompareTransform:
             self.path.pop(-1)
 
 
-def _resolve_values_default(left, right, reporter):
+def _resolve_values(left, right, reporter):
     if hasattr(left, '__testsuite_resolve_value__'):
         return left.__testsuite_resolve_value__(right, reporter), right
     if hasattr(right, '__testsuite_resolve_value__'):
         return left, right.__testsuite_resolve_value__(left, reporter)
-    return left, right
-
-
-def _resolve_values_experimental(left, right, reporter):
-    if hasattr(left, '__testsuite_adjust_values__'):
-        return left.__testsuite_adjust_values__(right, reporter)
-    if hasattr(right, '__testsuite_adjust_values__'):
-        return right.__testsuite_adjust_values__(left, reporter)[::-1]
     return left, right
 
 

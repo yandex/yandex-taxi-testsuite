@@ -4,10 +4,33 @@ import pytest
 
 import testsuite
 from testsuite.daemons import service_client
+from testsuite.plugins.assertrepr_compare import CompareVisitor
 
 pytest_plugins = [
     'testsuite.pytest_plugin',
 ]
+
+
+class KeyValue:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def __eq__(self, other):
+        return self.key == other.key and self.value == other.value
+
+    def to_dict(self):
+        return {self.key: self.value}
+
+
+def pytest_register_compare_visitors():
+    def predicate(left, right):
+        return isinstance(left, KeyValue) and isinstance(right, KeyValue)
+
+    def visitor(left, right, reporter):
+        return left.to_dict(), right.to_dict()
+
+    return [CompareVisitor(predicate=predicate, visit=visitor)]
 
 
 @pytest.fixture

@@ -23,6 +23,7 @@ setuptools.setup(
         'mysql': ['PyMySQL>=0.9.2'],
         'rabbitmq': ['aio-pika>=8.1.0'],
         'kafka': ['aiokafka>=0.9.0'],
+        'protobuf': ['protobuf>=4.22.5'],
     },
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],

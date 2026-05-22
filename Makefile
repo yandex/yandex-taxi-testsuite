@@ -1,6 +1,8 @@
 VENV_DOCS_PATH  = .venv-docs
 VENV_DEV_PATH   = .venv-dev
 VENV_PYTHON     = $(firstword $(shell which python3 2> /dev/null))
+PROTOC          = $(firstword $(shell which protoc 2> /dev/null))
+PROTO_DIRS      = tests/protobuf/proto
 
 VENV_COMMON_DEPS = setup.py setup.cfg requirements.txt
 VENV_DEV_DEPS = $(VENV_COMMON_DEPS) docs/examples/requirements.txt
@@ -11,10 +13,10 @@ PACKAGE_VERSION = $(shell awk '/^version = /{print $$3}' setup.cfg)
 
 TESTSUITE_GH_PAGES_REPO = /tmp/$(USER)/testsuite-gh-pages.git
 
-TEST_CASES = core
+TEST_CASES = core protobuf
 TEST_DATABASE_CASES = $(filter-out __%__ static databases,$(shell find tests/databases -maxdepth 1 -type d | xargs basename  -a))
 
-.PHONY: tests
+.PHONY: tests generate-proto
 
 $(foreach case,$(TEST_CASES),test-$(case)): test-%:
 	python3 -m pytest -v tests/$* $(PYTEST_ARGS)
@@ -23,6 +25,9 @@ $(foreach case,$(TEST_DATABASE_CASES),test-databases-$(case)): test-databases-%:
 	python3 -m pytest -v tests/databases/$* $(PYTEST_ARGS)
 
 tests: $(addprefix test-,$(TEST_CASES)) $(addprefix test-databases-,$(TEST_DATABASE_CASES))
+
+gen-proto:
+	$(foreach dir,$(PROTO_DIRS), $(PROTOC) -I $(dir) --python_out=$(dir) $(dir)/*.proto;)
 
 test-examples:
 	make -C docs/examples runtests
@@ -49,8 +54,6 @@ venv-format:
 venv-start-release:
 venv-release-upload-testpypi:
 venv-release-upload-pypi:
-venv-test-core:
-
 $(foreach case,$(TEST_CASES),venv-test-$(case)): venv-test-%:
 
 $(foreach case,$(TEST_DATABASE_CASES),venv-test-databases-$(case)): venv-test-databases-%:

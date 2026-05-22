@@ -55,6 +55,9 @@ Installation using pip_:
    # testsuite with kafka support
    pip3 install yandex-taxi-testsuite[kafka]
 
+   # testsuite with protobuf support
+   pip3 install yandex-taxi-testsuite[protobuf]
+
 Supported databases
 -------------------
 

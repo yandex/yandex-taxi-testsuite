@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.4.6
+~~~~~
+
+- add pretty output to protobuf comparator and add ProtobufDict/ProtobufPartialDict matchers (#223)
+- Compare transform user hooks (#222)
+- fix ci: update Kafka package and fix rabbit deprecated queue type (#221)
+
 0.4.5
 ~~~~~
 

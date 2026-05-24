@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.plugins.common &#8212; yandex-taxi-testsuite 0.4.2.5 documentation</title>
+    <title>testsuite.plugins.common &#8212; yandex-taxi-testsuite 0.4.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
-    <script src="../../../../_static/documentation_options.js?v=021fc8c4"></script>
+    <script src="../../../../_static/documentation_options.js?v=533c5fc9"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../genindex/" />
@@ -39,7 +39,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">testsuite</span><span class="w"> </span><span class="kn">import</span> <span class="n">types</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">testsuite._internal</span><span class="w"> </span><span class="kn">import</span> <span class="n">fixture_class</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">testsuite.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span><span class="p">,</span> <span class="n">json_util</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="n">yaml_util</span>
 
 
@@ -62,111 +61,66 @@
 <span class="n">__tracebackhide__</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">BaseError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="GetSearchPathesFixture">
-<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetSearchPathesFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetSearchPathesFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates sequence of pathes for static files.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="GetSearchPathsFixture">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetSearchPathsFixture">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetSearchPathsFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates sequence of paths for static files.&quot;&quot;&quot;</span>
 
-    <span class="n">_fixture__search_directories_existing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-    <span class="n">_fixture__path_entries_cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span>
+<div class="viewcode-block" id="GetSearchPathsFixture.__call__">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetSearchPathsFixture.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span></div>
 
-<div class="viewcode-block" id="GetSearchPathesFixture.__call__">
-<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetSearchPathesFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture__search_directories_existing</span><span class="p">:</span>
-            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture__path_entries_cache</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">yield</span> <span class="n">entry</span></div>
-</div>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span> <span class="o">...</span></div>
 
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">SearchPathFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
-    <span class="n">_fixture_get_search_pathes</span><span class="p">:</span> <span class="n">GetSearchPathesFixture</span>
-
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchPathFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
         <span class="n">directory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">abs_filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_get_search_pathes</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">directory</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">abs_filename</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-                    <span class="k">yield</span> <span class="n">abs_filename</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">abs_filename</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-                    <span class="k">yield</span> <span class="n">abs_filename</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span> <span class="o">...</span>
 
 
 <div class="viewcode-block" id="GetFilePathFixture">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetFilePathFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetFilePathFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetFilePathFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns path to static regular file.&quot;&quot;&quot;</span>
-
-    <span class="n">_fixture_search_path</span><span class="p">:</span> <span class="n">SearchPathFixture</span>
-    <span class="n">_fixture_get_search_pathes</span><span class="p">:</span> <span class="n">GetSearchPathesFixture</span>
-    <span class="n">_fixture__search_directories_existing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 
 <div class="viewcode-block" id="GetFilePathFixture.__call__">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetFilePathFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span></div>
+
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">path</span>
-        <span class="k">if</span> <span class="n">missing_ok</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_not_found_error</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> was not found&#39;</span><span class="p">,</span>
-            <span class="n">filename</span><span class="p">,</span>
-        <span class="p">)</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_not_found_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="n">pathes</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39; - </span><span class="si">{</span><span class="n">path</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture__search_directories_existing</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">The following pathes were examined:</span><span class="se">\n</span><span class="si">{</span><span class="n">pathes</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-        <span class="p">)</span></div>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
 
 
 
 <div class="viewcode-block" id="GetDirectoryPathFixture">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetDirectoryPathFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GetDirectoryPathFixture</span><span class="p">(</span><span class="n">GetFilePathFixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetDirectoryPathFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns path to static directory.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GetDirectoryPathFixture.__call__">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.GetDirectoryPathFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span></div>
+
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">path</span>
-        <span class="k">if</span> <span class="n">missing_ok</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_not_found_error</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Directory </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> was not found&#39;</span><span class="p">,</span>
-            <span class="n">filename</span><span class="p">,</span>
-        <span class="p">)</span></div>
-</div>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
 
 
 
 <div class="viewcode-block" id="OpenFileFixture">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.OpenFileFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">OpenFileFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenFileFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Open static file by name.</span>
 
 <span class="sd">    Only read-only open modes are supported.</span>
@@ -180,39 +134,23 @@
 <span class="sd">                ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_modes_whitelist</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">])</span>
-
-    <span class="n">_fixture_get_file_path</span><span class="p">:</span> <span class="n">GetFilePathFixture</span>
-
 <div class="viewcode-block" id="OpenFileFixture.__call__">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.OpenFileFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span></div>
+
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
         <span class="n">buffering</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span>
         <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modes_whitelist</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">UnsupportedFileModeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Incorrect file open mode </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s1"> passed. &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;Only read-only modes are supported.&#39;</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
-            <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-            <span class="n">buffering</span><span class="o">=</span><span class="n">buffering</span><span class="p">,</span>
-            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
-            <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
-        <span class="p">)</span></div>
-</div>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">:</span> <span class="o">...</span></div>
 
 
 
 <div class="viewcode-block" id="LoadFixture">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LoadFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoadFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load file from static directory.</span>
 
 <span class="sd">    Example:</span>
@@ -225,36 +163,23 @@
 <span class="sd">    :return: :py:class:`LoadFixture` callable instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_fixture_get_file_path</span><span class="p">:</span> <span class="n">GetFilePathFixture</span>
-
 <div class="viewcode-block" id="LoadFixture.__call__">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span></div>
+
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
         <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span>
         <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load static text file.</span>
-
-<span class="sd">        :param filename: static file name part.</span>
-<span class="sd">        :param encoding: stream encoding, see :func:`open`.</span>
-<span class="sd">        :param errors: error handling mode see :func:`open`.</span>
-<span class="sd">        :returns: ``str`` instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">missing_ok</span><span class="o">=</span><span class="n">missing_ok</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span></div>
-</div>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
 
 
 
 <div class="viewcode-block" id="LoadBinaryFixture">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadBinaryFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LoadBinaryFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoadBinaryFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load binary data from static directory.</span>
 
 <span class="sd">    Example:</span>
@@ -265,23 +190,14 @@
 <span class="sd">            bytes_data = load_binary(&#39;data.bin&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_fixture_get_file_path</span><span class="p">:</span> <span class="n">GetFilePathFixture</span>
-
 <div class="viewcode-block" id="LoadBinaryFixture.__call__">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadBinaryFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load static binary file.</span>
-
-<span class="sd">        :param filename&quot;: static file name part</span>
-<span class="sd">        :returns: ``bytes`` file content.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span> <span class="o">...</span></div>
 </div>
 
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">JsonLoadsFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">JsonLoadsFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load json doc from string.</span>
 
 <span class="sd">    Json loader runs ``json_util.loads(data, ..., *args, **kwargs)`` hooks.</span>
@@ -297,23 +213,12 @@
 <span class="sd">            json_obj = json_loads(&#39;{&quot;key&quot;: &quot;value&quot;}&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_fixture_load_json_defaults</span><span class="p">:</span> <span class="nb">dict</span>
-    <span class="n">_fixture_object_hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;object_hook&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;object_hook&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_object_hook</span>
-        <span class="k">return</span> <span class="n">json_util</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
-            <span class="n">content</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_fixture_load_json_defaults</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
 
 
 <div class="viewcode-block" id="LoadJsonFixture">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadJsonFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LoadJsonFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoadJsonFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load json doc from static directory.</span>
 
 <span class="sd">    Json loader runs ``json_util.loads(data, ..., *args, **kwargs)`` hooks.</span>
@@ -329,35 +234,23 @@
 <span class="sd">            json_obj = load_json(&#39;filename.json&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_fixture_load</span><span class="p">:</span> <span class="n">LoadFixture</span>
-    <span class="n">_fixture_json_loads</span><span class="p">:</span> <span class="n">JsonLoadsFixture</span>
-
 <div class="viewcode-block" id="LoadJsonFixture.__call__">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadJsonFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span></div>
+
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">missing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">missing_ok</span><span class="o">=</span><span class="n">missing_ok</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">missing</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_json_loads</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">LoadJsonError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Failed to load JSON file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span></div>
-</div>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span> <span class="o">...</span></div>
 
 
 
 <div class="viewcode-block" id="LoadYamlFixture">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadYamlFixture">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LoadYamlFixture</span><span class="p">(</span><span class="n">fixture_class</span><span class="o">.</span><span class="n">Fixture</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoadYamlFixture</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load yaml doc from static directory.</span>
 
 <span class="sd">    .. code-block:: python</span>
@@ -366,43 +259,247 @@
 <span class="sd">            yaml_obj = load_yaml(&#39;filename.yaml&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_fixture_load</span><span class="p">:</span> <span class="n">LoadFixture</span>
-
 <div class="viewcode-block" id="LoadYamlFixture.__call__">
 <a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.LoadYamlFixture.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span></div>
+
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+
+<span class="n">_MODES_WHITELIST</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">])</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_search_pathes</span><span class="p">(</span>
+    <span class="n">_search_directories_existing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">_path_entries_cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GetSearchPathsFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">_search_directories_existing</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">_path_entries_cache</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">yield</span> <span class="n">entry</span>
+
+    <span class="k">return</span> <span class="n">search</span>
+
+
+<div class="viewcode-block" id="get_search_paths">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.get_search_paths">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_search_paths</span><span class="p">(</span><span class="n">get_search_pathes</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_search_pathes</span></div>
+
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">search_path</span><span class="p">(</span><span class="n">get_search_paths</span><span class="p">:</span> <span class="n">GetSearchPathsFixture</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchPathFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_path</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
+        <span class="n">directory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">abs_filename</span> <span class="ow">in</span> <span class="n">get_search_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">directory</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">abs_filename</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="k">yield</span> <span class="n">abs_filename</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">abs_filename</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                    <span class="k">yield</span> <span class="n">abs_filename</span>
+
+    <span class="k">return</span> <span class="n">search_path</span>
+
+
+<div class="viewcode-block" id="get_file_path">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.get_file_path">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_file_path</span><span class="p">(</span>
+    <span class="n">search_path</span><span class="p">:</span> <span class="n">SearchPathFixture</span><span class="p">,</span> <span class="n">_testsuite_file_not_found_error</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GetFilePathFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_file_path</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="n">missing_ok</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">raise</span> <span class="n">_testsuite_file_not_found_error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> was not found&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">get_file_path</span></div>
+
+
+
+<div class="viewcode-block" id="get_directory_path">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.get_directory_path">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_directory_path</span><span class="p">(</span>
+    <span class="n">search_path</span><span class="p">:</span> <span class="n">SearchPathFixture</span><span class="p">,</span>
+    <span class="n">_testsuite_file_not_found_error</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GetDirectoryPathFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_directory_path</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">search_path</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="n">missing_ok</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">raise</span> <span class="n">_testsuite_file_not_found_error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Directory </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> was not found&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">get_directory_path</span></div>
+
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_testsuite_file_not_found_error</span><span class="p">(</span><span class="n">_search_directories_existing</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">raise_error</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39; - </span><span class="si">{</span><span class="n">path</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">_search_directories_existing</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">The following paths were examined:</span><span class="se">\n</span><span class="si">{</span><span class="n">paths</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">raise_error</span>
+
+
+<div class="viewcode-block" id="open_file">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.open_file">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">open_file</span><span class="p">(</span><span class="n">get_file_path</span><span class="p">:</span> <span class="n">GetFilePathFixture</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpenFileFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_file</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+        <span class="n">buffering</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span>
+        <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_MODES_WHITELIST</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnsupportedFileModeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Incorrect file open mode </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s1"> passed. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Only read-only modes are supported.&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span>
+            <span class="n">get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+            <span class="n">buffering</span><span class="o">=</span><span class="n">buffering</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">open_file</span></div>
+
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">get_file_path</span><span class="p">:</span> <span class="n">GetFilePathFixture</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoadFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span>
+        <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">missing_ok</span><span class="o">=</span><span class="n">missing_ok</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">load</span></div>
+
+
+
+<div class="viewcode-block" id="load_binary">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load_binary">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_binary</span><span class="p">(</span><span class="n">get_file_path</span><span class="p">:</span> <span class="n">GetFilePathFixture</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoadBinaryFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_binary</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">get_file_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">load_binary</span></div>
+
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">json_loads</span><span class="p">(</span><span class="n">object_hook</span><span class="p">,</span> <span class="n">load_json_defaults</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JsonLoadsFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">json_loads</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;object_hook&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;object_hook&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">object_hook</span>
+
+        <span class="k">return</span> <span class="n">json_util</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+            <span class="n">content</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">load_json_defaults</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">json_loads</span>
+
+
+<div class="viewcode-block" id="load_json">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load_json">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_json</span><span class="p">(</span>
+    <span class="n">load</span><span class="p">:</span> <span class="n">LoadFixture</span><span class="p">,</span> <span class="n">json_loads</span><span class="p">:</span> <span class="n">JsonLoadsFixture</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoadJsonFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_json</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">missing_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">missing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixture_load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">missing_ok</span><span class="o">=</span><span class="n">missing_ok</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">missing</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_loads</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LoadJsonError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Failed to load JSON file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+
+    <span class="k">return</span> <span class="n">load_json</span></div>
+
+
+
+<div class="viewcode-block" id="load_yaml">
+<a class="viewcode-back" href="../../../../staticfiles/#testsuite.plugins.common.load_yaml">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_yaml</span><span class="p">(</span><span class="n">load</span><span class="p">:</span> <span class="n">LoadFixture</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoadYamlFixture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_yaml</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">PathOrStr</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">yaml_util</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">yaml_util</span><span class="o">.</span><span class="n">ParserError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">LoadYamlError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Failed to load YAML file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
-</div>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="k">return</span> <span class="n">load_yaml</span></div>
 
 
 
 <span class="n">FilePathsCache</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]]</span>
-
-<span class="n">get_search_pathes</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span>
-    <span class="n">GetSearchPathesFixture</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">search_path</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">SearchPathFixture</span><span class="p">)</span>
-<span class="n">get_file_path</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">GetFilePathFixture</span><span class="p">)</span>
-<span class="n">get_directory_path</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span>
-    <span class="n">GetDirectoryPathFixture</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">open_file</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">OpenFileFixture</span><span class="p">)</span>
-<span class="n">load</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">LoadFixture</span><span class="p">)</span>
-<span class="n">load_binary</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">LoadBinaryFixture</span><span class="p">)</span>
-<span class="n">json_loads</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">JsonLoadsFixture</span><span class="p">)</span>
-<span class="n">load_json</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">LoadJsonFixture</span><span class="p">)</span>
-<span class="n">load_yaml</span> <span class="o">=</span> <span class="n">fixture_class</span><span class="o">.</span><span class="n">create_fixture_factory</span><span class="p">(</span><span class="n">LoadYamlFixture</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">pytest_configure</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>

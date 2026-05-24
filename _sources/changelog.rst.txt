@@ -1,6 +1,29 @@
 Changelog
 ---------
 
+0.4.6
+~~~~~
+
+- add pretty output to protobuf comparator and add ProtobufDict/ProtobufPartialDict matchers (#223)
+- Compare transform user hooks (#222)
+- fix ci: update Kafka package and fix rabbit deprecated queue type (#221)
+
+0.4.5
+~~~~~
+
+- Add WebSocket support to mockserver (#218)
+
+0.4.4
+~~~~~
+
+- Remove fixture_class (#217)
+
+0.4.3
+~~~~~
+
+- remove mockserver plugin (#212)
+- Add some types to testsuite package root (#215)
+
 0.4.2.5
 ~~~~~~~
 

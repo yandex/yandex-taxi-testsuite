@@ -80,15 +80,22 @@ class PartialProtobufDict(ProtobufDictsImpl):
 class RecursivePartialProtobufDict(ProtobufDictsImpl):
     """Recursive partial protobuf matcher.
 
-    Same as :py:func:`testsuite.matching.recursive_partial_dict`, but the
-    resulting matcher compares against a protobuf message after converting
-    it to a dict via :py:func:`testsuite.protobuf.utils.message_to_dict`.
+    Compares a protobuf message against an expected dict by converting the
+    message via :py:func:`testsuite.protobuf.utils.message_to_dict` and
+    delegating to :py:func:`testsuite.matching.recursive_partial_dict`.
 
+    Unlike :py:class:`PartialProtobufDict`, which only ignores extra fields
+    at the top level, this matcher applies partial matching recursively to
+    every nested message: only the keys listed in the expected dict (at any
+    depth) are checked, and any additional fields on the protobuf message
+    or its nested submessages are ignored.
 
     Example:
 
     .. code-block:: python
 
+       # Passes regardless of other fields set on msg or on
+       # msg.nested_field, as long as the listed fields match.
        assert msg == matching.RecursivePartialProtobufDict({
            'first_name': 'John',
            'nested_field': {'inner_field': 1},

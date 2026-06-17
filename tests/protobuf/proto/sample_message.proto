@@ -7,6 +7,18 @@ enum Status {
   STATUS_PENDING = 3;
 }
 
+message Address {
+  string city = 1;
+  string country = 2;
+  string zip_code = 3;
+}
+
+message Contact {
+  string email = 1;
+  string phone = 2;
+  Address address = 3;
+}
+
 message SampleMessage {
   string first_name = 1;
   string last_name = 2;
@@ -14,4 +26,5 @@ message SampleMessage {
   Status status = 4;
   optional string display_name = 5;
   optional int32 priority_level = 6;
+  Contact contact = 7;
 }

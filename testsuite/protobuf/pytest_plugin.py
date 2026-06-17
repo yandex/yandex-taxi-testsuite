@@ -1,7 +1,7 @@
 import google.protobuf.message
 
 from testsuite.plugins.assertrepr_compare import CompareVisitor
-from testsuite.protobuf.matching import PartialProtobufDict, ProtobufDict
+from testsuite.protobuf.matching import ProtobufDictsImpl
 from testsuite.protobuf.utils import message_to_dict
 
 
@@ -10,7 +10,7 @@ def _is_proto(value):
 
 
 def _is_proto_dict(value):
-    return isinstance(value, (ProtobufDict, PartialProtobufDict))
+    return isinstance(value, ProtobufDictsImpl)
 
 
 def _protobuf_predicate(left, right):
@@ -30,16 +30,13 @@ def _proto_dicts_predicate(left, right):
 def _proto_dicts_visitor(left, right, reporter):
     if _is_proto(left):
         left = message_to_dict(left)
-        if isinstance(right, ProtobufDict):
-            right = right._dict
-        elif isinstance(right, PartialProtobufDict):
-            right = right._partial
+        right = right._impl
+        if isinstance(right, ProtobufDictsImpl):
+            right = right._impl
     else:
         right = message_to_dict(right)
-        if isinstance(left, ProtobufDict):
-            left = left._dict
-        elif isinstance(left, PartialProtobufDict):
-            left = left._partial
+        if isinstance(left, ProtobufDictsImpl):
+            left = left._impl
 
     return left, right
 

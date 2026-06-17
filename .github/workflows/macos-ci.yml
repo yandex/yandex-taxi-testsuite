@@ -25,6 +25,7 @@ jobs:
       - name: Install database dependencies
         run: |
           brew tap mongodb/brew
+          brew trust mongodb/brew
           brew update
           brew install redis clickhouse rabbitmq postgresql mariadb kafka mongodb-community
       - name: Set up Python ${{ matrix.python-version }}

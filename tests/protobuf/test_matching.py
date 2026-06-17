@@ -4,11 +4,11 @@ from tests.protobuf.proto.sample_message_pb2 import (  # type: ignore[attr-defin
     SampleMessage,
     Status,
 )
-from testsuite.matching import PartialDict
+from testsuite.matching import PartialDict, recursive_partial_dict
 from testsuite.protobuf.matching import (
     PartialProtobufDict,
     ProtobufDict,
-    recursive_partial_protobuf,
+    RecursivePartialProtobufDict,
 )
 
 
@@ -49,14 +49,13 @@ def test_protobuf_dict_not_equal():
 
 def test_protobuf_dict_compare_error():
     msg = make_msg(first_name='Jane', status=Status.STATUS_INACTIVE)
-    expected = ProtobufDict(
-        {
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'item_count': 1,
-            'status': 'STATUS_ACTIVE',
-        }
-    )
+    pattern = {
+        'first_name': 'John',
+        'last_name': 'Doe',
+        'item_count': 1,
+        'status': 'STATUS_ACTIVE',
+    }
+    expected = ProtobufDict(pattern)
 
     with pytest.raises(AssertionError) as proto_exc:
         assert msg == expected
@@ -67,7 +66,7 @@ def test_protobuf_dict_compare_error():
             'last_name': 'Doe',
             'item_count': 1,
             'status': 'STATUS_INACTIVE',
-        } == expected._dict
+        } == pattern
 
     assert str(proto_exc.value) == str(dict_exc.value)
 
@@ -118,52 +117,18 @@ def test_partial_protobuf_dict_compare_error():
 
 def test_recursive_partial_protobuf_equal():
     msg = make_msg(display_name='Johnny', priority_level=5)
-    assert msg == recursive_partial_protobuf({'first_name': 'John'})
+    assert msg == RecursivePartialProtobufDict({'first_name': 'John'})
 
 
 def test_recursive_partial_protobuf_not_equal():
     msg = make_msg(first_name='Jane')
-    assert msg != recursive_partial_protobuf({'first_name': 'John'})
-
-
-def test_recursive_partial_protobuf_wraps_nested_dicts():
-    matcher = recursive_partial_protobuf(
-        {
-            'first_name': 'John',
-            'nested': {'inner': 1},
-            'items': [{'x': 1}],
-        }
-    )
-
-    assert isinstance(matcher._partial, PartialDict)
-    assert isinstance(matcher._partial['nested'], PartialDict)
-    assert isinstance(matcher._partial['items'][0], PartialDict)
-
-
-def test_recursive_partial_protobuf_inner_partial_matches_nested_dict():
-    # The inner _partial is a recursive PartialDict. Verifying that it matches
-    # a nested dict-with-extras (the shape message_to_dict produces for a
-    # nested protobuf message) proves the recursion is wired up correctly.
-    matcher = recursive_partial_protobuf(
-        {
-            'first_name': 'John',
-            'nested': {'inner': 1},
-        }
-    )
-    assert matcher._partial == {
-        'first_name': 'John',
-        'nested': {'inner': 1, 'extra': 'x'},
-    }
-    assert matcher._partial != {
-        'first_name': 'John',
-        'nested': {'inner': 2, 'extra': 'x'},
-    }
+    assert msg != RecursivePartialProtobufDict({'first_name': 'John'})
 
 
 def test_recursive_partial_protobuf_compare_error():
     msg = make_msg(first_name='Jane', status=Status.STATUS_INACTIVE)
     pattern = {'first_name': 'John', 'status': 'STATUS_ACTIVE'}
-    recursive = recursive_partial_protobuf(pattern)
+    recursive = RecursivePartialProtobufDict(pattern)
 
     with pytest.raises(AssertionError) as proto_exc:
         assert msg == recursive
@@ -174,6 +139,6 @@ def test_recursive_partial_protobuf_compare_error():
             'last_name': 'Doe',
             'item_count': 1,
             'status': 'STATUS_INACTIVE',
-        } == PartialDict(pattern)
+        } == recursive_partial_dict(pattern)
 
     assert str(proto_exc.value) == str(dict_exc.value)

@@ -1,41 +1,106 @@
+import typing
+
 import google.protobuf.message
 
-from testsuite.matching import PartialDict
+from testsuite.matching import PartialDict, recursive_partial_dict
 from testsuite.protobuf.utils import message_to_dict
 
 
-class ProtobufDict:
-    """Compare a protobuf message against an expected dict."""
+class ProtobufDictsImpl:
+    def __init__(self, repr: dict, impl: typing.Any):
+        self._repr = repr
+        self._impl = impl
+
+    def __repr__(self):
+        return f'<type(self).__name__ {self._repr!r}>'
+
+    def __eq__(self, other):
+        if isinstance(other, google.protobuf.message.Message):
+            return message_to_dict(other) == self._impl
+        if type(self) == type(other):
+            return self._impl == other._impl
+        return False
+
+
+class ProtobufDict(ProtobufDictsImpl):
+    """Strict protobuf matcher.
+
+    Compares a protobuf message against an expected dict by converting the
+    message via :py:func:`testsuite.protobuf.utils.message_to_dict` and
+    requiring the resulting dict to equal the expected one exactly.
+
+    Every field present in the message must appear in the expected dict
+    (and vice versa). For partial matching where extra protobuf fields
+    should be ignored, use :py:class:`PartialProtobufDict` or
+    :py:func:`RecursivePartialProtobufDict` instead.
+
+    Example:
+
+    .. code-block:: python
+
+       assert msg == matching.ProtobufDict({
+           'first_name': 'John',
+           'last_name': 'Doe',
+           'status': 'STATUS_ACTIVE',
+       })
+    """
 
     __testsuite_types__ = (google.protobuf.message.Message,)
 
     def __init__(self, d: dict):
-        self._dict = d
-
-    def __repr__(self):
-        return f'<ProtobufDict {self._dict!r}>'
-
-    def __eq__(self, other):
-        if isinstance(other, google.protobuf.message.Message):
-            return message_to_dict(other) == self._dict
-        if isinstance(other, ProtobufDict):
-            return self._dict == other._dict
-        return False
+        super().__init__(repr=d, impl=d)
 
 
-class PartialProtobufDict:
-    """Partially compare a protobuf message against an expected dict."""
+class PartialProtobufDict(ProtobufDictsImpl):
+    """Partial protobuf matcher.
 
-    def __init__(self, d: dict):
-        self._dict = d
-        self._partial = PartialDict(d)
+    Compares a protobuf message against an expected dict by converting the
+    message via :py:func:`testsuite.protobuf.utils.message_to_dict` and
+    delegating to :py:class:`testsuite.matching.PartialDict`. Only the
+    keys listed in the expected dict are checked; any additional fields
+    on the protobuf message are ignored.
 
-    def __repr__(self):
-        return f'<PartialProtobufDict {self._dict!r}>'
+    The match is only partial at the top level: nested dicts in the
+    expected pattern still have to equal the corresponding nested
+    message dicts exactly. Use :py:class:`RecursivePartialProtobufDict`
+    when nested messages should also be matched partially.
 
-    def __eq__(self, other):
-        if isinstance(other, google.protobuf.message.Message):
-            return self._partial == message_to_dict(other)
-        if isinstance(other, PartialProtobufDict):
-            return self._partial == other._partial
-        return False
+    Example:
+
+    .. code-block:: python
+
+       # Passes regardless of other fields set on msg
+       assert msg == matching.PartialProtobufDict({'first_name': 'John'})
+    """
+
+    def __init__(self, d):
+        super().__init__(repr=d, impl=PartialDict(d))
+
+
+class RecursivePartialProtobufDict(ProtobufDictsImpl):
+    """Recursive partial protobuf matcher.
+
+    Compares a protobuf message against an expected dict by converting the
+    message via :py:func:`testsuite.protobuf.utils.message_to_dict` and
+    delegating to :py:func:`testsuite.matching.recursive_partial_dict`.
+
+    Unlike :py:class:`PartialProtobufDict`, which only ignores extra fields
+    at the top level, this matcher applies partial matching recursively to
+    every nested message: only the keys listed in the expected dict (at any
+    depth) are checked, and any additional fields on the protobuf message
+    or its nested submessages are ignored.
+
+    Example:
+
+    .. code-block:: python
+
+       # Passes regardless of other fields set on msg or on
+       # msg.nested_field, as long as the listed fields match.
+       assert msg == matching.RecursivePartialProtobufDict({
+           'first_name': 'John',
+           'nested_field': {'inner_field': 1},
+       })
+    """
+
+    def __init__(self, d):
+        super().__init__(repr=d, impl=recursive_partial_dict(d))

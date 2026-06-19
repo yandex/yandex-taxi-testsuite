@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.4.7
+~~~~~
+
+- feat testsuite: add recursive_partial_protobuf (#225)
+- add docs about protobuf (#224)
+
 0.4.6
 ~~~~~
 

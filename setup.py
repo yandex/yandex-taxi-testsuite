@@ -16,8 +16,8 @@ setuptools.setup(
     ],
     extras_require={
         'mongodb': ['pymongo>=3.7.1'],
-        'postgresql': ['psycopg2>=2.7.5', 'yandex-pgmigrate'],
-        'postgresql-binary': ['psycopg2-binary>=2.7.5'],
+        'postgresql': ['psycopg[pool]>=3.1', 'yandex-pgmigrate'],
+        'postgresql-binary': ['psycopg[binary]>=3.1'],
         'clickhouse': ['clickhouse-driver>=0.2.0'],
         'redis': ['python-redis>=0.2.1', 'redis>=2.10.6'],
         'mysql': ['PyMySQL>=0.9.2'],

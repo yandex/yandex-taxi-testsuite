@@ -1,4 +1,5 @@
 __all__ = [
+    'CompareVisitor',
     'DaemonInstance',
     'MockserverInfo',
     'MockserverFixture',
@@ -21,6 +22,7 @@ from . import types as annotations  # noqa: F401
 from ._version import __version__  # noqa: F401
 
 # For annotations
+from .compare import CompareVisitor
 from .daemons.classes import DaemonInstance
 from .mockserver.classes import MockserverInfo, MockserverRequest
 from .mockserver.server import MockserverFixture

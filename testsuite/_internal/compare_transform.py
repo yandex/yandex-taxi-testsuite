@@ -1,35 +1,12 @@
 import collections
 import contextlib
-import dataclasses
 import typing
 
 import py.io
 
+from testsuite.compare import CompareVisitor
+
 SetTypes = (set, frozenset)
-
-
-class Reporter(typing.Protocol):
-    def __call__(self, msg: str, *, path: typing.Any) -> None:
-        pass
-
-
-@dataclasses.dataclass
-class CompareVisitor:
-    class Predicate(typing.Protocol):
-        def __call__(self, left: typing.Any, right: typing.Any) -> bool:
-            pass
-
-    class Visitor(typing.Protocol):
-        def __call__(
-            self,
-            left: typing.Any,
-            right: typing.Any,
-            reporter: Reporter,
-        ) -> tuple[typing.Any, typing.Any]:
-            pass
-
-    predicate: Predicate
-    visit: Visitor
 
 
 class CompareTransform:

@@ -8,7 +8,7 @@ import typing
 import pytest
 
 from testsuite._internal import compare_transform
-from testsuite._internal.compare_transform import CompareVisitor
+from testsuite.compare import CompareVisitor
 
 
 class AssertMode(enum.Enum):
@@ -18,8 +18,8 @@ class AssertMode(enum.Enum):
 
 
 class CompareVisitorsHookspec:
-    def pytest_register_compare_visitors(self):
-        pass
+    def pytest_register_compare_visitors(self) -> list[CompareVisitor]:
+        raise NotImplementedError
 
 
 def pytest_addhooks(pluginmanager):

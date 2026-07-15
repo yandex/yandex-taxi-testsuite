@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.8
+~~~~~
+
+- Move CompareVisitor/Reporter to a public testsuite.utils.compare module (#227)
+
 0.4.7
 ~~~~~
 

@@ -3,6 +3,7 @@ import dataclasses
 import hashlib
 import itertools
 import logging
+import os
 import pathlib
 from collections.abc import Iterable
 from typing import DefaultDict
@@ -13,6 +14,9 @@ logger = logging.getLogger(__name__)
 
 SINGLE_SHARD = -1
 DB_NAME_MAX = 31
+
+DBNAME_PREFIX_ENV = 'TESTSUITE_POSTGRESQL_DBNAME_PREFIX'
+XDIST_WORKER_ENV = 'PYTEST_XDIST_WORKER'
 
 
 @dataclasses.dataclass(frozen=True)
@@ -198,14 +202,24 @@ def _create_pgshard(
 _names_used = {}
 
 
+def _dbname_prefix() -> str:
+    prefix = os.getenv(DBNAME_PREFIX_ENV)
+    if prefix is None:
+        worker = os.getenv(XDIST_WORKER_ENV, '')
+        prefix = worker if worker != 'master' else ''
+    if not prefix:
+        return ''
+    return _normalize_name(prefix) + '_'
+
+
 def _database_name(service_name: str | None, dbname: str, shard_id: int):
     dbkey = (service_name, dbname)
     suffix = ''
     if shard_id != SINGLE_SHARD:
         suffix = f'_{shard_id}'
-    prefix = ''
+    prefix = _dbname_prefix()
     if service_name is not None:
-        prefix = f'{service_name}_'
+        prefix += f'{service_name}_'
     name = _normalize_name(prefix + dbname)
     dbname = _normalize_name(name + suffix)
     if len(dbname) > DB_NAME_MAX:

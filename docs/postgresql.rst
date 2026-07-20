@@ -87,6 +87,17 @@ TESTSUITE_POSTGRESQL_PORT
 
 Use to override Postgresql server port. Default is ``15433``.
 
+TESTSUITE_POSTGRESQL_DBNAME_PREFIX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Prefix added to test database names. Use it to give every concurrent
+testsuite session its own database namespace when sessions share one
+PostgreSQL instance, e.g. with ``--postgresql``. Without isolation
+concurrent sessions recreate the same databases and race against each
+other. Prefer a stable value (worker name, checkout name): databases
+are reused between sessions with the same prefix. When not set, the
+``pytest-xdist`` worker name is used if present.
+
 Functions
 ---------
 

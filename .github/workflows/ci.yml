@@ -39,12 +39,12 @@ jobs:
         run: |
           sudo apt-get install -y default-jre
 
-          curl https://dlcdn.apache.org/kafka/3.9.2/kafka_2.13-3.9.2.tgz -o kafka.tgz
+          curl https://dlcdn.apache.org/kafka/4.3.1/kafka_2.13-4.3.1.tgz -o kafka.tgz
           sudo mkdir -p /etc/kafka
           sudo tar xf kafka.tgz --directory=/etc/kafka
           cd /etc/kafka
-          sudo cp -r kafka_2.13-3.9.2/* ./
-          sudo rm -rf kafka_2.13-3.9.2
+          sudo cp -r kafka_2.13-4.3.1/* ./
+          sudo rm -rf kafka_2.13-4.3.1
       - name: Install RabbitMQ
         run: |
           .github/install-rabbitmq.sh

@@ -30,28 +30,22 @@ def test_database_name():
         ) == ('ytenvc_cc21dd21265d91098dc39238')
 
 
-def test_database_name_prefix(monkeypatch):
-    monkeypatch.setenv(discover.DBNAME_PREFIX_ENV, 'run1')
+def test_database_name_prefix():
     assert (
-        discover._database_name(None, 'foo', discover.SINGLE_SHARD)
+        discover._database_name(
+            None, 'foo', discover.SINGLE_SHARD, dbname_prefix='run1'
+        )
         == 'run1_foo'
     )
-    assert discover._database_name('foo', 'bar', 1) == 'run1_foo_bar_1'
+    assert (
+        discover._database_name('foo', 'bar', 1, dbname_prefix='run1')
+        == 'run1_foo_bar_1'
+    )
+    assert discover._database_name(None, 'foo', discover.SINGLE_SHARD) == 'foo'
     long_name = discover._database_name(
         'yandex_taxi_eats_nomenclature_viewer', 'shards', 1
     )
     assert len(long_name) <= discover.DB_NAME_MAX
-    assert long_name.startswith('r')
-
-
-def test_database_name_xdist_worker(monkeypatch):
-    monkeypatch.delenv(discover.DBNAME_PREFIX_ENV, raising=False)
-    monkeypatch.setenv(discover.XDIST_WORKER_ENV, 'gw3')
-    assert (
-        discover._database_name(None, 'foo', discover.SINGLE_SHARD) == 'gw3_foo'
-    )
-    monkeypatch.setenv(discover.XDIST_WORKER_ENV, 'master')
-    assert discover._database_name(None, 'foo', discover.SINGLE_SHARD) == 'foo'
 
 
 def test_shortened():

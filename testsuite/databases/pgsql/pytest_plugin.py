@@ -2,7 +2,6 @@ import collections
 import collections.abc
 import concurrent.futures
 import contextlib
-import os
 import re
 import typing
 
@@ -145,7 +144,7 @@ def pgsql_dbname_prefix() -> str:
             )
             return pgsql_local_create(list(databases.values()))
     """
-    return os.getenv('TESTSUITE_POSTGRESQL_DBNAME_PREFIX', '')
+    return service.get_dbname_prefix()
 
 
 @pytest.fixture

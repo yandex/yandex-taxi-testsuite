@@ -67,6 +67,7 @@ class PgShardedDatabase:
 def find_schemas(
     service_name: str | None,
     schema_dirs: list[pathlib.Path],
+    *,
     dbname_prefix: str = '',
 ) -> dict[str, PgShardedDatabase]:
     """Read database schemas from directories ``schema_dirs``. ::
@@ -80,7 +81,8 @@ def find_schemas(
     :param schema_dirs: list of pathes to scan for schemas
     :param dbname_prefix: prefix added to generated database names, gives
            concurrent sessions their own database namespace on a shared
-           server, see :py:func:`pgsql_dbname_prefix`
+           server, see
+           :py:func:`~testsuite.databases.pgsql.pytest_plugin.pgsql_dbname_prefix`
     :returns: :py:class:`Dict[str, PgShardedDatabase]` where key is
               database name as stored in :py:attr:`PgShard.dbname`
     """
@@ -88,7 +90,9 @@ def find_schemas(
     for path in schema_dirs:
         if not path.is_dir():
             continue
-        schemas = _find_databases_schemas(service_name, path, dbname_prefix)
+        schemas = _find_databases_schemas(
+            service_name, path, dbname_prefix=dbname_prefix
+        )
         for dbname in schemas.keys() & result.keys():
             raise exceptions.PostgresqlError(
                 f'Database {dbname} is declared twice',
@@ -100,6 +104,7 @@ def find_schemas(
 def _find_databases_schemas(
     service_name: str | None,
     schema_path: pathlib.Path,
+    *,
     dbname_prefix: str = '',
 ) -> dict[str, PgShardedDatabase]:
     logger.debug('Looking up for PostgreSQL schemas at %s', schema_path)
@@ -179,6 +184,7 @@ def _create_pgshard(
     shard_id: int = SINGLE_SHARD,
     files: list[pathlib.Path] | None = None,
     migrations: list[pathlib.Path] | None = None,
+    *,
     dbname_prefix: str = '',
 ) -> PgShard:
     if files is None:
@@ -193,7 +199,7 @@ def _create_pgshard(
         pretty_name = '%s@%d' % (dbname, shard_id)
 
     sharded_dbname = _database_name(
-        service_name, dbname, shard_id, dbname_prefix
+        service_name, dbname, shard_id, dbname_prefix=dbname_prefix
     )
     return PgShard(
         shard_id=actual_shard_id,
@@ -211,6 +217,7 @@ def _database_name(
     service_name: str | None,
     dbname: str,
     shard_id: int,
+    *,
     dbname_prefix: str = '',
 ):
     dbkey = (service_name, dbname)

@@ -23,6 +23,13 @@ class ServiceSettings(typing.NamedTuple):
         )
 
 
+def get_dbname_prefix() -> str:
+    return utils.getenv_str(
+        key='TESTSUITE_POSTGRESQL_DBNAME_PREFIX',
+        default='',
+    )
+
+
 def get_service_settings():
     return ServiceSettings(
         utils.getenv_int(

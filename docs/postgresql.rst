@@ -87,6 +87,16 @@ TESTSUITE_POSTGRESQL_PORT
 
 Use to override Postgresql server port. Default is ``15433``.
 
+TESTSUITE_POSTGRESQL_DBNAME_PREFIX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default value for the :py:func:`pgsql_dbname_prefix` fixture. Use it to
+give every concurrent testsuite session its own database namespace when
+sessions share one PostgreSQL instance, e.g. with ``--postgresql``.
+Without isolation concurrent sessions recreate the same databases and
+race against each other. Prefer a stable value (worker name, checkout
+name): databases are reused between sessions with the same prefix.
+
 Functions
 ---------
 
@@ -123,6 +133,12 @@ pgsql_cleanup_exclude_tables
         @pytest.fixture(scope='session')
         def pgsql_cleanup_exclude_tables():
             return frozenset({'public.spatial_ref_sys'})
+
+
+pgsql_dbname_prefix
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: pgsql_dbname_prefix()
 
 
 pgsql_local

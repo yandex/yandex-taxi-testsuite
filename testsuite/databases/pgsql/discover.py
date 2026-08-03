@@ -67,6 +67,8 @@ class PgShardedDatabase:
 def find_schemas(
     service_name: str | None,
     schema_dirs: list[pathlib.Path],
+    *,
+    dbname_prefix: str = '',
 ) -> dict[str, PgShardedDatabase]:
     """Read database schemas from directories ``schema_dirs``. ::
 
@@ -77,6 +79,10 @@ def find_schemas(
     :param service_name: service name used as prefix for database name if not
            empty, e.g. "servicename_dbname".
     :param schema_dirs: list of pathes to scan for schemas
+    :param dbname_prefix: prefix added to generated database names, gives
+           concurrent sessions their own database namespace on a shared
+           server, see
+           :py:func:`~testsuite.databases.pgsql.pytest_plugin.pgsql_dbname_prefix`
     :returns: :py:class:`Dict[str, PgShardedDatabase]` where key is
               database name as stored in :py:attr:`PgShard.dbname`
     """
@@ -84,7 +90,9 @@ def find_schemas(
     for path in schema_dirs:
         if not path.is_dir():
             continue
-        schemas = _find_databases_schemas(service_name, path)
+        schemas = _find_databases_schemas(
+            service_name, path, dbname_prefix=dbname_prefix
+        )
         for dbname in schemas.keys() & result.keys():
             raise exceptions.PostgresqlError(
                 f'Database {dbname} is declared twice',
@@ -96,6 +104,8 @@ def find_schemas(
 def _find_databases_schemas(
     service_name: str | None,
     schema_path: pathlib.Path,
+    *,
+    dbname_prefix: str = '',
 ) -> dict[str, PgShardedDatabase]:
     logger.debug('Looking up for PostgreSQL schemas at %s', schema_path)
     shard_files_map = _build_shard_files_map(schema_path)
@@ -111,6 +121,7 @@ def _find_databases_schemas(
                     shard_id=shard_id,
                     files=sorted(shard_files.files),
                     migrations=sorted(shard_files.pg_migrations),
+                    dbname_prefix=dbname_prefix,
                 ),
             )
         result[dbname] = PgShardedDatabase(
@@ -173,6 +184,8 @@ def _create_pgshard(
     shard_id: int = SINGLE_SHARD,
     files: list[pathlib.Path] | None = None,
     migrations: list[pathlib.Path] | None = None,
+    *,
+    dbname_prefix: str = '',
 ) -> PgShard:
     if files is None:
         files = []
@@ -185,7 +198,9 @@ def _create_pgshard(
         actual_shard_id = shard_id
         pretty_name = '%s@%d' % (dbname, shard_id)
 
-    sharded_dbname = _database_name(service_name, dbname, shard_id)
+    sharded_dbname = _database_name(
+        service_name, dbname, shard_id, dbname_prefix=dbname_prefix
+    )
     return PgShard(
         shard_id=actual_shard_id,
         pretty_name=pretty_name,
@@ -198,14 +213,20 @@ def _create_pgshard(
 _names_used = {}
 
 
-def _database_name(service_name: str | None, dbname: str, shard_id: int):
+def _database_name(
+    service_name: str | None,
+    dbname: str,
+    shard_id: int,
+    *,
+    dbname_prefix: str = '',
+):
     dbkey = (service_name, dbname)
     suffix = ''
     if shard_id != SINGLE_SHARD:
         suffix = f'_{shard_id}'
-    prefix = ''
+    prefix = f'{dbname_prefix}_' if dbname_prefix else ''
     if service_name is not None:
-        prefix = f'{service_name}_'
+        prefix += f'{service_name}_'
     name = _normalize_name(prefix + dbname)
     dbname = _normalize_name(name + suffix)
     if len(dbname) > DB_NAME_MAX:

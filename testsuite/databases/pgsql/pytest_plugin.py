@@ -120,7 +120,9 @@ def pgsql_cleanup_exclude_tables() -> frozenset[str]:
 
 
 @pytest.fixture(scope='session')
-def pgsql_dbname_prefix() -> str:
+def pgsql_dbname_prefix(
+    _pgsql_service_settings: service.ServiceSettings,
+) -> str:
     """Prefix added to generated database names.
 
     Gives every concurrent testsuite session its own database namespace
@@ -144,7 +146,7 @@ def pgsql_dbname_prefix() -> str:
             )
             return pgsql_local_create(list(databases.values()))
     """
-    return service.get_dbname_prefix()
+    return _pgsql_service_settings.dbname_prefix
 
 
 @pytest.fixture

@@ -124,12 +124,6 @@ pgsql_cleanup_exclude_tables
 
 .. autofunction:: pgsql_cleanup_exclude_tables()
 
-
-pgsql_dbname_prefix
-~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: pgsql_dbname_prefix()
-
     Redefine this fixture when you don't need to clean some tables.
     For example postgis create table with spatial reference systems. To use postgis you need to
     add this fixture with spatial_ref_sys table.
@@ -139,6 +133,12 @@ pgsql_dbname_prefix
         @pytest.fixture(scope='session')
         def pgsql_cleanup_exclude_tables():
             return frozenset({'public.spatial_ref_sys'})
+
+
+pgsql_dbname_prefix
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: pgsql_dbname_prefix()
 
 
 pgsql_local

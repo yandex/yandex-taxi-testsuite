@@ -7,9 +7,9 @@ import time
 import typing
 import warnings
 
-import psycopg2
-import psycopg2.extensions
-import psycopg2.extras
+import psycopg
+import psycopg.errors
+import psycopg.rows
 
 from testsuite.environment import shell
 
@@ -55,7 +55,7 @@ class ConnectionWrapper:
     def __init__(self, conninfo: connection.PgConnectionInfo):
         self._initialized = False
         self._conninfo = conninfo
-        self._conn: psycopg2.extensions.connection | None = None
+        self._conn: psycopg.Connection | None = None
         self._tables: list[str] | None = None
         self._truncate_thread: None | (concurrent.futures.Future[None]) = None
         self._executer = concurrent.futures.ThreadPoolExecutor(max_workers=1)
@@ -82,8 +82,8 @@ class ConnectionWrapper:
         return self._conninfo
 
     @property
-    def conn(self) -> psycopg2.extensions.connection:
-        """:returns: :py:class:`psycopg2.extensions.connection`"""
+    def conn(self) -> psycopg.Connection:
+        """:returns: :py:class:`psycopg.Connection`"""
         if self._conn and self._conn.closed:
             warnings.warn(
                 'Postgresql connection to {} was unexpectedly closed'.format(
@@ -92,21 +92,21 @@ class ConnectionWrapper:
             )
             self._conn = None
         if not self._conn:
-            self._conn = psycopg2.connect(self.conninfo.get_uri())
+            self._conn = psycopg.connect(self.conninfo.get_uri())
             # TODO: remove autocommit, see TAXIDATA-2467
             self._conn.autocommit = True
         return self._conn
 
-    def cursor(self, **kwargs) -> psycopg2.extensions.cursor:
-        """:returns: :py:class:`psycopg2.extensions.cursor`"""
+    def cursor(self, **kwargs) -> psycopg.Cursor:
+        """:returns: :py:class:`psycopg.Cursor`"""
         return self.conn.cursor(**kwargs)
 
-    def dict_cursor(self, **kwargs) -> psycopg2.extensions.cursor:
-        """Returns dictionary cursor, see psycopg2.extras.DictCursor
+    def dict_cursor(self, **kwargs) -> psycopg.Cursor:
+        """Returns dictionary cursor, see psycopg.rows.dict_row
 
-        :returns: :py:class:`psycopg2.extensions.cursor`
+        :returns: :py:class:`psycopg.Cursor`
         """
-        kwargs['cursor_factory'] = psycopg2.extras.DictCursor
+        kwargs['row_factory'] = psycopg.rows.dict_row
         return self.cursor(**kwargs)
 
     def apply_queries(self, queries: typing.Iterable[PgQuery]) -> None:
@@ -138,7 +138,7 @@ class ConnectionWrapper:
             try:
                 self._truncate_tables(cursor)
                 break
-            except psycopg2.extensions.TransactionRollbackError as exc:
+            except psycopg.errors.TransactionRollback as exc:
                 logger.warning('Truncate table failed: %r', exc)
                 time.sleep(TRUNCATE_RETRY_DELAY)
         else:
@@ -154,7 +154,7 @@ class ConnectionWrapper:
     def _apply_query(cursor, query: PgQuery) -> None:
         try:
             cursor.execute(query.body)
-        except psycopg2.DatabaseError as exc:
+        except psycopg.DatabaseError as exc:
             error_message = (
                 f'PostgreSQL apply query error\nQuery from: {query.source}\n'
             )
@@ -176,18 +176,18 @@ class PgDatabaseWrapper:
         return self._connection.conninfo
 
     @property
-    def conn(self) -> psycopg2.extensions.connection:
-        """:returns: :py:class:`psycopg2.extensions.connection`"""
+    def conn(self) -> psycopg.Connection:
+        """:returns: :py:class:`psycopg.Connection`"""
         return self._connection.conn
 
-    def cursor(self, **kwargs) -> psycopg2.extensions.cursor:
-        """:returns: :py:class:`psycopg2.extensions.cursor`"""
+    def cursor(self, **kwargs) -> psycopg.Cursor:
+        """:returns: :py:class:`psycopg.Cursor`"""
         return self._connection.cursor(**kwargs)
 
-    def dict_cursor(self, **kwargs) -> psycopg2.extensions.cursor:
-        """Returns dictionary cursor, see psycopg2.extras.DictCursor
+    def dict_cursor(self, **kwargs) -> psycopg.Cursor:
+        """Returns dictionary cursor, see psycopg.rows.dict_row
 
-        :returns: :py:class:`psycopg2.extensions.cursor`
+        :returns: :py:class:`psycopg.Cursor`
         """
         return self._connection.dict_cursor(**kwargs)
 

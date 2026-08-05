@@ -2,7 +2,7 @@
 import typing
 import urllib.parse
 
-import psycopg2.extensions
+import psycopg.conninfo
 
 
 class _NotSet:
@@ -24,15 +24,12 @@ class PgConnectionInfo(typing.NamedTuple):
 
     def get_dsn(self) -> str:
         """PostgreSQL connection string in DSN format"""
-        return psycopg2.extensions.make_dsn(
-            host=self.host,
-            port=self.port,
-            user=self.user,
-            password=self.password,
-            options=self.options,
-            sslmode=self.sslmode,
-            dbname=self.dbname,
-        )
+        kwargs = {
+            key: value
+            for key, value in self._asdict().items()
+            if value is not None
+        }
+        return psycopg.conninfo.make_conninfo(**kwargs)
 
     def get_uri(self) -> str:
         """PostgreSQL connection string in URI format"""
@@ -50,7 +47,7 @@ def parse_connection_string(connstr: str) -> PgConnectionInfo:
     :param connstr: connection string in DSN or URI format as specified in
     https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
     """
-    kwargs = psycopg2.extensions.parse_dsn(connstr)
+    kwargs = psycopg.conninfo.conninfo_to_dict(connstr)
     for key, value in kwargs.items():
         if key not in PgConnectionInfo._fields:
             continue

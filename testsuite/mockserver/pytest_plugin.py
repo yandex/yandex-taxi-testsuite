@@ -192,6 +192,10 @@ def mockserver(
     _mockserver: server.Server,
     mockserver_create_session,
 ) -> types.YieldFixture[server.MockserverFixture]:
+    """Returns per-test mockserver client.
+
+    Use it to register HTTP handlers that the service under test can call.
+    """
     with mockserver_create_session(_mockserver) as fixture:
         yield fixture
 

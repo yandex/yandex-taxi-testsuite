@@ -81,6 +81,11 @@ def redis_store(
     _redis_store,
     _redis_execute_commands_from_file,
 ):
+    """Returns a Redis client for the test store.
+
+    Commands from static files are applied before the test; the database is
+    flushed afterwards.
+    """
     if pytestconfig.option.no_redis:
         yield
         return

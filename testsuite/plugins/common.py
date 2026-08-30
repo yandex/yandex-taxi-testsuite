@@ -316,6 +316,7 @@ def load(get_file_path: GetFilePathFixture) -> LoadFixture:
     Searches the file via ``get_file_path``. Returns ``None`` when
     ``missing_ok=True`` and the file is absent.
     """
+
     def load(
         filename: types.PathOrStr,
         encoding='utf-8',
@@ -337,6 +338,7 @@ def load_binary(get_file_path: GetFilePathFixture) -> LoadBinaryFixture:
 
     Searches the file via ``get_file_path``.
     """
+
     def load_binary(filename: types.PathOrStr) -> bytes:
         path = get_file_path(filename)
         return path.read_bytes()
@@ -365,6 +367,7 @@ def load_json(
     load: LoadFixture, json_loads: JsonLoadsFixture
 ) -> LoadJsonFixture:
     """Returns a function that loads a static file as JSON."""
+
     def load_json(
         filename: types.PathOrStr,
         *args,
@@ -388,6 +391,7 @@ def load_json(
 @pytest.fixture
 def load_yaml(load: LoadFixture) -> LoadYamlFixture:
     """Returns a function that loads a static file as YAML."""
+
     def load_yaml(
         filename: types.PathOrStr,
         *args,

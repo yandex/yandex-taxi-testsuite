@@ -98,7 +98,7 @@ async def testpoint(
 ) -> TestpointFixture:
     """Testpoint fixture returns testpoint session instance that works
     as decorator that registers testpoint handler. Original function is
-    wrapped with :ref:`AsyncCallQueue`
+    wrapped with :py:class:`testsuite.utils.callinfo.AsyncCallQueue`.
 
     :param name: testpoint name
     :returns: decorator
@@ -106,7 +106,7 @@ async def testpoint(
     .. code-block::
 
        def test_foo(testpoint):
-           @testpoint('foo'):
+           @testpoint('foo')
            def testpoint_handler(data):
                pass
 
@@ -114,7 +114,7 @@ async def testpoint(
            # testpoint_handler is AsyncCallQueue instance, e.g.:
            assert testpoint_handler.has_calls
            assert testpoint_handler.next_call == {...}
-           aseert testpoint_handler.wait_call() == {...}
+           assert testpoint_handler.wait_call() == {...}
     """
 
     session = TestpointFixture(checker_factory=testpoint_checker_factory)

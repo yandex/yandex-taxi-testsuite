@@ -439,7 +439,7 @@ class MockserverFixture:
         """Register basic http handler for ``path``.
 
         Returns decorator that registers handler ``path``. Original function is
-        wrapped with :ref:`AsyncCallQueue`.
+        wrapped with :py:class:`testsuite.utils.callinfo.AsyncCallQueue`.
 
         :param path: match url by prefix if ``True`` exact match otherwise
         :param raw_request: pass ``aiohttp.web.Response`` to handler instead of
@@ -488,7 +488,7 @@ class MockserverFixture:
         """Register json http handler for ``path``.
 
         Returns decorator that registers handler ``path``. Original function is
-        wrapped with :ref:`AsyncCallQueue`.
+        wrapped with :py:class:`testsuite.utils.callinfo.AsyncCallQueue`.
 
         :param path: match url by prefix if ``True`` exact match otherwise
         :param raw_request: pass ``aiohttp.web.Response`` to handler instead of

@@ -168,6 +168,10 @@ def mongodb(
     mongodb_init,
     _mongodb_local: CollectionWrapper,
 ) -> CollectionWrapper:
+    """Returns MongoDB collections wrapper for the test.
+
+    Collections are initialized by the ``mongodb_init`` fixture.
+    """
     return _mongodb_local
 
 

@@ -321,18 +321,20 @@ def pgsql_apply(
 
     Use pytest.mark.pgsql to change this behaviour:
 
-    @pytest.mark.pgsql(
-        'foo@0',
-        files=[
-            'pg_foo@0_alternative.sql'
-        ],
-        directories=[
-            'pg_foo@0_alternative_dir'
-        ],
-        queries=[
-          'INSERT INTO foo VALUES (1, 2, 3, 4)',
-        ]
-    )
+    .. code-block:: python
+
+        @pytest.mark.pgsql(
+            'foo@0',
+            files=[
+                'pg_foo@0_alternative.sql'
+            ],
+            directories=[
+                'pg_foo@0_alternative_dir'
+            ],
+            queries=[
+              'INSERT INTO foo VALUES (1, 2, 3, 4)',
+            ]
+        )
     """
 
     if pgsql_parallelization_enabled:

@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>MySQL chat storage backend example &#8212; yandex-taxi-testsuite 0.4.7 documentation</title>
+    <title>MySQL chat storage backend example &#8212; yandex-taxi-testsuite 0.4.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments_pytest.css" />
-    <script src="../../../_static/documentation_options.js?v=41fa63d3"></script>
+    <script src="../../../_static/documentation_options.js?v=ab993745"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../genindex/" />
@@ -55,25 +55,25 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Testsuite service integration example.&#39;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">'Testsuite service integration example.'</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--port&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--port'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--mysql-host&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;MySQL hostname&#39;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+        <span class="s1">'--mysql-host'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'MySQL hostname'</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s1">'localhost'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--mysql-port&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;MySQL port&#39;</span><span class="p">,</span>
+        <span class="s1">'--mysql-port'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'MySQL port'</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">3306</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--mysql-user&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;MySQL user&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--mysql-user'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'MySQL user'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">'root'</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--mysql-dbname&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;MySQL database&#39;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">,</span>
+        <span class="s1">'--mysql-dbname'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'MySQL database'</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s1">'chat_messages'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
@@ -83,42 +83,42 @@
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_app</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">routes</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">RouteTableDef</span><span class="p">()</span>
 
-    <span class="nd">@routes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/ping&#39;</span><span class="p">)</span>
+    <span class="nd">@routes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'/ping'</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_ping</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;OK.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">'OK.'</span><span class="p">)</span>
 
-    <span class="nd">@routes</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/messages/send&#39;</span><span class="p">)</span>
+    <span class="nd">@routes</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">'/messages/send'</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">app</span><span class="p">[</span><span class="s1">&#39;pool&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">app</span><span class="p">[</span><span class="s1">'pool'</span><span class="p">]</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
                 <span class="k">await</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="s1">&#39;INSERT INTO messages(username, text) VALUES (</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">) &#39;</span><span class="p">,</span>
-                    <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]),</span>
+                    <span class="s1">'INSERT INTO messages(username, text) VALUES (</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">) '</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'username'</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">'text'</span><span class="p">]),</span>
                 <span class="p">)</span>
             <span class="k">await</span> <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s1">'id'</span><span class="p">:</span> <span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">})</span>
 
-    <span class="nd">@routes</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/messages/retrieve&#39;</span><span class="p">)</span>
+    <span class="nd">@routes</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">'/messages/retrieve'</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">app</span><span class="p">[</span><span class="s1">&#39;pool&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">app</span><span class="p">[</span><span class="s1">'pool'</span><span class="p">]</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
                 <span class="k">await</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="s1">&#39;SELECT created, username, text FROM messages &#39;</span>
-                    <span class="s1">&#39;ORDER BY created DESC LIMIT 20&#39;</span><span class="p">,</span>
+                    <span class="s1">'SELECT created, username, text FROM messages '</span>
+                    <span class="s1">'ORDER BY created DESC LIMIT 20'</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="p">{</span>
-                        <span class="s1">&#39;created&#39;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-                        <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                        <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                        <span class="s1">'created'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                        <span class="s1">'username'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="s1">'text'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
                     <span class="p">}</span>
                     <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
                 <span class="p">]</span>
-        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s1">&#39;messages&#39;</span><span class="p">:</span> <span class="n">messages</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s1">'messages'</span><span class="p">:</span> <span class="n">messages</span><span class="p">})</span>
 
     <span class="n">app</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">Application</span><span class="p">()</span>
-    <span class="n">app</span><span class="p">[</span><span class="s1">&#39;pool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">aiomysql</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span>
+    <span class="n">app</span><span class="p">[</span><span class="s1">'pool'</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">aiomysql</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span>
         <span class="n">host</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mysql_host</span><span class="p">,</span>
         <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mysql_port</span><span class="p">,</span>
         <span class="n">user</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mysql_user</span><span class="p">,</span>
@@ -130,11 +130,11 @@
 
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_shutdown</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-    <span class="n">app</span><span class="p">[</span><span class="s1">&#39;pool&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="k">await</span> <span class="n">app</span><span class="p">[</span><span class="s1">&#39;pool&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">wait_closed</span><span class="p">()</span>
+    <span class="n">app</span><span class="p">[</span><span class="s1">'pool'</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">app</span><span class="p">[</span><span class="s1">'pool'</span><span class="p">]</span><span class="o">.</span><span class="n">wait_closed</span><span class="p">()</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -149,16 +149,16 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">testsuite.databases.mysql</span><span class="w"> </span><span class="kn">import</span> <span class="n">discover</span>
 
 <span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;testsuite.pytest_plugin&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;testsuite.databases.mysql.pytest_plugin&#39;</span><span class="p">,</span>
+    <span class="s1">'testsuite.pytest_plugin'</span><span class="p">,</span>
+    <span class="s1">'testsuite.databases.mysql.pytest_plugin'</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">pytest_addoption</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
-    <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">getgroup</span><span class="p">(</span><span class="s1">&#39;Example service&#39;</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">getgroup</span><span class="p">(</span><span class="s1">'Example service'</span><span class="p">)</span>
     <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
-        <span class="s1">&#39;--example-service-port&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Bind example services to this port (default is </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span>
+        <span class="s1">'--example-service-port'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Bind example services to this port (default is </span><span class="si">%(default)s</span><span class="s1">)'</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">8080</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span>
@@ -187,18 +187,18 @@
     <span class="k">return</span> <span class="n">create_service_client</span><span class="p">(</span><span class="n">example_service_baseurl</span><span class="p">)</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">example_service_baseurl</span><span class="p">(</span><span class="n">pytestconfig</span><span class="p">):</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;http://localhost:</span><span class="si">{</span><span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">example_service_port</span><span class="si">}</span><span class="s1">/&#39;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'http://localhost:</span><span class="si">{</span><span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">example_service_port</span><span class="si">}</span><span class="s1">/'</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">example_root</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to example service root.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Path to example service root."""</span>
     <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">example_service_scope</span><span class="p">(</span>
     <span class="n">pytestconfig</span><span class="p">,</span>
     <span class="n">create_daemon_scope</span><span class="p">,</span>
@@ -210,26 +210,26 @@
     <span class="k">async</span> <span class="k">with</span> <span class="n">create_daemon_scope</span><span class="p">(</span>
         <span class="n">args</span><span class="o">=</span><span class="p">[</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">example_root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;server.py&#39;</span><span class="p">)),</span>
-            <span class="s1">&#39;--port&#39;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">example_root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'server.py'</span><span class="p">)),</span>
+            <span class="s1">'--port'</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">example_service_port</span><span class="p">),</span>
-            <span class="s1">&#39;--mysql-host&#39;</span><span class="p">,</span>
+            <span class="s1">'--mysql-host'</span><span class="p">,</span>
             <span class="n">mysql_conninfo</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span>
-            <span class="s1">&#39;--mysql-port&#39;</span><span class="p">,</span>
+            <span class="s1">'--mysql-port'</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">mysql_conninfo</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
-            <span class="s1">&#39;--mysql-user&#39;</span><span class="p">,</span>
+            <span class="s1">'--mysql-user'</span><span class="p">,</span>
             <span class="n">mysql_conninfo</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
-            <span class="s1">&#39;--mysql-dbname&#39;</span><span class="p">,</span>
-            <span class="n">mysql_local</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
+            <span class="s1">'--mysql-dbname'</span><span class="p">,</span>
+            <span class="n">mysql_local</span><span class="p">[</span><span class="s1">'chat_messages'</span><span class="p">]</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
         <span class="p">],</span>
-        <span class="n">ping_url</span><span class="o">=</span><span class="n">example_service_baseurl</span> <span class="o">+</span> <span class="s1">&#39;ping&#39;</span><span class="p">,</span>
+        <span class="n">ping_url</span><span class="o">=</span><span class="n">example_service_baseurl</span> <span class="o">+</span> <span class="s1">'ping'</span><span class="p">,</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">scope</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">mysql_local</span><span class="p">(</span><span class="n">example_root</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">discover</span><span class="o">.</span><span class="n">find_schemas</span><span class="p">([</span><span class="n">example_root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;schemas/mysql&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">discover</span><span class="o">.</span><span class="n">find_schemas</span><span class="p">([</span><span class="n">example_root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'schemas/mysql'</span><span class="p">)])</span>
 </pre></div>
 </div>
 </section>
@@ -237,35 +237,35 @@
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">Test</a><a class="headerlink" href="#test" title="Link to this heading">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_messages_send</span><span class="p">(</span><span class="n">example_client</span><span class="p">,</span> <span class="n">mysql</span><span class="p">):</span>
     <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">example_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-        <span class="s1">&#39;/messages/send&#39;</span><span class="p">,</span>
-        <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">},</span>
+        <span class="s1">'/messages/send'</span><span class="p">,</span>
+        <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s1">'username'</span><span class="p">:</span> <span class="s1">'foo'</span><span class="p">,</span> <span class="s1">'text'</span><span class="p">:</span> <span class="s1">'bar'</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">data</span>
+    <span class="k">assert</span> <span class="s1">'id'</span> <span class="ow">in</span> <span class="n">data</span>
 
-    <span class="n">cursor</span> <span class="o">=</span> <span class="n">mysql</span><span class="p">[</span><span class="s1">&#39;chat_messages&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="n">mysql</span><span class="p">[</span><span class="s1">'chat_messages'</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s1">&#39;SELECT username, text FROM messages WHERE id = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],),</span>
+        <span class="s1">'SELECT username, text FROM messages WHERE id = </span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'id'</span><span class="p">],),</span>
     <span class="p">)</span>
     <span class="n">record</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="n">record</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">record</span> <span class="o">==</span> <span class="p">(</span><span class="s1">'foo'</span><span class="p">,</span> <span class="s1">'bar'</span><span class="p">)</span>
 
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_messages_retrieve</span><span class="p">(</span><span class="n">example_client</span><span class="p">):</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">example_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/messages/retrieve&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">example_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">'/messages/retrieve'</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="o">==</span> <span class="p">{</span>
-        <span class="s1">&#39;messages&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">'messages'</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s1">&#39;created&#39;</span><span class="p">:</span> <span class="s1">&#39;2019-12-31T21:00:01&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;happy ny&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+                <span class="s1">'created'</span><span class="p">:</span> <span class="s1">'2019-12-31T21:00:01'</span><span class="p">,</span>
+                <span class="s1">'text'</span><span class="p">:</span> <span class="s1">'happy ny'</span><span class="p">,</span>
+                <span class="s1">'username'</span><span class="p">:</span> <span class="s1">'bar'</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="p">{</span>
-                <span class="s1">&#39;created&#39;</span><span class="p">:</span> <span class="s1">&#39;2019-12-31T21:00:00&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;hello, world!&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+                <span class="s1">'created'</span><span class="p">:</span> <span class="s1">'2019-12-31T21:00:00'</span><span class="p">,</span>
+                <span class="s1">'text'</span><span class="p">:</span> <span class="s1">'hello, world!'</span><span class="p">,</span>
+                <span class="s1">'username'</span><span class="p">:</span> <span class="s1">'foo'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">],</span>
     <span class="p">}</span>

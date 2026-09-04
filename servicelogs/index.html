@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Service logs &#8212; yandex-taxi-testsuite 0.4.7 documentation</title>
+    <title>Service logs &#8212; yandex-taxi-testsuite 0.4.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
-    <script src="../_static/documentation_options.js?v=41fa63d3"></script>
+    <script src="../_static/documentation_options.js?v=ab993745"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex/" />
@@ -65,11 +65,11 @@ case logs would be printed from special thread.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">formatter_factory</span><span class="p">():</span>
         <span class="c1"># formatter may have its own context</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">formatter</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">line</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">line</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">formatter</span>
 
     <span class="n">servicelogs_register_logfile</span><span class="p">(</span>
-        <span class="n">logfile</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;My service logs&#39;</span><span class="p">,</span>
+        <span class="n">logfile</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">'My service logs'</span><span class="p">,</span>
         <span class="n">formatter_factory</span><span class="o">=</span><span class="n">formatter_factory</span>
     <span class="p">)</span>
 </pre></div>
@@ -183,7 +183,7 @@ is finished.</p>
 <p>Could only be used after capture contextmanager block.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">logcapture_server</span><span class="o">.</span><span class="n">capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">capture</span><span class="p">:</span>
     <span class="o">...</span>
-<span class="n">records</span> <span class="o">=</span> <span class="n">capture</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Message to capture&#39;</span><span class="p">)</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">capture</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">'Message to capture'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -194,7 +194,7 @@ is finished.</p>
 <dd><p>Subscribe to records matching <cite>query</cite>. Returns decorator function.
 <cite>subscribe()</cite> may only be used within <cite>capture()</cite> block. Callqueue is returned.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">logcapture_server</span><span class="o">.</span><span class="n">capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">capture</span><span class="p">:</span>
-    <span class="nd">@capture</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Message to capture&#39;</span><span class="p">)</span>
+    <span class="nd">@capture</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">'Message to capture'</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">log_event</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="o">**</span><span class="n">other</span><span class="p">):</span>
         <span class="o">...</span>
     <span class="o">...</span>

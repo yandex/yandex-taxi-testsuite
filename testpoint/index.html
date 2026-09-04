@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Testpoint &#8212; yandex-taxi-testsuite 0.4.7 documentation</title>
+    <title>Testpoint &#8212; yandex-taxi-testsuite 0.4.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
-    <script src="../_static/documentation_options.js?v=41fa63d3"></script>
+    <script src="../_static/documentation_options.js?v=ab993745"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex/" />
@@ -51,7 +51,7 @@ interface:</p>
 <span class="n">Host</span><span class="p">:</span> <span class="n">mockerver</span>
 <span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">appication</span><span class="o">/</span><span class="n">json</span>
 
-<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">}}</span>
+<span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"foo"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"foo"</span><span class="p">:</span> <span class="s2">"bar"</span><span class="p">}}</span>
 </pre></div>
 </div>
 <p>Service code example:</p>
@@ -59,8 +59,8 @@ interface:</p>
 <span class="w">  </span><span class="c1">// Testpoint must be enabled for test run</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">testpoint</span><span class="o">::</span><span class="n">IsEnabled</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">json</span><span class="o">::</span><span class="n">Value</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
-<span class="w">    </span><span class="n">data</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;bar&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testpoint</span><span class="o">::</span><span class="n">Call</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
+<span class="w">    </span><span class="n">data</span><span class="p">[</span><span class="s">"foo"</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"bar"</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testpoint</span><span class="o">::</span><span class="n">Call</span><span class="p">(</span><span class="s">"foo"</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">respone</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">       </span><span class="c1">// process response if required</span>
 <span class="w">    </span><span class="p">}</span>
@@ -70,7 +70,7 @@ interface:</p>
 </div>
 <p>Testcase:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_handler</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">testpoint</span><span class="p">):</span>
-    <span class="nd">@testpoint</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+    <span class="nd">@testpoint</span><span class="p">(</span><span class="s1">'foo'</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">foo_handler</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
         <span class="k">pass</span>
 
@@ -86,7 +86,7 @@ interface:</p>
 <span class="sig-prename descclassname"><span class="pre">testsuite.plugins.testpoint.</span></span><span class="sig-name descname"><span class="pre">testpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/testsuite/plugins/testpoint/#testpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testsuite.plugins.testpoint.testpoint" title="Link to this definition">¶</a></dt>
 <dd><p>Testpoint fixture returns testpoint session instance that works
 as decorator that registers testpoint handler. Original function is
-wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span class="std std-ref">AsyncCallQueue</span></a></p>
+wrapped with <a class="reference internal" href="../utils/#testsuite.utils.callinfo.AsyncCallQueue" title="testsuite.utils.callinfo.AsyncCallQueue"><code class="xref py py-class docutils literal notranslate"><span class="pre">testsuite.utils.callinfo.AsyncCallQueue</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> – testpoint name</p>
@@ -96,7 +96,7 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
 </dd>
 </dl>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_foo</span><span class="p">(</span><span class="n">testpoint</span><span class="p">):</span>
-    <span class="nd">@testpoint</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">):</span>
+    <span class="nd">@testpoint</span><span class="p">(</span><span class="s1">'foo'</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">testpoint_handler</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
         <span class="k">pass</span>
 
@@ -104,7 +104,7 @@ wrapped with <a class="reference internal" href="../utils/#asynccallqueue"><span
     <span class="c1"># testpoint_handler is AsyncCallQueue instance, e.g.:</span>
     <span class="k">assert</span> <span class="n">testpoint_handler</span><span class="o">.</span><span class="n">has_calls</span>
     <span class="k">assert</span> <span class="n">testpoint_handler</span><span class="o">.</span><span class="n">next_call</span> <span class="o">==</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
-    <span class="n">aseert</span> <span class="n">testpoint_handler</span><span class="o">.</span><span class="n">wait_call</span><span class="p">()</span> <span class="o">==</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="n">testpoint_handler</span><span class="o">.</span><span class="n">wait_call</span><span class="p">()</span> <span class="o">==</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
 </pre></div>
 </div>
 </dd></dl>

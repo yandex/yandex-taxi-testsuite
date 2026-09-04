@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.databases.pgsql.pytest_plugin &#8212; yandex-taxi-testsuite 0.4.7 documentation</title>
+    <title>testsuite.databases.pgsql.pytest_plugin &#8212; yandex-taxi-testsuite 0.4.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments_pytest.css" />
-    <script src="../../../../../_static/documentation_options.js?v=41fa63d3"></script>
+    <script src="../../../../../_static/documentation_options.js?v=ab993745"></script>
     <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../genindex/" />
@@ -43,7 +43,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">connection</span><span class="p">,</span> <span class="n">control</span><span class="p">,</span> <span class="n">discover</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">utils</span>
 
-<span class="n">DB_FILE_RE_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/pg_(?P&lt;pg_db_alias&gt;\w+)(/?\w*)\.sql$&#39;</span><span class="p">)</span>
+<span class="n">DB_FILE_RE_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'/pg_(?P&lt;pg_db_alias&gt;\w+)(/?\w*)\.sql$'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ServiceLocalConfig">
@@ -76,10 +76,10 @@
 <div class="viewcode-block" id="ServiceLocalConfig.__getitem__">
 <a class="viewcode-back" href="../../../../../postgresql/#testsuite.databases.pgsql.pytest_plugin.ServiceLocalConfig.__getitem__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">connection</span><span class="o">.</span><span class="n">PgConnectionInfo</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get</span>
+<span class="w">        </span><span class="sd">"""Get</span>
 <span class="sd">        :py:class:`testsuite.databases.pgsql.connection.PgConnectionInfo`</span>
 <span class="sd">        instance by database name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shard_connections</span><span class="p">[</span><span class="n">dbname</span><span class="p">]</span><span class="o">.</span><span class="n">conninfo</span></div>
 
 
@@ -117,46 +117,46 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">pytest_addoption</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param parser: pytest&#39;s argument parser</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">getgroup</span><span class="p">(</span><span class="s1">&#39;postgresql&#39;</span><span class="p">)</span>
-    <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span><span class="s1">&#39;--postgresql&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;PostgreSQL connection string&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    :param parser: pytest's argument parser</span>
+<span class="sd">    """</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">getgroup</span><span class="p">(</span><span class="s1">'postgresql'</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span><span class="s1">'--postgresql'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'PostgreSQL connection string'</span><span class="p">)</span>
     <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
-        <span class="s1">&#39;--no-postgresql&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable use of PostgreSQL&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="s1">'--no-postgresql'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Disable use of PostgreSQL'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">group</span><span class="o">.</span><span class="n">addoption</span><span class="p">(</span>
-        <span class="s1">&#39;--postgresql-keep-existing-db&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="s1">'--postgresql-keep-existing-db'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-            <span class="s1">&#39;Keep existing databases with up-to-date schema. By default &#39;</span>
-            <span class="s1">&#39;testsuite will drop and create anew any existing database when &#39;</span>
-            <span class="s1">&#39;initializing databases.&#39;</span>
+            <span class="s1">'Keep existing databases with up-to-date schema. By default '</span>
+            <span class="s1">'testsuite will drop and create anew any existing database when '</span>
+            <span class="s1">'initializing databases.'</span>
         <span class="p">),</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">pytest_report_header</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="n">conninfo</span> <span class="o">=</span> <span class="n">_get_connection_info</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PostgreSQL: </span><span class="si">{</span><span class="n">conninfo</span><span class="o">.</span><span class="n">get_uri</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'PostgreSQL: </span><span class="si">{</span><span class="n">conninfo</span><span class="o">.</span><span class="n">get_uri</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">pytest_configure</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="n">config</span><span class="o">.</span><span class="n">addinivalue_line</span><span class="p">(</span>
-        <span class="s1">&#39;markers&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;pgsql: per-test PostgreSQL initialization&#39;</span><span class="p">,</span>
+        <span class="s1">'markers'</span><span class="p">,</span>
+        <span class="s1">'pgsql: per-test PostgreSQL initialization'</span><span class="p">,</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">pytest_service_register</span><span class="p">(</span><span class="n">register_service</span><span class="p">):</span>
-    <span class="n">register_service</span><span class="p">(</span><span class="s1">&#39;postgresql&#39;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">create_pgsql_service</span><span class="p">)</span>
+    <span class="n">register_service</span><span class="p">(</span><span class="s1">'postgresql'</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">create_pgsql_service</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="pgsql_cleanup_exclude_tables">
 <a class="viewcode-back" href="../../../../../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql_cleanup_exclude_tables">[docs]</a>
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pgsql_cleanup_exclude_tables</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">return</span> <span class="nb">frozenset</span><span class="p">()</span></div>
 
@@ -166,7 +166,7 @@
 <a class="viewcode-back" href="../../../../../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql">[docs]</a>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pgsql</span><span class="p">(</span><span class="n">_pgsql</span><span class="p">,</span> <span class="n">pgsql_apply</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">control</span><span class="o">.</span><span class="n">PgDatabaseWrapper</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Returns str to</span>
 <span class="sd">    :py:class:`testsuite.databases.pgsql.control.PgDatabaseWrapper` dictionary</span>
 
@@ -175,10 +175,10 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">      def test_pg(pgsql):</span>
-<span class="sd">          cursor = pgsql[&#39;example_db&#39;].cursor()</span>
-<span class="sd">          cursor.execute(&#39;SELECT ... FROM ...WHERE ...&#39;)</span>
+<span class="sd">          cursor = pgsql['example_db'].cursor()</span>
+<span class="sd">          cursor.execute('SELECT ... FROM ...WHERE ...')</span>
 <span class="sd">          assert list(cusror) == [...]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">dbname</span><span class="p">:</span> <span class="n">control</span><span class="o">.</span><span class="n">PgDatabaseWrapper</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">connection</span> <span class="ow">in</span> <span class="n">_pgsql</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
@@ -188,7 +188,7 @@
 
 <div class="viewcode-block" id="pgsql_local_create">
 <a class="viewcode-back" href="../../../../../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql_local_create">[docs]</a>
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pgsql_local_create</span><span class="p">(</span>
     <span class="n">_pgsql_control</span><span class="p">,</span>
     <span class="n">pgsql_cleanup_exclude_tables</span><span class="p">,</span>
@@ -196,11 +196,11 @@
     <span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">discover</span><span class="o">.</span><span class="n">PgShardedDatabase</span><span class="p">]],</span>
     <span class="n">ServiceLocalConfig</span><span class="p">,</span>
 <span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates pgsql configuration.</span>
+<span class="w">    </span><span class="sd">"""Creates pgsql configuration.</span>
 
 <span class="sd">    :param databases: List of databases.</span>
 <span class="sd">    :returns: :py:class:`ServiceLocalConfig` instance.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_pgsql_local_create</span><span class="p">(</span><span class="n">databases</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ServiceLocalConfig</span><span class="p">(</span>
@@ -213,7 +213,7 @@
 
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pgsql_disabled</span><span class="p">(</span><span class="n">pytestconfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">no_postgresql</span>
 
@@ -222,7 +222,7 @@
 <a class="viewcode-back" href="../../../../../postgresql/#testsuite.databases.pgsql.pytest_plugin.pgsql_local">[docs]</a>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pgsql_local</span><span class="p">(</span><span class="n">pgsql_local_create</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServiceLocalConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configures local pgsql instance.</span>
+<span class="w">    </span><span class="sd">"""Configures local pgsql instance.</span>
 
 <span class="sd">    :returns: :py:class:`ServiceLocalConfig` instance.</span>
 
@@ -231,10 +231,10 @@
 
 <span class="sd">    .. code-block:: python</span>
 
-<span class="sd">        @pytest.fixture(scope=&#39;session&#39;)</span>
+<span class="sd">        @pytest.fixture(scope='session')</span>
 <span class="sd">        def pgsql_local(pgsql_local_create):</span>
 <span class="sd">            databases = discover.find_schemas(</span>
-<span class="sd">                &#39;service_name&#39;, [PG_SCHEMAS_PATH])</span>
+<span class="sd">                'service_name', [PG_SCHEMAS_PATH])</span>
 <span class="sd">            return pgsql_local_create(list(databases.values()))</span>
 
 <span class="sd">    Sometimes it is desirable to have tests-only database, maybe used in one</span>
@@ -246,7 +246,7 @@
 <span class="sd">        @pytest.fixture</span>
 <span class="sd">        def pgsql_local(pgsql_local_create):</span>
 <span class="sd">            databases = discover.find_schemas(</span>
-<span class="sd">                &#39;testsuite&#39;, [pathlib.Path(&#39;custom/pgsql/schema/path&#39;)])</span>
+<span class="sd">                'testsuite', [pathlib.Path('custom/pgsql/schema/path')])</span>
 <span class="sd">            return pgsql_local_create(list(databases.values()))</span>
 
 <span class="sd">    ``pgsql_local`` provides access to PostgreSQL connection parameters:</span>
@@ -254,15 +254,15 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        def get_custom_connection_string(pgsql_local):</span>
-<span class="sd">            conninfo = pgsql_local[&#39;database_name&#39;]</span>
-<span class="sd">            custom_dsn: str = conninfo.replace(options=&#39;-c opt=val&#39;).get_dsn()</span>
+<span class="sd">            conninfo = pgsql_local['database_name']</span>
+<span class="sd">            custom_dsn: str = conninfo.replace(options='-c opt=val').get_dsn()</span>
 <span class="sd">            return custom_dsn</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">pgsql_local_create</span><span class="p">([])</span></div>
 
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pgsql_parallelization_enabled</span><span class="p">():</span>
     <span class="k">return</span> <span class="kc">True</span>
 
@@ -285,7 +285,7 @@
     <span class="k">return</span> <span class="n">pgsql_local</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">parallel_init</span><span class="o">=</span><span class="n">pgsql_parallelization_enabled</span><span class="p">)</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pgsql_background_truncate_enabled</span><span class="p">():</span>
     <span class="k">return</span> <span class="kc">True</span>
 
@@ -297,13 +297,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">pgsql_default_queries</span><span class="p">(</span><span class="n">dbname</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="o">*</span><span class="n">_pgsql_query_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;pg_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">.sql&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;pgsql.default_queries&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">'pg_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">.sql'</span><span class="p">,</span>
+                <span class="s1">'pgsql.default_queries'</span><span class="p">,</span>
                 <span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="o">*</span><span class="n">_pgsql_query_loader</span><span class="o">.</span><span class="n">loaddir</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;pg_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;pgsql.default_queries&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">'pg_</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="s1">'pgsql.default_queries'</span><span class="p">,</span>
                 <span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">]</span>
@@ -312,11 +312,11 @@
         <span class="n">result_queries</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-            <span class="n">result_queries</span> <span class="o">+=</span> <span class="n">_pgsql_query_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;mark.pgsql.files&#39;</span><span class="p">)</span>
+            <span class="n">result_queries</span> <span class="o">+=</span> <span class="n">_pgsql_query_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'mark.pgsql.files'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">directories</span><span class="p">:</span>
             <span class="n">result_queries</span> <span class="o">+=</span> <span class="n">_pgsql_query_loader</span><span class="o">.</span><span class="n">loaddir</span><span class="p">(</span>
                 <span class="n">path</span><span class="p">,</span>
-                <span class="s1">&#39;mark.pgsql.directories&#39;</span><span class="p">,</span>
+                <span class="s1">'mark.pgsql.directories'</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
             <span class="n">queries_str</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span> <span class="o">=</span> <span class="p">[]</span>
@@ -326,13 +326,13 @@
                 <span class="n">queries_str</span> <span class="o">=</span> <span class="n">query</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;sql queries of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="si">}</span><span class="s1"> are not supported&#39;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s1">'sql queries of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="si">}</span><span class="s1"> are not supported'</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">for</span> <span class="n">query_str</span> <span class="ow">in</span> <span class="n">queries_str</span><span class="p">:</span>
                 <span class="n">result_queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">control</span><span class="o">.</span><span class="n">PgQuery</span><span class="p">(</span>
                         <span class="n">body</span><span class="o">=</span><span class="n">query_str</span><span class="p">,</span>
-                        <span class="n">source</span><span class="o">=</span><span class="s1">&#39;mark.pgsql.queries&#39;</span><span class="p">,</span>
+                        <span class="n">source</span><span class="o">=</span><span class="s1">'mark.pgsql.queries'</span><span class="p">,</span>
                         <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
@@ -342,11 +342,11 @@
         <span class="nb">str</span><span class="p">,</span>
         <span class="nb">list</span><span class="p">[</span><span class="n">control</span><span class="o">.</span><span class="n">PgQuery</span><span class="p">],</span>
     <span class="p">]</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">mark</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">iter_markers</span><span class="p">(</span><span class="s1">&#39;pgsql&#39;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">mark</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">iter_markers</span><span class="p">(</span><span class="s1">'pgsql'</span><span class="p">):</span>
         <span class="n">dbname</span><span class="p">,</span> <span class="n">queries</span> <span class="o">=</span> <span class="n">pgsql_mark</span><span class="p">(</span><span class="o">*</span><span class="n">mark</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">mark</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dbname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_pgsql</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PostgresqlError</span><span class="p">(</span>
-                <span class="s1">&#39;Unknown database </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbname</span><span class="p">)</span>
+                <span class="s1">'Unknown database </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbname</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="n">overrides</span><span class="p">[</span><span class="n">dbname</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
 
@@ -366,26 +366,28 @@
     <span class="n">pgsql_parallelization_enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">_pgsql_apply_queries</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize PostgreSQL database with data.</span>
+<span class="w">    </span><span class="sd">"""Initialize PostgreSQL database with data.</span>
 
 <span class="sd">    By default pg_${DBNAME}.sql and pg_${DBNAME}/*.sql files are used</span>
 <span class="sd">    to fill PostgreSQL databases.</span>
 
 <span class="sd">    Use pytest.mark.pgsql to change this behaviour:</span>
 
-<span class="sd">    @pytest.mark.pgsql(</span>
-<span class="sd">        &#39;foo@0&#39;,</span>
-<span class="sd">        files=[</span>
-<span class="sd">            &#39;pg_foo@0_alternative.sql&#39;</span>
-<span class="sd">        ],</span>
-<span class="sd">        directories=[</span>
-<span class="sd">            &#39;pg_foo@0_alternative_dir&#39;</span>
-<span class="sd">        ],</span>
-<span class="sd">        queries=[</span>
-<span class="sd">          &#39;INSERT INTO foo VALUES (1, 2, 3, 4)&#39;,</span>
-<span class="sd">        ]</span>
-<span class="sd">    )</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        @pytest.mark.pgsql(</span>
+<span class="sd">            'foo@0',</span>
+<span class="sd">            files=[</span>
+<span class="sd">                'pg_foo@0_alternative.sql'</span>
+<span class="sd">            ],</span>
+<span class="sd">            directories=[</span>
+<span class="sd">                'pg_foo@0_alternative_dir'</span>
+<span class="sd">            ],</span>
+<span class="sd">            queries=[</span>
+<span class="sd">              'INSERT INTO foo VALUES (1, 2, 3, 4)',</span>
+<span class="sd">            ]</span>
+<span class="sd">        )</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">pgsql_parallelization_enabled</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
@@ -415,8 +417,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_pgsql_query_loader</span><span class="p">(</span><span class="n">get_file_path</span><span class="p">,</span> <span class="n">get_directory_path</span><span class="p">,</span> <span class="n">mockserver_info</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">substitute_mockserver</span><span class="p">(</span><span class="n">str_val</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">str_val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="s1">&#39;$mockserver&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;http://</span><span class="si">{</span><span class="n">mockserver_info</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">mockserver_info</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s1">'$mockserver'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'http://</span><span class="si">{</span><span class="n">mockserver_info</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">mockserver_info</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">load_pg_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
@@ -457,10 +459,10 @@
         <span class="ow">and</span> <span class="n">pgsql_local</span>
         <span class="ow">and</span> <span class="ow">not</span> <span class="n">pytestconfig</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">postgresql</span>
     <span class="p">):</span>
-        <span class="n">ensure_service_started</span><span class="p">(</span><span class="s1">&#39;postgresql&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">_pgsql_service_settings</span><span class="p">)</span>
+        <span class="n">ensure_service_started</span><span class="p">(</span><span class="s1">'postgresql'</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">_pgsql_service_settings</span><span class="p">)</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_pgsql_control</span><span class="p">(</span><span class="n">pytestconfig</span><span class="p">,</span> <span class="n">pgsql_disabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">pgsql_disabled</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
@@ -476,12 +478,12 @@
         <span class="k">yield</span> <span class="n">instance</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_pgsql_service_settings</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">service</span><span class="o">.</span><span class="n">ServiceSettings</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">get_service_settings</span><span class="p">()</span>
 
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">'session'</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_pgsql_conninfo</span><span class="p">(</span>
     <span class="n">request</span><span class="p">,</span>
     <span class="n">_pgsql_service_settings</span><span class="p">,</span>

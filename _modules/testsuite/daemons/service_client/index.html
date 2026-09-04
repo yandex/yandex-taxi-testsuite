@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.daemons.service_client &#8212; yandex-taxi-testsuite 0.4.7 documentation</title>
+    <title>testsuite.daemons.service_client &#8212; yandex-taxi-testsuite 0.4.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments_pytest.css" />
-    <script src="../../../../_static/documentation_options.js?v=41fa63d3"></script>
+    <script src="../../../../_static/documentation_options.js?v=ab993745"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../genindex/" />
@@ -43,11 +43,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">testsuite</span><span class="w"> </span><span class="kn">import</span> <span class="n">types</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">testsuite.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">http</span><span class="p">,</span> <span class="n">url_util</span>
 
-<span class="n">DEFAULT_HOST</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span>
+<span class="n">DEFAULT_HOST</span> <span class="o">=</span> <span class="s1">'localhost'</span>
 <span class="n">DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mf">120.0</span>
 
 <span class="n">TResponse</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span>
-    <span class="s1">&#39;TResponse&#39;</span><span class="p">,</span>
+    <span class="s1">'TResponse'</span><span class="p">,</span>
     <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">,</span>
     <span class="n">http</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">,</span>
 <span class="p">)</span>
@@ -64,12 +64,12 @@
         <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_TIMEOUT</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        :param base_url: Base client url</span>
 <span class="sd">        :param session: ``aiohttp.ClientSession`` instance</span>
 <span class="sd">        :param headers: default request headers dictionary</span>
 <span class="sd">        :param timeout: http client default timeout</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_url</span> <span class="o">=</span> <span class="n">url_util</span><span class="o">.</span><span class="n">ensure_trailing_separator</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">headers</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="n">timeout</span>
@@ -97,11 +97,11 @@
             <span class="n">bearer</span><span class="o">=</span><span class="n">bearer</span><span class="p">,</span>
             <span class="n">x_real_ip</span><span class="o">=</span><span class="n">x_real_ip</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;timeout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">'timeout'</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'timeout'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
 
-        <span class="n">params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'params'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_flatten</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">'params'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_flatten</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
             <span class="n">http_method</span><span class="p">,</span>
             <span class="n">url</span><span class="p">,</span>
@@ -121,21 +121,21 @@
         <span class="k">if</span> <span class="n">user_headers</span><span class="p">:</span>
             <span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_headers</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bearer</span><span class="p">:</span>
-            <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Bearer </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bearer</span>
+            <span class="n">headers</span><span class="p">[</span><span class="s1">'Authorization'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Bearer </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">bearer</span>
         <span class="k">if</span> <span class="n">x_real_ip</span><span class="p">:</span>
-            <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;X-Real-IP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_real_ip</span>
+            <span class="n">headers</span><span class="p">[</span><span class="s1">'X-Real-IP'</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_real_ip</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_span_id_header</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_span_id_header</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
             <span class="n">headers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_span_id_header</span><span class="p">]</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
 
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">key</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="n">key</span><span class="p">:</span> <span class="s1">''</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">headers</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">GenericClient</span><span class="p">(</span><span class="n">BaseAiohttpClient</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">TResponse</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic asyncio HTTP service client.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Basic asyncio HTTP service client."""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -148,9 +148,9 @@
         <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform HTTP POST request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform HTTP POST request."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
-            <span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+            <span class="s1">'POST'</span><span class="p">,</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="n">json</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
@@ -172,9 +172,9 @@
         <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform HTTP PUT request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform HTTP PUT request."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
-            <span class="s1">&#39;PUT&#39;</span><span class="p">,</span>
+            <span class="s1">'PUT'</span><span class="p">,</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="n">json</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
@@ -196,9 +196,9 @@
         <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform HTTP PATCH request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform HTTP PATCH request."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
-            <span class="s1">&#39;PATCH&#39;</span><span class="p">,</span>
+            <span class="s1">'PATCH'</span><span class="p">,</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="n">json</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
@@ -217,9 +217,9 @@
         <span class="n">x_real_ip</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform HTTP GET request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform HTTP GET request."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
-            <span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+            <span class="s1">'GET'</span><span class="p">,</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
             <span class="n">bearer</span><span class="o">=</span><span class="n">bearer</span><span class="p">,</span>
@@ -235,9 +235,9 @@
         <span class="n">x_real_ip</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform HTTP DELETE request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform HTTP DELETE request."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
-            <span class="s1">&#39;DELETE&#39;</span><span class="p">,</span>
+            <span class="s1">'DELETE'</span><span class="p">,</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
             <span class="n">bearer</span><span class="o">=</span><span class="n">bearer</span><span class="p">,</span>
@@ -253,9 +253,9 @@
         <span class="n">x_real_ip</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform HTTP OPTIONS request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform HTTP OPTIONS request."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
-            <span class="s1">&#39;OPTIONS&#39;</span><span class="p">,</span>
+            <span class="s1">'OPTIONS'</span><span class="p">,</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
             <span class="n">bearer</span><span class="o">=</span><span class="n">bearer</span><span class="p">,</span>
@@ -269,7 +269,7 @@
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform HTTP ``http_method`` request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform HTTP ``http_method`` request."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="n">http_method</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_request</span><span class="p">(</span>

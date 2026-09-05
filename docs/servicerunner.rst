@@ -1,7 +1,7 @@
 Spawning and accessing service
 ==============================
 
-Testsuite starts process with a service being testsed.
+Testsuite starts process with a service being tested.
 Service must implement ``ping-url`` that returns ``200 OK`` when service is up.
 
 

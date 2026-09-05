@@ -15,7 +15,7 @@ Example:
       def handler(request: testsuite.utils.http.Request):
           assert request.headers['header-to-test'] == '...'
           assert request.json == {...}
-          reutrn {...}
+          return {...}
 
       response = await service_client.post(...)
       assert response.status_code == 200
@@ -204,7 +204,7 @@ arguments that are filled with values from request, e.g.:
       def handler(*, body_json, method):
           assert method == 'POST'
           assert body_json == {...}
-          reutrn {...}
+          return {...}
 
 
 Currently supported arguments are:
@@ -238,7 +238,7 @@ while performing request to mockserver:
 
 This feature should be turned off in production run.
 
-Mockserver will respone with 599 HTTP error and testsuite-specific error code,
+Mockserver will response with 599 HTTP error and testsuite-specific error code,
 HTTP client should raise its own internal exception corresponding to the error
 code:
 
@@ -258,7 +258,7 @@ And on the service side:
      if (response.status_code == 599 &&
         request.hasHeader("X-Testsuite-Error")) {
        const auto &testsuite_error =
-           respones.getHeader("X-Testsuite-Error");
+           response.getHeader("X-Testsuite-Error");
        if (testsuite_error == "network")
          throw NetworkError();
        if (testsuite_error == "timeout")

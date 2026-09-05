@@ -87,6 +87,11 @@ TESTSUITE_POSTGRESQL_PORT
 
 Use to override Postgresql server port. Default is ``15433``.
 
+Special value ``auto`` allocates a free port automatically. Use it to run
+multiple isolated environments on one machine, e.g. in combination with
+``--env-dir``. Automatically allocated port changes between sessions,
+so environment reuse (``--auto-env``) restarts the server.
+
 Functions
 ---------
 

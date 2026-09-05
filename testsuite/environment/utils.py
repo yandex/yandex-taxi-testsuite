@@ -4,6 +4,10 @@ import time
 
 DOCKERTEST_WORKER = os.getenv('DOCKERTEST_WORKER', '')
 
+PORT_AUTO = 'auto'
+
+_auto_ports: dict[str, int] = {}
+
 
 class BaseError(Exception):
     pass
@@ -67,6 +71,36 @@ def getenv_int(key: str, default: int) -> int:
         ) from err
     else:
         return result
+
+
+def getenv_port(key: str, default: int) -> int:
+    """Resolve port number from environment variable.
+
+    Value ``auto`` allocates a free port. The allocated port is cached,
+    repeated calls with the same ``key`` return the same port within one
+    process.
+    """
+    env_value = os.getenv(key)
+    if env_value == PORT_AUTO:
+        if key not in _auto_ports:
+            _auto_ports[key] = _allocate_free_port(
+                exclude=set(_auto_ports.values()),
+            )
+        return _auto_ports[key]
+    return getenv_int(key, default)
+
+
+def _allocate_free_port(exclude: set[int]) -> int:
+    for _ in range(100):
+        sock = socket.socket()
+        try:
+            sock.bind(('localhost', 0))
+            port = sock.getsockname()[1]
+        finally:
+            sock.close()
+        if port not in exclude:
+            return port
+    raise BaseError('Failed to allocate free port')
 
 
 def getenv_float(key: str, default: float) -> float:

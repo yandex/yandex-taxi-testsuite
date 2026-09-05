@@ -51,6 +51,15 @@ By default testsuite will wait for up to 20s for ClickHouse to start,
 one may customize this timeout via environment variable ``TESTSUITE_CLICKHOUSE_SERVER_START_TIMEOUT``.
 
 
+
+TESTSUITE_CLICKHOUSE_DBNAME_PREFIX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Extends the database name prefix so that every concurrent testsuite
+session gets its own database namespace on a shared server. Prefer a
+stable value (worker name, checkout name): databases are reused between
+sessions with the same prefix. See :py:func:`clickhouse_dbprefix`.
+
 Customize ports
 ---------------
 
@@ -123,6 +132,13 @@ clickhouse_conn_info
 
 .. autofunction:: clickhouse_conn_info()
   :noindex:
+
+
+
+clickhouse_dbprefix
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: clickhouse_dbprefix()
 
 
 Marks

@@ -49,6 +49,32 @@ def mysql_conninfo(pytestconfig, _mysql_service_settings):
 
 
 @pytest.fixture(scope='session')
+def mysql_dbprefix() -> str:
+    """Prefix for test database names.
+
+    Gives every concurrent testsuite session its own database namespace
+    when sessions share one MySQL instance. Prefer a stable value
+    (worker name, checkout name): databases are reused between sessions
+    with the same prefix.
+
+    Defaults to ``testsuite-``, extended from the ``TESTSUITE_MYSQL_DBNAME_PREFIX``
+    environment variable, override the fixture to change this
+    behaviour. Pass the value to
+    :py:func:`~testsuite.databases.mysql.discover.find_schemas`
+    in your ``mysql_local`` fixture:
+
+    .. code-block:: python
+
+        @pytest.fixture(scope='session')
+        def mysql_local(mysql_dbprefix):
+            return discover.find_schemas(
+                [SCHEMAS_DIR], dbprefix=mysql_dbprefix
+            )
+    """
+    return service.get_dbprefix()
+
+
+@pytest.fixture(scope='session')
 def mysql_local() -> classes.DatabasesDict:
     """Use to override databases configuration."""
     return {}

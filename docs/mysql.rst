@@ -30,6 +30,15 @@ TESTSUITE_MYSQL_SERVER_START_TIMEOUT
 By default testsuite will wait for up to 10s for MySQL to start,
 one may customize this timeout via environment variable ``TESTSUITE_MYSQL_SERVER_START_TIMEOUT``.
 
+
+TESTSUITE_MYSQL_DBNAME_PREFIX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Extends the database name prefix so that every concurrent testsuite
+session gets its own database namespace on a shared server. Prefer a
+stable value (worker name, checkout name): databases are reused between
+sessions with the same prefix. See :py:func:`mysql_dbprefix`.
+
 Customize port
 --------------
 
@@ -105,6 +114,13 @@ mysql_conninfo
 
 .. autofunction:: mysql_conninfo()
   :noindex:
+
+
+
+mysql_dbprefix
+~~~~~~~~~~~~~~
+
+.. autofunction:: mysql_dbprefix()
 
 
 Marks

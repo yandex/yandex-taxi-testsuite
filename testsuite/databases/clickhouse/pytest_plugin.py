@@ -140,6 +140,32 @@ def clickhouse_disabled(pytestconfig) -> bool:
 
 
 @pytest.fixture(scope='session')
+def clickhouse_dbprefix() -> str:
+    """Prefix for test database names.
+
+    Gives every concurrent testsuite session its own database namespace
+    when sessions share one ClickHouse instance. Prefer a stable value
+    (worker name, checkout name): databases are reused between sessions
+    with the same prefix.
+
+    Defaults to ``testsuite-``, extended from the ``TESTSUITE_CLICKHOUSE_DBNAME_PREFIX``
+    environment variable, override the fixture to change this
+    behaviour. Pass the value to
+    :py:func:`~testsuite.databases.clickhouse.discover.find_schemas`
+    in your ``clickhouse_local`` fixture:
+
+    .. code-block:: python
+
+        @pytest.fixture(scope='session')
+        def clickhouse_local(clickhouse_dbprefix):
+            return discover.find_schemas(
+                [SCHEMAS_DIR], dbprefix=clickhouse_dbprefix
+            )
+    """
+    return service.get_dbprefix()
+
+
+@pytest.fixture(scope='session')
 def clickhouse_local() -> classes.DatabasesDict:
     """Use to override databases configuration."""
     return {}

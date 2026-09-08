@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.4.9
+~~~~~
+- Declare nofilldb marker (#235)
+- Fix a few typos and refs in the docs (#233)
+- Add docs to some of the fixtures (#232)
+- fix removed kafka package version (#228)
+
 0.4.8
 ~~~~~
 

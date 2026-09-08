@@ -14,6 +14,11 @@ def test_db_simple(mongodb):
     }
 
 
+@pytest.mark.nofilldb
+def test_db_nofilldb_marker_registered():
+    pass
+
+
 @pytest.mark.filldb(foo='own_fixture')
 def test_db_own_fixture(mongodb):
     assert mongodb.foo.find_one('unknown') is None

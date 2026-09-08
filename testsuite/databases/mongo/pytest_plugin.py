@@ -101,6 +101,10 @@ class CollectionWrapperFactory:
 def pytest_configure(config):
     config.addinivalue_line(
         'markers',
+        'nofilldb: disable MongoDB fixture-data loading for marked test',
+    )
+    config.addinivalue_line(
+        'markers',
         'noshuffledb: disable data set shuffle for marked test',
     )
     config.addinivalue_line(

@@ -48,27 +48,9 @@ def mark(
     may be attached at most once.
 
     *func* must be the original function, not a ``@pytest.fixture``
-    wrapper. Typical use is a thin decorator that calls :func:`mark`
-    and is stacked under ``@pytest.fixture``::
+    wrapper. Apply the mark under ``@pytest.fixture``.
 
-        @dataclass
-        class SqlSeed:
-            order: int
-
-        def sql_seed(*, order: int = 0):
-            def decorator(function):
-                return mark(function, SqlSeed(order=order))
-            return decorator
-
-        @pytest.fixture
-        @sql_seed()
-        def seed_users(pgsql):
-            pgsql['mydb'].execute('INSERT INTO users ...')
-
-        @pytest.fixture(name='seed_orders')
-        @sql_seed(order=1)
-        def _seed_orders(pgsql):
-            pgsql['mydb'].execute('INSERT INTO orders ...')
+    See :doc:`fixture_markers` for usage examples.
 
     :param func: The original fixture function.
     :param info: Metadata instance to store.
@@ -111,14 +93,7 @@ def get_infos(
     Only the winning fixture definition is inspected. An override must
     carry its own mark; a parent mark is not inherited.
 
-    Continuing the ``SqlSeed`` example::
-
-        seeds = get_infos(request, SqlSeed)
-        ordered = sorted(seeds.items(), key=lambda kv: kv[1].order)
-        for name, _info in ordered:
-            # Pulls ``pgsql`` through the seed fixture's own
-            # dependencies.
-            request.getfixturevalue(name)
+    See :doc:`fixture_markers` for usage examples.
 
     :param request: The pytest fixture request object.
     :param info_type: The info class whose tagged fixtures you want

@@ -7,8 +7,8 @@ type and are visible to the current pytest request.
 
 The helpers are framework-agnostic: they only depend on pytest fixture
 definitions. Userver uses them for service dependencies and static config
-patches; other stacks can reuse the same marks for SQL seeds, mock
-setup, and similar discovery.
+patches; other stacks can reuse the same marks for Postgres
+initializers, mock setup, and similar discovery.
 
 Marking a fixture
 -----------------
@@ -25,21 +25,30 @@ Apply the mark to the original function, under ``@pytest.fixture``:
 
 
    @dataclasses.dataclass(frozen=True)
-   class SqlSeed:
+   class PgInitializer:
        order: int
 
 
-   def sql_seed(*, order: int = 0):
+   def pg_init(*, order: int = 0):
        def decorator(function):
-           return fixture_markers.mark(function, SqlSeed(order=order))
+           return fixture_markers.mark(
+               function,
+               PgInitializer(order=order),
+           )
 
        return decorator
 
 
    @pytest.fixture
-   @sql_seed()
-   def seed_users(pgsql):
+   @pg_init()
+   def init_users(pgsql):
        pgsql['mydb'].execute('INSERT INTO users ...')
+
+
+   @pytest.fixture(name='init_orders')
+   @pg_init(order=1)
+   def _init_orders(pgsql):
+       pgsql['mydb'].execute('INSERT INTO orders ...')
 
 Querying marks
 --------------
@@ -57,9 +66,9 @@ its own mark.
 
 .. code-block:: python
 
-   seeds = fixture_markers.get_infos(request, SqlSeed)
+   initializers = fixture_markers.get_infos(request, PgInitializer)
    for name, _info in sorted(
-       seeds.items(),
+       initializers.items(),
        key=lambda item: item[1].order,
    ):
        request.getfixturevalue(name)

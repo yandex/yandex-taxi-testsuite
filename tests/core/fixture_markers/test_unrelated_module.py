@@ -1,0 +1,19 @@
+import pytest
+from fixture_markers_plugin import VisibilityMark, visibility
+
+from testsuite import fixture_markers
+
+
+@pytest.fixture(scope='session')
+@visibility('unrelated-module')
+def unrelated_module_visibility():
+    return 'unrelated-module'
+
+
+def test_unrelated_module_sees_own_fixture(request):
+    infos = fixture_markers.get_infos(request, VisibilityMark)
+    assert infos['unrelated_module_visibility'].origin == 'unrelated-module'
+    assert infos['plugin_visibility'].origin == 'plugin'
+    assert infos['conftest_visibility'].origin == 'conftest'
+    assert 'module_visibility' not in infos
+    assert 'nested_conftest_visibility' not in infos

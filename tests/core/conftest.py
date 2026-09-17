@@ -1,4 +1,6 @@
 import ssl
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -6,8 +8,13 @@ import testsuite
 from testsuite.daemons import service_client
 from testsuite.plugins.assertrepr_compare import CompareVisitor
 
+_CORE_DIR = str(Path(__file__).parent)
+if _CORE_DIR not in sys.path:
+    sys.path.insert(0, _CORE_DIR)
+
 pytest_plugins = [
     'testsuite.pytest_plugin',
+    'fixture_markers_plugin',
 ]
 
 

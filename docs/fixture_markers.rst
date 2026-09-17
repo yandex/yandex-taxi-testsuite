@@ -6,7 +6,7 @@ to fixture functions and later collect the fixtures that carry a given
 type and are visible to the current pytest request.
 
 The helpers are framework-agnostic: they only depend on pytest fixture
-definitions. Userver uses them for service dependencies and static config
+definitions. userver uses them for service dependencies and static config
 patches; other stacks can reuse the same marks for Postgres
 initializers, mock setup, and similar discovery.
 

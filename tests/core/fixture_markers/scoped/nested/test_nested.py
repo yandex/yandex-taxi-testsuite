@@ -1,4 +1,4 @@
-from fixture_markers_plugin import VisibilityMark
+from visibility_marks import VisibilityMark
 
 from testsuite import fixture_markers
 

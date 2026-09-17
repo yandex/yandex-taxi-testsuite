@@ -17,7 +17,8 @@ def visibility(origin: str):
     return decorator
 
 
-@pytest.fixture(scope='session')
-@visibility('plugin')
-def plugin_visibility():
-    return 'plugin'
+class VisibilityPlugin:
+    @pytest.fixture(scope='session')
+    @visibility('plugin')
+    def plugin_visibility(self):
+        return 'plugin'

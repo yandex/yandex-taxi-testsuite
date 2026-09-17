@@ -1,5 +1,5 @@
 import pytest
-from fixture_markers_plugin import VisibilityMark, visibility
+from visibility_marks import VisibilityMark, visibility
 
 from testsuite import fixture_markers
 
@@ -10,6 +10,7 @@ def unrelated_module_visibility():
     return 'unrelated-module'
 
 
+# Fixtures from scopes that do not apply to this test are omitted.
 def test_unrelated_module_sees_own_fixture(request):
     infos = fixture_markers.get_infos(request, VisibilityMark)
     assert infos['unrelated_module_visibility'].origin == 'unrelated-module'

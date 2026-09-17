@@ -1,7 +1,7 @@
 import dataclasses
 
-import fixture_markers_plugin
 import pytest
+from visibility_marks import VisibilityMark
 
 from testsuite import fixture_markers
 
@@ -63,11 +63,9 @@ def test_mark_rejects_decorator_above_fixture():
             return 'no'
 
 
+# Fixtures from scopes that do not apply to this test are omitted.
 def test_plugin_fixture_is_visible_outside_subtree(request):
-    infos = fixture_markers.get_infos(
-        request,
-        fixture_markers_plugin.VisibilityMark,
-    )
+    infos = fixture_markers.get_infos(request, VisibilityMark)
     assert infos['plugin_visibility'].origin == 'plugin'
     assert 'conftest_visibility' not in infos
     assert 'module_visibility' not in infos

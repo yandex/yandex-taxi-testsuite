@@ -1,5 +1,5 @@
 import pytest
-from fixture_markers_plugin import VisibilityMark, visibility
+from visibility_marks import VisibilityMark, visibility
 
 from testsuite import fixture_markers
 
@@ -21,6 +21,7 @@ def session_visibility_infos(request):
     return fixture_markers.get_infos(request, VisibilityMark)
 
 
+# Collects fixtures from plugin, non-initial conftest, and this module.
 def test_collects_plugin_conftest_module_and_function(request):
     infos = fixture_markers.get_infos(request, VisibilityMark)
     assert infos['plugin_visibility'].origin == 'plugin'
@@ -33,6 +34,7 @@ def test_collects_plugin_conftest_module_and_function(request):
     assert 'other_class_visibility' not in infos
 
 
+# Fixtures narrower than request.scope are omitted.
 def test_session_request_skips_narrower_scope(session_visibility_infos):
     infos = session_visibility_infos
     assert infos['plugin_visibility'].origin == 'plugin'
@@ -48,6 +50,7 @@ class TestClassVisibility:
     def class_visibility(self):
         return 'class'
 
+    # Collects a fixture defined on the test class.
     def test_class_fixture_is_visible(self, request):
         infos = fixture_markers.get_infos(request, VisibilityMark)
         assert infos['class_visibility'].origin == 'class'
@@ -64,6 +67,7 @@ class TestOtherClass:
     def other_class_visibility(self):
         return 'other-class'
 
+    # Fixtures from scopes that do not apply to this test are omitted.
     def test_does_not_see_sibling_class_fixture(self, request):
         infos = fixture_markers.get_infos(request, VisibilityMark)
         assert infos['other_class_visibility'].origin == 'other-class'

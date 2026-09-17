@@ -5,7 +5,7 @@ Changelog
 ~~~~~~
 
 - Add ``testsuite.fixture_markers`` to mark fixtures and collect those
-  visible to a pytest request
+  visible to a pytest request (#236)
 
 0.4.9
 ~~~~~

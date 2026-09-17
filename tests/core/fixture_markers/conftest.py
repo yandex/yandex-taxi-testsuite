@@ -1,11 +1,4 @@
-import sys
-from pathlib import Path
-
-_DIR = str(Path(__file__).parent)
-if _DIR not in sys.path:
-    sys.path.insert(0, _DIR)
-
-from visibility_marks import VisibilityPlugin
+from .visibility_marks import VisibilityPlugin
 
 
 def pytest_configure(config):

@@ -1,5 +1,5 @@
 import pytest
-from visibility_marks import VisibilityMark, visibility
+from ..visibility_marks import VisibilityMark, visibility
 
 from testsuite import fixture_markers
 

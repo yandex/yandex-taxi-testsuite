@@ -1,7 +1,7 @@
 import dataclasses
 
 import pytest
-from visibility_marks import VisibilityMark
+from .visibility_marks import VisibilityMark
 
 from testsuite import fixture_markers
 

@@ -1,5 +1,5 @@
 import pytest
-from visibility_marks import visibility
+from ...visibility_marks import visibility
 
 
 @pytest.fixture(scope='session')

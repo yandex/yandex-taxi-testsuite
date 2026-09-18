@@ -1,6 +1,6 @@
-from ...visibility_marks import VisibilityMark
-
 from testsuite import fixture_markers
+
+from ...visibility_marks import VisibilityMark
 
 
 def test_nested_sees_parent_and_own_conftest(request):

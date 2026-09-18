@@ -1,12 +1,6 @@
 Changelog
 ---------
 
-0.4.10
-~~~~~~
-
-- Add ``testsuite.fixture_markers`` to mark fixtures and collect those
-  visible to a pytest request (#236)
-
 0.4.9
 ~~~~~
 - Declare nofilldb marker (#235)

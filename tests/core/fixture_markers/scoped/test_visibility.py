@@ -1,7 +1,8 @@
 import pytest
-from ..visibility_marks import VisibilityMark, visibility
 
 from testsuite import fixture_markers
+
+from ..visibility_marks import VisibilityMark, visibility
 
 
 @pytest.fixture(scope='session')

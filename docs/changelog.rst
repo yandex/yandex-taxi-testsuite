@@ -1,8 +1,15 @@
 Changelog
 ---------
 
+0.4.10
+~~~~~~
+
+- Add fixture markers to collect typed metadata from visible pytest fixtures (#236)
+- remove add changelog from readme (#237)
+
 0.4.9
 ~~~~~
+
 - Declare nofilldb marker (#235)
 - Fix a few typos and refs in the docs (#233)
 - Add docs to some of the fixtures (#232)

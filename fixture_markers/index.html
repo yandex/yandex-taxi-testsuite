@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Fixture markers &#8212; yandex-taxi-testsuite 0.4.10 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments_pytest.css" />
+    <script src="../_static/documentation_options.js?v=5e6308ae"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Utils" href="../utils/" />
+    <link rel="prev" title="Other plugins" href="../other_plugins/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="fixture-markers">
+<h1>Fixture markers<a class="headerlink" href="#fixture-markers" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">testsuite.fixture_markers</span></code> lets plugins and tests attach typed metadata
+to fixture functions and later collect the fixtures that carry a given
+type and are visible to the current pytest request.</p>
+<p>The helpers are framework-agnostic: they only depend on pytest fixture
+definitions. userver uses them for service dependencies and static config
+patches; other stacks can reuse the same marks for Postgres
+initializers, mock setup, and similar discovery.</p>
+<section id="marking-a-fixture">
+<h2>Marking a fixture<a class="headerlink" href="#marking-a-fixture" title="Link to this heading">¶</a></h2>
+<p>Apply the mark to the original function, under <code class="docutils literal notranslate"><span class="pre">&#64;pytest.fixture</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">testsuite</span><span class="w"> </span><span class="kn">import</span> <span class="n">fixture_markers</span>
+
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PgInitializer</span><span class="p">:</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pg_init</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fixture_markers</span><span class="o">.</span><span class="n">mark</span><span class="p">(</span>
+            <span class="n">function</span><span class="p">,</span>
+            <span class="n">PgInitializer</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="nd">@pg_init</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_users</span><span class="p">(</span><span class="n">pgsql</span><span class="p">):</span>
+    <span class="n">pgsql</span><span class="p">[</span><span class="s1">'mydb'</span><span class="p">]</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">'INSERT INTO users ...'</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'init_orders'</span><span class="p">)</span>
+<span class="nd">@pg_init</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_init_orders</span><span class="p">(</span><span class="n">pgsql</span><span class="p">):</span>
+    <span class="n">pgsql</span><span class="p">[</span><span class="s1">'mydb'</span><span class="p">]</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">'INSERT INTO orders ...'</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="querying-marks">
+<h2>Querying marks<a class="headerlink" href="#querying-marks" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">get_infos(request,</span> <span class="pre">info_type)</span></code> returns a <code class="docutils literal notranslate"><span class="pre">dict</span></code> of fixture name to
+info for fixtures that:</p>
+<ul class="simple">
+<li><p>are visible to <code class="docutils literal notranslate"><span class="pre">request</span></code> (plugin, ancestor conftest, this module,
+this class);</p></li>
+<li><p>have a mark of <code class="docutils literal notranslate"><span class="pre">info_type</span></code>;</p></li>
+<li><p>have a scope at least as wide as <code class="docutils literal notranslate"><span class="pre">request.scope</span></code>.</p></li>
+</ul>
+<p>Overrides are not inherited: the winning fixture definition must carry
+its own mark.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">initializers</span> <span class="o">=</span> <span class="n">fixture_markers</span><span class="o">.</span><span class="n">get_infos</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">PgInitializer</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_info</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+    <span class="n">initializers</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">order</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">getfixturevalue</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Utilities for attaching typed marks to pytest fixture functions
+and querying those marks during a test session.</p>
+<p>Use <code class="xref py py-func docutils literal notranslate"><span class="pre">mark()</span></code> to store an info object on the original function.
+Use <code class="xref py py-func docutils literal notranslate"><span class="pre">get_infos()</span></code> to retrieve fixtures tagged with a particular
+info type among those visible to a request.</p>
+<p>Marks are independent of <code class="docutils literal notranslate"><span class="pre">&#64;pytest.fixture</span></code>: apply the mark to the
+original function, then wrap with <code class="docutils literal notranslate"><span class="pre">&#64;pytest.fixture</span></code>.</p>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">testsuite.fixture_markers.</span></span><span class="sig-name descname"><span class="pre">get_infos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytest.org/en/latest/reference/reference.html#pytest.FixtureRequest" title="(in pytest v9.2.0.dev340)"><span class="pre">FixtureRequest</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><span class="pre">I</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">I</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/testsuite/fixture_markers/#get_infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Return marked fixtures of <em>info_type</em> that are visible to a request.</p>
+<p>Walks fixture definitions known to pytest, keeps those applicable to
+the requesting test, and skips fixtures whose scope is narrower than
+<code class="docutils literal notranslate"><span class="pre">request.scope</span></code>.</p>
+<p>Only the winning fixture definition is inspected. An override must
+carry its own mark; a parent mark is not inherited.</p>
+<p>See <a class="reference internal" href="#"><span class="doc">Fixture markers</span></a> for usage examples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – The pytest fixture request object.</p></li>
+<li><p><strong>info_type</strong> – The info class whose tagged fixtures you want
+to look up.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">dict[str,</span> <span class="pre">I]</span></code> mapping each tagged fixture’s name to the
+<em>info</em> object that was passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">mark()</span></code>.
+The dict is a fresh copy; mutating it has no effect on stored
+data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">testsuite.fixture_markers.</span></span><span class="sig-name descname"><span class="pre">mark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/testsuite/fixture_markers/#mark"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Attach <em>info</em> to the original function <em>func</em>.</p>
+<p>Creates the marks dict if it is missing, otherwise updates it.
+The <em>info</em> type is the lookup key for <code class="xref py py-func docutils literal notranslate"><span class="pre">get_infos()</span></code>. Each type
+may be attached at most once.</p>
+<p><em>func</em> must be the original function, not a <code class="docutils literal notranslate"><span class="pre">&#64;pytest.fixture</span></code>
+wrapper. Apply the mark under <code class="docutils literal notranslate"><span class="pre">&#64;pytest.fixture</span></code>.</p>
+<p>See <a class="reference internal" href="#"><span class="doc">Fixture markers</span></a> for usage examples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – The original fixture function.</p></li>
+<li><p><strong>info</strong> – Metadata instance to store.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>func</em>, unchanged.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../">
+    <img class="logo" src="../_static/logo.png" alt="Logo" />
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../staticfiles/">Working with static files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mockserver/">Http mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../servicerunner/">Spawning and accessing service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testpoint/">Testpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tracing/">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../other_plugins/">Other plugins</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fixture markers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/">Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/#matching">Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tcp_mockserver/">Tcp mockserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../servicelogs/">Service logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../protobuf/">Protobuf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../databases/">Database support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/README/">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../reference/">API reference</a><ul>
+      <li>Previous: <a href="../other_plugins/" title="previous chapter">Other plugins</a></li>
+      <li>Next: <a href="../utils/" title="next chapter">Utils</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2020-2026, Yandex LLC.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/fixture_markers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

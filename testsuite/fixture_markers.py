@@ -90,8 +90,10 @@ def get_infos(
     the requesting test, and skips fixtures whose scope is narrower than
     ``request.scope``.
 
-    Only the winning fixture definition is inspected. An override must
-    carry its own mark; a parent mark is not inherited.
+    The winning fixture definition is the one pytest would call. If it
+    has no mark of *info_type*, the mark is inherited from the nearest
+    overridden definition that has one. A mark on the winner replaces
+    the inherited mark. There is no way to drop an inherited mark.
 
     See :doc:`fixture_markers` for usage examples.
 
@@ -105,12 +107,10 @@ def get_infos(
     """
     collected: dict[str, I] = {}
     for fixturedef in _iter_visible_fixtures(request):
-        marks = getattr(fixturedef.func, _MARKS_ATTR, None)
-        if not marks:
-            continue
-        info = marks.get(info_type)
-        if type(info) is info_type:
-            collected[fixturedef.argname] = cast(I, info)
+        name = fixturedef.argname
+        info = _info_for_name(request, name, info_type)
+        if info is not None:
+            collected[name] = info
     return collected
 
 
@@ -124,7 +124,7 @@ def _get_fixturedefs(
     fixture_manager: Any,
     name: str,
     request: pytest.FixtureRequest,
-) -> Sequence[Any] | None:
+) -> Sequence[pytest.FixtureDef[object]] | None:
     item = request._pyfuncitem
     params = inspect.signature(fixture_manager.getfixturedefs).parameters
     key = item if list(params)[1] == 'node' else item.nodeid
@@ -133,7 +133,7 @@ def _get_fixturedefs(
 
 def _iter_visible_fixtures(
     request: pytest.FixtureRequest,
-) -> Iterator[pytest.FixtureDef[Any]]:
+) -> Iterator[pytest.FixtureDef[object]]:
     fixture_manager = request.session._fixturemanager
     invoking_rank = _SCOPE_RANK[request.scope]
 
@@ -145,3 +145,40 @@ def _iter_visible_fixtures(
         if _SCOPE_RANK[winning.scope] < invoking_rank:
             continue
         yield winning
+
+
+def _info_for_name(
+    request: pytest.FixtureRequest,
+    name: str,
+    info_type: type[I],
+) -> I | None:
+    fixture_manager = request.session._fixturemanager
+    matched = _get_fixturedefs(fixture_manager, name, request)
+    if not matched:
+        return None
+    return _inherited_info(matched, info_type)
+
+
+def _inherited_info(
+    matched: Sequence[pytest.FixtureDef[object]],
+    info_type: type[I],
+) -> I | None:
+    # matched is ordered from the least specific definition to the winner.
+    for fixturedef in reversed(matched):
+        info = _mark_info(fixturedef, info_type)
+        if info is not None:
+            return info
+    return None
+
+
+def _mark_info(
+    fixturedef: pytest.FixtureDef[object],
+    info_type: type[I],
+) -> I | None:
+    marks = getattr(fixturedef.func, _MARKS_ATTR, None)
+    if not marks:
+        return None
+    info = marks.get(info_type)
+    if type(info) is info_type:
+        return cast(I, info)
+    return None

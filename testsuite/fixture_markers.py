@@ -114,44 +114,21 @@ def get_infos(
     return collected
 
 
-def _info_for_name(
-    request: pytest.FixtureRequest,
-    name: str,
-    info_type: type[I],
-) -> I | None:
-    fixture_manager = request.session._fixturemanager
-    matched = _get_fixturedefs(fixture_manager, name, request)
-    if not matched:
-        return None
-    return _inherited_info(matched, info_type)
-
-
-def _mark_info(
-    fixturedef: pytest.FixtureDef[Any],
-    info_type: type[I],
-) -> I | None:
-    marks = getattr(fixturedef.func, _MARKS_ATTR, None)
-    if not marks:
-        return None
-    info = marks.get(info_type)
-    if type(info) is info_type:
-        return cast(I, info)
-    return None
-
-
-def _inherited_info(matched: Sequence[Any], info_type: type[I]) -> I | None:
-    # matched is ordered from the least specific definition to the winner.
-    for fixturedef in reversed(matched):
-        info = _mark_info(fixturedef, info_type)
-        if info is not None:
-            return info
-    return None
-
-
 def _is_pytest_fixture_wrapper(func: object) -> bool:
     if getattr(func, '_pytestfixturefunction', None):
         return True
     return type(func).__name__ == 'FixtureFunctionDefinition'
+
+
+def _get_fixturedefs(
+    fixture_manager: Any,
+    name: str,
+    request: pytest.FixtureRequest,
+) -> Sequence[Any] | None:
+    item = request._pyfuncitem
+    params = inspect.signature(fixture_manager.getfixturedefs).parameters
+    key = item if list(params)[1] == 'node' else item.nodeid
+    return fixture_manager.getfixturedefs(name, key)
 
 
 def _iter_visible_fixtures(
@@ -170,12 +147,35 @@ def _iter_visible_fixtures(
         yield winning
 
 
-def _get_fixturedefs(
-    fixture_manager: Any,
-    name: str,
+def _info_for_name(
     request: pytest.FixtureRequest,
-) -> Sequence[Any] | None:
-    item = request._pyfuncitem
-    params = inspect.signature(fixture_manager.getfixturedefs).parameters
-    key = item if list(params)[1] == 'node' else item.nodeid
-    return fixture_manager.getfixturedefs(name, key)
+    name: str,
+    info_type: type[I],
+) -> I | None:
+    fixture_manager = request.session._fixturemanager
+    matched = _get_fixturedefs(fixture_manager, name, request)
+    if not matched:
+        return None
+    return _inherited_info(matched, info_type)
+
+
+def _inherited_info(matched: Sequence[Any], info_type: type[I]) -> I | None:
+    # matched is ordered from the least specific definition to the winner.
+    for fixturedef in reversed(matched):
+        info = _mark_info(fixturedef, info_type)
+        if info is not None:
+            return info
+    return None
+
+
+def _mark_info(
+    fixturedef: pytest.FixtureDef[Any],
+    info_type: type[I],
+) -> I | None:
+    marks = getattr(fixturedef.func, _MARKS_ATTR, None)
+    if not marks:
+        return None
+    info = marks.get(info_type)
+    if type(info) is info_type:
+        return cast(I, info)
+    return None

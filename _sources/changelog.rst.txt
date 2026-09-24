@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.11
+~~~~~~
+
+- Inherit fixture marks from the overridden fixture (#238)
+
 0.4.10
 ~~~~~~
 

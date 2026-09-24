@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testsuite.fixture_markers &#8212; yandex-taxi-testsuite 0.4.10 documentation</title>
+    <title>testsuite.fixture_markers &#8212; yandex-taxi-testsuite 0.4.11 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments_pytest.css" />
-    <script src="../../../_static/documentation_options.js?v=5e6308ae"></script>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments_pytest.css?v=51489a46" />
+    <script src="../../../_static/documentation_options.js?v=4ca534b4"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../genindex/" />
@@ -129,8 +129,10 @@
 <span class="sd">    the requesting test, and skips fixtures whose scope is narrower than</span>
 <span class="sd">    ``request.scope``.</span>
 
-<span class="sd">    Only the winning fixture definition is inspected. An override must</span>
-<span class="sd">    carry its own mark; a parent mark is not inherited.</span>
+<span class="sd">    The winning fixture definition is the one pytest would call. If it</span>
+<span class="sd">    has no mark of *info_type*, the mark is inherited from the nearest</span>
+<span class="sd">    overridden definition that has one. A mark on the winner replaces</span>
+<span class="sd">    the inherited mark. There is no way to drop an inherited mark.</span>
 
 <span class="sd">    See :doc:`fixture_markers` for usage examples.</span>
 
@@ -144,12 +146,10 @@
 <span class="sd">    """</span>
     <span class="n">collected</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">fixturedef</span> <span class="ow">in</span> <span class="n">_iter_visible_fixtures</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-        <span class="n">marks</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">fixturedef</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">_MARKS_ATTR</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">marks</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="n">marks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info_type</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">info</span><span class="p">)</span> <span class="ow">is</span> <span class="n">info_type</span><span class="p">:</span>
-            <span class="n">collected</span><span class="p">[</span><span class="n">fixturedef</span><span class="o">.</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">fixturedef</span><span class="o">.</span><span class="n">argname</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">_info_for_name</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">info_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">collected</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span>
     <span class="k">return</span> <span class="n">collected</span></div>
 
 
@@ -164,7 +164,7 @@
     <span class="n">fixture_manager</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">request</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">FixtureRequest</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pytest</span><span class="o">.</span><span class="n">FixtureDef</span><span class="p">[</span><span class="nb">object</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">item</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">_pyfuncitem</span>
     <span class="n">params</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">fixture_manager</span><span class="o">.</span><span class="n">getfixturedefs</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">item</span> <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'node'</span> <span class="k">else</span> <span class="n">item</span><span class="o">.</span><span class="n">nodeid</span>
@@ -173,7 +173,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_visible_fixtures</span><span class="p">(</span>
     <span class="n">request</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">FixtureRequest</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">pytest</span><span class="o">.</span><span class="n">FixtureDef</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">pytest</span><span class="o">.</span><span class="n">FixtureDef</span><span class="p">[</span><span class="nb">object</span><span class="p">]]:</span>
     <span class="n">fixture_manager</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_fixturemanager</span>
     <span class="n">invoking_rank</span> <span class="o">=</span> <span class="n">_SCOPE_RANK</span><span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">scope</span><span class="p">]</span>
 
@@ -185,6 +185,43 @@
         <span class="k">if</span> <span class="n">_SCOPE_RANK</span><span class="p">[</span><span class="n">winning</span><span class="o">.</span><span class="n">scope</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">invoking_rank</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="k">yield</span> <span class="n">winning</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_info_for_name</span><span class="p">(</span>
+    <span class="n">request</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">FixtureRequest</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">info_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">I</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">I</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">fixture_manager</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">_fixturemanager</span>
+    <span class="n">matched</span> <span class="o">=</span> <span class="n">_get_fixturedefs</span><span class="p">(</span><span class="n">fixture_manager</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matched</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">_inherited_info</span><span class="p">(</span><span class="n">matched</span><span class="p">,</span> <span class="n">info_type</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_inherited_info</span><span class="p">(</span>
+    <span class="n">matched</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pytest</span><span class="o">.</span><span class="n">FixtureDef</span><span class="p">[</span><span class="nb">object</span><span class="p">]],</span>
+    <span class="n">info_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">I</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">I</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># matched is ordered from the least specific definition to the winner.</span>
+    <span class="k">for</span> <span class="n">fixturedef</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">matched</span><span class="p">):</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">_mark_info</span><span class="p">(</span><span class="n">fixturedef</span><span class="p">,</span> <span class="n">info_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">info</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mark_info</span><span class="p">(</span>
+    <span class="n">fixturedef</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">FixtureDef</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span>
+    <span class="n">info_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">I</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">I</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">marks</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">fixturedef</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">_MARKS_ATTR</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">marks</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">marks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">info</span><span class="p">)</span> <span class="ow">is</span> <span class="n">info_type</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
           </div>

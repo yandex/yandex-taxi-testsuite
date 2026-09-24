@@ -61,9 +61,6 @@ info for fixtures that:
 * have a mark of ``info_type``;
 * have a scope at least as wide as ``request.scope``.
 
-Overrides are not inherited: the winning fixture definition must carry
-its own mark.
-
 .. code-block:: python
 
    initializers = fixture_markers.get_infos(request, PgInitializer)
@@ -72,6 +69,36 @@ its own mark.
        key=lambda item: item[1].order,
    ):
        request.getfixturevalue(name)
+
+Overriding a marked fixture
+---------------------------
+
+An override inherits the mark. ``get_infos`` looks at the definition
+pytest would call. When that definition has no mark of the requested
+type, the mark comes from the nearest overridden definition that has
+one. A mark on the override replaces the inherited value. An override
+cannot drop the mark.
+
+.. code-block:: python
+
+   # conftest.py
+
+   @pytest.fixture
+   @pg_init(order=1)
+   def init_users(pgsql):
+       pgsql['mydb'].execute('INSERT INTO users ...')
+
+.. code-block:: python
+
+   # test_users.py
+
+   @pytest.fixture
+   def init_users(init_users, pgsql):
+       init_users
+       pgsql['mydb'].execute('INSERT INTO guests ...')
+
+   initializers = fixture_markers.get_infos(request, PgInitializer)
+   # {'init_users': PgInitializer(order=1)}
 
 .. automodule:: testsuite.fixture_markers
    :members: mark, get_infos

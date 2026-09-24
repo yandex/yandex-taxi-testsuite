@@ -124,7 +124,7 @@ def _get_fixturedefs(
     fixture_manager: Any,
     name: str,
     request: pytest.FixtureRequest,
-) -> Sequence[Any] | None:
+) -> Sequence[pytest.FixtureDef[Any]] | None:
     item = request._pyfuncitem
     params = inspect.signature(fixture_manager.getfixturedefs).parameters
     key = item if list(params)[1] == 'node' else item.nodeid
@@ -159,7 +159,10 @@ def _info_for_name(
     return _inherited_info(matched, info_type)
 
 
-def _inherited_info(matched: Sequence[Any], info_type: type[I]) -> I | None:
+def _inherited_info(
+    matched: Sequence[pytest.FixtureDef[Any]],
+    info_type: type[I],
+) -> I | None:
     # matched is ordered from the least specific definition to the winner.
     for fixturedef in reversed(matched):
         info = _mark_info(fixturedef, info_type)

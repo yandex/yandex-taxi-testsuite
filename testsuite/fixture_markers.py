@@ -13,7 +13,7 @@ original function, then wrap with ``@pytest.fixture``.
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from typing import Any, TypeVar, cast
 
 import pytest
@@ -106,20 +106,24 @@ def get_infos(
         data.
     """
     collected: dict[str, I] = {}
-    fixture_manager = request.session._fixturemanager
-    invoking_rank = _SCOPE_RANK[request.scope]
-
-    for name in fixture_manager._arg2fixturedefs:
-        matched = _get_fixturedefs(fixture_manager, name, request)
-        if not matched:
-            continue
-        winning = matched[-1]
-        if _SCOPE_RANK[winning.scope] < invoking_rank:
-            continue
-        info = _inherited_info(matched, info_type)
+    for fixturedef in _iter_visible_fixtures(request):
+        name = fixturedef.argname
+        info = _info_for_name(request, name, info_type)
         if info is not None:
-            collected[winning.argname] = info
+            collected[name] = info
     return collected
+
+
+def _info_for_name(
+    request: pytest.FixtureRequest,
+    name: str,
+    info_type: type[I],
+) -> I | None:
+    fixture_manager = request.session._fixturemanager
+    matched = _get_fixturedefs(fixture_manager, name, request)
+    if not matched:
+        return None
+    return _inherited_info(matched, info_type)
 
 
 def _mark_info(
@@ -148,6 +152,22 @@ def _is_pytest_fixture_wrapper(func: object) -> bool:
     if getattr(func, '_pytestfixturefunction', None):
         return True
     return type(func).__name__ == 'FixtureFunctionDefinition'
+
+
+def _iter_visible_fixtures(
+    request: pytest.FixtureRequest,
+) -> Iterator[pytest.FixtureDef[Any]]:
+    fixture_manager = request.session._fixturemanager
+    invoking_rank = _SCOPE_RANK[request.scope]
+
+    for name in fixture_manager._arg2fixturedefs:
+        matched = _get_fixturedefs(fixture_manager, name, request)
+        if not matched:
+            continue
+        winning = matched[-1]
+        if _SCOPE_RANK[winning.scope] < invoking_rank:
+            continue
+        yield winning
 
 
 def _get_fixturedefs(

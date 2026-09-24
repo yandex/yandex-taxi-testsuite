@@ -124,7 +124,7 @@ def _get_fixturedefs(
     fixture_manager: Any,
     name: str,
     request: pytest.FixtureRequest,
-) -> Sequence[pytest.FixtureDef[Any]] | None:
+) -> Sequence[pytest.FixtureDef[object]] | None:
     item = request._pyfuncitem
     params = inspect.signature(fixture_manager.getfixturedefs).parameters
     key = item if list(params)[1] == 'node' else item.nodeid
@@ -133,7 +133,7 @@ def _get_fixturedefs(
 
 def _iter_visible_fixtures(
     request: pytest.FixtureRequest,
-) -> Iterator[pytest.FixtureDef[Any]]:
+) -> Iterator[pytest.FixtureDef[object]]:
     fixture_manager = request.session._fixturemanager
     invoking_rank = _SCOPE_RANK[request.scope]
 
@@ -160,7 +160,7 @@ def _info_for_name(
 
 
 def _inherited_info(
-    matched: Sequence[pytest.FixtureDef[Any]],
+    matched: Sequence[pytest.FixtureDef[object]],
     info_type: type[I],
 ) -> I | None:
     # matched is ordered from the least specific definition to the winner.
@@ -172,7 +172,7 @@ def _inherited_info(
 
 
 def _mark_info(
-    fixturedef: pytest.FixtureDef[Any],
+    fixturedef: pytest.FixtureDef[object],
     info_type: type[I],
 ) -> I | None:
     marks = getattr(fixturedef.func, _MARKS_ATTR, None)

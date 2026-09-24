@@ -61,10 +61,19 @@ info for fixtures that:
 * have a mark of ``info_type``;
 * have a scope at least as wide as ``request.scope``.
 
-Overrides are not inherited: the winning fixture definition must carry
-its own mark.
+A fixture override inherits the mark. ``get_infos`` inspects the
+definition pytest would call. When that definition has no mark of the
+requested type, the mark comes from the nearest overridden definition
+that has one. A mark on the override replaces the inherited value.
+An override cannot drop the mark.
 
 .. code-block:: python
+
+   @pytest.fixture
+   def init_users(init_users, pgsql):
+       init_users
+       pgsql['mydb'].execute('INSERT INTO guests ...')
+
 
    initializers = fixture_markers.get_infos(request, PgInitializer)
    for name, _info in sorted(

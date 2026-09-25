@@ -119,6 +119,36 @@ def pgsql_cleanup_exclude_tables() -> frozenset[str]:
     return frozenset()
 
 
+@pytest.fixture(scope='session')
+def pgsql_dbname_prefix(
+    _pgsql_service_settings: service.ServiceSettings,
+) -> str:
+    """Prefix added to generated database names.
+
+    Gives every concurrent testsuite session its own database namespace
+    when sessions share one PostgreSQL instance, e.g. with
+    ``--postgresql``. Prefer a stable value (worker name, checkout
+    name): databases are reused between sessions with the same prefix.
+
+    Defaults to the ``TESTSUITE_POSTGRESQL_DBNAME_PREFIX`` environment
+    variable, override the fixture to change this behaviour. Pass the
+    value to :py:func:`~testsuite.databases.pgsql.discover.find_schemas`
+    in your ``pgsql_local`` fixture:
+
+    .. code-block:: python
+
+        @pytest.fixture(scope='session')
+        def pgsql_local(pgsql_local_create, pgsql_dbname_prefix):
+            databases = discover.find_schemas(
+                'service_name',
+                [PG_SCHEMAS_PATH],
+                dbname_prefix=pgsql_dbname_prefix,
+            )
+            return pgsql_local_create(list(databases.values()))
+    """
+    return _pgsql_service_settings.dbname_prefix
+
+
 @pytest.fixture
 def pgsql(_pgsql, pgsql_apply) -> dict[str, control.PgDatabaseWrapper]:
     """

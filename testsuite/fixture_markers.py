@@ -12,9 +12,11 @@ original function, then wrap with ``@pytest.fixture``.
 
 from __future__ import annotations
 
+import itertools
 import inspect
-from collections.abc import Callable, Iterator, Sequence
-from typing import Any, TypeVar, cast
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any, Generic, TypeVar, cast
 
 import pytest
 
@@ -26,6 +28,8 @@ __all__ = [
 I = TypeVar('I')  # noqa: E741
 
 _MARKS_ATTR = '_testsuite_fixture_marks'
+_MARKS_ORDER_ATTR = '_testsuite_fixture_marks_order'
+_mark_order_counter = itertools.count()
 _SCOPE_RANK = {
     'function': 0,
     'class': 1,
@@ -33,6 +37,20 @@ _SCOPE_RANK = {
     'package': 3,
     'session': 4,
 }
+
+
+@dataclass(frozen=True, order=True)
+class _SortKey:
+    has_location: bool
+    site_rank: int
+    stamp: int
+
+
+@dataclass(frozen=True)
+class _MarkedFixture(Generic[I]):
+    sort_key: _SortKey
+    name: str
+    info: I
 
 
 def mark(
@@ -75,6 +93,10 @@ def mark(
             f'({existing!r}); cannot attach another ({info!r})',
         )
     marks[info_type] = info
+    # Decorations run in definition order within a module; pytest later
+    # registers fixtures via dir(), which is alphabetical — stamp order here.
+    if getattr(func, _MARKS_ORDER_ATTR, None) is None:
+        setattr(func, _MARKS_ORDER_ATTR, next(_mark_order_counter))
     return func
 
 
@@ -95,6 +117,15 @@ def get_infos(
     overridden definition that has one. A mark on the winner replaces
     the inherited mark. There is no way to drop an inherited mark.
 
+    Fixtures within a single module are ordered by definition order. An
+    override takes the position of the original fixture in that order — it
+    is inserted in place of the fixture it overrides.
+
+    Fixtures from different modules follow the usual pytest definition-site
+    priorities: non-conftest plugins (registration order), then conftest
+    modules from outer to inner (less specific first, same as pytest
+    override chains), then test modules, then test classes.
+
     See :doc:`fixture_markers` for usage examples.
 
     :param request: The pytest fixture request object.
@@ -105,13 +136,19 @@ def get_infos(
         The dict is a fresh copy; mutating it has no effect on stored
         data.
     """
-    collected: dict[str, I] = {}
+    site_ranks = _definition_site_ranks(request._pyfuncitem)
+    collected: list[_MarkedFixture[I]] = []
     for fixturedef in _iter_visible_fixtures(request):
-        name = fixturedef.argname
-        info = _info_for_name(request, name, info_type)
-        if info is not None:
-            collected[name] = info
-    return collected
+        marked = _marked_fixture_for_name(
+            request,
+            fixturedef.argname,
+            info_type,
+            site_ranks,
+        )
+        if marked is not None:
+            collected.append(marked)
+    collected.sort(key=lambda item: item.sort_key)
+    return {item.name: item.info for item in collected}
 
 
 def _is_pytest_fixture_wrapper(func: object) -> bool:
@@ -147,16 +184,24 @@ def _iter_visible_fixtures(
         yield winning
 
 
-def _info_for_name(
+def _marked_fixture_for_name(
     request: pytest.FixtureRequest,
     name: str,
     info_type: type[I],
-) -> I | None:
+    site_ranks: Mapping[str, int],
+) -> _MarkedFixture[I] | None:
     fixture_manager = request.session._fixturemanager
     matched = _get_fixturedefs(fixture_manager, name, request)
     if not matched:
         return None
-    return _inherited_info(matched, info_type)
+    info = _inherited_info(matched, info_type)
+    if info is None:
+        return None
+    return _MarkedFixture(
+        sort_key=_sort_key(matched, info_type, site_ranks),
+        name=name,
+        info=info,
+    )
 
 
 def _inherited_info(
@@ -169,6 +214,46 @@ def _inherited_info(
         if info is not None:
             return info
     return None
+
+
+def _sort_key(
+    matched: Sequence[pytest.FixtureDef[object]],
+    info_type: type[I],
+    site_ranks: Mapping[str, int],
+) -> _SortKey:
+    # Place / order from the least specific marked definition so an override
+    # takes the original fixture's slot.
+    origin = next(
+        fixturedef
+        for fixturedef in matched
+        if _mark_info(fixturedef, info_type) is not None
+    )
+    stamp = getattr(origin.func, _MARKS_ORDER_ATTR)
+    # Non-conftest plugins are not collection nodes (listchain has no entry
+    # for them; baseid "" only coincides with Session.nodeid). Pytest puts
+    # them before any located fixture.
+    if not _fixture_has_location(origin):
+        return _SortKey(has_location=False, site_rank=0, stamp=stamp)
+    return _SortKey(
+        has_location=True,
+        site_rank=site_ranks[origin.baseid],
+        stamp=stamp,
+    )
+
+
+def _definition_site_ranks(node: pytest.Item) -> dict[str, int]:
+    return {
+        ancestor.nodeid: index
+        for index, ancestor in enumerate(node.listchain())
+    }
+
+
+def _fixture_has_location(fixturedef: pytest.FixtureDef[object]) -> bool:
+    # pytest>=9 keeps the flag on _has_location; has_location warns / goes away.
+    value = getattr(fixturedef, '_has_location', None)
+    if value is not None:
+        return bool(value)
+    return bool(fixturedef.has_location)
 
 
 def _mark_info(

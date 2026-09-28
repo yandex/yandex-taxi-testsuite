@@ -73,6 +73,13 @@ info for fixtures that:
 Overriding a marked fixture
 ---------------------------
 
+Fixtures within a single module are ordered by definition order. An
+override takes the position of the original fixture in that order.
+
+Fixtures from different modules follow the usual pytest definition-site
+priorities: non-conftest plugins (registration order), then conftest
+modules from outer to inner, then test modules, then test classes.
+
 An override inherits the mark. ``get_infos`` looks at the definition
 pytest would call. When that definition has no mark of the requested
 type, the mark comes from the nearest overridden definition that has

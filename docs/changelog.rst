@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.4.12
+~~~~~~
+
+- Order ``get_infos`` by pytest definition site (plugins, outer→inner
+  conftest, module, class; within a module by decoration order)
+
 0.4.11
 ~~~~~~
 

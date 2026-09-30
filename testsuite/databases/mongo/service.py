@@ -53,6 +53,10 @@ def create_mongo_service(
             settings.mongos_port,
             settings.shard_port,
         ],
+        start_timeout=utils.getenv_float(
+            key='TESTSUITE_MONGO_SERVER_START_TIMEOUT',
+            default=30.0,
+        ),
     )
 
 

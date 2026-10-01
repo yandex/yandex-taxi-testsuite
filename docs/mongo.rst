@@ -76,6 +76,11 @@ TESTSUITE_MONGO_RS_INSTANCE_COUNT
 
 Replica set instances count, one instance is started by default.
 
+TESTSUITE_MONGO_SERVER_START_TIMEOUT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By default testsuite will wait for up to 10s for mongodb to start,
+one may customize this timeout via environment variable ``TESTSUITE_MONGO_SERVER_START_TIMEOUT``.
+
 Fixtures
 --------
 

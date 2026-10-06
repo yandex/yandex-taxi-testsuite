@@ -25,7 +25,7 @@ class ServiceSettings(typing.NamedTuple):
 
 def get_service_settings():
     return ServiceSettings(
-        utils.getenv_int(
+        utils.getenv_port(
             key='TESTSUITE_POSTGRESQL_PORT',
             default=DEFAULT_PORT,
         ),

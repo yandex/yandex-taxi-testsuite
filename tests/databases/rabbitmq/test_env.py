@@ -4,6 +4,7 @@ import pytest
 
 from testsuite.databases.rabbitmq import service
 
+
 @pytest.mark.parametrize('worker_suffix', ['worker-a', 'worker-b'])
 def test_rabbitmq_service_preserves_worker_environment(tmp_path, worker_suffix):
     settings = service.ServiceSettings(tcp_port=18672, epmd_port=18673)

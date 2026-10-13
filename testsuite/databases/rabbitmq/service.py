@@ -34,6 +34,7 @@ def create_rabbitmq_service(
         script_path=str(SERVICE_SCRIPT_PATH),
         working_dir=working_dir,
         environment={
+            **(env or {}),
             'RABBITMQ_TMPDIR': working_dir,
             'RABBITMQ_TCP_PORT': str(settings.tcp_port),
             'RABBITMQ_EPMD_PORT': str(settings.epmd_port),

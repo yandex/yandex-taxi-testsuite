@@ -137,7 +137,20 @@ def _iter_visible_fixtures(
     fixture_manager = request.session._fixturemanager
     invoking_rank = _SCOPE_RANK[request.scope]
 
-    for name in fixture_manager._arg2fixturedefs:
+    # pytest 9.2 splits node-based and legacy nodeid-based registrations.
+    get_all_fixture_defs = getattr(
+        fixture_manager,
+        '_get_all_fixture_defs',
+        None,
+    )
+    if get_all_fixture_defs is not None:
+        fixture_names = dict.fromkeys(
+            fixturedef.argname for fixturedef in get_all_fixture_defs()
+        )
+    else:
+        fixture_names = fixture_manager._arg2fixturedefs
+
+    for name in fixture_names:
         matched = _get_fixturedefs(fixture_manager, name, request)
         if not matched:
             continue

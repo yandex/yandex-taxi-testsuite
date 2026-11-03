@@ -18,7 +18,6 @@ pytest plugins:
    testpoint
    tracing
    other_plugins
-   fixture_markers
    utils
    tcp_mockserver
    servicelogs

@@ -25,6 +25,16 @@ class ServiceSettings(typing.NamedTuple):
         )
 
 
+def get_dbprefix() -> str:
+    namespace = utils.getenv_str(
+        key='TESTSUITE_CLICKHOUSE_DBNAME_PREFIX',
+        default='',
+    )
+    if namespace:
+        return f'testsuite-{namespace}-'
+    return 'testsuite-'
+
+
 def create_clickhouse_service(
     service_name,
     working_dir,

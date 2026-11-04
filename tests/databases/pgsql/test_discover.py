@@ -30,6 +30,24 @@ def test_database_name():
         ) == ('ytenvc_cc21dd21265d91098dc39238')
 
 
+def test_database_name_prefix():
+    assert (
+        discover._database_name(
+            None, 'foo', discover.SINGLE_SHARD, dbname_prefix='run1'
+        )
+        == 'run1_foo'
+    )
+    assert (
+        discover._database_name('foo', 'bar', 1, dbname_prefix='run1')
+        == 'run1_foo_bar_1'
+    )
+    assert discover._database_name(None, 'foo', discover.SINGLE_SHARD) == 'foo'
+    long_name = discover._database_name(
+        'yandex_taxi_eats_nomenclature_viewer', 'shards', 1
+    )
+    assert len(long_name) <= discover.DB_NAME_MAX
+
+
 def test_shortened():
     assert discover._shortened('foo_bar_maurice', '') == (
         'fbm_aaae77675222753dbe4d562a3e2'

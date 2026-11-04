@@ -14,6 +14,7 @@ SCRIPTS_DIR = PLUGIN_DIR.joinpath('scripts')
 
 class ServiceSettings(typing.NamedTuple):
     port: int
+    dbname_prefix: str = ''
 
     def get_conninfo(self) -> connection.PgConnectionInfo:
         return connection.PgConnectionInfo(
@@ -25,9 +26,13 @@ class ServiceSettings(typing.NamedTuple):
 
 def get_service_settings():
     return ServiceSettings(
-        utils.getenv_int(
+        port=utils.getenv_int(
             key='TESTSUITE_POSTGRESQL_PORT',
             default=DEFAULT_PORT,
+        ),
+        dbname_prefix=utils.getenv_str(
+            key='TESTSUITE_POSTGRESQL_DBNAME_PREFIX',
+            default='',
         ),
     )
 

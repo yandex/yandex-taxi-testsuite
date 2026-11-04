@@ -112,5 +112,4 @@ def test_dict_cursor(pgsql):
     cursor = pgsql['foo@0'].dict_cursor()
     cursor.execute('SELECT value from foo')
     row = cursor.fetchone()
-    assert row == ['mark1']
-    assert {**row} == {'value': 'mark1'}
+    assert row == {'value': 'mark1'}

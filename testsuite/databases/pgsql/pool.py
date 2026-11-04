@@ -1,25 +1,26 @@
 import contextlib
 import typing
 
-import psycopg2.extensions
-import psycopg2.pool
+import psycopg
+import psycopg_pool
 
 
 class AutocommitConnectionPool:
     def __init__(self, minconn: int, maxconn: int, uri: str) -> None:
-        self._pool = psycopg2.pool.ThreadedConnectionPool(minconn, maxconn, uri)
+        self._pool = psycopg_pool.ConnectionPool(
+            uri,
+            min_size=minconn,
+            max_size=maxconn,
+            kwargs={'autocommit': True},
+            open=True,
+        )
 
     @contextlib.contextmanager
     def get_connection(
         self,
-    ) -> typing.Generator[psycopg2.extensions.connection, None, None]:
-        conn = self._pool.getconn()
-        conn.autocommit = True
-
-        try:
+    ) -> typing.Generator[psycopg.Connection, None, None]:
+        with self._pool.connection() as conn:
             yield conn
-        finally:
-            self._pool.putconn(conn)
 
     def close(self) -> None:
-        self._pool.closeall()
+        self._pool.close()

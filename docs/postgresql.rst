@@ -8,7 +8,7 @@ In order to enable postgres support you have to add
 By default testsuite starts PostgreSQL_ service. In this case
 PostgreSQL installation is required.
 
-Currently pgsql plugin uses synchronous psycopg2_ driver.
+Currently pgsql plugin uses synchronous psycopg_ (psycopg 3) driver.
 
 Pgsql plugin creates database schema once. And then populates database
 with data fixtures on each test. It looks for database fixtures by the
@@ -77,7 +77,7 @@ Database access example
       assert record == ('foo', 'bar')
 
 .. _PostgreSQL: https://www.postgresql.org/
-.. _psycopg2: https://pypi.org/project/psycopg2/
+.. _psycopg: https://pypi.org/project/psycopg/
 
 Environment variables
 ---------------------

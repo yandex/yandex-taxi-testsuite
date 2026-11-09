@@ -31,6 +31,18 @@ wait_redis_ready() {
     die "Failed to connect to redis instance on port $HOST:$PORT"
 }
 
+set_cluster_ping_interval() {
+    local INTERVAL=$1
+    local PORT
+    local RESPONSE
+
+    for PORT in ${REDIS_CLUSTER_PORTS}; do
+        RESPONSE=$($REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" CONFIG SET cluster-ping-interval "$INTERVAL") ||
+            die "Failed to configure cluster-ping-interval on $REDIS_HOST:$PORT"
+        [ "$RESPONSE" = OK ] || die "Failed to configure cluster-ping-interval on $REDIS_HOST:$PORT: $RESPONSE"
+    done
+}
+
 wait_redis_nodes_election() {
     local CURRENT_REPLICAS_COUNT=0
     local EXPECTED_REPLICAS_COUNT=999
@@ -101,6 +113,23 @@ check_cluster_node_ready() {
     check_cluster_slots_response_has_all_the_ports "$PORT"
 }
 
+dump_redis_cluster_diagnostics() {
+    local PORT
+
+    # Print all logs before querying nodes, including ones that may be unresponsive.
+    for PORT in ${REDIS_CLUSTER_PORTS}; do
+        dump_log_stderr "$REDIS_LOGSDIR/redis_cluster$PORT.log"
+    done
+
+    # Capture local replication state and peer views to distinguish an incomplete
+    # initial sync from a replication offset that has not propagated yet.
+    for PORT in ${REDIS_CLUSTER_PORTS}; do
+        echo "Redis cluster readiness diagnostics for $REDIS_HOST:$PORT:" >&2
+        $REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" INFO replication >&2
+        $REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" CLUSTER SHARDS >&2
+    done
+}
+
 wait_redis_nodes_ready() {
     local CHECK_STATUS='BAD'
 
@@ -122,19 +151,8 @@ wait_redis_nodes_ready() {
         sleep 1
     done
 
-
-    # Print all logs before querying nodes, including ones that may be unresponsive.
-    for PORT in ${REDIS_CLUSTER_PORTS}; do
-        dump_log_stderr "$REDIS_LOGSDIR/redis_cluster$PORT.log"
-    done
-
-    # Capture local replication state and peer views to distinguish an incomplete
-    # initial sync from a replication offset that has not propagated yet.
-    for PORT in ${REDIS_CLUSTER_PORTS}; do
-        echo "Redis cluster readiness diagnostics for $REDIS_HOST:$PORT:" >&2
-        $REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" INFO replication >&2
-        $REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" CLUSTER SHARDS >&2
-    done
+    # Uncomment to collect diagnostics when debugging cluster startup failures.
+    # dump_redis_cluster_diagnostics
 
     die "Failed to start redis cluster in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds \
         due to incomplete CLUSTER SLOTS output or cluster_state other than ok."
@@ -170,6 +188,26 @@ start() {
         REDIS_INSTS="$REDIS_INSTS $REDIS_HOST:$port"
     done
 
+    # All nodes use the same config, so save the original interval from one node.
+    # An exact CONFIG GET also finds hidden options; older Redis returns no value.
+    local CLUSTER_PING_CONFIG
+    local ORIGINAL_CLUSTER_PING_INTERVAL=''
+    CLUSTER_PING_CONFIG=$($REDIS_CLI --raw -h "$REDIS_HOST" -p "$port" CONFIG GET cluster-ping-interval) ||
+        die "Failed to read cluster-ping-interval"
+    if [ -n "$CLUSTER_PING_CONFIG" ]; then
+        [ "$(printf '%s\n' "$CLUSTER_PING_CONFIG" | head -n 1)" = cluster-ping-interval ] ||
+            die "Unexpected cluster-ping-interval response: $CLUSTER_PING_CONFIG"
+        ORIGINAL_CLUSTER_PING_INTERVAL=$(printf '%s\n' "$CLUSTER_PING_CONFIG" | tail -n 1)
+        case "$ORIGINAL_CLUSTER_PING_INTERVAL" in
+            ''|*[!0-9]*) die "Invalid cluster-ping-interval: $ORIGINAL_CLUSTER_PING_INTERVAL" ;;
+        esac
+
+        # Gossip refreshes PONG timestamps with whole-second precision without
+        # refreshing replication offsets. A subsecond interval forces direct
+        # exchanges so ready replicas become visible in CLUSTER SLOTS promptly.
+        set_cluster_ping_interval 500
+    fi
+
     echo "Creating redis cluster ..."
     $REDIS_CLI --cluster create $REDIS_INSTS \
         --cluster-replicas $REDIS_CLUSTER_REPLICAS \
@@ -178,6 +216,10 @@ start() {
 
     wait_redis_nodes_election
     wait_redis_nodes_ready
+
+    if [ -n "$ORIGINAL_CLUSTER_PING_INTERVAL" ]; then
+        set_cluster_ping_interval "$ORIGINAL_CLUSTER_PING_INTERVAL"
+    fi
 
     echo "Created redis cluster ..."
 }

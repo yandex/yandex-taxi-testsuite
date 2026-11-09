@@ -123,9 +123,21 @@ wait_redis_nodes_ready() {
     done
 
 
+    # Print all logs before querying nodes, including ones that may be unresponsive.
+    for PORT in ${REDIS_CLUSTER_PORTS}; do
+        dump_log_stderr "$REDIS_LOGSDIR/redis_cluster$PORT.log"
+    done
+
+    # Capture local replication state and peer views to distinguish an incomplete
+    # initial sync from a replication offset that has not propagated yet.
+    for PORT in ${REDIS_CLUSTER_PORTS}; do
+        echo "Redis cluster readiness diagnostics for $REDIS_HOST:$PORT:" >&2
+        $REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" INFO replication >&2
+        $REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" CLUSTER SHARDS >&2
+    done
+
     die "Failed to start redis cluster in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds \
-        due to incomplete CLUSTER SLOTS output or cluster_state other than ok. Try increasing the \
-        REDIS_SLEEP_WORKAROUND_SECONDS."
+        due to incomplete CLUSTER SLOTS output or cluster_state other than ok."
 }
 
 start() {

@@ -12,7 +12,7 @@ fi
 # Use ramdisk for data if available
 RAMDISK=/mnt/ramdisk/$USER
 if mkdir -p $RAMDISK 2> /dev/null; then
-    MYSQL_BASEDIR=$RAMDISK/_mysql${WORKER_SUFFIX_PATH}
+    MYSQL_BASEDIR=$RAMDISK/_mysql${WORKER_SUFFIX_PATH}/mysql-$MYSQL_PORT
 else
     MYSQL_BASEDIR=$MYSQL_TMPDIR
 fi

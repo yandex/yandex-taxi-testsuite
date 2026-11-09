@@ -89,13 +89,25 @@ check_cluster_slots_response_has_all_the_ports() {
     return 0
 }
 
-wait_redis_nodes_slots_update() {
+check_cluster_node_ready() {
+    local PORT=$1
+    local CLUSTER_INFO=''
+
+    CLUSTER_INFO=$($REDIS_CLI --raw -h "$REDIS_HOST" -p "$PORT" CLUSTER INFO) || return 1
+    if ! printf '%s\n' "$CLUSTER_INFO" | tr -d '\r' | grep -qx 'cluster_state:ok'; then
+        return 1
+    fi
+
+    check_cluster_slots_response_has_all_the_ports "$PORT"
+}
+
+wait_redis_nodes_ready() {
     local CHECK_STATUS='BAD'
 
     for i in $(seq 1 ${REDIS_SLEEP_WORKAROUND_SECONDS}); do
         CHECK_STATUS='OK'
         for PORT in ${REDIS_CLUSTER_PORTS}; do
-            if check_cluster_slots_response_has_all_the_ports $PORT; then
+            if check_cluster_node_ready "$PORT"; then
                 continue
             else
                 CHECK_STATUS='BAD'
@@ -112,7 +124,7 @@ wait_redis_nodes_slots_update() {
 
 
     die "Failed to start redis cluster in ${REDIS_SLEEP_WORKAROUND_SECONDS} seconds \
-        due to CLUSTER SLOTS incomplete output. Try increasing the \
+        due to incomplete CLUSTER SLOTS output or cluster_state other than ok. Try increasing the \
         REDIS_SLEEP_WORKAROUND_SECONDS."
 }
 
@@ -153,7 +165,7 @@ start() {
         die "Failed to create a redis cluster"
 
     wait_redis_nodes_election
-    wait_redis_nodes_slots_update
+    wait_redis_nodes_ready
 
     echo "Created redis cluster ..."
 }

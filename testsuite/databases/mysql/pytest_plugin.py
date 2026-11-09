@@ -1,4 +1,6 @@
 import collections
+import dataclasses
+import os
 
 import pytest
 
@@ -42,10 +44,11 @@ def mysql_disabled(pytestconfig) -> bool:
 
 
 @pytest.fixture(scope='session')
-def mysql_conninfo(pytestconfig, _mysql_service_settings):
+def mysql_conninfo(pytestconfig, request):
     if pytestconfig.option.mysql:
         return service.parse_connection_url(pytestconfig.option.mysql)
-    return _mysql_service_settings.get_conninfo()
+    settings = request.getfixturevalue('_mysql_service_settings')
+    return settings.get_conninfo()
 
 
 @pytest.fixture(scope='session')
@@ -150,22 +153,41 @@ def _mysql_query_loader(get_file_path, get_directory_path):
 
 
 @pytest.fixture(scope='session')
-def _mysql_service_settings():
-    return service.get_service_settings()
+def mysql_service_settings(request) -> classes.ServiceSettings:
+    """Settings for the locally launched MySQL/MariaDB server.
+
+    Allocate a free port unless TESTSUITE_MYSQL_PORT explicitly selects one.
+    Override this session-scoped fixture to customize local server settings.
+    mysql_conninfo and the launcher use the same settings for local connections.
+    With --mysql, the local server is not started and this fixture is not requested.
+    """
+    settings = service.get_service_settings()
+    if 'TESTSUITE_MYSQL_PORT' not in os.environ:
+        get_free_port = request.getfixturevalue('get_free_port')
+        settings = dataclasses.replace(settings, port=get_free_port())
+    return settings
+
+
+@pytest.fixture(scope='session')
+def _mysql_service_settings(mysql_service_settings):
+    return mysql_service_settings
 
 
 @pytest.fixture
 def _mysql_service(
-    ensure_service_started,
     mysql_local,
     mysql_disabled,
     pytestconfig,
-    _mysql_service_settings,
+    request,
 ):
     if not mysql_local or mysql_disabled:
         return False
     if not pytestconfig.option.mysql:
-        ensure_service_started('mysql', settings=_mysql_service_settings)
+        settings = request.getfixturevalue('_mysql_service_settings')
+        ensure_service_started = request.getfixturevalue(
+            'ensure_service_started'
+        )
+        ensure_service_started('mysql', settings=settings)
     return True
 
 

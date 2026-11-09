@@ -33,14 +33,22 @@ one may customize this timeout via environment variable ``TESTSUITE_MYSQL_SERVER
 Customize port
 --------------
 
-Testsuite may start MySQL with custom port, if ``TESTSUITE_MYSQL_PORT``
-environment variable is specified
+By default, the pytest plugin allocates a free port for each session's local
+MySQL server. Set ``TESTSUITE_MYSQL_PORT`` before starting pytest to select an
+explicit port, or override the session-scoped ``mysql_service_settings`` fixture
+to customize local server settings. Use ``mysql_conninfo`` to configure your
+service with the same endpoint and credentials.
+
+Launcher data, sockets and lifecycle markers are isolated by port, including
+when the ramdisk is unavailable. To reuse a local server across pytest sessions,
+select the same explicit port.
 
 Use external instance
 ---------------------
 
 You can force it to use your own mysql installation with command-line option
-``--mysql=mysql://user:password@hostname/``.
+``--mysql=mysql://user:password@hostname/``. This bypasses local server settings
+and port allocation. ``TESTSUITE_MYSQL_PORT`` affects only a local server.
 
 
 Example integration
@@ -97,6 +105,13 @@ mysql_local
 ~~~~~~~~~~~
 
 .. autofunction:: mysql_local()
+  :noindex:
+
+
+mysql_service_settings
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: mysql_service_settings()
   :noindex:
 
 

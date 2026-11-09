@@ -20,14 +20,15 @@ def create_service(
 ):
     if settings is None:
         settings = get_service_settings()
+    storage_dir = str(pathlib.Path(working_dir) / f'mysql-{settings.port}')
     return service.ScriptService(
         service_name=service_name,
         script_path=str(SCRIPTS_DIR.joinpath('service-mysql')),
-        working_dir=working_dir,
+        working_dir=storage_dir,
         environment={
-            'MYSQL_TMPDIR': working_dir,
-            'MYSQL_PORT': str(settings.port),
             **(env or {}),
+            'MYSQL_TMPDIR': storage_dir,
+            'MYSQL_PORT': str(settings.port),
         },
         check_ports=[settings.port],
         start_timeout=utils.getenv_float(

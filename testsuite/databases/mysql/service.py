@@ -12,6 +12,16 @@ PLUGIN_DIR = pathlib.Path(__file__).parent
 SCRIPTS_DIR = PLUGIN_DIR.joinpath('scripts')
 
 
+def get_dbprefix() -> str:
+    namespace = utils.getenv_str(
+        key='TESTSUITE_MYSQL_DBNAME_PREFIX',
+        default='',
+    )
+    if namespace:
+        return f'testsuite-{namespace}-'
+    return 'testsuite-'
+
+
 def create_service(
     service_name: str,
     working_dir: str,

@@ -52,9 +52,7 @@ run_mysqld() {
 run_mysqladmin() {
     $MYSQLADMIN \
             --socket="$MYSQL_BASEDIR/mysql.sock"        \
-            --secure-file-priv="$MYSQL_BASEDIR"         \
             --port=$MYSQL_PORT                          \
-            --character-set-server=utf8mb4              \
             "$@"
 }
 
@@ -87,12 +85,14 @@ start_db() {
 
     for i in $(seq 1 60); do
         if run_mysqladmin ping; then
-            break
+            return 0
         fi
 
         echo "Waiting for mysqld to open port..."
         sleep 1
     done
+
+    mysql_die "mysqld did not become ready after 60 attempts"
 }
 
 start() {

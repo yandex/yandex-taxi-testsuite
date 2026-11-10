@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.4.13
+~~~~~~
+
+- fix mysql: correct the server readiness check (#246)
+
 0.4.12
 ~~~~~~
 

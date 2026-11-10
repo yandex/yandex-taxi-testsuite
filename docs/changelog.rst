@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.4.12
+~~~~~~
+
+- fix redis: wait for every cluster node to become ready (#244)
+- fix mysql: isolate local ports and server storage (#245)
+- Remove fixture markers (#243)
+- feat rabbitmq: preserve the RabbitMQ worker environment (#241)
+- feat mongo: allow configuring startup time (#240)
+
 0.4.11
 ~~~~~~
 
